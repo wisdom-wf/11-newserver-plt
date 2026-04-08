@@ -1,0 +1,5 @@
+[   13616ms] [INFO] Slow network is detected. See https://www.chromestatus.com/feature/5636954674692096 for more details. Fallback font will be used while loading: https://yspt.jinyangtong.cn/static/fonts/element-icons.535877f5.woff @ https://yspt.jinyangtong.cn/#/shecuntong:0
+[   14257ms] [LOG] 关闭连接 @ https://yspt.jinyangtong.cn/static/js/chunk-views.a88fa422.js:0
+[   15588ms] [LOG] socket连接成功 @ https://yspt.jinyangtong.cn/static/js/chunk-views.a88fa422.js:0
+[   15792ms] [INFO] Slow network is detected. See https://www.chromestatus.com/feature/5636954674692096 for more details. Fallback font will be used while loading: https://yspt.jinyangtong.cn/static/fonts/iconfont.c5024abd.ttf @ https://yspt.jinyangtong.cn/static/js/chunk-libs.fe3222e0.js:17
+[  105263ms] cancel

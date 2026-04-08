@@ -1,0 +1,58 @@
+[      35ms] [LOG] 关闭连接 @ https://yspt.jinyangtong.cn/static/js/chunk-views.a88fa422.js:0
+[      91ms] [LOG] 断开连接 @ https://yspt.jinyangtong.cn/static/js/chunk-views.a88fa422.js:0
+[      91ms] [LOG] 关闭连接 @ https://yspt.jinyangtong.cn/static/js/chunk-views.a88fa422.js:0
+[     241ms] [LOG] socket连接成功 @ https://yspt.jinyangtong.cn/static/js/chunk-views.a88fa422.js:0
+[    6720ms] [LOG] [system] %c TIM %c background:#0abf5b; padding:1px; border-radius:3px; color: #fff background:transparent 08:57:13.385 TIM.VERSION:2.27.1 @ https://yspt.jinyangtong.cn/H5/ZHYL/static/js/chunk-vendors.dba25de7.js:17
+[    6740ms] [LOG] [system] uniListen error TypeError: uni.onLocaleChange is not a function
+    at Object.onLocaleChange (https://yspt.jinyangtong.cn/H5/ZHYL/static/js/index.5059c37a.js:2:135575)
+    at Object.install (https://yspt.jinyangtong.cn/H5/ZHYL/static/js/index.5059c37a.js:2:132914)
+    at l (https://yspt.jinyangtong.cn/H5/ZHYL/static/js/index.5059c37a.js:4:117741)
+    at Object.install (https://yspt.jinyangtong.cn/H5/ZHYL/static/js/index.5059c37a.js:22:14)
+    at Tr.e.use (https://yspt.jinyangtong.cn/H5/ZHYL/static/js/chunk-vendors.dba25de7.js:36:36381)
+    at 56d7 (https://yspt.jinyangtong.cn/H5/ZHYL/static/js/index.5059c37a.js:2:129757)
+    at s (https://yspt.jinyangtong.cn/H5/ZHYL/static/js/index.5059c37a.js:1:52150)
+    at 0 (https://yspt.jinyangtong.cn/H5/ZHYL/static/js/index.5059c37a.js:1:53870)
+    at s (https://yspt.jinyangtong.cn/H5/ZHYL/static/js/index.5059c37a.js:1:52150)
+    at t (https://yspt.jinyangtong.cn/H5/ZHYL/static/js/index.5059c37a.js:1:431) @ https://yspt.jinyangtong.cn/H5/ZHYL/static/js/chunk-vendors.dba25de7.js:17
+[    6761ms] [LOG] [system] App Launch false @ https://yspt.jinyangtong.cn/H5/ZHYL/static/js/chunk-vendors.dba25de7.js:17
+[    6763ms] [LOG] [system] App Show @ https://yspt.jinyangtong.cn/H5/ZHYL/static/js/chunk-vendors.dba25de7.js:17
+[    6780ms] [LOG] [system] %c TIM %c background:#0abf5b; padding:1px; border-radius:3px; color: #fff background:transparent 08:57:13.464 TIM.VERSION:2.27.1 @ https://yspt.jinyangtong.cn/H5/ZHYL/static/js/chunk-vendors.dba25de7.js:17
+[    6787ms] [LOG] [system] uniListen error TypeError: uni.onLocaleChange is not a function
+    at Object.onLocaleChange (https://yspt.jinyangtong.cn/H5/ZHYL/static/js/index.5059c37a.js:2:135575)
+    at Object.install (https://yspt.jinyangtong.cn/H5/ZHYL/static/js/index.5059c37a.js:2:132914)
+    at l (https://yspt.jinyangtong.cn/H5/ZHYL/static/js/index.5059c37a.js:4:117741)
+    at Object.install (https://yspt.jinyangtong.cn/H5/ZHYL/static/js/index.5059c37a.js:22:14)
+    at Tr.e.use (https://yspt.jinyangtong.cn/H5/ZHYL/static/js/chunk-vendors.dba25de7.js:36:36381)
+    at 56d7 (https://yspt.jinyangtong.cn/H5/ZHYL/static/js/index.5059c37a.js:2:129757)
+    at s (https://yspt.jinyangtong.cn/H5/ZHYL/static/js/index.5059c37a.js:1:52150)
+    at 0 (https://yspt.jinyangtong.cn/H5/ZHYL/static/js/index.5059c37a.js:1:53870)
+    at s (https://yspt.jinyangtong.cn/H5/ZHYL/static/js/index.5059c37a.js:1:52150)
+    at t (https://yspt.jinyangtong.cn/H5/ZHYL/static/js/index.5059c37a.js:1:431) @ https://yspt.jinyangtong.cn/H5/ZHYL/static/js/chunk-vendors.dba25de7.js:17
+[    6795ms] [LOG] [system] App Launch false @ https://yspt.jinyangtong.cn/H5/ZHYL/static/js/chunk-vendors.dba25de7.js:17
+[    6796ms] [LOG] [system] App Show @ https://yspt.jinyangtong.cn/H5/ZHYL/static/js/chunk-vendors.dba25de7.js:17
+[    6876ms] [LOG] [system] 执行了 @ https://yspt.jinyangtong.cn/H5/ZHYL/static/js/chunk-vendors.dba25de7.js:17
+[    6885ms] [LOG] [system] debugTag JSHandle@node @ https://yspt.jinyangtong.cn/H5/ZHYL/static/js/chunk-vendors.dba25de7.js:17
+[    6911ms] [LOG] [system] 执行了 @ https://yspt.jinyangtong.cn/H5/ZHYL/static/js/chunk-vendors.dba25de7.js:17
+[    6921ms] [LOG] [system] debugTag JSHandle@node @ https://yspt.jinyangtong.cn/H5/ZHYL/static/js/chunk-vendors.dba25de7.js:17
+[    6925ms] [LOG] [system] JYT @ https://yspt.jinyangtong.cn/H5/ZHYL/static/js/chunk-vendors.dba25de7.js:17
+[    6925ms] [LOG] [system] 页面参数11 {"system":"yhd","source":"shecuntong"} @ https://yspt.jinyangtong.cn/H5/ZHYL/static/js/chunk-vendors.dba25de7.js:17
+[    6928ms] [LOG] [system] Version:  undefined @ https://yspt.jinyangtong.cn/H5/ZHYL/static/js/chunk-vendors.dba25de7.js:17
+[    6928ms] [LOG] [system] /H5 -query> {system: yhd, source: shecuntong} @ https://yspt.jinyangtong.cn/H5/ZHYL/static/js/chunk-vendors.dba25de7.js:17
+[    6954ms] [LOG] [system] JYT @ https://yspt.jinyangtong.cn/H5/ZHYL/static/js/chunk-vendors.dba25de7.js:17
+[    6954ms] [LOG] [system] 页面参数11 {"system":"yhd","source":"shecuntong"} @ https://yspt.jinyangtong.cn/H5/ZHYL/static/js/chunk-vendors.dba25de7.js:17
+[    7104ms] [INFO] Slow network is detected. See https://www.chromestatus.com/feature/5636954674692096 for more details. Fallback font will be used while loading: https://yspt.jinyangtong.cn/H5/ZHYL/static/fonts/kingonUI.d4ddd7e6.ttf @ https://yspt.jinyangtong.cn/H5/ZHYL/index.html#/?system=yhd&source=shecuntong:0
+[    7118ms] [LOG] [system] Version:  undefined @ https://yspt.jinyangtong.cn/H5/ZHYL/static/js/chunk-vendors.dba25de7.js:17
+[    7119ms] [LOG] initSoftDate： {ApplicationKey: PUBLIC-ZHYL-JYT, ApplicationURL: https://yspt.jinyangtong.cn, UpdateURL: http://www.shecuntong.cn:8002/Web/CheckUpdate.aspx…d=[@appKey]&os=[@osName]&curVersion=[@curVersion], FinishUpdateURL: http://www.shecuntong.cn:8002/Web/FinishUpdate.asp…d=[@appKey]&os=[@osName]&curVersion=[@curVersion], Version: -} @ https://yspt.jinyangtong.cn/H5/ZHYL/static/adapt-pc/main.js:10
+[    7128ms] [LOG] [system] /H5 -query> {system: yhd, source: shecuntong} @ https://yspt.jinyangtong.cn/H5/ZHYL/static/js/chunk-vendors.dba25de7.js:17
+[    7592ms] [ERROR] [system] checkFreeLogin登录失败 请输入您的手机号再进行登录 @ https://yspt.jinyangtong.cn/H5/ZHYL/static/js/chunk-vendors.dba25de7.js:17
+[    7593ms] [WARNING] [system] 请注意 showLoading 与 hideLoading 必须配对使用 @ https://yspt.jinyangtong.cn/H5/ZHYL/static/js/chunk-vendors.dba25de7.js:17
+[    7596ms] Object
+[    7662ms] [ERROR] [system] checkFreeLogin登录失败 请输入您的手机号再进行登录 @ https://yspt.jinyangtong.cn/H5/ZHYL/static/js/chunk-vendors.dba25de7.js:17
+[    7663ms] [WARNING] [system] 请注意 showLoading 与 hideLoading 必须配对使用 @ https://yspt.jinyangtong.cn/H5/ZHYL/static/js/chunk-vendors.dba25de7.js:17
+[    7664ms] Object
+[    7976ms] [ERROR] Failed to load resource: the server responded with a status of 500 (Internal Server Error) @ https://yspt.jinyangtong.cn/api/kingon-system/check/checkPwd:0
+[    7976ms] [LOG] [system] "密码/账号,解密失败" @ https://yspt.jinyangtong.cn/H5/ZHYL/static/js/chunk-vendors.dba25de7.js:17
+[    7988ms] [ERROR] Failed to load resource: the server responded with a status of 500 (Internal Server Error) @ https://yspt.jinyangtong.cn/api/kingon-system/check/checkPwd:0
+[    7989ms] [LOG] [system] "密码/账号,解密失败" @ https://yspt.jinyangtong.cn/H5/ZHYL/static/js/chunk-vendors.dba25de7.js:17
+[    8118ms] [LOG] [system] 定位失败=={"errMsg":"getLocation:fail 来源域名未被授权, 解决方法见：https://lbs.qq.com/faq/serverFaq/webServiceKey，此次请求来源域名：yspt.jinyangtong.cn"} @ https://yspt.jinyangtong.cn/H5/ZHYL/static/js/chunk-vendors.dba25de7.js:17
+[    8134ms] [LOG] [system] 定位失败=={"errMsg":"getLocation:fail 来源域名未被授权, 解决方法见：https://lbs.qq.com/faq/serverFaq/webServiceKey，此次请求来源域名：yspt.jinyangtong.cn"} @ https://yspt.jinyangtong.cn/H5/ZHYL/static/js/chunk-vendors.dba25de7.js:17

@@ -1,0 +1,15 @@
+- generic [ref=e4]:
+  - paragraph [ref=e7]: 智慧养老服务管理平台
+  - generic [ref=e9]:
+    - heading "欢迎登录使用" [level=4] [ref=e10]
+    - generic [ref=e11]:
+      - generic [ref=e12]:
+        - generic [ref=e15]:
+          - textbox "请输入账号" [ref=e16]
+          - generic [ref=e18]: 
+        - generic [ref=e21]:
+          - textbox "请输入密码" [ref=e22]
+          - generic [ref=e24]: 
+          - generic [ref=e26]: 
+        - button "登录" [ref=e29] [cursor=pointer]
+      - text: 

@@ -1,0 +1,256 @@
+- generic [active] [ref=e1]:
+  - generic [ref=e575]:
+    - generic [ref=e577]:
+      - generic [ref=e580]: 
+      - generic [ref=e581]:
+        - menubar [ref=e584]:
+          - menuitem " 首页" [ref=e585] [cursor=pointer]:
+            - generic [ref=e586]: 
+            - text: 首页
+        - combobox [ref=e587]:
+          - textbox "请输入搜索内容" [ref=e589]
+      - generic [ref=e590]:
+        - button "" [ref=e592]:
+          - generic [ref=e593]: 
+        - generic [ref=e599] [cursor=pointer]: 
+        - generic [ref=e601]:
+          - generic [ref=e602]: 
+          - text: 
+        - generic [ref=e604]:
+          - text: 
+          - generic [ref=e606]: 
+        - generic [ref=e607]:
+          - generic [ref=e609]: 
+          - generic:  
+        - generic [ref=e611]: 
+        - img [ref=e612]
+        - generic [ref=e613]: 运营演示账号
+        - button "" [ref=e615]:
+          - generic [ref=e616]: 
+        - text: 
+    - generic:
+      - generic [ref=e618]:
+        - generic [ref=e621]: 智慧养老服务管理平台
+        - menubar [ref=e625]:
+          - generic [ref=e626]:
+            - menuitem "大数据中心 " [ref=e627]:
+              - generic [ref=e628] [cursor=pointer]:
+                - generic [ref=e629]: 
+                - text: 大数据中心
+                - generic [ref=e630]: 
+              - text:         
+            - menuitem "数据统计分析 " [ref=e631]:
+              - generic [ref=e632] [cursor=pointer]:
+                - generic [ref=e633]: 
+                - text: 数据统计分析
+                - generic [ref=e634]: 
+              - text:                              
+      - generic [ref=e637]:
+        - generic [ref=e639]:
+          - generic [ref=e640]:
+            - tablist [ref=e644]:
+              - tab "首页" [selected] [ref=e645]
+            - generic:
+              - tabpanel "首页"
+          - button "更多 " [ref=e647]:
+            - text: 更多
+            - generic [ref=e648]: 
+        - text:                                
+        - generic [ref=e650]:
+          - generic [ref=e651]:
+            - generic [ref=e652]:
+              - generic [ref=e653]:
+                - generic [ref=e654]: 
+                - generic [ref=e655]: 管理入口
+              - generic [ref=e656]:
+                - generic [ref=e658] [cursor=pointer]:
+                  - img [ref=e659]
+                  - generic [ref=e660]:
+                    - paragraph [ref=e661]: 客户数量
+                    - paragraph [ref=e662]: "46"
+                - generic [ref=e664] [cursor=pointer]:
+                  - img [ref=e665]
+                  - generic [ref=e666]:
+                    - paragraph [ref=e667]: 服务机构
+                    - paragraph [ref=e668]: "4"
+                - generic [ref=e670] [cursor=pointer]:
+                  - img [ref=e671]
+                  - generic [ref=e672]:
+                    - paragraph [ref=e673]: 服务商家
+                    - paragraph [ref=e674]: "10"
+                  - generic [ref=e675]: NEW
+                - generic [ref=e677] [cursor=pointer]:
+                  - img [ref=e678]
+                  - generic [ref=e679]:
+                    - paragraph [ref=e680]: 志愿者
+                    - paragraph [ref=e681]: "4"
+                  - generic [ref=e682]: NEW
+                - generic [ref=e684] [cursor=pointer]:
+                  - img [ref=e685]
+                  - generic [ref=e686]:
+                    - paragraph [ref=e687]: 社区管家
+                    - paragraph [ref=e688]: "6"
+                  - generic [ref=e689]: NEW
+                - generic [ref=e691] [cursor=pointer]:
+                  - img [ref=e692]
+                  - generic [ref=e693]:
+                    - paragraph [ref=e694]: 医院
+                    - paragraph [ref=e695]: "9"
+                - generic [ref=e697] [cursor=pointer]:
+                  - img [ref=e698]
+                  - generic [ref=e699]:
+                    - paragraph [ref=e700]: 活动当日参与人数
+                    - paragraph [ref=e701]: "0"
+                - generic [ref=e703] [cursor=pointer]:
+                  - img [ref=e704]
+                  - generic [ref=e705]:
+                    - paragraph [ref=e706]: 医生
+                    - paragraph [ref=e707]: "1"
+                - generic [ref=e709] [cursor=pointer]:
+                  - img [ref=e710]
+                  - generic [ref=e711]:
+                    - paragraph [ref=e712]: 已绑设备
+                    - paragraph [ref=e713]: "12"
+                - generic [ref=e715] [cursor=pointer]:
+                  - img [ref=e716]
+                  - generic [ref=e717]:
+                    - paragraph [ref=e718]: 会员卡
+                    - paragraph [ref=e719]: "16"
+                - generic [ref=e721] [cursor=pointer]:
+                  - img [ref=e722]
+                  - generic [ref=e723]:
+                    - paragraph [ref=e724]: 健康档案
+                    - paragraph [ref=e725]: "46"
+                - generic [ref=e727] [cursor=pointer]:
+                  - img [ref=e728]
+                  - generic [ref=e729]:
+                    - paragraph [ref=e730]: 未审核客户档案
+                    - paragraph [ref=e731]: "1"
+                - generic [ref=e733] [cursor=pointer]:
+                  - img [ref=e734]
+                  - generic [ref=e735]:
+                    - paragraph [ref=e736]: 待处理社区管家账单
+                    - paragraph [ref=e737]: "9"
+                - generic [ref=e739] [cursor=pointer]:
+                  - img [ref=e740]
+                  - generic [ref=e741]:
+                    - paragraph [ref=e742]: 活动当日参与人次
+                    - paragraph [ref=e743]: "0"
+            - generic [ref=e744]:
+              - generic [ref=e746]:
+                - generic [ref=e747]:
+                  - generic [ref=e748]:
+                    - generic [ref=e749]: 
+                    - text: 通知公告
+                  - generic [ref=e750] [cursor=pointer]: 更多>>
+                - generic [ref=e751]:
+                  - generic [ref=e752]:
+                    - generic [ref=e754]: NEW
+                    - generic [ref=e755]: 放假
+                    - generic [ref=e756]: 运营演示账号
+                  - generic [ref=e757]:
+                    - generic [ref=e759]: READ
+                    - generic [ref=e760]: 拔河比赛
+                    - generic [ref=e761]: 运营演示账号
+                  - generic [ref=e762]:
+                    - generic [ref=e764]: NEW
+                    - generic [ref=e765]: 中秋放假通知
+                    - generic [ref=e766]: 运营演示账号
+              - generic [ref=e768]:
+                - generic [ref=e769]:
+                  - generic [ref=e770]:
+                    - generic [ref=e771]: 
+                    - text: 待处理SOS信息
+                  - generic [ref=e772] [cursor=pointer]: 更多>>
+                - generic [ref=e774]:
+                  - img [ref=e776]
+                  - paragraph [ref=e777]: "0"
+            - generic [ref=e778]:
+              - generic [ref=e780]:
+                - generic [ref=e781]:
+                  - generic [ref=e782]: 
+                  - generic [ref=e783]: 服务热度排行
+                - generic [ref=e785]:
+                  - paragraph [ref=e786]:
+                    - generic [ref=e787]:
+                      - generic [ref=e788]: "1"
+                      - text: 购买大米
+                  - paragraph [ref=e789]:
+                    - generic [ref=e790]:
+                      - generic [ref=e791]: "2"
+                      - text: 购买日用品
+                  - paragraph [ref=e792]:
+                    - generic [ref=e793]:
+                      - generic [ref=e794]: "3"
+                      - text: 志愿者维修电脑
+                  - paragraph [ref=e795]:
+                    - generic [ref=e796]:
+                      - generic [ref=e797]: "4"
+                      - text: 测试
+                  - paragraph [ref=e798]:
+                    - generic [ref=e799]:
+                      - generic [ref=e800]: "5"
+                      - text: 购买洗衣液
+              - generic [ref=e806]:
+                - generic [ref=e807]:
+                  - generic [ref=e808]:
+                    - generic [ref=e809]: 
+                    - generic [ref=e810]: 今日运营
+                  - generic [ref=e811]:
+                    - generic [ref=e813] [cursor=pointer]:
+                      - paragraph [ref=e814]: "0"
+                      - paragraph [ref=e816]: 服务商工单
+                    - generic [ref=e818] [cursor=pointer]:
+                      - paragraph [ref=e819]: "0"
+                      - paragraph [ref=e821]: 志愿者工单
+                    - generic [ref=e823] [cursor=pointer]:
+                      - paragraph [ref=e824]: "0"
+                      - paragraph [ref=e826]: 社区管家工单
+                    - generic [ref=e828] [cursor=pointer]:
+                      - paragraph [ref=e829]: "0"
+                      - paragraph [ref=e831]: 客户咨询
+                    - generic [ref=e833] [cursor=pointer]:
+                      - paragraph [ref=e834]: "0"
+                      - paragraph [ref=e836]: 客户投诉
+                    - generic [ref=e838] [cursor=pointer]:
+                      - paragraph [ref=e839]: "0"
+                      - paragraph [ref=e841]: 预约挂号
+                    - generic [ref=e843] [cursor=pointer]:
+                      - paragraph [ref=e844]: "0"
+                      - paragraph [ref=e846]: 围栏预警
+                    - generic [ref=e848] [cursor=pointer]:
+                      - paragraph [ref=e849]: "0"
+                      - paragraph [ref=e851]: 健康预警
+                    - generic [ref=e853] [cursor=pointer]:
+                      - paragraph [ref=e854]: "0"
+                      - paragraph [ref=e856]: 安防告警
+                - text: 
+            - generic: 
+          - generic [ref=e857]:
+            - generic:
+              - generic:
+                - generic:
+                  - tablist
+    - generic:
+      - text:   
+      - generic: 
+    - text: 
+    - generic: 
+  - alert [ref=e455]:
+    - generic [ref=e456]: 
+    - generic [ref=e457]:
+      - heading "提示" [level=2] [ref=e458]
+      - paragraph [ref=e460]: 您好，您目前有1个新的注册用户待审核
+      - generic [ref=e461] [cursor=pointer]: 
+  - dialog "dialog" [ref=e860]:
+    - generic [ref=e863]:
+      - generic [ref=e866]:
+        - textbox "请输入手机号" [ref=e867]
+        - generic [ref=e869]: 
+      - generic [ref=e872]:
+        - textbox "请输入验证码" [ref=e873]
+        - generic [ref=e875]: 
+        - generic [ref=e877] [cursor=pointer]: 发送验证码
+      - generic [ref=e879]:
+        - button "验证" [ref=e880] [cursor=pointer]
+        - button "退出登录" [ref=e881] [cursor=pointer]

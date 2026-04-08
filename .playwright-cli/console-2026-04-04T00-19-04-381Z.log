@@ -1,0 +1,40 @@
+[      31ms] [LOG] [system] App Hide @ https://yspt.jinyangtong.cn/H5/ZHYL/static/js/chunk-vendors.dba25de7.js:17
+[      31ms] [LOG] [system] App Hide @ https://yspt.jinyangtong.cn/H5/ZHYL/static/js/chunk-vendors.dba25de7.js:17
+[     549ms] TypeError: Cannot read properties of null (reading 'isSelf')
+    at https://yspt.jinyangtong.cn/static/js/app.27578bed.js:1:23761
+[    8730ms] [LOG] [system] https://yspt.jinyangtong.cn @ https://yspt.jinyangtong.cn/H5/ZHYLFWD/static/js/chunk-vendors.a4196b87.js:17
+[    8759ms] [LOG] [system] %c TIM %c background:#0abf5b; padding:1px; border-radius:3px; color: #fff background:transparent 08:19:13.123 TIM.VERSION:2.27.1 @ https://yspt.jinyangtong.cn/H5/ZHYLFWD/static/js/chunk-vendors.a4196b87.js:17
+[    8803ms] [LOG] [system] App Launch @ https://yspt.jinyangtong.cn/H5/ZHYLFWD/static/js/chunk-vendors.a4196b87.js:17
+[    8805ms] [LOG] [system] App Show @ https://yspt.jinyangtong.cn/H5/ZHYLFWD/static/js/chunk-vendors.a4196b87.js:17
+[    8819ms] [LOG] [system] https://yspt.jinyangtong.cn @ https://yspt.jinyangtong.cn/H5/ZHYLFWD/static/js/chunk-vendors.a4196b87.js:17
+[    8823ms] [LOG] [system] %c TIM %c background:#0abf5b; padding:1px; border-radius:3px; color: #fff background:transparent 08:19:13.203 TIM.VERSION:2.27.1 @ https://yspt.jinyangtong.cn/H5/ZHYLFWD/static/js/chunk-vendors.a4196b87.js:17
+[    8838ms] [LOG] [system] App Launch @ https://yspt.jinyangtong.cn/H5/ZHYLFWD/static/js/chunk-vendors.a4196b87.js:17
+[    8839ms] [LOG] [system] App Show @ https://yspt.jinyangtong.cn/H5/ZHYLFWD/static/js/chunk-vendors.a4196b87.js:17
+[    8933ms] [LOG] [system] setIsImageCode {data: Object, statusCode: 200, header: Object, errMsg: request:ok} @ https://yspt.jinyangtong.cn/H5/ZHYLFWD/static/js/chunk-vendors.a4196b87.js:17
+[    8934ms] [LOG] [system] setIsImageCode true @ https://yspt.jinyangtong.cn/H5/ZHYLFWD/static/js/chunk-vendors.a4196b87.js:17
+[    8934ms] [LOG] [system] false ==setUploadLocationTimer= @ https://yspt.jinyangtong.cn/H5/ZHYLFWD/static/js/chunk-vendors.a4196b87.js:17
+[    8934ms] [LOG] [system] JYT @ https://yspt.jinyangtong.cn/H5/ZHYLFWD/static/js/chunk-vendors.a4196b87.js:17
+[    8934ms] [LOG] [system] 页面参数 {"system":"sqgjd","source":"shecuntong"} @ https://yspt.jinyangtong.cn/H5/ZHYLFWD/static/js/chunk-vendors.a4196b87.js:17
+[    8934ms] [LOG] [system] {system: sqgjd, source: shecuntong} @ https://yspt.jinyangtong.cn/H5/ZHYLFWD/static/js/chunk-vendors.a4196b87.js:17
+[    8938ms] [LOG] [system] false ==== false @ https://yspt.jinyangtong.cn/H5/ZHYLFWD/static/js/chunk-vendors.a4196b87.js:17
+[    8959ms] [LOG] [system] https://yspt.jinyangtong.cn/enclosure/kingon/upload/20230224/8d4e8ab3998e8684e23839b52c75ab80.png @ https://yspt.jinyangtong.cn/H5/ZHYLFWD/static/js/chunk-vendors.a4196b87.js:17
+[    8961ms] [LOG] [system] Version:  1.0.9 @ https://yspt.jinyangtong.cn/H5/ZHYLFWD/static/js/chunk-vendors.a4196b87.js:17
+[    8961ms] [LOG] [system] /H5 -query> {system: sqgjd, source: shecuntong} @ https://yspt.jinyangtong.cn/H5/ZHYLFWD/static/js/chunk-vendors.a4196b87.js:17
+[    8965ms] [LOG] [system] setIsImageCode {data: Object, statusCode: 200, header: Object, errMsg: request:ok} @ https://yspt.jinyangtong.cn/H5/ZHYLFWD/static/js/chunk-vendors.a4196b87.js:17
+[    8965ms] [LOG] [system] setIsImageCode true @ https://yspt.jinyangtong.cn/H5/ZHYLFWD/static/js/chunk-vendors.a4196b87.js:17
+[    8965ms] [LOG] [system] false ==setUploadLocationTimer= @ https://yspt.jinyangtong.cn/H5/ZHYLFWD/static/js/chunk-vendors.a4196b87.js:17
+[    8965ms] [LOG] [system] JYT @ https://yspt.jinyangtong.cn/H5/ZHYLFWD/static/js/chunk-vendors.a4196b87.js:17
+[    8965ms] [LOG] [system] 页面参数 {"system":"sqgjd","source":"shecuntong"} @ https://yspt.jinyangtong.cn/H5/ZHYLFWD/static/js/chunk-vendors.a4196b87.js:17
+[    8965ms] [LOG] [system] {system: sqgjd, source: shecuntong} @ https://yspt.jinyangtong.cn/H5/ZHYLFWD/static/js/chunk-vendors.a4196b87.js:17
+[    8969ms] [LOG] [system] false ==== false @ https://yspt.jinyangtong.cn/H5/ZHYLFWD/static/js/chunk-vendors.a4196b87.js:17
+[    9174ms] [LOG] [system] https://yspt.jinyangtong.cn/enclosure/kingon/upload/20230224/8d4e8ab3998e8684e23839b52c75ab80.png @ https://yspt.jinyangtong.cn/H5/ZHYLFWD/static/js/chunk-vendors.a4196b87.js:17
+[    9176ms] [LOG] [system] Version:  1.0.9 @ https://yspt.jinyangtong.cn/H5/ZHYLFWD/static/js/chunk-vendors.a4196b87.js:17
+[    9177ms] [LOG] initSoftDate： {ApplicationKey: undefined, ApplicationURL: undefined, UpdateURL: undefined, FinishUpdateURL: undefined, Version: undefined} @ https://yspt.jinyangtong.cn/H5/ZHYLFWD/static/adapt-pc/main.js:10
+[    9186ms] [LOG] [system] /H5 -query> {system: sqgjd, source: shecuntong} @ https://yspt.jinyangtong.cn/H5/ZHYLFWD/static/js/chunk-vendors.a4196b87.js:17
+[    9530ms] [ERROR] [system] checkFreeLogin登录失败 未找到绑定ip数据 @ https://yspt.jinyangtong.cn/H5/ZHYLFWD/static/js/chunk-vendors.a4196b87.js:17
+[    9611ms] [LOG] [system] SQGJ ==== @ https://yspt.jinyangtong.cn/H5/ZHYLFWD/static/js/chunk-vendors.a4196b87.js:17
+[    9669ms] [LOG] [system] {path: /pages/SQGJ/SQGJHomePage, type: SQGJ} @ https://yspt.jinyangtong.cn/H5/ZHYLFWD/static/js/chunk-vendors.a4196b87.js:17
+[    9672ms] [ERROR] [system] Cannot read properties of undefined (reading '$vm') created hook @ https://yspt.jinyangtong.cn/H5/ZHYLFWD/static/js/chunk-vendors.a4196b87.js:17
+[    9792ms] [LOG] [system] SQGJ ==== @ https://yspt.jinyangtong.cn/H5/ZHYLFWD/static/js/chunk-vendors.a4196b87.js:17
+[   10005ms] [ERROR] Failed to load resource: the server responded with a status of 500 (Internal Server Error) @ https://yspt.jinyangtong.cn/api/kingon-customer/customer/servicePerson/getServicePersonByUserId?servicePersonId=&dataType=3:0
+[   10110ms] [ERROR] Failed to load resource: the server responded with a status of 500 (Internal Server Error) @ https://yspt.jinyangtong.cn/api/kingon-customer/customer/servicePerson/getServicePersonByUserId?servicePersonId=&dataType=3:0

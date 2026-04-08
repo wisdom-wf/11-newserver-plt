@@ -1,0 +1,30 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.elderlycare.mapper.UserRoleMapper">
+
+    <resultMap id="BaseResultMap" type="com.elderlycare.entity.UserRole">
+        <id column="user_role_id" property="userRoleId"/>
+        <result column="user_id" property="userId"/>
+        <result column="role_id" property="roleId"/>
+        <result column="area_id" property="areaId"/>
+        <result column="tenant_id" property="tenantId"/>
+        <result column="create_time" property="createTime"/>
+    </resultMap>
+
+    <insert id="batchInsert">
+        INSERT INTO t_user_role (user_role_id, user_id, role_id, area_id, tenant_id, create_time)
+        VALUES
+        <foreach collection="list" item="item" separator=",">
+            (#{item.userRoleId}, #{item.userId}, #{item.roleId}, #{item.areaId}, #{item.tenantId}, NOW())
+        </foreach>
+    </insert>
+
+    <delete id="deleteByUserId">
+        DELETE FROM t_user_role WHERE user_id = #{userId}
+    </delete>
+
+    <select id="selectRoleIdsByUserId" resultType="java.lang.String">
+        SELECT role_id FROM t_user_role WHERE user_id = #{userId}
+    </select>
+
+</mapper>

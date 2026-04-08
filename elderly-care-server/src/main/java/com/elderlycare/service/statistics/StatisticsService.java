@@ -1,0 +1,44 @@
+package com.elderlycare.service.statistics;
+
+import com.elderlycare.vo.statistics.*;
+
+/**
+ * 数据统计Service接口
+ */
+public interface StatisticsService {
+
+    /**
+     * 获取仪表盘数据
+     */
+    DashboardVO getDashboardData();
+
+    /**
+     * 获取老人统计数据
+     */
+    ElderStatisticsVO getElderStatistics();
+
+    /**
+     * 获取服务商统计数据
+     */
+    ProviderStatisticsVO getProviderStatistics();
+
+    /**
+     * 获取订单统计数据
+     *
+     * @param startDate  开始日期
+     * @param endDate    结束日期
+     * @param groupBy    分组维度：day, week, month
+     * @param serviceTypeCode 服务类型编码
+     */
+    OrderStatisticsVO getOrderStatistics(String startDate, String endDate, String groupBy, String serviceTypeCode);
+
+    /**
+     * 获取财务统计数据
+     */
+    FinancialStatisticsVO getFinancialStatistics();
+
+    /**
+     * 获取质量统计数据
+     */
+    QualityStatisticsVO getQualityStatistics();
+}

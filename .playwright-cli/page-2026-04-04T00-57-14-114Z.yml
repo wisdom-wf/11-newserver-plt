@@ -1,0 +1,46 @@
+- generic [active] [ref=e1]:
+  - text:                                          
+  - generic [ref=e2]:
+    - iframe [ref=e4]:
+      - generic [ref=f1e8]:
+        - generic [ref=f1e9]:
+          - generic [ref=f1e14]:
+            - generic [ref=f1e16]:
+              - generic [ref=f1e17]: 
+              - generic [ref=f1e18]: 关键字
+            - generic [ref=f1e20]: 登录/注册
+          - generic [ref=f1e24]:
+            - generic [ref=f1e40]:
+              - generic [ref=f1e42]:
+                - text: 0条未读
+                - generic [ref=f1e43]: 
+              - generic [ref=f1e45]: 
+            - generic [ref=f1e50]:
+              - generic [ref=f1e53]: 热销中
+              - generic [ref=f1e59]:
+                - generic [ref=f1e61]: 商品
+                - generic [ref=f1e65]: 服务
+        - text:                                   
+        - generic [ref=f1e69]:
+          - generic [ref=f1e70]:
+            - generic [ref=f1e73]: 
+            - generic [ref=f1e74]: 首页
+          - generic [ref=f1e75]:
+            - generic [ref=f1e78]: 
+            - generic [ref=f1e79]: 健康
+          - generic [ref=f1e80]:
+            - generic [ref=f1e83]: 
+            - generic [ref=f1e84]: 我的
+          - generic [ref=f1e85]:
+            - generic [ref=f1e88]: 
+            - generic [ref=f1e89]: 一键拨号
+    - generic [ref=e6]:
+      - heading "智慧养老用户端" [level=1] [ref=e7]
+      - heading [level=3] [ref=e8]
+      - heading "后台管理系统：https://yspt.jinyangtong.cn" [level=3] [ref=e9]:
+        - text: 后台管理系统：
+        - link "https://yspt.jinyangtong.cn" [ref=e10] [cursor=pointer]:
+          - /url: https://yspt.jinyangtong.cn
+      - generic "https://yspt.jinyangtong.cn/H5/ZHYL/index.html" [ref=e12]:
+        - img [ref=e13]
+      - paragraph [ref=e14]: 使用手机扫描二维码预览, 获得更佳体验

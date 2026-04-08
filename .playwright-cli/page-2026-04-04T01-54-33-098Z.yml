@@ -1,0 +1,192 @@
+- generic [active] [ref=e1]:
+  - generic [ref=e116]:
+    - generic [ref=e118]:
+      - generic [ref=e121]: 
+      - generic [ref=e122]:
+        - menubar [ref=e125]:
+          - menuitem " 首页" [ref=e126] [cursor=pointer]:
+            - generic [ref=e127]: 
+            - text: 首页
+        - combobox [ref=e128]:
+          - textbox "请输入搜索内容" [ref=e130]
+      - generic [ref=e131]:
+        - button "" [ref=e133]:
+          - generic [ref=e134]: 
+        - generic [ref=e140] [cursor=pointer]: 
+        - generic [ref=e142]:
+          - generic [ref=e143]: 
+          - text: 
+        - generic [ref=e145]:
+          - text: 
+          - generic [ref=e147]: 
+        - generic [ref=e148]:
+          - generic [ref=e150]: 
+          - generic:  
+        - generic [ref=e152]: 
+        - img [ref=e153]
+        - generic [ref=e154]: 政府监管
+        - button "" [ref=e156]:
+          - generic [ref=e157]: 
+        - text: 
+    - generic:
+      - generic [ref=e159]:
+        - generic [ref=e162]: 智慧养老服务管理平台
+        - menubar [ref=e166]:
+          - generic [ref=e167]:
+            - menuitem "大数据中心 " [ref=e168]:
+              - generic [ref=e169] [cursor=pointer]:
+                - generic [ref=e170]: 
+                - text: 大数据中心
+                - generic [ref=e171]: 
+              - text:         
+            - menuitem "数据统计分析 " [expanded] [ref=e172]:
+              - generic [ref=e173] [cursor=pointer]:
+                - generic [ref=e174]: 
+                - text: 数据统计分析
+                - generic [ref=e175]: 
+              - menu [ref=e378]:
+                - menuitem "服务商工单报表" [ref=e379] [cursor=pointer]:
+                  - generic [ref=e380]: 
+                  - text: 服务商工单报表
+                - menuitem "社区管家工单报表" [ref=e381] [cursor=pointer]:
+                  - generic [ref=e382]: 
+                  - text: 社区管家工单报表
+                - menuitem "商品订单报表" [ref=e383] [cursor=pointer]:
+                  - generic [ref=e384]: 
+                  - text: 商品订单报表
+                - menuitem "健康检测报表" [ref=e385] [cursor=pointer]:
+                  - generic [ref=e386]: 
+                  - text: 健康检测报表
+                - menuitem "老人统计 " [ref=e388]:
+                  - generic [ref=e389] [cursor=pointer]:
+                    - generic [ref=e390]: 
+                    - text: 老人统计
+                    - generic [ref=e391]: 
+                  - text:      
+                - menuitem "服务统计 " [expanded] [ref=e393]:
+                  - generic [ref=e394] [cursor=pointer]:
+                    - generic [ref=e395]: 
+                    - text: 服务统计
+                    - generic [ref=e396]: 
+                  - menu [ref=e10136]:
+                    - menuitem "服务工单明细" [ref=e10137] [cursor=pointer]:
+                      - generic [ref=e10138]: 
+                      - text: 服务工单明细
+                    - menuitem "服务商数据统计" [ref=e10139] [cursor=pointer]:
+                      - generic [ref=e10140]: 
+                      - text: 服务商数据统计
+                    - menuitem "服务工单数据统计" [ref=e10141] [cursor=pointer]:
+                      - generic [ref=e10142]: 
+                      - text: 服务工单数据统计
+                    - menuitem "客户服务量统计" [ref=e10143] [cursor=pointer]:
+                      - generic [ref=e10144]: 
+                      - text: 客户服务量统计
+                - menuitem "机构统计 " [ref=e398]:
+                  - generic [ref=e399] [cursor=pointer]:
+                    - generic [ref=e400]: 
+                    - text: 机构统计
+                    - generic [ref=e401]: 
+                  - text:   
+                - menuitem "补贴统计 " [ref=e403]:
+                  - generic [ref=e404] [cursor=pointer]:
+                    - generic [ref=e405]: 
+                    - text: 补贴统计
+                    - generic [ref=e406]: 
+                  - text:   
+            - menuitem "助餐 " [ref=e176]:
+              - generic [ref=e177] [cursor=pointer]:
+                - generic [ref=e178]: 
+                - text: 助餐
+                - generic [ref=e179]: 
+              - text:      
+            - menuitem "政府补贴 " [ref=e180]:
+              - generic [ref=e181] [cursor=pointer]:
+                - generic [ref=e182]: 
+                - text: 政府补贴
+                - generic [ref=e183]: 
+              - text:                                 
+            - menuitem "基础设置 " [ref=e184]:
+              - generic [ref=e185] [cursor=pointer]:
+                - generic [ref=e186]: 
+                - text: 基础设置
+                - generic [ref=e187]: 
+              - text:   
+      - generic [ref=e190]:
+        - generic [ref=e192]:
+          - generic [ref=e193]:
+            - generic [ref=e195]:
+              - generic [ref=e2859] [cursor=pointer]: 
+              - generic [ref=e2861] [cursor=pointer]: 
+              - tablist [ref=e197]:
+                - tab "首页" [ref=e198]: 首页 
+                - tab "服务商工单报表 " [ref=e407]:
+                  - text: 服务商工单报表
+                  - generic: 
+                - tab "社区管家工单报表 " [ref=e756]:
+                  - text: 社区管家工单报表
+                  - generic: 
+                - tab "商品订单报表 " [ref=e1112]:
+                  - text: 商品订单报表
+                  - generic: 
+                - tab "健康检测报表 " [ref=e1333]:
+                  - text: 健康检测报表
+                  - generic: 
+                - tab "老人数据统计 " [ref=e1644]:
+                  - text: 老人数据统计
+                  - generic: 
+                - tab "性别比例统计 " [ref=e2735]:
+                  - text: 性别比例统计
+                  - generic: 
+                - tab "年龄分析统计 " [ref=e2862]:
+                  - text: 年龄分析统计
+                  - generic: 
+                - tab "子女情况统计 " [ref=e5533]:
+                  - text: 子女情况统计
+                  - generic: 
+                - tab "老人失能情况统计 " [ref=e7314]:
+                  - text: 老人失能情况统计
+                  - generic: 
+                - tab "区域分析统计 " [ref=e8662]:
+                  - text: 区域分析统计
+                  - generic: 
+                - tab "服务工单明细 " [ref=e10145]:
+                  - text: 服务工单明细
+                  - generic: 
+                - tab "服务商数据统计 " [ref=e11355]:
+                  - text: 服务商数据统计
+                  - generic: 
+                - tab "服务工单数据统计 " [ref=e11701]:
+                  - text: 服务工单数据统计
+                  - generic: 
+                - tab "客户服务量统计 " [ref=e11941]:
+                  - text: 客户服务量统计
+                  - generic: 
+                - tab "养老机构分布 " [selected] [ref=e13666]:
+                  - text: 养老机构分布
+                  - generic [ref=e13667]: 
+            - generic:
+              - tabpanel "养老机构分布 "
+          - button "更多 " [ref=e200]:
+            - text: 更多
+            - generic [ref=e201]: 
+        - text:                                                                  
+        - generic [ref=e13668]:
+          - generic [ref=e13669]:
+            - generic [ref=e13670]:
+              - text: 机构名称：
+              - textbox [ref=e13672]
+            - generic [ref=e13673]:
+              - text: 所属区域：
+              - generic [ref=e13674]:
+                - generic [ref=e13675] [cursor=pointer]:
+                  - textbox "请选择" [ref=e13676]
+                  - generic [ref=e13678]: 
+                - text:              
+            - button "查询" [ref=e13679] [cursor=pointer]
+          - generic [ref=e13682]:
+            - generic:
+              - img
+            - generic [ref=e13691]: © 2026 AutoNavi - GS(2023)4677号
+    - generic:   
+    - text: 
+  - text:  

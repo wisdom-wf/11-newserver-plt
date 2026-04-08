@@ -1,0 +1,70 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.elderlycare.mapper.order.OrderMapper">
+
+    <resultMap id="BaseResultMap" type="com.elderlycare.entity.order.Order">
+        <id column="order_id" property="orderId"/>
+        <result column="order_no" property="orderNo"/>
+        <result column="elder_id" property="elderId"/>
+        <result column="elder_name" property="elderName"/>
+        <result column="elder_phone" property="elderPhone"/>
+        <result column="service_type_code" property="serviceTypeCode"/>
+        <result column="service_type_name" property="serviceTypeName"/>
+        <result column="service_date" property="serviceDate"/>
+        <result column="service_time" property="serviceTime"/>
+        <result column="service_duration" property="serviceDuration"/>
+        <result column="service_address" property="serviceAddress"/>
+        <result column="special_requirements" property="specialRequirements"/>
+        <result column="order_type" property="orderType"/>
+        <result column="order_source" property="orderSource"/>
+        <result column="subsidy_type" property="subsidyType"/>
+        <result column="estimated_price" property="estimatedPrice"/>
+        <result column="subsidy_amount" property="subsidyAmount"/>
+        <result column="self_pay_amount" property="selfPayAmount"/>
+        <result column="status" property="status"/>
+        <result column="provider_id" property="providerId"/>
+        <result column="staff_id" property="staffId"/>
+        <result column="cancel_reason" property="cancelReason"/>
+        <result column="dispatch_time" property="dispatchTime"/>
+        <result column="receive_time" property="receiveTime"/>
+        <result column="start_time" property="startTime"/>
+        <result column="complete_time" property="completeTime"/>
+        <result column="create_time" property="createTime"/>
+        <result column="update_time" property="updateTime"/>
+    </resultMap>
+
+    <select id="selectOrderPage" resultMap="BaseResultMap">
+        SELECT * FROM t_order
+        WHERE deleted = 0
+        <if test="query.elderId != null and query.elderId != ''">
+            AND elder_id = #{query.elderId}
+        </if>
+        <if test="query.elderName != null and query.elderName != ''">
+            AND elder_name LIKE CONCAT('%', #{query.elderName}, '%')
+        </if>
+        <if test="query.serviceTypeCode != null and query.serviceTypeCode != ''">
+            AND service_type_code = #{query.serviceTypeCode}
+        </if>
+        <if test="query.status != null and query.status != ''">
+            AND status = #{query.status}
+        </if>
+        <if test="query.startDate != null">
+            AND service_date >= #{query.startDate}
+        </if>
+        <if test="query.endDate != null">
+            AND service_date &lt;= #{query.endDate}
+        </if>
+        <if test="query.providerId != null and query.providerId != ''">
+            AND provider_id = #{query.providerId}
+        </if>
+        <if test="query.staffId != null and query.staffId != ''">
+            AND staff_id = #{query.staffId}
+        </if>
+        ORDER BY create_time DESC
+    </select>
+
+    <select id="selectByOrderNo" resultMap="BaseResultMap">
+        SELECT * FROM t_order WHERE order_no = #{orderNo} AND deleted = 0
+    </select>
+
+</mapper>

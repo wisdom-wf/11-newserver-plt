@@ -1,0 +1,44 @@
+package com.elderlycare.vo.provider;
+
+import lombok.Data;
+import java.io.Serializable;
+import java.time.LocalDateTime;
+import java.util.List;
+
+/**
+ * 服务商视图对象
+ */
+@Data
+public class ProviderVO implements Serializable {
+
+    private static final long serialVersionUID = 1L;
+
+    private String providerId;
+    private String providerName;
+    private String providerType;
+    private String creditCode;
+    private String legalPerson;
+    private String contactPhone;
+    private String address;
+    private String serviceAreas;
+    private String description;
+    private String auditStatus;
+    private String auditComment;
+    private LocalDateTime auditTime;
+    private Long auditorId;
+    private Integer status;
+    private Double rating;
+    private Integer ratingCount;
+    private LocalDateTime createTime;
+    private LocalDateTime updateTime;
+
+    /**
+     * 资质列表
+     */
+    private List<QualificationVO> qualifications;
+
+    /**
+     * 服务类型列表
+     */
+    private List<ServiceTypeVO> serviceTypes;
+}

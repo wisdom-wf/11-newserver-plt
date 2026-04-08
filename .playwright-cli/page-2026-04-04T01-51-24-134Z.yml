@@ -1,0 +1,331 @@
+- generic [ref=e1]:
+  - generic [ref=e116]:
+    - generic [ref=e118]:
+      - generic [ref=e121]: 
+      - generic [ref=e122]:
+        - menubar [ref=e125]:
+          - menuitem " 首页" [ref=e126] [cursor=pointer]:
+            - generic [ref=e127]: 
+            - text: 首页
+        - combobox [ref=e128]:
+          - textbox "请输入搜索内容" [ref=e130]
+      - generic [ref=e131]:
+        - button "" [ref=e133]:
+          - generic [ref=e134]: 
+        - generic [ref=e140] [cursor=pointer]: 
+        - generic [ref=e142]:
+          - generic [ref=e143]: 
+          - text: 
+        - generic [ref=e145]:
+          - text: 
+          - generic [ref=e147]: 
+        - generic [ref=e148]:
+          - generic [ref=e150]: 
+          - generic:  
+        - generic [ref=e152]: 
+        - img [ref=e153]
+        - generic [ref=e154]: 政府监管
+        - button "" [ref=e156]:
+          - generic [ref=e157]: 
+        - text: 
+    - generic:
+      - generic [ref=e159]:
+        - generic [ref=e162]: 智慧养老服务管理平台
+        - menubar [ref=e166]:
+          - generic [ref=e167]:
+            - menuitem "大数据中心 " [ref=e168]:
+              - generic [ref=e169] [cursor=pointer]:
+                - generic [ref=e170]: 
+                - text: 大数据中心
+                - generic [ref=e171]: 
+              - text:         
+            - menuitem "数据统计分析 " [expanded] [ref=e172]:
+              - generic [ref=e173] [cursor=pointer]:
+                - generic [ref=e174]: 
+                - text: 数据统计分析
+                - generic [ref=e175]: 
+              - menu [ref=e378]:
+                - menuitem "服务商工单报表" [ref=e379] [cursor=pointer]:
+                  - generic [ref=e380]: 
+                  - text: 服务商工单报表
+                - menuitem "社区管家工单报表" [ref=e381] [cursor=pointer]:
+                  - generic [ref=e382]: 
+                  - text: 社区管家工单报表
+                - menuitem "商品订单报表" [ref=e383] [cursor=pointer]:
+                  - generic [ref=e384]: 
+                  - text: 商品订单报表
+                - menuitem "健康检测报表" [ref=e385] [cursor=pointer]:
+                  - generic [ref=e386]: 
+                  - text: 健康检测报表
+                - menuitem "老人统计 " [expanded] [ref=e388]:
+                  - generic [ref=e389] [cursor=pointer]:
+                    - generic [ref=e390]: 
+                    - text: 老人统计
+                    - generic [ref=e391]: 
+                  - menu [ref=e1631]:
+                    - menuitem "老人数据统计" [ref=e1632] [cursor=pointer]:
+                      - generic [ref=e1633]: 
+                      - text: 老人数据统计
+                    - menuitem "年龄分析统计" [active] [ref=e1634] [cursor=pointer]:
+                      - generic [ref=e1635]: 
+                      - text: 年龄分析统计
+                    - menuitem "性别比例统计" [ref=e1636] [cursor=pointer]:
+                      - generic [ref=e1637]: 
+                      - text: 性别比例统计
+                    - menuitem "子女情况统计" [ref=e1638] [cursor=pointer]:
+                      - generic [ref=e1639]: 
+                      - text: 子女情况统计
+                    - menuitem "老人失能情况统计" [ref=e1640] [cursor=pointer]:
+                      - generic [ref=e1641]: 
+                      - text: 老人失能情况统计
+                    - menuitem "区域分析统计" [ref=e1642] [cursor=pointer]:
+                      - generic [ref=e1643]: 
+                      - text: 区域分析统计
+                - menuitem "服务统计 " [ref=e393]:
+                  - generic [ref=e394] [cursor=pointer]:
+                    - generic [ref=e395]: 
+                    - text: 服务统计
+                    - generic [ref=e396]: 
+                  - text:    
+                - menuitem "机构统计 " [ref=e398]:
+                  - generic [ref=e399] [cursor=pointer]:
+                    - generic [ref=e400]: 
+                    - text: 机构统计
+                    - generic [ref=e401]: 
+                  - text:   
+                - menuitem "补贴统计 " [ref=e403]:
+                  - generic [ref=e404] [cursor=pointer]:
+                    - generic [ref=e405]: 
+                    - text: 补贴统计
+                    - generic [ref=e406]: 
+                  - text:   
+            - menuitem "助餐 " [ref=e176]:
+              - generic [ref=e177] [cursor=pointer]:
+                - generic [ref=e178]: 
+                - text: 助餐
+                - generic [ref=e179]: 
+              - text:      
+            - menuitem "政府补贴 " [ref=e180]:
+              - generic [ref=e181] [cursor=pointer]:
+                - generic [ref=e182]: 
+                - text: 政府补贴
+                - generic [ref=e183]: 
+              - text:                                 
+            - menuitem "基础设置 " [ref=e184]:
+              - generic [ref=e185] [cursor=pointer]:
+                - generic [ref=e186]: 
+                - text: 基础设置
+                - generic [ref=e187]: 
+              - text:   
+      - generic [ref=e190]:
+        - generic [ref=e192]:
+          - generic [ref=e193]:
+            - generic [ref=e195]:
+              - generic [ref=e2859] [cursor=pointer]: 
+              - generic [ref=e2861] [cursor=pointer]: 
+              - tablist [ref=e197]:
+                - tab "首页" [ref=e198]: 首页 
+                - tab "服务商工单报表 " [ref=e407]:
+                  - text: 服务商工单报表
+                  - generic: 
+                - tab "社区管家工单报表 " [ref=e756]:
+                  - text: 社区管家工单报表
+                  - generic: 
+                - tab "商品订单报表 " [ref=e1112]:
+                  - text: 商品订单报表
+                  - generic: 
+                - tab "健康检测报表 " [ref=e1333]:
+                  - text: 健康检测报表
+                  - generic: 
+                - tab "老人数据统计 " [ref=e1644]:
+                  - text: 老人数据统计
+                  - generic: 
+                - tab "性别比例统计 " [ref=e2735]:
+                  - text: 性别比例统计
+                  - generic: 
+                - tab "年龄分析统计 " [selected] [ref=e2862]:
+                  - text: 年龄分析统计
+                  - generic [ref=e2863]: 
+            - generic:
+              - tabpanel "年龄分析统计 "
+          - button "更多 " [ref=e200]:
+            - text: 更多
+            - generic [ref=e201]: 
+        - text:                                                                  
+        - generic [ref=e2868]:
+          - generic [ref=e2870]:
+            - generic [ref=e2872]:
+              - button "" [ref=e2873] [cursor=pointer]:
+                - generic [ref=e2874]: 
+              - button "" [ref=e2875] [cursor=pointer]:
+                - generic [ref=e2876]: 
+            - generic [ref=e2878]:
+              - table [ref=e2880]:
+                - rowgroup [ref=e2889]:
+                  - row "年龄区间 人数 男性 女性 占比" [ref=e2890]:
+                    - columnheader [ref=e2891]
+                    - columnheader "年龄区间" [ref=e2892]:
+                      - generic [ref=e2895]: 年龄区间
+                    - columnheader "人数" [ref=e2896]:
+                      - generic [ref=e2899]: 人数
+                    - columnheader "男性" [ref=e2900]:
+                      - generic [ref=e2903]: 男性
+                    - columnheader "女性" [ref=e2904]:
+                      - generic [ref=e2907]: 女性
+                    - columnheader "占比" [ref=e2908]:
+                      - generic [ref=e2911]: 占比
+                    - columnheader [ref=e2912]
+              - table [ref=e2914]:
+                - rowgroup [ref=e2923]:
+                  - row "60以下 34 25 9 73.91%" [ref=e2924]:
+                    - cell [ref=e2925]
+                    - cell "60以下" [ref=e2926]:
+                      - generic [ref=e2927]: 60以下
+                    - cell "34" [ref=e2928]:
+                      - generic [ref=e2929]: "34"
+                    - cell "25" [ref=e2930]:
+                      - generic [ref=e2931]: "25"
+                    - cell "9" [ref=e2932]:
+                      - generic [ref=e2933]: "9"
+                    - cell "73.91%" [ref=e2934]:
+                      - generic [ref=e2935]: 73.91%
+                    - cell [ref=e2936]
+                  - row "60-69岁 7 5 2 15.22%" [ref=e2937]:
+                    - cell [ref=e2938]
+                    - cell "60-69岁" [ref=e2939]:
+                      - generic [ref=e2940]: 60-69岁
+                    - cell "7" [ref=e2941]:
+                      - generic [ref=e2942]: "7"
+                    - cell "5" [ref=e2943]:
+                      - generic [ref=e2944]: "5"
+                    - cell "2" [ref=e2945]:
+                      - generic [ref=e2946]: "2"
+                    - cell "15.22%" [ref=e2947]:
+                      - generic [ref=e2948]: 15.22%
+                    - cell [ref=e2949]
+                  - row "70-79岁 2 0 2 4.35%" [ref=e2950]:
+                    - cell [ref=e2951]
+                    - cell "70-79岁" [ref=e2952]:
+                      - generic [ref=e2953]: 70-79岁
+                    - cell "2" [ref=e2954]:
+                      - generic [ref=e2955]: "2"
+                    - cell "0" [ref=e2956]:
+                      - generic [ref=e2957]: "0"
+                    - cell "2" [ref=e2958]:
+                      - generic [ref=e2959]: "2"
+                    - cell "4.35%" [ref=e2960]:
+                      - generic [ref=e2961]: 4.35%
+                    - cell [ref=e2962]
+                  - row "80-99岁 2 1 1 4.35%" [ref=e2963]:
+                    - cell [ref=e2964]
+                    - cell "80-99岁" [ref=e2965]:
+                      - generic [ref=e2966]: 80-99岁
+                    - cell "2" [ref=e2967]:
+                      - generic [ref=e2968]: "2"
+                    - cell "1" [ref=e2969]:
+                      - generic [ref=e2970]: "1"
+                    - cell "1" [ref=e2971]:
+                      - generic [ref=e2972]: "1"
+                    - cell "4.35%" [ref=e2973]:
+                      - generic [ref=e2974]: 4.35%
+                    - cell [ref=e2975]
+                  - row "100岁及以上 1 0 1 2.17%" [ref=e2976]:
+                    - cell [ref=e2977]
+                    - cell "100岁及以上" [ref=e2978]:
+                      - generic [ref=e2979]: 100岁及以上
+                    - cell "1" [ref=e2980]:
+                      - generic [ref=e2981]: "1"
+                    - cell "0" [ref=e2982]:
+                      - generic [ref=e2983]: "0"
+                    - cell "1" [ref=e2984]:
+                      - generic [ref=e2985]: "1"
+                    - cell "2.17%" [ref=e2986]:
+                      - generic [ref=e2987]: 2.17%
+                    - cell [ref=e2988]
+              - table [ref=e2990]:
+                - rowgroup [ref=e2999]:
+                  - row "46 31 15" [ref=e3000]:
+                    - cell [ref=e3001]
+                    - cell [ref=e3002]
+                    - cell "46" [ref=e3003]:
+                      - generic [ref=e3004]: "46"
+                    - cell "31" [ref=e3005]:
+                      - generic [ref=e3006]: "31"
+                    - cell "15" [ref=e3007]:
+                      - generic [ref=e3008]: "15"
+                    - cell [ref=e3009]
+                    - cell [ref=e3010]
+              - generic [ref=e3011]:
+                - table [ref=e3013]:
+                  - rowgroup [ref=e3022]:
+                    - row "序号" [ref=e3023]:
+                      - columnheader "序号" [ref=e3024]:
+                        - generic [ref=e3025]: 序号
+                      - columnheader [ref=e3026]
+                      - columnheader [ref=e3027]
+                      - columnheader [ref=e3028]
+                      - columnheader [ref=e3029]
+                      - columnheader [ref=e3030]
+                      - columnheader [ref=e3031]
+                - table [ref=e3033]:
+                  - rowgroup [ref=e3042]:
+                    - row "1" [ref=e3043]:
+                      - cell "1" [ref=e3044]:
+                        - generic [ref=e3046]: "1"
+                      - cell [ref=e3047]
+                      - cell [ref=e3048]
+                      - cell [ref=e3049]
+                      - cell [ref=e3050]
+                      - cell [ref=e3051]
+                      - cell [ref=e3052]
+                    - row "2" [ref=e3053]:
+                      - cell "2" [ref=e3054]:
+                        - generic [ref=e3056]: "2"
+                      - cell [ref=e3057]
+                      - cell [ref=e3058]
+                      - cell [ref=e3059]
+                      - cell [ref=e3060]
+                      - cell [ref=e3061]
+                      - cell [ref=e3062]
+                    - row "3" [ref=e3063]:
+                      - cell "3" [ref=e3064]:
+                        - generic [ref=e3066]: "3"
+                      - cell [ref=e3067]
+                      - cell [ref=e3068]
+                      - cell [ref=e3069]
+                      - cell [ref=e3070]
+                      - cell [ref=e3071]
+                      - cell [ref=e3072]
+                    - row "4" [ref=e3073]:
+                      - cell "4" [ref=e3074]:
+                        - generic [ref=e3076]: "4"
+                      - cell [ref=e3077]
+                      - cell [ref=e3078]
+                      - cell [ref=e3079]
+                      - cell [ref=e3080]
+                      - cell [ref=e3081]
+                      - cell [ref=e3082]
+                    - row "5" [ref=e3083]:
+                      - cell "5" [ref=e3084]:
+                        - generic [ref=e3086]: "5"
+                      - cell [ref=e3087]
+                      - cell [ref=e3088]
+                      - cell [ref=e3089]
+                      - cell [ref=e3090]
+                      - cell [ref=e3091]
+                      - cell [ref=e3092]
+                - table [ref=e3094]:
+                  - rowgroup [ref=e3103]:
+                    - row "合计" [ref=e3104]:
+                      - cell "合计" [ref=e3105]:
+                        - generic [ref=e3106]: 合计
+                      - cell [ref=e3107]
+                      - cell [ref=e3108]
+                      - cell [ref=e3109]
+                      - cell [ref=e3110]
+                      - cell [ref=e3111]
+                      - cell [ref=e3112]
+          - text:     
+    - generic:   
+    - text: 
+  - text:  

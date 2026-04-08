@@ -1,0 +1,15 @@
+[  112739ms] [LOG] 断开连接 @ https://yspt.jinyangtong.cn/static/js/chunk-views.a88fa422.js:0
+[  112739ms] [LOG] 关闭连接 @ https://yspt.jinyangtong.cn/static/js/chunk-views.a88fa422.js:0
+[  113077ms] [LOG] socket连接成功 @ https://yspt.jinyangtong.cn/static/js/chunk-views.a88fa422.js:0
+[  249708ms] [LOG] Initializing library @ https://yspt.jinyangtong.cn/static/js/chunk-ezuikit.a2bb085b.js:0
+[  284291ms] [WARNING] Canvas2D: Multiple readback operations using getImageData are faster with the willReadFrequently attribute set to true. See: https://html.spec.whatwg.org/multipage/canvas.html#concept-canvas-will-read-frequently @ :0
+[  295131ms] [WARNING] Canvas2D: Multiple readback operations using getImageData are faster with the willReadFrequently attribute set to true. See: https://html.spec.whatwg.org/multipage/canvas.html#concept-canvas-will-read-frequently @ :0
+[  413072ms] [LOG] 断开连接 @ https://yspt.jinyangtong.cn/static/js/chunk-views.a88fa422.js:0
+[  413072ms] [LOG] 关闭连接 @ https://yspt.jinyangtong.cn/static/js/chunk-views.a88fa422.js:0
+[  413233ms] [LOG] socket连接成功 @ https://yspt.jinyangtong.cn/static/js/chunk-views.a88fa422.js:0
+[  713231ms] [LOG] 断开连接 @ https://yspt.jinyangtong.cn/static/js/chunk-views.a88fa422.js:0
+[  713231ms] [LOG] 关闭连接 @ https://yspt.jinyangtong.cn/static/js/chunk-views.a88fa422.js:0
+[  713878ms] [LOG] socket连接成功 @ https://yspt.jinyangtong.cn/static/js/chunk-views.a88fa422.js:0
+[ 1013876ms] [LOG] 断开连接 @ https://yspt.jinyangtong.cn/static/js/chunk-views.a88fa422.js:0
+[ 1013876ms] [LOG] 关闭连接 @ https://yspt.jinyangtong.cn/static/js/chunk-views.a88fa422.js:0
+[ 1014543ms] [LOG] socket连接成功 @ https://yspt.jinyangtong.cn/static/js/chunk-views.a88fa422.js:0

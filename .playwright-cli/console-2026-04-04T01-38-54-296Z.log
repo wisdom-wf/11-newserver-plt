@@ -1,0 +1,4 @@
+[    6324ms] [LOG] TT yanshi @ https://yspt.jinyangtong.cn/static/js/chunk-pages.b63a505c.js:0
+[   20609ms] [ERROR] Failed to load resource: the server responded with a status of 400 (Bad Request) @ https://yspt.jinyangtong.cn/api/kingon-auth/oauth/token?tenantId=000000&username=admin&password=0192023a7bbd73250516f069df18b500&grant_type=password&scope=all&type=account:0
+[   20615ms] TypeError: t.refreshCode is not a function
+    at https://yspt.jinyangtong.cn/static/js/chunk-pages.b63a505c.js:1:153437

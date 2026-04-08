@@ -1,0 +1,6 @@
+- generic [ref=e514]:
+  - heading "404" [level=1] [ref=e515]
+  - generic [ref=e516]: 抱歉，你访问的页面不存在
+  - link "返回首页" [ref=e518] [cursor=pointer]:
+    - /url: "#/"
+    - button "返回首页" [ref=e519]

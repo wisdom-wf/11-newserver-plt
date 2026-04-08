@@ -1,0 +1,45 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.elderlycare.mapper.provider.ProviderMapper">
+
+    <resultMap id="BaseResultMap" type="com.elderlycare.entity.provider.Provider">
+        <id column="provider_id" property="providerId"/>
+        <result column="provider_name" property="providerName"/>
+        <result column="provider_type" property="providerType"/>
+        <result column="credit_code" property="creditCode"/>
+        <result column="legal_person" property="legalPerson"/>
+        <result column="contact_phone" property="contactPhone"/>
+        <result column="address" property="address"/>
+        <result column="service_areas" property="serviceAreas"/>
+        <result column="description" property="description"/>
+        <result column="audit_status" property="auditStatus"/>
+        <result column="audit_comment" property="auditComment"/>
+        <result column="audit_time" property="auditTime"/>
+        <result column="auditor_id" property="auditorId"/>
+        <result column="status" property="status"/>
+        <result column="rating" property="rating"/>
+        <result column="rating_count" property="ratingCount"/>
+        <result column="create_time" property="createTime"/>
+        <result column="update_time" property="updateTime"/>
+        <result column="deleted" property="deleted"/>
+    </resultMap>
+
+    <select id="selectProviderPage" resultMap="BaseResultMap">
+        SELECT * FROM t_provider
+        WHERE deleted = 0
+        <if test="query.providerName != null and query.providerName != ''">
+            AND provider_name LIKE CONCAT('%', #{query.providerName}, '%')
+        </if>
+        <if test="query.providerType != null and query.providerType != ''">
+            AND provider_type = #{query.providerType}
+        </if>
+        <if test="query.auditStatus != null and query.auditStatus != ''">
+            AND audit_status = #{query.auditStatus}
+        </if>
+        <if test="query.status != null">
+            AND status = #{query.status}
+        </if>
+        ORDER BY create_time DESC
+    </select>
+
+</mapper>

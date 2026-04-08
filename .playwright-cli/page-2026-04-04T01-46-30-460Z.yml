@@ -1,0 +1,190 @@
+- generic [active] [ref=e1]:
+  - generic [ref=e116]:
+    - generic [ref=e118]:
+      - generic [ref=e121]: 
+      - generic [ref=e122]:
+        - menubar [ref=e125]:
+          - menuitem " 首页" [ref=e126] [cursor=pointer]:
+            - generic [ref=e127]: 
+            - text: 首页
+        - combobox [ref=e128]:
+          - textbox "请输入搜索内容" [ref=e130]
+      - generic [ref=e131]:
+        - button "" [ref=e133]:
+          - generic [ref=e134]: 
+        - generic [ref=e140] [cursor=pointer]: 
+        - generic [ref=e142]:
+          - generic [ref=e143]: 
+          - text: 
+        - generic [ref=e145]:
+          - text: 
+          - generic [ref=e147]: 
+        - generic [ref=e148]:
+          - generic [ref=e150]: 
+          - generic:  
+        - generic [ref=e152]: 
+        - img [ref=e153]
+        - generic [ref=e154]: 政府监管
+        - button "" [ref=e156]:
+          - generic [ref=e157]: 
+        - text: 
+    - generic:
+      - generic [ref=e159]:
+        - generic [ref=e162]: 智慧养老服务管理平台
+        - menubar [ref=e166]:
+          - generic [ref=e167]:
+            - menuitem "大数据中心 " [ref=e168]:
+              - generic [ref=e169] [cursor=pointer]:
+                - generic [ref=e170]: 
+                - text: 大数据中心
+                - generic [ref=e171]: 
+              - text:         
+            - menuitem "数据统计分析 " [ref=e172]:
+              - generic [ref=e173] [cursor=pointer]:
+                - generic [ref=e174]: 
+                - text: 数据统计分析
+                - generic [ref=e175]: 
+              - text:                            
+            - menuitem "助餐 " [ref=e176]:
+              - generic [ref=e177] [cursor=pointer]:
+                - generic [ref=e178]: 
+                - text: 助餐
+                - generic [ref=e179]: 
+              - text:      
+            - menuitem "政府补贴 " [ref=e180]:
+              - generic [ref=e181] [cursor=pointer]:
+                - generic [ref=e182]: 
+                - text: 政府补贴
+                - generic [ref=e183]: 
+              - text:                                 
+            - menuitem "基础设置 " [ref=e184]:
+              - generic [ref=e185] [cursor=pointer]:
+                - generic [ref=e186]: 
+                - text: 基础设置
+                - generic [ref=e187]: 
+              - text:   
+      - generic [ref=e190]:
+        - generic [ref=e192]:
+          - generic [ref=e193]:
+            - tablist [ref=e197]:
+              - tab "首页" [selected] [ref=e198]
+            - generic:
+              - tabpanel "首页"
+          - button "更多 " [ref=e200]:
+            - text: 更多
+            - generic [ref=e201]: 
+        - text:                                                                  
+        - generic [ref=e203]:
+          - generic [ref=e204]:
+            - generic [ref=e206]:
+              - generic [ref=e208] [cursor=pointer]:
+                - img [ref=e209]
+                - generic [ref=e210]:
+                  - paragraph [ref=e211]: 政府采购项目数量
+                  - paragraph [ref=e212]: "3"
+              - generic [ref=e214] [cursor=pointer]:
+                - img [ref=e215]
+                - generic [ref=e216]:
+                  - paragraph [ref=e217]: 已用补贴金额
+                  - paragraph [ref=e218]: 0元
+              - generic [ref=e220] [cursor=pointer]:
+                - img [ref=e221]
+                - generic [ref=e222]:
+                  - paragraph [ref=e223]: 服务对象
+                  - paragraph [ref=e224]: 102人
+              - generic [ref=e226] [cursor=pointer]:
+                - img [ref=e227]
+                - generic [ref=e228]:
+                  - paragraph [ref=e229]: 已完成服务工单
+                  - paragraph [ref=e230]: 0单
+            - generic [ref=e232]:
+              - tablist [ref=e236]:
+                - tab "老年人补助" [selected] [ref=e238]
+                - tab "刘思怡专属服务" [ref=e239]
+              - generic [ref=e240]:
+                - tabpanel "老年人补助" [ref=e241]:
+                  - generic [ref=e242]:
+                    - generic [ref=e243]:
+                      - generic [ref=e244]: 时间轴
+                      - generic [ref=e245]: 项目已经进行1018天
+                    - progressbar [ref=e246]:
+                      - generic [ref=e250]: 278%
+                    - generic [ref=e251]:
+                      - generic [ref=e252]: 2023-06-21
+                      - generic [ref=e253]: 2024-06-21
+                  - generic [ref=e254]:
+                    - generic [ref=e255]:
+                      - generic [ref=e257]:
+                        - img [ref=e258]
+                        - generic [ref=e259]:
+                          - paragraph [ref=e260]: 预算总金额
+                          - paragraph [ref=e261]: 200000.00元
+                      - generic [ref=e263]:
+                        - img [ref=e264]
+                        - generic [ref=e265]:
+                          - paragraph [ref=e266]: 已发放金额
+                          - paragraph [ref=e267]: 500.00元
+                    - progressbar [ref=e268]:
+                      - generic [ref=e271]: 0%
+                  - generic [ref=e273]:
+                    - generic [ref=e275]:
+                      - img [ref=e276]
+                      - generic [ref=e277]:
+                        - paragraph [ref=e278]: 预算服务人数
+                        - paragraph [ref=e279]: 10人
+                    - generic [ref=e281]:
+                      - img [ref=e282]
+                      - generic [ref=e283]:
+                        - paragraph [ref=e284]: 已服务人数
+                        - paragraph [ref=e285]: 0人
+                    - generic [ref=e287]:
+                      - img [ref=e288]
+                      - generic [ref=e289]:
+                        - paragraph [ref=e290]: 服务覆盖率
+                        - paragraph [ref=e291]: 0%
+                    - progressbar [ref=e294]:
+                      - img [ref=e296]
+                      - generic [ref=e299]: 0%
+                - generic [ref=e301]:
+                  - generic [ref=e303]:
+                    - generic [ref=e304]: 服务项目占比（按服务小类统计）
+                    - generic [ref=e305]:
+                      - img [ref=e307]
+                      - paragraph [ref=e324]: 暂无数据
+                  - generic [ref=e330]: 服务对象类型占比
+          - generic [ref=e334]:
+            - generic:
+              - generic:
+                - generic:
+                  - tablist
+    - generic:
+      - text:   
+      - generic: 
+    - text: 
+  - dialog "dialog" [ref=e336]:
+    - generic [ref=e339]:
+      - generic [ref=e342]:
+        - textbox "请输入手机号" [ref=e343]: "13659261094"
+        - generic [ref=e345]: 
+        - generic:
+          - generic: 
+      - generic [ref=e348]:
+        - textbox "请输入验证码" [ref=e349]
+        - generic [ref=e351]: 
+        - generic [ref=e353] [cursor=pointer]: 发送验证码
+      - generic [ref=e355]:
+        - button "验证" [ref=e356] [cursor=pointer]
+        - button "退出登录" [ref=e357] [cursor=pointer]
+  - dialog "请输入图形验证码" [ref=e360]:
+    - generic [ref=e361]:
+      - text: 请输入图形验证码
+      - button "Close" [ref=e362] [cursor=pointer]:
+        - generic [ref=e363]: 
+    - generic [ref=e365]:
+      - generic [ref=e367]:
+        - textbox "请输入验证码" [ref=e368]
+        - generic [ref=e370]: 
+      - img [ref=e373] [cursor=pointer]
+    - generic [ref=e375]:
+      - button "取 消" [ref=e376] [cursor=pointer]
+      - button "确 定" [ref=e377] [cursor=pointer]

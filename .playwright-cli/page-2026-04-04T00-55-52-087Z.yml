@@ -1,0 +1,75 @@
+- generic [active] [ref=e1]:
+  - generic [ref=e2897]:
+    - generic [ref=e2898]:
+      - img
+      - generic [ref=e2899]: 智慧养老服务管理平台
+    - generic [ref=e2900]:
+      - generic [ref=e2901]:
+        - generic [ref=e2904] [cursor=pointer]:
+          - img [ref=e2906]
+          - generic [ref=e2907]: 运营管理子系统
+        - generic [ref=e2910] [cursor=pointer]:
+          - img [ref=e2912]
+          - generic [ref=e2913]: 大数据中心子系统
+        - generic [ref=e2916] [cursor=pointer]:
+          - img [ref=e2918]
+          - generic [ref=e2919]: 养老服务中心子系统
+        - generic [ref=e2922] [cursor=pointer]:
+          - img [ref=e2924]
+          - generic [ref=e2925]: 时间超市子系统
+        - generic [ref=e2928] [cursor=pointer]:
+          - img [ref=e2930]
+          - generic [ref=e2931]: 养老评估子系统
+        - generic [ref=e2934] [cursor=pointer]:
+          - img [ref=e2936]
+          - generic [ref=e2937]: 服务商子系统
+        - generic [ref=e2940] [cursor=pointer]:
+          - img [ref=e2942]
+          - generic [ref=e2943]: 商品商家子系统
+      - generic [ref=e2944]:
+        - generic [ref=e2946] [cursor=pointer]:
+          - generic [ref=e2947]: 
+          - generic [ref=e2948]:
+            - text: 老人/家属
+            - text: 小程序
+        - generic [ref=e2950] [cursor=pointer]:
+          - generic [ref=e2951]: 
+          - generic [ref=e2952]:
+            - text: 社区管家
+            - text: 手机端
+        - generic [ref=e2954] [cursor=pointer]:
+          - generic [ref=e2955]: 
+          - generic [ref=e2956]:
+            - text: 服务商家
+            - text: 手机端
+        - generic [ref=e2958] [cursor=pointer]:
+          - generic [ref=e2959]: 
+          - generic [ref=e2960]:
+            - text: 服务人员
+            - text: 手机端
+        - generic [ref=e2962] [cursor=pointer]:
+          - generic [ref=e2963]: 
+          - generic [ref=e2964]:
+            - text: 志愿者
+            - text: 手机端
+        - generic [ref=e2966] [cursor=pointer]:
+          - generic [ref=e2967]: 
+          - generic [ref=e2968]:
+            - text: 医生
+            - text: 手机端
+        - generic [ref=e2970] [cursor=pointer]:
+          - generic [ref=e2971]: 
+          - generic [ref=e2972]:
+            - text: 评估员
+            - text: 手机端
+        - generic [ref=e2974] [cursor=pointer]:
+          - generic [ref=e2975]: 
+          - generic [ref=e2976]:
+            - text: 运营管理
+            - text: 手机端
+  - alert [ref=e455]:
+    - generic [ref=e456]: 
+    - generic [ref=e457]:
+      - heading "提示" [level=2] [ref=e458]
+      - paragraph [ref=e460]: 您好，您目前有1个新的注册用户待审核
+      - generic [ref=e461] [cursor=pointer]: 

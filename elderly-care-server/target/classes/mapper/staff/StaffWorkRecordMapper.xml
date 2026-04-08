@@ -1,0 +1,76 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.elderlycare.mapper.staff.StaffWorkRecordMapper">
+
+    <resultMap id="BaseResultMap" type="com.elderlycare.entity.staff.StaffWorkRecord">
+        <id column="record_id" property="recordId"/>
+        <result column="staff_id" property="staffId"/>
+        <result column="schedule_id" property="scheduleId"/>
+        <result column="order_id" property="orderId"/>
+        <result column="check_in_time" property="checkInTime"/>
+        <result column="check_in_latitude" property="checkInLatitude"/>
+        <result column="check_in_longitude" property="checkInLongitude"/>
+        <result column="check_in_address" property="checkInAddress"/>
+        <result column="check_in_device" property="checkInDevice"/>
+        <result column="check_out_time" property="checkOutTime"/>
+        <result column="check_out_latitude" property="checkOutLatitude"/>
+        <result column="check_out_longitude" property="checkOutLongitude"/>
+        <result column="check_out_address" property="checkOutAddress"/>
+        <result column="check_out_device" property="checkOutDevice"/>
+        <result column="work_duration" property="workDuration"/>
+        <result column="check_in_status" property="checkInStatus"/>
+        <result column="check_out_status" property="checkOutStatus"/>
+        <result column="status" property="status"/>
+        <result column="deleted" property="deleted"/>
+        <result column="create_by" property="createBy"/>
+        <result column="create_time" property="createTime"/>
+        <result column="update_by" property="updateBy"/>
+        <result column="update_time" property="updateTime"/>
+        <result column="remark" property="remark"/>
+    </resultMap>
+
+    <select id="selectWorkRecordPage" resultMap="BaseResultMap">
+        SELECT * FROM t_staff_work_record
+        WHERE deleted = 0
+        <if test="query.staffId != null">
+            AND staff_id = #{query.staffId}
+        </if>
+        <if test="query.orderId != null">
+            AND order_id = #{query.orderId}
+        </if>
+        <if test="query.checkInStatus != null">
+            AND check_in_status = #{query.checkInStatus}
+        </if>
+        <if test="query.status != null">
+            AND status = #{query.status}
+        </if>
+        <if test="query.startTime != null">
+            AND check_in_time &gt;= #{query.startTime}
+        </if>
+        <if test="query.endTime != null">
+            AND check_in_time &lt;= #{query.endTime}
+        </if>
+        ORDER BY create_time DESC
+    </select>
+
+    <select id="selectTodayRecordByStaffId" resultMap="BaseResultMap">
+        SELECT * FROM t_staff_work_record
+        WHERE staff_id = #{staffId}
+          AND DATE(check_in_time) = CURDATE()
+          AND deleted = 0
+        ORDER BY create_time DESC
+        LIMIT 1
+    </select>
+
+    <select id="selectByRecordId" resultMap="BaseResultMap">
+        SELECT * FROM t_staff_work_record
+        WHERE record_id = #{recordId} AND deleted = 0
+    </select>
+
+    <select id="selectByOrderId" resultMap="BaseResultMap">
+        SELECT * FROM t_staff_work_record
+        WHERE order_id = #{orderId} AND deleted = 0
+        ORDER BY create_time DESC
+    </select>
+
+</mapper>

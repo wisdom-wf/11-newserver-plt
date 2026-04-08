@@ -1,0 +1,33 @@
+[      31ms] [LOG] [system] App Hide @ https://yspt.jinyangtong.cn/H5/ZHYLFWD/static/js/chunk-vendors.a4196b87.js:17
+[      32ms] [LOG] [system] App Hide @ https://yspt.jinyangtong.cn/H5/ZHYLFWD/static/js/chunk-vendors.a4196b87.js:17
+[    5145ms] [LOG] [system] https://yspt.jinyangtong.cn @ https://yspt.jinyangtong.cn/H5/ZHYLFWD/static/js/chunk-vendors.a4196b87.js:17
+[    5149ms] [LOG] [system] %c TIM %c background:#0abf5b; padding:1px; border-radius:3px; color: #fff background:transparent 08:58:17.775 TIM.VERSION:2.27.1 @ https://yspt.jinyangtong.cn/H5/ZHYLFWD/static/js/chunk-vendors.a4196b87.js:17
+[    5162ms] [LOG] [system] App Launch @ https://yspt.jinyangtong.cn/H5/ZHYLFWD/static/js/chunk-vendors.a4196b87.js:17
+[    5163ms] [LOG] [system] App Show @ https://yspt.jinyangtong.cn/H5/ZHYLFWD/static/js/chunk-vendors.a4196b87.js:17
+[    5194ms] [LOG] [system] https://yspt.jinyangtong.cn @ https://yspt.jinyangtong.cn/H5/ZHYLFWD/static/js/chunk-vendors.a4196b87.js:17
+[    5198ms] [LOG] [system] %c TIM %c background:#0abf5b; padding:1px; border-radius:3px; color: #fff background:transparent 08:58:17.824 TIM.VERSION:2.27.1 @ https://yspt.jinyangtong.cn/H5/ZHYLFWD/static/js/chunk-vendors.a4196b87.js:17
+[    5210ms] [LOG] [system] App Launch @ https://yspt.jinyangtong.cn/H5/ZHYLFWD/static/js/chunk-vendors.a4196b87.js:17
+[    5211ms] [LOG] [system] App Show @ https://yspt.jinyangtong.cn/H5/ZHYLFWD/static/js/chunk-vendors.a4196b87.js:17
+[    5247ms] [INFO] Slow network is detected. See https://www.chromestatus.com/feature/5636954674692096 for more details. Fallback font will be used while loading: https://yspt.jinyangtong.cn/H5/ZHYLFWD/static/fonts/kingonUI.f0da2ab1.ttf @ https://yspt.jinyangtong.cn/H5/ZHYLFWD/static/js/chunk-vendors.a4196b87.js:29
+[    5251ms] [VERBOSE] [DOM] Password field is not contained in a form: (More info: https://goo.gl/9p2vKq) %o @ https://yspt.jinyangtong.cn/H5/ZHYLFWD/index.html#/?system=yyglsjd&source=shecuntong:0
+[    5279ms] [LOG] [system] setIsImageCode {data: Object, statusCode: 200, header: Object, errMsg: request:ok} @ https://yspt.jinyangtong.cn/H5/ZHYLFWD/static/js/chunk-vendors.a4196b87.js:17
+[    5279ms] [LOG] [system] setIsImageCode true @ https://yspt.jinyangtong.cn/H5/ZHYLFWD/static/js/chunk-vendors.a4196b87.js:17
+[    5279ms] [LOG] [system] false ==setUploadLocationTimer= @ https://yspt.jinyangtong.cn/H5/ZHYLFWD/static/js/chunk-vendors.a4196b87.js:17
+[    5279ms] [LOG] [system] JYT @ https://yspt.jinyangtong.cn/H5/ZHYLFWD/static/js/chunk-vendors.a4196b87.js:17
+[    5279ms] [LOG] [system] 页面参数 {"system":"yyglsjd","source":"shecuntong"} @ https://yspt.jinyangtong.cn/H5/ZHYLFWD/static/js/chunk-vendors.a4196b87.js:17
+[    5279ms] [LOG] [system] {system: yyglsjd, source: shecuntong} @ https://yspt.jinyangtong.cn/H5/ZHYLFWD/static/js/chunk-vendors.a4196b87.js:17
+[    5282ms] [LOG] [system] false ==== false @ https://yspt.jinyangtong.cn/H5/ZHYLFWD/static/js/chunk-vendors.a4196b87.js:17
+[    5293ms] [LOG] [system] setIsImageCode {data: Object, statusCode: 200, header: Object, errMsg: request:ok} @ https://yspt.jinyangtong.cn/H5/ZHYLFWD/static/js/chunk-vendors.a4196b87.js:17
+[    5293ms] [LOG] [system] setIsImageCode true @ https://yspt.jinyangtong.cn/H5/ZHYLFWD/static/js/chunk-vendors.a4196b87.js:17
+[    5293ms] [LOG] [system] false ==setUploadLocationTimer= @ https://yspt.jinyangtong.cn/H5/ZHYLFWD/static/js/chunk-vendors.a4196b87.js:17
+[    5293ms] [LOG] [system] JYT @ https://yspt.jinyangtong.cn/H5/ZHYLFWD/static/js/chunk-vendors.a4196b87.js:17
+[    5293ms] [LOG] [system] 页面参数 {"system":"yyglsjd","source":"shecuntong"} @ https://yspt.jinyangtong.cn/H5/ZHYLFWD/static/js/chunk-vendors.a4196b87.js:17
+[    5293ms] [LOG] [system] {system: yyglsjd, source: shecuntong} @ https://yspt.jinyangtong.cn/H5/ZHYLFWD/static/js/chunk-vendors.a4196b87.js:17
+[    5296ms] [LOG] [system] false ==== false @ https://yspt.jinyangtong.cn/H5/ZHYLFWD/static/js/chunk-vendors.a4196b87.js:17
+[    5362ms] [LOG] [system] https://yspt.jinyangtong.cn/enclosure/kingon/upload/20230224/8d4e8ab3998e8684e23839b52c75ab80.png @ https://yspt.jinyangtong.cn/H5/ZHYLFWD/static/js/chunk-vendors.a4196b87.js:17
+[    5364ms] [LOG] [system] Version:  1.0.9 @ https://yspt.jinyangtong.cn/H5/ZHYLFWD/static/js/chunk-vendors.a4196b87.js:17
+[    5364ms] [LOG] initSoftDate： {ApplicationKey: undefined, ApplicationURL: undefined, UpdateURL: undefined, FinishUpdateURL: undefined, Version: undefined} @ https://yspt.jinyangtong.cn/H5/ZHYLFWD/static/adapt-pc/main.js:10
+[    5371ms] [LOG] [system] /H5 -query> {system: yyglsjd, source: shecuntong} @ https://yspt.jinyangtong.cn/H5/ZHYLFWD/static/js/chunk-vendors.a4196b87.js:17
+[    5518ms] [LOG] [system] https://yspt.jinyangtong.cn/enclosure/kingon/upload/20230224/8d4e8ab3998e8684e23839b52c75ab80.png @ https://yspt.jinyangtong.cn/H5/ZHYLFWD/static/js/chunk-vendors.a4196b87.js:17
+[    5521ms] [LOG] [system] Version:  1.0.9 @ https://yspt.jinyangtong.cn/H5/ZHYLFWD/static/js/chunk-vendors.a4196b87.js:17
+[    5521ms] [LOG] [system] /H5 -query> {system: yyglsjd, source: shecuntong} @ https://yspt.jinyangtong.cn/H5/ZHYLFWD/static/js/chunk-vendors.a4196b87.js:17

@@ -1,0 +1,40 @@
+- generic [active] [ref=e1]:
+  - text:    
+  - generic [ref=e2]:
+    - iframe [ref=e4]:
+      - generic [ref=f2e14]:
+        - generic [ref=f2e15]:
+          - generic [ref=f2e17]: 
+          - generic [ref=f2e20]:
+            - generic: 请选择登录角色
+            - textbox [disabled]
+        - generic [ref=f2e21]:
+          - generic [ref=f2e23]: 
+          - generic [ref=f2e26]:
+            - generic: 请输入手机号码
+            - textbox [ref=f2e27]
+        - generic [ref=f2e28]:
+          - generic [ref=f2e30]: 
+          - generic [ref=f2e33]:
+            - generic: 请输入图形验证码
+            - textbox [ref=f2e34]
+        - generic [ref=f2e37]:
+          - generic [ref=f2e39]: 
+          - generic [ref=f2e42]:
+            - generic: 请输入验证码
+            - spinbutton [ref=f2e43]
+          - generic [ref=f2e44]: 获取验证码
+        - generic [ref=f2e50]:
+          - text: 阅读并同意
+          - generic [ref=f2e51]: 《服务协议》
+          - text: 及
+          - generic [ref=f2e52]: 《隐私政策条款》
+        - generic [ref=f2e54] [cursor=pointer]: 登 录
+    - generic [ref=e6]:
+      - heading [level=1] [ref=e7]
+      - heading [level=3] [ref=e8]
+      - heading "后台管理系统：" [level=3] [ref=e9]:
+        - text: 后台管理系统：
+        - link:
+          - /url: "#"
+      - paragraph [ref=e12]: 使用手机扫描二维码预览, 获得更佳体验

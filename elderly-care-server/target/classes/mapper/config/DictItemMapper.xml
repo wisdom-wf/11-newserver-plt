@@ -1,0 +1,28 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.elderlycare.mapper.config.DictItemMapper">
+
+    <resultMap id="BaseResultMap" type="com.elderlycare.entity.config.DictItem">
+        <id column="dict_item_id" property="dictItemId"/>
+        <result column="dict_type_id" property="dictTypeId"/>
+        <result column="dict_item_code" property="dictItemCode"/>
+        <result column="dict_item_name" property="dictItemName"/>
+        <result column="dict_item_value" property="dictItemValue"/>
+        <result column="sort_order" property="sortOrder"/>
+        <result column="status" property="status"/>
+        <result column="create_time" property="createTime"/>
+        <result column="update_time" property="updateTime"/>
+        <result column="deleted" property="deleted"/>
+    </resultMap>
+
+    <select id="selectByDictTypeCode" resultMap="BaseResultMap">
+        SELECT di.*
+        FROM t_dict_item di
+        INNER JOIN t_dict_type dt ON di.dict_type_id = dt.dict_type_id
+        WHERE dt.dict_type_code = #{dictTypeCode}
+        AND di.deleted = 0
+        AND dt.deleted = 0
+        ORDER BY di.sort_order ASC
+    </select>
+
+</mapper>

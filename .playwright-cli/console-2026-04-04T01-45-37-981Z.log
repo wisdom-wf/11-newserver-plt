@@ -1,0 +1,67 @@
+[   36460ms] [LOG] 关闭连接 @ https://yspt.jinyangtong.cn/static/js/chunk-views.a88fa422.js:0
+[   36710ms] [LOG] socket连接成功 @ https://yspt.jinyangtong.cn/static/js/chunk-views.a88fa422.js:0
+[  219355ms] TypeError: Cannot read properties of null (reading 'getAttribute')
+    at https://yspt.jinyangtong.cn/cdn/echarts/echarts.min.js:45:220011
+    at Bv (https://yspt.jinyangtong.cn/cdn/echarts/echarts.min.js:45:220047)
+    at t.init (https://yspt.jinyangtong.cn/cdn/echarts/echarts.min.js:45:889444)
+    at d (https://yspt.jinyangtong.cn/static/js/chunk-util.a4ce0607.js:1:124058)
+    at a.drawpictrue_bar (https://yspt.jinyangtong.cn/static/js/chunk-governmentsubsidies.c7f6896e.js:1:169294)
+    at https://yspt.jinyangtong.cn/static/js/chunk-governmentsubsidies.c7f6896e.js:1:168097
+[  219361ms] TypeError: Cannot read properties of null (reading 'getAttribute')
+    at https://yspt.jinyangtong.cn/cdn/echarts/echarts.min.js:45:220011
+    at Bv (https://yspt.jinyangtong.cn/cdn/echarts/echarts.min.js:45:220047)
+    at t.init (https://yspt.jinyangtong.cn/cdn/echarts/echarts.min.js:45:889444)
+    at u (https://yspt.jinyangtong.cn/static/js/chunk-util.a4ce0607.js:1:121293)
+    at a.drawpictrue_pie (https://yspt.jinyangtong.cn/static/js/chunk-governmentsubsidies.c7f6896e.js:1:169473)
+    at https://yspt.jinyangtong.cn/static/js/chunk-governmentsubsidies.c7f6896e.js:1:168207
+[  297582ms] NavigationDuplicated: Avoided redundant navigation to current location: "/jjylpts/centralcontrol/management/healthtestingreport?muid=3076".
+    at xt (https://yspt.jinyangtong.cn/cdn/vue-router/vue-router.min.js:6:16100)
+    at St.confirmTransition (https://yspt.jinyangtong.cn/cdn/vue-router/vue-router.min.js:6:18994)
+    at St.transitionTo (https://yspt.jinyangtong.cn/cdn/vue-router/vue-router.min.js:6:18362)
+    at e.push (https://yspt.jinyangtong.cn/cdn/vue-router/vue-router.min.js:6:22687)
+    at https://yspt.jinyangtong.cn/cdn/vue-router/vue-router.min.js:6:26072
+    at new Promise (<anonymous>)
+    at Ft.push (https://yspt.jinyangtong.cn/cdn/vue-router/vue-router.min.js:6:26036)
+    at https://yspt.jinyangtong.cn/static/js/chunk-pages.b63a505c.js:1:35695
+    at d (https://yspt.jinyangtong.cn/static/js/chunk-libs.fe3222e0.js:19:830)
+    at Generator.<anonymous> (https://yspt.jinyangtong.cn/static/js/chunk-libs.fe3222e0.js:19:2167)
+[  307548ms] NavigationDuplicated: Avoided redundant navigation to current location: "/jjylpts/centralcontrol/management/healthtestingreport?muid=3076".
+    at xt (https://yspt.jinyangtong.cn/cdn/vue-router/vue-router.min.js:6:16100)
+    at St.confirmTransition (https://yspt.jinyangtong.cn/cdn/vue-router/vue-router.min.js:6:18994)
+    at St.transitionTo (https://yspt.jinyangtong.cn/cdn/vue-router/vue-router.min.js:6:18362)
+    at e.push (https://yspt.jinyangtong.cn/cdn/vue-router/vue-router.min.js:6:22687)
+    at https://yspt.jinyangtong.cn/cdn/vue-router/vue-router.min.js:6:26072
+    at new Promise (<anonymous>)
+    at Ft.push (https://yspt.jinyangtong.cn/cdn/vue-router/vue-router.min.js:6:26036)
+    at https://yspt.jinyangtong.cn/static/js/chunk-pages.b63a505c.js:1:35695
+    at d (https://yspt.jinyangtong.cn/static/js/chunk-libs.fe3222e0.js:19:830)
+    at Generator.<anonymous> (https://yspt.jinyangtong.cn/static/js/chunk-libs.fe3222e0.js:19:2167)
+[  336712ms] [LOG] 断开连接 @ https://yspt.jinyangtong.cn/static/js/chunk-views.a88fa422.js:0
+[  336712ms] [LOG] 关闭连接 @ https://yspt.jinyangtong.cn/static/js/chunk-views.a88fa422.js:0
+[  336919ms] [LOG] socket连接成功 @ https://yspt.jinyangtong.cn/static/js/chunk-views.a88fa422.js:0
+[  337542ms] NavigationDuplicated: Avoided redundant navigation to current location: "/jjylpts/centralcontrol/management/oldmen/mandata?muid=1544944868740141058".
+    at xt (https://yspt.jinyangtong.cn/cdn/vue-router/vue-router.min.js:6:16100)
+    at St.confirmTransition (https://yspt.jinyangtong.cn/cdn/vue-router/vue-router.min.js:6:18994)
+    at St.transitionTo (https://yspt.jinyangtong.cn/cdn/vue-router/vue-router.min.js:6:18362)
+    at e.push (https://yspt.jinyangtong.cn/cdn/vue-router/vue-router.min.js:6:22687)
+    at https://yspt.jinyangtong.cn/cdn/vue-router/vue-router.min.js:6:26072
+    at new Promise (<anonymous>)
+    at Ft.push (https://yspt.jinyangtong.cn/cdn/vue-router/vue-router.min.js:6:26036)
+    at https://yspt.jinyangtong.cn/static/js/chunk-pages.b63a505c.js:1:35695
+    at d (https://yspt.jinyangtong.cn/static/js/chunk-libs.fe3222e0.js:19:830)
+    at Generator.<anonymous> (https://yspt.jinyangtong.cn/static/js/chunk-libs.fe3222e0.js:19:2167)
+[  364364ms] NavigationDuplicated: Avoided redundant navigation to current location: "/jjylpts/centralcontrol/management/oldmen/sexanalysis?muid=1544946487615655938".
+    at xt (https://yspt.jinyangtong.cn/cdn/vue-router/vue-router.min.js:6:16100)
+    at St.confirmTransition (https://yspt.jinyangtong.cn/cdn/vue-router/vue-router.min.js:6:18994)
+    at St.transitionTo (https://yspt.jinyangtong.cn/cdn/vue-router/vue-router.min.js:6:18362)
+    at e.push (https://yspt.jinyangtong.cn/cdn/vue-router/vue-router.min.js:6:22687)
+    at https://yspt.jinyangtong.cn/cdn/vue-router/vue-router.min.js:6:26072
+    at new Promise (<anonymous>)
+    at Ft.push (https://yspt.jinyangtong.cn/cdn/vue-router/vue-router.min.js:6:26036)
+    at https://yspt.jinyangtong.cn/static/js/chunk-pages.b63a505c.js:1:35695
+    at d (https://yspt.jinyangtong.cn/static/js/chunk-libs.fe3222e0.js:19:830)
+    at Generator.<anonymous> (https://yspt.jinyangtong.cn/static/js/chunk-libs.fe3222e0.js:19:2167)
+[  524066ms] [WARNING] Canvas2D: Multiple readback operations using getImageData are faster with the willReadFrequently attribute set to true. See: https://html.spec.whatwg.org/multipage/canvas.html#concept-canvas-will-read-frequently @ :0
+[  636917ms] [LOG] 断开连接 @ https://yspt.jinyangtong.cn/static/js/chunk-views.a88fa422.js:0
+[  636917ms] [LOG] 关闭连接 @ https://yspt.jinyangtong.cn/static/js/chunk-views.a88fa422.js:0
+[  637148ms] [LOG] socket连接成功 @ https://yspt.jinyangtong.cn/static/js/chunk-views.a88fa422.js:0

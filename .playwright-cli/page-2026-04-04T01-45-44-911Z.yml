@@ -1,0 +1,83 @@
+- generic [ref=e4]:
+  - generic [ref=e5]:
+    - img
+    - generic [ref=e6]: 智慧养老服务管理平台
+  - generic [ref=e7]:
+    - generic [ref=e8]:
+      - generic [ref=e11] [cursor=pointer]:
+        - img [ref=e13]
+        - generic [ref=e14]: 运营管理子系统
+      - generic [ref=e17] [cursor=pointer]:
+        - img [ref=e19]
+        - generic [ref=e20]: 大数据中心子系统
+      - generic [ref=e23] [cursor=pointer]:
+        - img [ref=e25]
+        - generic [ref=e26]: 政府监管子系统
+      - generic [ref=e29] [cursor=pointer]:
+        - img [ref=e31]
+        - generic [ref=e32]: 养老服务中心子系统
+      - generic [ref=e35] [cursor=pointer]:
+        - img [ref=e37]
+        - generic [ref=e38]: 日间照料子系统
+      - generic [ref=e41] [cursor=pointer]:
+        - img [ref=e43]
+        - generic [ref=e44]: 门店管理子系统
+      - generic [ref=e47] [cursor=pointer]:
+        - img [ref=e49]
+        - generic [ref=e50]: 家床及适老化改造子系统
+      - generic [ref=e53] [cursor=pointer]:
+        - img [ref=e55]
+        - generic [ref=e56]: 时间超市子系统
+      - generic [ref=e59] [cursor=pointer]:
+        - img [ref=e61]
+        - generic [ref=e62]: 养老评估子系统
+      - generic [ref=e65] [cursor=pointer]:
+        - img [ref=e67]
+        - generic [ref=e68]: 服务商子系统
+      - generic [ref=e71] [cursor=pointer]:
+        - img [ref=e73]
+        - generic [ref=e74]: 助餐子系统
+      - generic [ref=e77] [cursor=pointer]:
+        - img [ref=e79]
+        - generic [ref=e80]: 商品商家子系统
+    - generic [ref=e81]:
+      - generic [ref=e83] [cursor=pointer]:
+        - generic [ref=e84]: 
+        - generic [ref=e85]:
+          - text: 老人/家属
+          - text: 小程序
+      - generic [ref=e87] [cursor=pointer]:
+        - generic [ref=e88]: 
+        - generic [ref=e89]:
+          - text: 社区管家
+          - text: 手机端
+      - generic [ref=e91] [cursor=pointer]:
+        - generic [ref=e92]: 
+        - generic [ref=e93]:
+          - text: 服务商家
+          - text: 手机端
+      - generic [ref=e95] [cursor=pointer]:
+        - generic [ref=e96]: 
+        - generic [ref=e97]:
+          - text: 服务人员
+          - text: 手机端
+      - generic [ref=e99] [cursor=pointer]:
+        - generic [ref=e100]: 
+        - generic [ref=e101]:
+          - text: 志愿者
+          - text: 手机端
+      - generic [ref=e103] [cursor=pointer]:
+        - generic [ref=e104]: 
+        - generic [ref=e105]:
+          - text: 医生
+          - text: 手机端
+      - generic [ref=e107] [cursor=pointer]:
+        - generic [ref=e108]: 
+        - generic [ref=e109]:
+          - text: 评估员
+          - text: 手机端
+      - generic [ref=e111] [cursor=pointer]:
+        - generic [ref=e112]: 
+        - generic [ref=e113]:
+          - text: 运营管理
+          - text: 手机端

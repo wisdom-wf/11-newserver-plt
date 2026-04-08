@@ -1,0 +1,331 @@
+- generic [active] [ref=e1]:
+  - generic [ref=e116]:
+    - generic [ref=e118]:
+      - generic [ref=e121]: 
+      - generic [ref=e122]:
+        - menubar [ref=e125]:
+          - menuitem " 首页" [ref=e126] [cursor=pointer]:
+            - generic [ref=e127]: 
+            - text: 首页
+        - combobox [ref=e128]:
+          - textbox "请输入搜索内容" [ref=e130]
+      - generic [ref=e131]:
+        - button "" [ref=e133]:
+          - generic [ref=e134]: 
+        - generic [ref=e140] [cursor=pointer]: 
+        - generic [ref=e142]:
+          - generic [ref=e143]: 
+          - text: 
+        - generic [ref=e145]:
+          - text: 
+          - generic [ref=e147]: 
+        - generic [ref=e148]:
+          - generic [ref=e150]: 
+          - generic:  
+        - generic [ref=e152]: 
+        - img [ref=e153]
+        - generic [ref=e154]: 政府监管
+        - button "" [ref=e156]:
+          - generic [ref=e157]: 
+        - text: 
+    - generic:
+      - generic [ref=e159]:
+        - generic [ref=e162]: 智慧养老服务管理平台
+        - menubar [ref=e166]:
+          - generic [ref=e167]:
+            - menuitem "大数据中心 " [ref=e168]:
+              - generic [ref=e169] [cursor=pointer]:
+                - generic [ref=e170]: 
+                - text: 大数据中心
+                - generic [ref=e171]: 
+              - text:         
+            - menuitem "数据统计分析 " [expanded] [ref=e172]:
+              - generic [ref=e173] [cursor=pointer]:
+                - generic [ref=e174]: 
+                - text: 数据统计分析
+                - generic [ref=e175]: 
+              - menu [ref=e378]:
+                - menuitem "服务商工单报表" [ref=e379] [cursor=pointer]:
+                  - generic [ref=e380]: 
+                  - text: 服务商工单报表
+                - menuitem "社区管家工单报表" [ref=e381] [cursor=pointer]:
+                  - generic [ref=e382]: 
+                  - text: 社区管家工单报表
+                - menuitem "商品订单报表" [ref=e383] [cursor=pointer]:
+                  - generic [ref=e384]: 
+                  - text: 商品订单报表
+                - menuitem "健康检测报表" [ref=e385] [cursor=pointer]:
+                  - generic [ref=e386]: 
+                  - text: 健康检测报表
+                - menuitem "老人统计 " [ref=e388]:
+                  - generic [ref=e389] [cursor=pointer]:
+                    - generic [ref=e390]: 
+                    - text: 老人统计
+                    - generic [ref=e391]: 
+                  - text:      
+                - menuitem "服务统计 " [expanded] [ref=e393]:
+                  - generic [ref=e394] [cursor=pointer]:
+                    - generic [ref=e395]: 
+                    - text: 服务统计
+                    - generic [ref=e396]: 
+                  - menu [ref=e10136]:
+                    - menuitem "服务工单明细" [ref=e10137] [cursor=pointer]:
+                      - generic [ref=e10138]: 
+                      - text: 服务工单明细
+                    - menuitem "服务商数据统计" [ref=e10139] [cursor=pointer]:
+                      - generic [ref=e10140]: 
+                      - text: 服务商数据统计
+                    - menuitem "服务工单数据统计" [ref=e10141] [cursor=pointer]:
+                      - generic [ref=e10142]: 
+                      - text: 服务工单数据统计
+                    - menuitem "客户服务量统计" [ref=e10143] [cursor=pointer]:
+                      - generic [ref=e10144]: 
+                      - text: 客户服务量统计
+                - menuitem "机构统计 " [ref=e398]:
+                  - generic [ref=e399] [cursor=pointer]:
+                    - generic [ref=e400]: 
+                    - text: 机构统计
+                    - generic [ref=e401]: 
+                  - text:   
+                - menuitem "补贴统计 " [ref=e403]:
+                  - generic [ref=e404] [cursor=pointer]:
+                    - generic [ref=e405]: 
+                    - text: 补贴统计
+                    - generic [ref=e406]: 
+                  - text:   
+            - menuitem "助餐 " [ref=e176]:
+              - generic [ref=e177] [cursor=pointer]:
+                - generic [ref=e178]: 
+                - text: 助餐
+                - generic [ref=e179]: 
+              - text:      
+            - menuitem "政府补贴 " [ref=e180]:
+              - generic [ref=e181] [cursor=pointer]:
+                - generic [ref=e182]: 
+                - text: 政府补贴
+                - generic [ref=e183]: 
+              - text:                                 
+            - menuitem "基础设置 " [ref=e184]:
+              - generic [ref=e185] [cursor=pointer]:
+                - generic [ref=e186]: 
+                - text: 基础设置
+                - generic [ref=e187]: 
+              - text:   
+      - generic [ref=e190]:
+        - generic [ref=e192]:
+          - generic [ref=e193]:
+            - generic [ref=e195]:
+              - generic [ref=e2859] [cursor=pointer]: 
+              - generic [ref=e2861] [cursor=pointer]: 
+              - tablist [ref=e197]:
+                - tab "首页" [ref=e198]: 首页 
+                - tab "服务商工单报表 " [ref=e407]:
+                  - text: 服务商工单报表
+                  - generic: 
+                - tab "社区管家工单报表 " [ref=e756]:
+                  - text: 社区管家工单报表
+                  - generic: 
+                - tab "商品订单报表 " [ref=e1112]:
+                  - text: 商品订单报表
+                  - generic: 
+                - tab "健康检测报表 " [ref=e1333]:
+                  - text: 健康检测报表
+                  - generic: 
+                - tab "老人数据统计 " [ref=e1644]:
+                  - text: 老人数据统计
+                  - generic: 
+                - tab "性别比例统计 " [ref=e2735]:
+                  - text: 性别比例统计
+                  - generic: 
+                - tab "年龄分析统计 " [ref=e2862]:
+                  - text: 年龄分析统计
+                  - generic: 
+                - tab "子女情况统计 " [ref=e5533]:
+                  - text: 子女情况统计
+                  - generic: 
+                - tab "老人失能情况统计 " [ref=e7314]:
+                  - text: 老人失能情况统计
+                  - generic: 
+                - tab "区域分析统计 " [ref=e8662]:
+                  - text: 区域分析统计
+                  - generic: 
+                - tab "服务工单明细 " [ref=e10145]:
+                  - text: 服务工单明细
+                  - generic: 
+                - tab "服务商数据统计 " [ref=e11355]:
+                  - text: 服务商数据统计
+                  - generic: 
+                - tab "服务工单数据统计 " [ref=e11701]:
+                  - text: 服务工单数据统计
+                  - generic: 
+                - tab "客户服务量统计 " [ref=e11941]:
+                  - text: 客户服务量统计
+                  - generic: 
+                - tab "养老机构分布 " [ref=e13666]:
+                  - text: 养老机构分布
+                  - generic: 
+                - tab "机构人数统计 " [ref=e13692]:
+                  - text: 机构人数统计
+                  - generic: 
+                - tab "床位数据统计 " [selected] [ref=e13786]:
+                  - text: 床位数据统计
+                  - generic [ref=e13787]: 
+            - generic:
+              - tabpanel "床位数据统计 "
+          - button "更多 " [ref=e200]:
+            - text: 更多
+            - generic [ref=e201]: 
+        - text:                                                                  
+        - generic [ref=e13789]:
+          - tablist [ref=e13796]:
+            - generic [ref=e13797]:
+              - tab [expanded]: 
+              - tabpanel "" [ref=e13798]:
+                - generic [ref=e13800]:
+                  - generic [ref=e13802]:
+                    - generic [ref=e13803]: "居住区域:"
+                    - generic [ref=e13806]:
+                      - generic [ref=e13807] [cursor=pointer]:
+                        - textbox "请选择 居住区域" [ref=e13808]
+                        - generic [ref=e13810]: 
+                      - text:                               
+                  - generic [ref=e13813]:
+                    - button " 搜 索" [ref=e13814] [cursor=pointer]:
+                      - generic [ref=e13815]: 
+                      - text: 搜 索
+                    - button " 清 空" [ref=e13816] [cursor=pointer]:
+                      - generic [ref=e13817]: 
+                      - text: 清 空
+          - generic [ref=e13819]:
+            - generic [ref=e13821]:
+              - button "" [ref=e13822] [cursor=pointer]:
+                - generic [ref=e13823]: 
+              - button "" [ref=e13824] [cursor=pointer]:
+                - generic [ref=e13825]: 
+              - button "" [ref=e13826] [cursor=pointer]:
+                - generic [ref=e13827]: 
+            - generic [ref=e13829]:
+              - table [ref=e13831]:
+                - rowgroup [ref=e13843]:
+                  - row "机构名称 入住床位数 预订床位数 空闲床位数 床位总数 入住率 护理人员 看护比例" [ref=e13844]:
+                    - columnheader [ref=e13845]
+                    - columnheader "机构名称" [ref=e13846]:
+                      - generic [ref=e13849]: 机构名称
+                    - columnheader "入住床位数" [ref=e13850]:
+                      - generic [ref=e13853]: 入住床位数
+                    - columnheader "预订床位数" [ref=e13854]:
+                      - generic [ref=e13857]: 预订床位数
+                    - columnheader "空闲床位数" [ref=e13858]:
+                      - generic [ref=e13861]: 空闲床位数
+                    - columnheader "床位总数" [ref=e13862]:
+                      - generic [ref=e13865]: 床位总数
+                    - columnheader "入住率" [ref=e13866]:
+                      - generic [ref=e13869]: 入住率
+                    - columnheader "护理人员" [ref=e13870]:
+                      - generic [ref=e13873]: 护理人员
+                    - columnheader "看护比例" [ref=e13874]:
+                      - generic [ref=e13877]: 看护比例
+                    - columnheader [ref=e13878]
+              - table [ref=e13880]:
+                - rowgroup [ref=e13892]:
+                  - row "养老机构 0 0 0 0 0 0 0" [ref=e13893]:
+                    - cell [ref=e13894]
+                    - cell "养老机构" [ref=e13895]:
+                      - generic [ref=e13896]: 养老机构
+                    - cell "0" [ref=e13897]:
+                      - generic [ref=e13898]: "0"
+                    - cell "0" [ref=e13899]:
+                      - generic [ref=e13900]: "0"
+                    - cell "0" [ref=e13901]:
+                      - generic [ref=e13902]: "0"
+                    - cell "0" [ref=e13903]:
+                      - generic [ref=e13904]: "0"
+                    - cell "0" [ref=e13905]:
+                      - generic [ref=e13906]: "0"
+                    - cell "0" [ref=e13907]:
+                      - generic [ref=e13908]: "0"
+                    - cell "0" [ref=e13909]:
+                      - generic [ref=e13910]: "0"
+                    - cell [ref=e13911]
+              - table [ref=e13913]:
+                - rowgroup [ref=e13925]:
+                  - row "0 0 0 0 0 0 0" [ref=e13926]:
+                    - cell [ref=e13927]
+                    - cell [ref=e13928]
+                    - cell "0" [ref=e13929]:
+                      - generic [ref=e13930]: "0"
+                    - cell "0" [ref=e13931]:
+                      - generic [ref=e13932]: "0"
+                    - cell "0" [ref=e13933]:
+                      - generic [ref=e13934]: "0"
+                    - cell "0" [ref=e13935]:
+                      - generic [ref=e13936]: "0"
+                    - cell "0" [ref=e13937]:
+                      - generic [ref=e13938]: "0"
+                    - cell "0" [ref=e13939]:
+                      - generic [ref=e13940]: "0"
+                    - cell "0" [ref=e13941]:
+                      - generic [ref=e13942]: "0"
+                    - cell [ref=e13943]
+              - generic [ref=e13944]:
+                - table [ref=e13946]:
+                  - rowgroup [ref=e13958]:
+                    - row "序号" [ref=e13959]:
+                      - columnheader "序号" [ref=e13960]:
+                        - generic [ref=e13961]: 序号
+                      - columnheader [ref=e13962]
+                      - columnheader [ref=e13963]
+                      - columnheader [ref=e13964]
+                      - columnheader [ref=e13965]
+                      - columnheader [ref=e13966]
+                      - columnheader [ref=e13967]
+                      - columnheader [ref=e13968]
+                      - columnheader [ref=e13969]
+                      - columnheader [ref=e13970]
+                - table [ref=e13972]:
+                  - rowgroup [ref=e13984]:
+                    - row "1" [ref=e13985]:
+                      - cell "1" [ref=e13986]:
+                        - generic [ref=e13988]: "1"
+                      - cell [ref=e13989]
+                      - cell [ref=e13990]
+                      - cell [ref=e13991]
+                      - cell [ref=e13992]
+                      - cell [ref=e13993]
+                      - cell [ref=e13994]
+                      - cell [ref=e13995]
+                      - cell [ref=e13996]
+                      - cell [ref=e13997]
+                - table [ref=e13999]:
+                  - rowgroup [ref=e14011]:
+                    - row "合计" [ref=e14012]:
+                      - cell "合计" [ref=e14013]:
+                        - generic [ref=e14014]: 合计
+                      - cell [ref=e14015]
+                      - cell [ref=e14016]
+                      - cell [ref=e14017]
+                      - cell [ref=e14018]
+                      - cell [ref=e14019]
+                      - cell [ref=e14020]
+                      - cell [ref=e14021]
+                      - cell [ref=e14022]
+                      - cell [ref=e14023]
+            - generic [ref=e14025]:
+              - generic [ref=e14026]: 共 1 条
+              - generic [ref=e14029]:
+                - textbox "请选择" [ref=e14030] [cursor=pointer]: 10条/页
+                - generic [ref=e14032] [cursor=pointer]: 
+              - button "" [disabled] [ref=e14033]:
+                - generic [ref=e14034]: 
+              - list [ref=e14035]:
+                - listitem [ref=e14036]: "1"
+              - button "" [disabled] [ref=e14037]:
+                - generic [ref=e14038]: 
+              - generic [ref=e14039]:
+                - text: 前往
+                - spinbutton [ref=e14041]: "1"
+                - text: 页
+          - text:     
+    - generic:   
+    - text: 
+  - text:  

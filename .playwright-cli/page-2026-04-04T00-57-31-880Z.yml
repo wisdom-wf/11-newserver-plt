@@ -1,0 +1,48 @@
+- generic [active] [ref=e1]:
+  - text:    
+  - generic [ref=e2]:
+    - iframe [ref=e4]:
+      - generic [ref=f3e2]:
+        - generic [ref=f3e10]:
+          - img [ref=f3e14]
+          - generic [ref=f3e15]:
+            - generic [ref=f3e16]:
+              - generic [ref=f3e18]: 
+              - generic [ref=f3e21]:
+                - textbox [disabled]: 商家版
+            - generic [ref=f3e22]:
+              - generic [ref=f3e24]: 
+              - generic [ref=f3e27]:
+                - generic: 请输入手机号码
+                - textbox [ref=f3e28]
+            - generic [ref=f3e29]:
+              - generic [ref=f3e31]: 
+              - generic [ref=f3e34]:
+                - generic: 请输入图形验证码
+                - textbox [ref=f3e35]
+              - img [ref=f3e38]
+            - generic [ref=f3e39]:
+              - generic [ref=f3e41]: 
+              - generic [ref=f3e44]:
+                - generic: 请输入验证码
+                - spinbutton [ref=f3e45]
+              - generic [ref=f3e46]: 获取验证码
+            - generic [ref=f3e52]:
+              - text: 阅读并同意
+              - generic [ref=f3e53]: 《服务协议》
+              - text: 及
+              - generic [ref=f3e54]: 《隐私政策条款》
+            - generic [ref=f3e56] [cursor=pointer]: 登 录
+        - generic:
+          - generic:
+            - paragraph: 登录状态已过期，请重新登录
+    - generic [ref=e6]:
+      - heading "智慧养老服务端" [level=1] [ref=e7]
+      - heading [level=3] [ref=e8]
+      - heading "后台管理系统：https://yspt.jinyangtong.cn" [level=3] [ref=e9]:
+        - text: 后台管理系统：
+        - link "https://yspt.jinyangtong.cn" [ref=e10] [cursor=pointer]:
+          - /url: https://yspt.jinyangtong.cn
+      - generic "https://yspt.jinyangtong.cn/H5/ZHYLFWD/index.html#/" [ref=e12]:
+        - img [ref=e13]
+      - paragraph [ref=e14]: 使用手机扫描二维码预览, 获得更佳体验

@@ -1,0 +1,35 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.elderlycare.mapper.staff.StaffQualificationMapper">
+
+    <resultMap id="BaseResultMap" type="com.elderlycare.entity.staff.StaffQualification">
+        <id column="qualification_id" property="qualificationId"/>
+        <result column="staff_id" property="staffId"/>
+        <result column="qualification_type" property="qualificationType"/>
+        <result column="qualification_name" property="qualificationName"/>
+        <result column="qualification_no" property="qualificationNo"/>
+        <result column="issuing_authority" property="issuingAuthority"/>
+        <result column="issue_date" property="issueDate"/>
+        <result column="expire_date" property="expireDate"/>
+        <result column="certificate_urls" property="certificateUrls"/>
+        <result column="status" property="status"/>
+        <result column="deleted" property="deleted"/>
+        <result column="create_by" property="createBy"/>
+        <result column="create_time" property="createTime"/>
+        <result column="update_by" property="updateBy"/>
+        <result column="update_time" property="updateTime"/>
+        <result column="remark" property="remark"/>
+    </resultMap>
+
+    <select id="selectByStaffId" resultMap="BaseResultMap">
+        SELECT * FROM t_staff_qualification
+        WHERE staff_id = #{staffId} AND deleted = 0
+        ORDER BY create_time DESC
+    </select>
+
+    <select id="selectByQualificationId" resultMap="BaseResultMap">
+        SELECT * FROM t_staff_qualification
+        WHERE qualification_id = #{qualificationId} AND deleted = 0
+    </select>
+
+</mapper>

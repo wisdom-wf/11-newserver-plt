@@ -1,0 +1,33 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.elderlycare.mapper.order.OrderDispatchMapper">
+
+    <resultMap id="BaseResultMap" type="com.elderlycare.entity.order.OrderDispatch">
+        <id column="dispatch_id" property="dispatchId"/>
+        <result column="order_id" property="orderId"/>
+        <result column="provider_id" property="providerId"/>
+        <result column="staff_id" property="staffId"/>
+        <result column="dispatch_time" property="dispatchTime"/>
+        <result column="dispatcher_id" property="dispatcherId"/>
+        <result column="dispatch_type" property="dispatchType"/>
+        <result column="dispatch_status" property="dispatchStatus"/>
+        <result column="receive_time" property="receiveTime"/>
+        <result column="receive_comment" property="receiveComment"/>
+        <result column="reject_reason" property="rejectReason"/>
+        <result column="create_time" property="createTime"/>
+    </resultMap>
+
+    <select id="selectByOrderId" resultMap="BaseResultMap">
+        SELECT * FROM t_order_dispatch
+        WHERE order_id = #{orderId}
+        ORDER BY create_time DESC
+    </select>
+
+    <select id="selectLatestByOrderId" resultMap="BaseResultMap">
+        SELECT * FROM t_order_dispatch
+        WHERE order_id = #{orderId}
+        ORDER BY create_time DESC
+        LIMIT 1
+    </select>
+
+</mapper>

@@ -1,0 +1,72 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.elderlycare.mapper.staff.StaffMapper">
+
+    <resultMap id="BaseResultMap" type="com.elderlycare.entity.staff.Staff">
+        <id column="staff_id" property="staffId"/>
+        <result column="provider_id" property="providerId"/>
+        <result column="staff_no" property="staffNo"/>
+        <result column="staff_name" property="staffName"/>
+        <result column="gender" property="gender"/>
+        <result column="id_card" property="idCard"/>
+        <result column="phone" property="phone"/>
+        <result column="birth_date" property="birthDate"/>
+        <result column="nation" property="nation"/>
+        <result column="education" property="education"/>
+        <result column="political_status" property="politicalStatus"/>
+        <result column="marital_status" property="maritalStatus"/>
+        <result column="domicile_address" property="domicileAddress"/>
+        <result column="residence_address" property="residenceAddress"/>
+        <result column="emergency_contact" property="emergencyContact"/>
+        <result column="emergency_phone" property="emergencyPhone"/>
+        <result column="service_types" property="serviceTypes"/>
+        <result column="status" property="status"/>
+        <result column="audit_remark" property="auditRemark"/>
+        <result column="hire_date" property="hireDate"/>
+        <result column="leave_date" property="leaveDate"/>
+        <result column="leave_reason" property="leaveReason"/>
+        <result column="avatar_url" property="avatarUrl"/>
+        <result column="deleted" property="deleted"/>
+        <result column="create_by" property="createBy"/>
+        <result column="create_time" property="createTime"/>
+        <result column="update_by" property="updateBy"/>
+        <result column="update_time" property="updateTime"/>
+        <result column="remark" property="remark"/>
+    </resultMap>
+
+    <select id="selectStaffPage" resultMap="BaseResultMap">
+        SELECT * FROM t_staff
+        WHERE deleted = 0
+        <if test="query.staffName != null and query.staffName != ''">
+            AND staff_name LIKE CONCAT('%', #{query.staffName}, '%')
+        </if>
+        <if test="query.staffNo != null and query.staffNo != ''">
+            AND staff_no = #{query.staffNo}
+        </if>
+        <if test="query.phone != null and query.phone != ''">
+            AND phone = #{query.phone}
+        </if>
+        <if test="query.idCard != null and query.idCard != ''">
+            AND id_card = #{query.idCard}
+        </if>
+        <if test="query.status != null">
+            AND status = #{query.status}
+        </if>
+        <if test="query.providerId != null">
+            AND provider_id = #{query.providerId}
+        </if>
+        <if test="query.hireDateStart != null">
+            AND hire_date &gt;= #{query.hireDateStart}
+        </if>
+        <if test="query.hireDateEnd != null">
+            AND hire_date &lt;= #{query.hireDateEnd}
+        </if>
+        ORDER BY create_time DESC
+    </select>
+
+    <select id="selectStaffById" resultMap="BaseResultMap">
+        SELECT * FROM t_staff
+        WHERE staff_id = #{staffId} AND deleted = 0
+    </select>
+
+</mapper>

@@ -1,0 +1,68 @@
+- generic [ref=e4]:
+  - generic [ref=e5]:
+    - img
+    - generic [ref=e6]: 智慧养老服务管理平台
+  - generic [ref=e7]:
+    - generic [ref=e8]:
+      - generic [ref=e11] [cursor=pointer]:
+        - img [ref=e13]
+        - generic [ref=e14]: 运营管理子系统
+      - generic [ref=e17] [cursor=pointer]:
+        - img [ref=e19]
+        - generic [ref=e20]: 大数据中心子系统
+      - generic [ref=e23] [cursor=pointer]:
+        - img [ref=e25]
+        - generic [ref=e26]: 养老服务中心子系统
+      - generic [ref=e29] [cursor=pointer]:
+        - img [ref=e31]
+        - generic [ref=e32]: 时间超市子系统
+      - generic [ref=e35] [cursor=pointer]:
+        - img [ref=e37]
+        - generic [ref=e38]: 养老评估子系统
+      - generic [ref=e41] [cursor=pointer]:
+        - img [ref=e43]
+        - generic [ref=e44]: 服务商子系统
+      - generic [ref=e47] [cursor=pointer]:
+        - img [ref=e49]
+        - generic [ref=e50]: 商品商家子系统
+    - generic [ref=e51]:
+      - generic [ref=e53] [cursor=pointer]:
+        - generic [ref=e54]: 
+        - generic [ref=e55]:
+          - text: 老人/家属
+          - text: 小程序
+      - generic [ref=e57] [cursor=pointer]:
+        - generic [ref=e58]: 
+        - generic [ref=e59]:
+          - text: 社区管家
+          - text: 手机端
+      - generic [ref=e61] [cursor=pointer]:
+        - generic [ref=e62]: 
+        - generic [ref=e63]:
+          - text: 服务商家
+          - text: 手机端
+      - generic [ref=e65] [cursor=pointer]:
+        - generic [ref=e66]: 
+        - generic [ref=e67]:
+          - text: 服务人员
+          - text: 手机端
+      - generic [ref=e69] [cursor=pointer]:
+        - generic [ref=e70]: 
+        - generic [ref=e71]:
+          - text: 志愿者
+          - text: 手机端
+      - generic [ref=e73] [cursor=pointer]:
+        - generic [ref=e74]: 
+        - generic [ref=e75]:
+          - text: 医生
+          - text: 手机端
+      - generic [ref=e77] [cursor=pointer]:
+        - generic [ref=e78]: 
+        - generic [ref=e79]:
+          - text: 评估员
+          - text: 手机端
+      - generic [ref=e81] [cursor=pointer]:
+        - generic [ref=e82]: 
+        - generic [ref=e83]:
+          - text: 运营管理
+          - text: 手机端

@@ -1,0 +1,48 @@
+[     117ms] [LOG] 关闭连接 @ https://yspt.jinyangtong.cn/static/js/chunk-views.a88fa422.js:0
+[     166ms] [LOG] 断开连接 @ https://yspt.jinyangtong.cn/static/js/chunk-views.a88fa422.js:0
+[     166ms] [LOG] 关闭连接 @ https://yspt.jinyangtong.cn/static/js/chunk-views.a88fa422.js:0
+[     347ms] [LOG] socket连接成功 @ https://yspt.jinyangtong.cn/static/js/chunk-views.a88fa422.js:0
+[   47584ms] [LOG] 关闭连接 @ https://yspt.jinyangtong.cn/static/js/chunk-views.a88fa422.js:0
+[   48054ms] [LOG] socket连接成功 @ https://yspt.jinyangtong.cn/static/js/chunk-views.a88fa422.js:0
+[  190302ms] [LOG] 断开连接 @ https://yspt.jinyangtong.cn/static/js/chunk-views.a88fa422.js:0
+[  190303ms] [LOG] 关闭连接 @ https://yspt.jinyangtong.cn/static/js/chunk-views.a88fa422.js:0
+[  190361ms] [LOG] 断开连接 @ https://yspt.jinyangtong.cn/static/js/chunk-views.a88fa422.js:0
+[  190361ms] [LOG] 关闭连接 @ https://yspt.jinyangtong.cn/static/js/chunk-views.a88fa422.js:0
+[  190361ms] [WARNING] WebSocket connection to 'wss://yspt.jinyangtong.cn/socketkingon/kingon-push/socket/eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ0ZW5hbnRfaWQiOiIwMDAwMDAiLCJJcy1BcHAiOiIwIiwidXNlcl9uYW1lIjoi5pS_5bqc55uR566hIiwicmVhbF9uYW1lIjoi5pS_5bqc55uR566hIiwic291cmNlIjoic2hlY3VudG9uZyIsImNsaWVudF9pZCI6InNhYmVyIiwidXNlcl90eXBlIjoxLCJyb2xlX2lkIjoiMTEwIiwiZ3JhbnRfdHlwZSI6InBhc3N3b3JkX2ZyZWUiLCJzY29wZSI6WyJhbGwiXSwibG9naW5fcm9sZSI6W3siaWQiOiIxMTAiLCJyb2xlTmFtZSI6IuaUv-W6nOebkeeuoSIsInJvbGVBbGlhcyI6ImdvdmVybm1lbnQiLCJmaXhlZFJvbGUiOiIwIiwicmVnaW9uU2NvcGUi...U0N2E3NzI2YWI2NzQyMTRlZjJhZDBhN2Y1Yi5qcGciLCJhdXRob3JpdGllcyI6WyJnb3Zlcm5tZW50Il0sInNpZ25fdGltZSI6MTc3NTI2NzE3NDUzNywicm9sZV9uYW1lIjoiZ292ZXJubWVudCIsImxpY2Vuc2UiOiJwb3dlcmVkIGJ5IEtpbmdvblgiLCJwb3N0X2lkIjoiMTEyMzU5ODgxNzczODY3NTIwMSIsInVzZXJfaWQiOiIxNjI1MDkyODIyNTE4NTk1NTg1Iiwibmlja19uYW1lIjoi5pS_5bqc55uR566hIiwiZGV0YWlsIjp7InR5cGUiOiJ3ZWIifSwiZGVwdF9pZCI6IjE1Mjg2MzkyODY2NjgyNjc1MjEiLCJhY2NvdW50Ijoi5pS_5bqc55uR566hIiwicmVnaW9uX2NvZGUiOiIwLDAwLDQ1MDAwMDAwMDAwMCJ9.fhbg-cf_D9QC7z6EARIf3n3u8O75TagMbO7YhTqUOHA' failed: WebSocket is closed before the connection is established. @ https://yspt.jinyangtong.cn/static/js/chunk-views.a88fa422.js:0
+[  190362ms] [LOG] 连接错误 @ https://yspt.jinyangtong.cn/static/js/chunk-views.a88fa422.js:0
+[  190362ms] [LOG] 断开连接 @ https://yspt.jinyangtong.cn/static/js/chunk-views.a88fa422.js:0
+[  190362ms] [LOG] 关闭连接 @ https://yspt.jinyangtong.cn/static/js/chunk-views.a88fa422.js:0
+[  190362ms] [WARNING] WebSocket connection to 'wss://yspt.jinyangtong.cn/socketkingon/kingon-push/socket/eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ0ZW5hbnRfaWQiOiIwMDAwMDAiLCJJcy1BcHAiOiIwIiwidXNlcl9uYW1lIjoi5pS_5bqc55uR566hIiwicmVhbF9uYW1lIjoi5pS_5bqc55uR566hIiwic291cmNlIjoic2hlY3VudG9uZyIsImNsaWVudF9pZCI6InNhYmVyIiwidXNlcl90eXBlIjoxLCJyb2xlX2lkIjoiMTEwIiwiZ3JhbnRfdHlwZSI6InBhc3N3b3JkX2ZyZWUiLCJzY29wZSI6WyJhbGwiXSwibG9naW5fcm9sZSI6W3siaWQiOiIxMTAiLCJyb2xlTmFtZSI6IuaUv-W6nOebkeeuoSIsInJvbGVBbGlhcyI6ImdvdmVybm1lbnQiLCJmaXhlZFJvbGUiOiIwIiwicmVnaW9uU2NvcGUi...U0N2E3NzI2YWI2NzQyMTRlZjJhZDBhN2Y1Yi5qcGciLCJhdXRob3JpdGllcyI6WyJnb3Zlcm5tZW50Il0sInNpZ25fdGltZSI6MTc3NTI2NzE3NDUzNywicm9sZV9uYW1lIjoiZ292ZXJubWVudCIsImxpY2Vuc2UiOiJwb3dlcmVkIGJ5IEtpbmdvblgiLCJwb3N0X2lkIjoiMTEyMzU5ODgxNzczODY3NTIwMSIsInVzZXJfaWQiOiIxNjI1MDkyODIyNTE4NTk1NTg1Iiwibmlja19uYW1lIjoi5pS_5bqc55uR566hIiwiZGV0YWlsIjp7InR5cGUiOiJ3ZWIifSwiZGVwdF9pZCI6IjE1Mjg2MzkyODY2NjgyNjc1MjEiLCJhY2NvdW50Ijoi5pS_5bqc55uR566hIiwicmVnaW9uX2NvZGUiOiIwLDAwLDQ1MDAwMDAwMDAwMCJ9.fhbg-cf_D9QC7z6EARIf3n3u8O75TagMbO7YhTqUOHA' failed: WebSocket is closed before the connection is established. @ https://yspt.jinyangtong.cn/static/js/chunk-views.a88fa422.js:0
+[  190362ms] [LOG] 连接错误 @ https://yspt.jinyangtong.cn/static/js/chunk-views.a88fa422.js:0
+[  190362ms] [LOG] 断开连接 @ https://yspt.jinyangtong.cn/static/js/chunk-views.a88fa422.js:0
+[  190873ms] [LOG] socket连接成功 @ https://yspt.jinyangtong.cn/static/js/chunk-views.a88fa422.js:0
+[  490873ms] [LOG] 断开连接 @ https://yspt.jinyangtong.cn/static/js/chunk-views.a88fa422.js:0
+[  490874ms] [LOG] 关闭连接 @ https://yspt.jinyangtong.cn/static/js/chunk-views.a88fa422.js:0
+[  493571ms] [LOG] socket连接成功 @ https://yspt.jinyangtong.cn/static/js/chunk-views.a88fa422.js:0
+[  647537ms] [LOG] handle refresh token @ https://yspt.jinyangtong.cn/static/js/app.27578bed.js:0
+[  653863ms] [LOG] 关闭连接 @ https://yspt.jinyangtong.cn/static/js/chunk-views.a88fa422.js:0
+[  653905ms] [LOG] 断开连接 @ https://yspt.jinyangtong.cn/static/js/chunk-views.a88fa422.js:0
+[  653906ms] [LOG] 关闭连接 @ https://yspt.jinyangtong.cn/static/js/chunk-views.a88fa422.js:0
+[  653906ms] [WARNING] WebSocket connection to 'wss://yspt.jinyangtong.cn/socketkingon/kingon-push/socket/eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ0ZW5hbnRfaWQiOiIwMDAwMDAiLCJJcy1BcHAiOiIwIiwidXNlcl9uYW1lIjoi5pS_5bqc55uR566hIiwicmVhbF9uYW1lIjoi5pS_5bqc55uR566hIiwic291cmNlIjoic2hlY3VudG9uZyIsImNsaWVudF9pZCI6InNhYmVyIiwidXNlcl90eXBlIjoxLCJyb2xlX2lkIjoiMTEwIiwiZ3JhbnRfdHlwZSI6InBhc3N3b3JkX2ZyZWUiLCJzY29wZSI6WyJhbGwiXSwibG9naW5fcm9sZSI6W3siaWQiOiIxMTAiLCJyb2xlTmFtZSI6IuaUv-W6nOebkeeuoSIsInJvbGVBbGlhcyI6ImdvdmVybm1lbnQiLCJmaXhlZFJvbGUiOiIwIiwicmVnaW9uU2NvcGUi...U0N2E3NzI2YWI2NzQyMTRlZjJhZDBhN2Y1Yi5qcGciLCJhdXRob3JpdGllcyI6WyJnb3Zlcm5tZW50Il0sInNpZ25fdGltZSI6MTc3NTI2OTY4MTg2NCwicm9sZV9uYW1lIjoiZ292ZXJubWVudCIsImxpY2Vuc2UiOiJwb3dlcmVkIGJ5IEtpbmdvblgiLCJwb3N0X2lkIjoiMTEyMzU5ODgxNzczODY3NTIwMSIsInVzZXJfaWQiOiIxNjI1MDkyODIyNTE4NTk1NTg1Iiwibmlja19uYW1lIjoi5pS_5bqc55uR566hIiwiZGV0YWlsIjp7InR5cGUiOiJ3ZWIifSwiZGVwdF9pZCI6IjE1Mjg2MzkyODY2NjgyNjc1MjEiLCJhY2NvdW50Ijoi5pS_5bqc55uR566hIiwicmVnaW9uX2NvZGUiOiIwLDAwLDQ1MDAwMDAwMDAwMCJ9.UmA7CAeD39u78fhqkRJuF-IS4PF_wYVF0I9YgOOqxMA' failed: WebSocket is closed before the connection is established. @ https://yspt.jinyangtong.cn/static/js/chunk-views.a88fa422.js:0
+[  653906ms] [LOG] 连接错误 @ https://yspt.jinyangtong.cn/static/js/chunk-views.a88fa422.js:0
+[  653906ms] [LOG] 断开连接 @ https://yspt.jinyangtong.cn/static/js/chunk-views.a88fa422.js:0
+[  653906ms] [LOG] 关闭连接 @ https://yspt.jinyangtong.cn/static/js/chunk-views.a88fa422.js:0
+[  653907ms] [WARNING] WebSocket connection to 'wss://yspt.jinyangtong.cn/socketkingon/kingon-push/socket/eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ0ZW5hbnRfaWQiOiIwMDAwMDAiLCJJcy1BcHAiOiIwIiwidXNlcl9uYW1lIjoi5pS_5bqc55uR566hIiwicmVhbF9uYW1lIjoi5pS_5bqc55uR566hIiwic291cmNlIjoic2hlY3VudG9uZyIsImNsaWVudF9pZCI6InNhYmVyIiwidXNlcl90eXBlIjoxLCJyb2xlX2lkIjoiMTEwIiwiZ3JhbnRfdHlwZSI6InBhc3N3b3JkX2ZyZWUiLCJzY29wZSI6WyJhbGwiXSwibG9naW5fcm9sZSI6W3siaWQiOiIxMTAiLCJyb2xlTmFtZSI6IuaUv-W6nOebkeeuoSIsInJvbGVBbGlhcyI6ImdvdmVybm1lbnQiLCJmaXhlZFJvbGUiOiIwIiwicmVnaW9uU2NvcGUi...U0N2E3NzI2YWI2NzQyMTRlZjJhZDBhN2Y1Yi5qcGciLCJhdXRob3JpdGllcyI6WyJnb3Zlcm5tZW50Il0sInNpZ25fdGltZSI6MTc3NTI2OTY4MTg2NCwicm9sZV9uYW1lIjoiZ292ZXJubWVudCIsImxpY2Vuc2UiOiJwb3dlcmVkIGJ5IEtpbmdvblgiLCJwb3N0X2lkIjoiMTEyMzU5ODgxNzczODY3NTIwMSIsInVzZXJfaWQiOiIxNjI1MDkyODIyNTE4NTk1NTg1Iiwibmlja19uYW1lIjoi5pS_5bqc55uR566hIiwiZGV0YWlsIjp7InR5cGUiOiJ3ZWIifSwiZGVwdF9pZCI6IjE1Mjg2MzkyODY2NjgyNjc1MjEiLCJhY2NvdW50Ijoi5pS_5bqc55uR566hIiwicmVnaW9uX2NvZGUiOiIwLDAwLDQ1MDAwMDAwMDAwMCJ9.UmA7CAeD39u78fhqkRJuF-IS4PF_wYVF0I9YgOOqxMA' failed: WebSocket is closed before the connection is established. @ https://yspt.jinyangtong.cn/static/js/chunk-views.a88fa422.js:0
+[  653907ms] [LOG] 连接错误 @ https://yspt.jinyangtong.cn/static/js/chunk-views.a88fa422.js:0
+[  653907ms] [LOG] 断开连接 @ https://yspt.jinyangtong.cn/static/js/chunk-views.a88fa422.js:0
+[  654108ms] [LOG] socket连接成功 @ https://yspt.jinyangtong.cn/static/js/chunk-views.a88fa422.js:0
+[  954103ms] [LOG] 断开连接 @ https://yspt.jinyangtong.cn/static/js/chunk-views.a88fa422.js:0
+[  954103ms] [LOG] 关闭连接 @ https://yspt.jinyangtong.cn/static/js/chunk-views.a88fa422.js:0
+[  954617ms] [LOG] socket连接成功 @ https://yspt.jinyangtong.cn/static/js/chunk-views.a88fa422.js:0
+[ 1254614ms] [LOG] 断开连接 @ https://yspt.jinyangtong.cn/static/js/chunk-views.a88fa422.js:0
+[ 1254615ms] [LOG] 关闭连接 @ https://yspt.jinyangtong.cn/static/js/chunk-views.a88fa422.js:0
+[ 1254982ms] [LOG] socket连接成功 @ https://yspt.jinyangtong.cn/static/js/chunk-views.a88fa422.js:0
+[ 1554984ms] [LOG] 断开连接 @ https://yspt.jinyangtong.cn/static/js/chunk-views.a88fa422.js:0
+[ 1554985ms] [LOG] 关闭连接 @ https://yspt.jinyangtong.cn/static/js/chunk-views.a88fa422.js:0
+[ 1555359ms] [LOG] socket连接成功 @ https://yspt.jinyangtong.cn/static/js/chunk-views.a88fa422.js:0
+[ 1855378ms] [LOG] 断开连接 @ https://yspt.jinyangtong.cn/static/js/chunk-views.a88fa422.js:0
+[ 1855379ms] [LOG] 关闭连接 @ https://yspt.jinyangtong.cn/static/js/chunk-views.a88fa422.js:0
+[ 1856048ms] [LOG] socket连接成功 @ https://yspt.jinyangtong.cn/static/js/chunk-views.a88fa422.js:0
+[ 2156043ms] [LOG] 断开连接 @ https://yspt.jinyangtong.cn/static/js/chunk-views.a88fa422.js:0
+[ 2156044ms] [LOG] 关闭连接 @ https://yspt.jinyangtong.cn/static/js/chunk-views.a88fa422.js:0
+[ 2156588ms] [LOG] socket连接成功 @ https://yspt.jinyangtong.cn/static/js/chunk-views.a88fa422.js:0

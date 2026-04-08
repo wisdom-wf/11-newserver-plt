@@ -1,0 +1,23 @@
+- generic [ref=e31]:
+  - generic [ref=e32]:
+    - paragraph [ref=e35]: 智慧养老服务管理平台
+    - generic [ref=e37]:
+      - heading "欢迎登录使用" [level=4] [ref=e38]
+      - generic [ref=e39]:
+        - generic [ref=e40]:
+          - generic [ref=e43]:
+            - textbox "请输入账号" [ref=e44]: "13659261094"
+            - generic [ref=e46]: 
+            - generic:
+              - generic: 
+          - generic [ref=e48]:
+            - generic [ref=e49]:
+              - textbox "请输入密码" [ref=e50]
+              - generic [ref=e52]: 
+              - generic:
+                - generic [ref=e54]: 
+                - generic: 
+            - generic [ref=e59]: 请输入密码
+          - button "登录" [active] [ref=e57] [cursor=pointer]
+        - text: 
+  - generic [ref=e58]: Copyright © 2022 Kingon All Rights Reserved.

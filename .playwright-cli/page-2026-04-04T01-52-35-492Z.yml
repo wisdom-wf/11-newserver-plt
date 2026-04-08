@@ -1,0 +1,1027 @@
+- generic [active] [ref=e1]:
+  - generic [ref=e116]:
+    - generic [ref=e118]:
+      - generic [ref=e121]: 
+      - generic [ref=e122]:
+        - menubar [ref=e125]:
+          - menuitem " 首页" [ref=e126] [cursor=pointer]:
+            - generic [ref=e127]: 
+            - text: 首页
+        - combobox [ref=e128]:
+          - textbox "请输入搜索内容" [ref=e130]
+      - generic [ref=e131]:
+        - button "" [ref=e133]:
+          - generic [ref=e134]: 
+        - generic [ref=e140] [cursor=pointer]: 
+        - generic [ref=e142]:
+          - generic [ref=e143]: 
+          - text: 
+        - generic [ref=e145]:
+          - text: 
+          - generic [ref=e147]: 
+        - generic [ref=e148]:
+          - generic [ref=e150]: 
+          - generic:  
+        - generic [ref=e152]: 
+        - img [ref=e153]
+        - generic [ref=e154]: 政府监管
+        - button "" [ref=e156]:
+          - generic [ref=e157]: 
+        - text: 
+    - generic:
+      - generic [ref=e159]:
+        - generic [ref=e162]: 智慧养老服务管理平台
+        - menubar [ref=e166]:
+          - generic [ref=e167]:
+            - menuitem "大数据中心 " [ref=e168]:
+              - generic [ref=e169] [cursor=pointer]:
+                - generic [ref=e170]: 
+                - text: 大数据中心
+                - generic [ref=e171]: 
+              - text:         
+            - menuitem "数据统计分析 " [expanded] [ref=e172]:
+              - generic [ref=e173] [cursor=pointer]:
+                - generic [ref=e174]: 
+                - text: 数据统计分析
+                - generic [ref=e175]: 
+              - menu [ref=e378]:
+                - menuitem "服务商工单报表" [ref=e379] [cursor=pointer]:
+                  - generic [ref=e380]: 
+                  - text: 服务商工单报表
+                - menuitem "社区管家工单报表" [ref=e381] [cursor=pointer]:
+                  - generic [ref=e382]: 
+                  - text: 社区管家工单报表
+                - menuitem "商品订单报表" [ref=e383] [cursor=pointer]:
+                  - generic [ref=e384]: 
+                  - text: 商品订单报表
+                - menuitem "健康检测报表" [ref=e385] [cursor=pointer]:
+                  - generic [ref=e386]: 
+                  - text: 健康检测报表
+                - menuitem "老人统计 " [ref=e388]:
+                  - generic [ref=e389] [cursor=pointer]:
+                    - generic [ref=e390]: 
+                    - text: 老人统计
+                    - generic [ref=e391]: 
+                  - text:      
+                - menuitem "服务统计 " [expanded] [ref=e393]:
+                  - generic [ref=e394] [cursor=pointer]:
+                    - generic [ref=e395]: 
+                    - text: 服务统计
+                    - generic [ref=e396]: 
+                  - menu [ref=e10136]:
+                    - menuitem "服务工单明细" [ref=e10137] [cursor=pointer]:
+                      - generic [ref=e10138]: 
+                      - text: 服务工单明细
+                    - menuitem "服务商数据统计" [ref=e10139] [cursor=pointer]:
+                      - generic [ref=e10140]: 
+                      - text: 服务商数据统计
+                    - menuitem "服务工单数据统计" [ref=e10141] [cursor=pointer]:
+                      - generic [ref=e10142]: 
+                      - text: 服务工单数据统计
+                    - menuitem "客户服务量统计" [ref=e10143] [cursor=pointer]:
+                      - generic [ref=e10144]: 
+                      - text: 客户服务量统计
+                - menuitem "机构统计 " [ref=e398]:
+                  - generic [ref=e399] [cursor=pointer]:
+                    - generic [ref=e400]: 
+                    - text: 机构统计
+                    - generic [ref=e401]: 
+                  - text:   
+                - menuitem "补贴统计 " [ref=e403]:
+                  - generic [ref=e404] [cursor=pointer]:
+                    - generic [ref=e405]: 
+                    - text: 补贴统计
+                    - generic [ref=e406]: 
+                  - text:   
+            - menuitem "助餐 " [ref=e176]:
+              - generic [ref=e177] [cursor=pointer]:
+                - generic [ref=e178]: 
+                - text: 助餐
+                - generic [ref=e179]: 
+              - text:      
+            - menuitem "政府补贴 " [ref=e180]:
+              - generic [ref=e181] [cursor=pointer]:
+                - generic [ref=e182]: 
+                - text: 政府补贴
+                - generic [ref=e183]: 
+              - text:                                 
+            - menuitem "基础设置 " [ref=e184]:
+              - generic [ref=e185] [cursor=pointer]:
+                - generic [ref=e186]: 
+                - text: 基础设置
+                - generic [ref=e187]: 
+              - text:   
+      - generic [ref=e190]:
+        - generic [ref=e192]:
+          - generic [ref=e193]:
+            - generic [ref=e195]:
+              - generic [ref=e2859] [cursor=pointer]: 
+              - generic [ref=e2861] [cursor=pointer]: 
+              - tablist [ref=e197]:
+                - tab "首页" [ref=e198]: 首页 
+                - tab "服务商工单报表 " [ref=e407]:
+                  - text: 服务商工单报表
+                  - generic: 
+                - tab "社区管家工单报表 " [ref=e756]:
+                  - text: 社区管家工单报表
+                  - generic: 
+                - tab "商品订单报表 " [ref=e1112]:
+                  - text: 商品订单报表
+                  - generic: 
+                - tab "健康检测报表 " [ref=e1333]:
+                  - text: 健康检测报表
+                  - generic: 
+                - tab "老人数据统计 " [selected] [ref=e1644]:
+                  - text: 老人数据统计
+                  - generic [ref=e1645]: 
+                - tab "性别比例统计 " [ref=e2735]:
+                  - text: 性别比例统计
+                  - generic: 
+                - tab "年龄分析统计 " [ref=e2862]:
+                  - text: 年龄分析统计
+                  - generic: 
+                - tab "子女情况统计 " [ref=e5533]:
+                  - text: 子女情况统计
+                  - generic: 
+                - tab "老人失能情况统计 " [ref=e7314]:
+                  - text: 老人失能情况统计
+                  - generic: 
+                - tab "区域分析统计 " [ref=e8662]:
+                  - text: 区域分析统计
+                  - generic: 
+            - generic:
+              - tabpanel "老人数据统计 "
+          - button "更多 " [ref=e200]:
+            - text: 更多
+            - generic [ref=e201]: 
+        - text:                                                                  
+        - generic [ref=e9048]:
+          - tablist [ref=e9055]:
+            - generic [ref=e9056]:
+              - tab [expanded]: 
+              - tabpanel "" [ref=e9057]:
+                - generic [ref=e9059]:
+                  - generic [ref=e9061]:
+                    - generic [ref=e9062]: "姓名:"
+                    - textbox "请输入 姓名" [ref=e9066]
+                  - generic [ref=e9068]:
+                    - generic [ref=e9069]: "性别:"
+                    - generic [ref=e9073]:
+                      - textbox "请选择 性别" [ref=e9074] [cursor=pointer]
+                      - generic [ref=e9076] [cursor=pointer]: 
+                  - generic [ref=e9078]:
+                    - generic [ref=e9079]: "年龄:"
+                    - generic [ref=e9082]:
+                      - button "" [ref=e9083] [cursor=pointer]:
+                        - generic [ref=e9084]: 
+                      - button "" [ref=e9085] [cursor=pointer]:
+                        - generic [ref=e9086]: 
+                      - spinbutton "请输入 年龄" [ref=e9088]
+                  - generic [ref=e9090]:
+                    - generic [ref=e9091]: "手机号码:"
+                    - textbox "请输入 手机号码" [ref=e9095]
+                  - generic [ref=e9097]:
+                    - generic [ref=e9098]: "身份证号:"
+                    - textbox "请输入 身份证号" [ref=e9102]
+                  - generic [ref=e9104]:
+                    - generic [ref=e9105]: "服务机构:"
+                    - generic [ref=e9109]:
+                      - textbox "请选择 服务机构" [ref=e9110] [cursor=pointer]
+                      - generic [ref=e9112] [cursor=pointer]: 
+                  - generic [ref=e9114]:
+                    - generic [ref=e9115]: "居住情况:"
+                    - generic [ref=e9119]:
+                      - textbox "请选择 居住情况" [ref=e9120] [cursor=pointer]
+                      - generic [ref=e9122] [cursor=pointer]: 
+                  - generic [ref=e9125]:
+                    - button " 搜 索" [ref=e9126] [cursor=pointer]:
+                      - generic [ref=e9127]: 
+                      - text: 搜 索
+                    - button " 清 空" [ref=e9128] [cursor=pointer]:
+                      - generic [ref=e9129]: 
+                      - text: 清 空
+                    - button " 展 开" [ref=e9130] [cursor=pointer]:
+                      - generic [ref=e9131]: 
+                      - text: 展 开
+          - generic [ref=e9133]:
+            - generic [ref=e9135]:
+              - button "" [ref=e9136] [cursor=pointer]:
+                - generic [ref=e9137]: 
+              - button "" [ref=e9138] [cursor=pointer]:
+                - generic [ref=e9139]: 
+              - button "" [ref=e9140] [cursor=pointer]:
+                - generic [ref=e9141]: 
+            - generic [ref=e9143]:
+              - table [ref=e9145]:
+                - rowgroup [ref=e9165]:
+                  - row "姓名 性别 年龄 手机号码 身份证号 服务机构 居住情况 家庭地址 户籍地址 客户类型 服务类型 服务状态 失能情况 残疾情况" [ref=e9166]:
+                    - columnheader [ref=e9167]
+                    - columnheader [ref=e9168]
+                    - columnheader "姓名" [ref=e9169]:
+                      - generic [ref=e9172]: 姓名
+                    - columnheader "性别" [ref=e9173]:
+                      - generic [ref=e9176]: 性别
+                    - columnheader "年龄" [ref=e9177]:
+                      - generic [ref=e9180]: 年龄
+                    - columnheader "手机号码" [ref=e9181]:
+                      - generic [ref=e9184]: 手机号码
+                    - columnheader "身份证号" [ref=e9185]:
+                      - generic [ref=e9188]: 身份证号
+                    - columnheader "服务机构" [ref=e9189]:
+                      - generic [ref=e9192]: 服务机构
+                    - columnheader "居住情况" [ref=e9193]:
+                      - generic [ref=e9196]: 居住情况
+                    - columnheader "家庭地址" [ref=e9197]:
+                      - generic [ref=e9200]: 家庭地址
+                    - columnheader "户籍地址" [ref=e9201]:
+                      - generic [ref=e9204]: 户籍地址
+                    - columnheader "客户类型" [ref=e9205]:
+                      - generic [ref=e9208]: 客户类型
+                    - columnheader "服务类型" [ref=e9209]:
+                      - generic [ref=e9212]: 服务类型
+                    - columnheader "服务状态" [ref=e9213]:
+                      - generic [ref=e9216]: 服务状态
+                    - columnheader "失能情况" [ref=e9217]:
+                      - generic [ref=e9220]: 失能情况
+                    - columnheader "残疾情况" [ref=e9221]:
+                      - generic [ref=e9224]: 残疾情况
+                    - columnheader [ref=e9225]
+                    - columnheader [ref=e9226]
+              - table [ref=e9228]:
+                - rowgroup [ref=e9248]:
+                  - row "张* 女 39 *******8765 342********7123 深圳龙华坂田服务中心 中国广西壮族自治区 低保老人 正常服务" [ref=e9249]:
+                    - cell [ref=e9250]
+                    - cell [ref=e9251]
+                    - cell "张*" [ref=e9252]:
+                      - generic [ref=e9253]: 张*
+                    - cell "女" [ref=e9254]:
+                      - generic [ref=e9255]: 女
+                    - cell "39" [ref=e9256]:
+                      - generic [ref=e9257]: "39"
+                    - cell "*******8765" [ref=e9258]:
+                      - generic [ref=e9259]: "*******8765"
+                    - cell "342********7123" [ref=e9260]:
+                      - generic [ref=e9261]: 342********7123
+                    - cell "深圳龙华坂田服务中心" [ref=e9262]:
+                      - generic [ref=e9263]: 深圳龙华坂田服务中心
+                    - cell [ref=e9264]
+                    - cell "中国广西壮族自治区" [ref=e9265]:
+                      - generic [ref=e9266]: 中国广西壮族自治区
+                    - cell [ref=e9267]
+                    - cell "低保老人" [ref=e9268]:
+                      - generic [ref=e9269]: 低保老人
+                    - cell [ref=e9270]
+                    - cell "正常服务" [ref=e9271]:
+                      - generic [ref=e9272]: 正常服务
+                    - cell [ref=e9273]
+                    - cell [ref=e9274]
+                    - cell [ref=e9275]
+                    - cell [ref=e9276]
+                  - row "早*找 男 37 *******5123 350********5610 阳光日照中心 中国广西壮族自治区南宁市青秀区中山街道中山社区居委会 低保老人 正常服务" [ref=e9277]:
+                    - cell [ref=e9278]
+                    - cell [ref=e9279]
+                    - cell "早*找" [ref=e9280]:
+                      - generic [ref=e9281]: 早*找
+                    - cell "男" [ref=e9282]:
+                      - generic [ref=e9283]: 男
+                    - cell "37" [ref=e9284]:
+                      - generic [ref=e9285]: "37"
+                    - cell "*******5123" [ref=e9286]:
+                      - generic [ref=e9287]: "*******5123"
+                    - cell "350********5610" [ref=e9288]:
+                      - generic [ref=e9289]: 350********5610
+                    - cell "阳光日照中心" [ref=e9290]:
+                      - generic [ref=e9291]: 阳光日照中心
+                    - cell [ref=e9292]
+                    - cell "中国广西壮族自治区南宁市青秀区中山街道中山社区居委会" [ref=e9293]:
+                      - generic [ref=e9294]: 中国广西壮族自治区南宁市青秀区中山街道中山社区居委会
+                    - cell [ref=e9295]
+                    - cell "低保老人" [ref=e9296]:
+                      - generic [ref=e9297]: 低保老人
+                    - cell [ref=e9298]
+                    - cell "正常服务" [ref=e9299]:
+                      - generic [ref=e9300]: 正常服务
+                    - cell [ref=e9301]
+                    - cell [ref=e9302]
+                    - cell [ref=e9303]
+                    - cell [ref=e9304]
+                  - row "李* 男 37 *******9247 320********2138 深圳龙华坂田服务中心 独自居住 中国广西壮族自治区 低保老人 正常服务" [ref=e9305]:
+                    - cell [ref=e9306]
+                    - cell [ref=e9307]
+                    - cell "李*" [ref=e9308]:
+                      - generic [ref=e9309]: 李*
+                    - cell "男" [ref=e9310]:
+                      - generic [ref=e9311]: 男
+                    - cell "37" [ref=e9312]:
+                      - generic [ref=e9313]: "37"
+                    - cell "*******9247" [ref=e9314]:
+                      - generic [ref=e9315]: "*******9247"
+                    - cell "320********2138" [ref=e9316]:
+                      - generic [ref=e9317]: 320********2138
+                    - cell "深圳龙华坂田服务中心" [ref=e9318]:
+                      - generic [ref=e9319]: 深圳龙华坂田服务中心
+                    - cell "独自居住" [ref=e9320]:
+                      - generic [ref=e9321]: 独自居住
+                    - cell "中国广西壮族自治区" [ref=e9322]:
+                      - generic [ref=e9323]: 中国广西壮族自治区
+                    - cell [ref=e9324]
+                    - cell "低保老人" [ref=e9325]:
+                      - generic [ref=e9326]: 低保老人
+                    - cell [ref=e9327]
+                    - cell "正常服务" [ref=e9328]:
+                      - generic [ref=e9329]: 正常服务
+                    - cell [ref=e9330]
+                    - cell [ref=e9331]
+                    - cell [ref=e9332]
+                    - cell [ref=e9333]
+                  - row "tt*** 男 27 *******3788 210********1816 深圳龙华坂田服务中心 中国广西壮族自治区 低保老人 正常服务" [ref=e9334]:
+                    - cell [ref=e9335]
+                    - cell [ref=e9336]
+                    - cell "tt***" [ref=e9337]:
+                      - generic [ref=e9338]: tt***
+                    - cell "男" [ref=e9339]:
+                      - generic [ref=e9340]: 男
+                    - cell "27" [ref=e9341]:
+                      - generic [ref=e9342]: "27"
+                    - cell "*******3788" [ref=e9343]:
+                      - generic [ref=e9344]: "*******3788"
+                    - cell "210********1816" [ref=e9345]:
+                      - generic [ref=e9346]: 210********1816
+                    - cell "深圳龙华坂田服务中心" [ref=e9347]:
+                      - generic [ref=e9348]: 深圳龙华坂田服务中心
+                    - cell [ref=e9349]
+                    - cell "中国广西壮族自治区" [ref=e9350]:
+                      - generic [ref=e9351]: 中国广西壮族自治区
+                    - cell [ref=e9352]
+                    - cell "低保老人" [ref=e9353]:
+                      - generic [ref=e9354]: 低保老人
+                    - cell [ref=e9355]
+                    - cell "正常服务" [ref=e9356]:
+                      - generic [ref=e9357]: 正常服务
+                    - cell [ref=e9358]
+                    - cell [ref=e9359]
+                    - cell [ref=e9360]
+                    - cell [ref=e9361]
+                  - row "1* 男 39 *******3948 111111 阳光日照中心 中国广西壮族自治区cs 极其困难户 正常服务" [ref=e9362]:
+                    - cell [ref=e9363]
+                    - cell [ref=e9364]
+                    - cell "1*" [ref=e9365]:
+                      - generic [ref=e9366]: 1*
+                    - cell "男" [ref=e9367]:
+                      - generic [ref=e9368]: 男
+                    - cell "39" [ref=e9369]:
+                      - generic [ref=e9370]: "39"
+                    - cell "*******3948" [ref=e9371]:
+                      - generic [ref=e9372]: "*******3948"
+                    - cell "111111" [ref=e9373]:
+                      - generic [ref=e9374]: "111111"
+                    - cell "阳光日照中心" [ref=e9375]:
+                      - generic [ref=e9376]: 阳光日照中心
+                    - cell [ref=e9377]
+                    - cell "中国广西壮族自治区cs" [ref=e9378]:
+                      - generic [ref=e9379]: 中国广西壮族自治区cs
+                    - cell [ref=e9380]
+                    - cell "极其困难户" [ref=e9381]:
+                      - generic [ref=e9382]: 极其困难户
+                    - cell [ref=e9383]
+                    - cell "正常服务" [ref=e9384]:
+                      - generic [ref=e9385]: 正常服务
+                    - cell [ref=e9386]
+                    - cell [ref=e9387]
+                    - cell [ref=e9388]
+                    - cell [ref=e9389]
+                  - row "12** 女 24 *******2733 12022520010906617X 深圳龙华坂田服务中心 中国广西壮族自治区 低保老人 正常服务" [ref=e9390]:
+                    - cell [ref=e9391]
+                    - cell [ref=e9392]
+                    - cell "12**" [ref=e9393]:
+                      - generic [ref=e9394]: 12**
+                    - cell "女" [ref=e9395]:
+                      - generic [ref=e9396]: 女
+                    - cell "24" [ref=e9397]:
+                      - generic [ref=e9398]: "24"
+                    - cell "*******2733" [ref=e9399]:
+                      - generic [ref=e9400]: "*******2733"
+                    - cell "12022520010906617X" [ref=e9401]:
+                      - generic [ref=e9402]: 12022520010906617X
+                    - cell "深圳龙华坂田服务中心" [ref=e9403]:
+                      - generic [ref=e9404]: 深圳龙华坂田服务中心
+                    - cell [ref=e9405]
+                    - cell "中国广西壮族自治区" [ref=e9406]:
+                      - generic [ref=e9407]: 中国广西壮族自治区
+                    - cell [ref=e9408]
+                    - cell "低保老人" [ref=e9409]:
+                      - generic [ref=e9410]: 低保老人
+                    - cell [ref=e9411]
+                    - cell "正常服务" [ref=e9412]:
+                      - generic [ref=e9413]: 正常服务
+                    - cell [ref=e9414]
+                    - cell [ref=e9415]
+                    - cell [ref=e9416]
+                    - cell [ref=e9417]
+                  - row "杨* 男 42 *******2852 110********9474 深圳龙华坂田服务中心 中国广西壮族自治区 低保老人 正常服务" [ref=e9418]:
+                    - cell [ref=e9419]
+                    - cell [ref=e9420]
+                    - cell "杨*" [ref=e9421]:
+                      - generic [ref=e9422]: 杨*
+                    - cell "男" [ref=e9423]:
+                      - generic [ref=e9424]: 男
+                    - cell "42" [ref=e9425]:
+                      - generic [ref=e9426]: "42"
+                    - cell "*******2852" [ref=e9427]:
+                      - generic [ref=e9428]: "*******2852"
+                    - cell "110********9474" [ref=e9429]:
+                      - generic [ref=e9430]: 110********9474
+                    - cell "深圳龙华坂田服务中心" [ref=e9431]:
+                      - generic [ref=e9432]: 深圳龙华坂田服务中心
+                    - cell [ref=e9433]
+                    - cell "中国广西壮族自治区" [ref=e9434]:
+                      - generic [ref=e9435]: 中国广西壮族自治区
+                    - cell [ref=e9436]
+                    - cell "低保老人" [ref=e9437]:
+                      - generic [ref=e9438]: 低保老人
+                    - cell [ref=e9439]
+                    - cell "正常服务" [ref=e9440]:
+                      - generic [ref=e9441]: 正常服务
+                    - cell [ref=e9442]
+                    - cell [ref=e9443]
+                    - cell [ref=e9444]
+                    - cell [ref=e9445]
+                  - row "孙* 男 1 *******7688 210********6813 深圳龙华坂田服务中心 居无定所 中国广西壮族自治区cs天桥第四节桥洞 中国 极其困难户 政府购买 去世 重度失能 重度残疾" [ref=e9446]:
+                    - cell [ref=e9447]
+                    - cell [ref=e9448]
+                    - cell "孙*" [ref=e9449]:
+                      - generic [ref=e9450]: 孙*
+                    - cell "男" [ref=e9451]:
+                      - generic [ref=e9452]: 男
+                    - cell "1" [ref=e9453]:
+                      - generic [ref=e9454]: "1"
+                    - cell "*******7688" [ref=e9455]:
+                      - generic [ref=e9456]: "*******7688"
+                    - cell "210********6813" [ref=e9457]:
+                      - generic [ref=e9458]: 210********6813
+                    - cell "深圳龙华坂田服务中心" [ref=e9459]:
+                      - generic [ref=e9460]: 深圳龙华坂田服务中心
+                    - cell "居无定所" [ref=e9461]:
+                      - generic [ref=e9462]: 居无定所
+                    - cell "中国广西壮族自治区cs天桥第四节桥洞" [ref=e9463]:
+                      - generic [ref=e9464]: 中国广西壮族自治区cs天桥第四节桥洞
+                    - cell "中国" [ref=e9465]:
+                      - generic [ref=e9466]: 中国
+                    - cell "极其困难户" [ref=e9467]:
+                      - generic [ref=e9468]: 极其困难户
+                    - cell "政府购买" [ref=e9469]:
+                      - generic [ref=e9470]: 政府购买
+                    - cell "去世" [ref=e9471]:
+                      - generic [ref=e9472]: 去世
+                    - cell "重度失能" [ref=e9473]:
+                      - generic [ref=e9474]: 重度失能
+                    - cell "重度残疾" [ref=e9475]:
+                      - generic [ref=e9476]: 重度残疾
+                    - cell [ref=e9477]
+                    - cell [ref=e9478]
+                  - row "张*禹 男 55 *******6522 430********8833 一心医养 中国广西壮族自治区 农村经济困难老年人 正常服务" [ref=e9479]:
+                    - cell [ref=e9480]
+                    - cell [ref=e9481]
+                    - cell "张*禹" [ref=e9482]:
+                      - generic [ref=e9483]: 张*禹
+                    - cell "男" [ref=e9484]:
+                      - generic [ref=e9485]: 男
+                    - cell "55" [ref=e9486]:
+                      - generic [ref=e9487]: "55"
+                    - cell "*******6522" [ref=e9488]:
+                      - generic [ref=e9489]: "*******6522"
+                    - cell "430********8833" [ref=e9490]:
+                      - generic [ref=e9491]: 430********8833
+                    - cell "一心医养" [ref=e9492]:
+                      - generic [ref=e9493]: 一心医养
+                    - cell [ref=e9494]
+                    - cell "中国广西壮族自治区" [ref=e9495]:
+                      - generic [ref=e9496]: 中国广西壮族自治区
+                    - cell [ref=e9497]
+                    - cell "农村经济困难老年人" [ref=e9498]:
+                      - generic [ref=e9499]: 农村经济困难老年人
+                    - cell [ref=e9500]
+                    - cell "正常服务" [ref=e9501]:
+                      - generic [ref=e9502]: 正常服务
+                    - cell [ref=e9503]
+                    - cell [ref=e9504]
+                    - cell [ref=e9505]
+                    - cell [ref=e9506]
+                  - row "杨*咩 女 -7323 *******6716 321********6123 深圳龙华坂田服务中心 独自居住 中国广西壮族自治区北海市市辖区 中国广西壮族自治区北海市市辖区 低保老人 政府购买+有偿服务 正常服务 轻度失能 轻度残疾" [ref=e9507]:
+                    - cell [ref=e9508]
+                    - cell [ref=e9509]
+                    - cell "杨*咩" [ref=e9510]:
+                      - generic [ref=e9511]: 杨*咩
+                    - cell "女" [ref=e9512]:
+                      - generic [ref=e9513]: 女
+                    - cell "-7323" [ref=e9514]:
+                      - generic [ref=e9515]: "-7323"
+                    - cell "*******6716" [ref=e9516]:
+                      - generic [ref=e9517]: "*******6716"
+                    - cell "321********6123" [ref=e9518]:
+                      - generic [ref=e9519]: 321********6123
+                    - cell "深圳龙华坂田服务中心" [ref=e9520]:
+                      - generic [ref=e9521]: 深圳龙华坂田服务中心
+                    - cell "独自居住" [ref=e9522]:
+                      - generic [ref=e9523]: 独自居住
+                    - cell "中国广西壮族自治区北海市市辖区" [ref=e9524]:
+                      - generic [ref=e9525]: 中国广西壮族自治区北海市市辖区
+                    - cell "中国广西壮族自治区北海市市辖区" [ref=e9526]:
+                      - generic [ref=e9527]: 中国广西壮族自治区北海市市辖区
+                    - cell "低保老人" [ref=e9528]:
+                      - generic [ref=e9529]: 低保老人
+                    - cell "政府购买+有偿服务" [ref=e9530]:
+                      - generic [ref=e9531]: 政府购买+有偿服务
+                    - cell "正常服务" [ref=e9532]:
+                      - generic [ref=e9533]: 正常服务
+                    - cell "轻度失能" [ref=e9534]:
+                      - generic [ref=e9535]: 轻度失能
+                    - cell "轻度残疾" [ref=e9536]:
+                      - generic [ref=e9537]: 轻度残疾
+                    - cell [ref=e9538]
+                    - cell [ref=e9539]
+              - generic [ref=e9540]:
+                - table [ref=e9542]:
+                  - rowgroup [ref=e9562]:
+                    - row "序号" [ref=e9563]:
+                      - columnheader [ref=e9564]:
+                        - generic [ref=e9567] [cursor=pointer]:
+                          - checkbox
+                      - columnheader "序号" [ref=e9569]:
+                        - generic [ref=e9570]: 序号
+                      - columnheader [ref=e9571]
+                      - columnheader [ref=e9572]
+                      - columnheader [ref=e9573]
+                      - columnheader [ref=e9574]
+                      - columnheader [ref=e9575]
+                      - columnheader [ref=e9576]
+                      - columnheader [ref=e9577]
+                      - columnheader [ref=e9578]
+                      - columnheader [ref=e9579]
+                      - columnheader [ref=e9580]
+                      - columnheader [ref=e9581]
+                      - columnheader [ref=e9582]
+                      - columnheader [ref=e9583]
+                      - columnheader [ref=e9584]
+                      - columnheader [ref=e9585]
+                      - columnheader [ref=e9586]
+                - table [ref=e9588]:
+                  - rowgroup [ref=e9608]:
+                    - row "1" [ref=e9609]:
+                      - cell [ref=e9610]:
+                        - generic [ref=e9613] [cursor=pointer]:
+                          - checkbox
+                      - cell "1" [ref=e9615]:
+                        - generic [ref=e9617]: "1"
+                      - cell [ref=e9618]
+                      - cell [ref=e9619]
+                      - cell [ref=e9620]
+                      - cell [ref=e9621]
+                      - cell [ref=e9622]
+                      - cell [ref=e9623]
+                      - cell [ref=e9624]
+                      - cell [ref=e9625]
+                      - cell [ref=e9626]
+                      - cell [ref=e9627]
+                      - cell [ref=e9628]
+                      - cell [ref=e9629]
+                      - cell [ref=e9630]
+                      - cell [ref=e9631]
+                      - cell [ref=e9632]
+                      - cell [ref=e9633]
+                    - row "2" [ref=e9634]:
+                      - cell [ref=e9635]:
+                        - generic [ref=e9638] [cursor=pointer]:
+                          - checkbox
+                      - cell "2" [ref=e9640]:
+                        - generic [ref=e9642]: "2"
+                      - cell [ref=e9643]
+                      - cell [ref=e9644]
+                      - cell [ref=e9645]
+                      - cell [ref=e9646]
+                      - cell [ref=e9647]
+                      - cell [ref=e9648]
+                      - cell [ref=e9649]
+                      - cell [ref=e9650]
+                      - cell [ref=e9651]
+                      - cell [ref=e9652]
+                      - cell [ref=e9653]
+                      - cell [ref=e9654]
+                      - cell [ref=e9655]
+                      - cell [ref=e9656]
+                      - cell [ref=e9657]
+                      - cell [ref=e9658]
+                    - row "3" [ref=e9659]:
+                      - cell [ref=e9660]:
+                        - generic [ref=e9663] [cursor=pointer]:
+                          - checkbox
+                      - cell "3" [ref=e9665]:
+                        - generic [ref=e9667]: "3"
+                      - cell [ref=e9668]
+                      - cell [ref=e9669]
+                      - cell [ref=e9670]
+                      - cell [ref=e9671]
+                      - cell [ref=e9672]
+                      - cell [ref=e9673]
+                      - cell [ref=e9674]
+                      - cell [ref=e9675]
+                      - cell [ref=e9676]
+                      - cell [ref=e9677]
+                      - cell [ref=e9678]
+                      - cell [ref=e9679]
+                      - cell [ref=e9680]
+                      - cell [ref=e9681]
+                      - cell [ref=e9682]
+                      - cell [ref=e9683]
+                    - row "4" [ref=e9684]:
+                      - cell [ref=e9685]:
+                        - generic [ref=e9688] [cursor=pointer]:
+                          - checkbox
+                      - cell "4" [ref=e9690]:
+                        - generic [ref=e9692]: "4"
+                      - cell [ref=e9693]
+                      - cell [ref=e9694]
+                      - cell [ref=e9695]
+                      - cell [ref=e9696]
+                      - cell [ref=e9697]
+                      - cell [ref=e9698]
+                      - cell [ref=e9699]
+                      - cell [ref=e9700]
+                      - cell [ref=e9701]
+                      - cell [ref=e9702]
+                      - cell [ref=e9703]
+                      - cell [ref=e9704]
+                      - cell [ref=e9705]
+                      - cell [ref=e9706]
+                      - cell [ref=e9707]
+                      - cell [ref=e9708]
+                    - row "5" [ref=e9709]:
+                      - cell [ref=e9710]:
+                        - generic [ref=e9713] [cursor=pointer]:
+                          - checkbox
+                      - cell "5" [ref=e9715]:
+                        - generic [ref=e9717]: "5"
+                      - cell [ref=e9718]
+                      - cell [ref=e9719]
+                      - cell [ref=e9720]
+                      - cell [ref=e9721]
+                      - cell [ref=e9722]
+                      - cell [ref=e9723]
+                      - cell [ref=e9724]
+                      - cell [ref=e9725]
+                      - cell [ref=e9726]
+                      - cell [ref=e9727]
+                      - cell [ref=e9728]
+                      - cell [ref=e9729]
+                      - cell [ref=e9730]
+                      - cell [ref=e9731]
+                      - cell [ref=e9732]
+                      - cell [ref=e9733]
+                    - row "6" [ref=e9734]:
+                      - cell [ref=e9735]:
+                        - generic [ref=e9738] [cursor=pointer]:
+                          - checkbox
+                      - cell "6" [ref=e9740]:
+                        - generic [ref=e9742]: "6"
+                      - cell [ref=e9743]
+                      - cell [ref=e9744]
+                      - cell [ref=e9745]
+                      - cell [ref=e9746]
+                      - cell [ref=e9747]
+                      - cell [ref=e9748]
+                      - cell [ref=e9749]
+                      - cell [ref=e9750]
+                      - cell [ref=e9751]
+                      - cell [ref=e9752]
+                      - cell [ref=e9753]
+                      - cell [ref=e9754]
+                      - cell [ref=e9755]
+                      - cell [ref=e9756]
+                      - cell [ref=e9757]
+                      - cell [ref=e9758]
+                    - row "7" [ref=e9759]:
+                      - cell [ref=e9760]:
+                        - generic [ref=e9763] [cursor=pointer]:
+                          - checkbox
+                      - cell "7" [ref=e9765]:
+                        - generic [ref=e9767]: "7"
+                      - cell [ref=e9768]
+                      - cell [ref=e9769]
+                      - cell [ref=e9770]
+                      - cell [ref=e9771]
+                      - cell [ref=e9772]
+                      - cell [ref=e9773]
+                      - cell [ref=e9774]
+                      - cell [ref=e9775]
+                      - cell [ref=e9776]
+                      - cell [ref=e9777]
+                      - cell [ref=e9778]
+                      - cell [ref=e9779]
+                      - cell [ref=e9780]
+                      - cell [ref=e9781]
+                      - cell [ref=e9782]
+                      - cell [ref=e9783]
+                    - row "8" [ref=e9784]:
+                      - cell [ref=e9785]:
+                        - generic [ref=e9788] [cursor=pointer]:
+                          - checkbox
+                      - cell "8" [ref=e9790]:
+                        - generic [ref=e9792]: "8"
+                      - cell [ref=e9793]
+                      - cell [ref=e9794]
+                      - cell [ref=e9795]
+                      - cell [ref=e9796]
+                      - cell [ref=e9797]
+                      - cell [ref=e9798]
+                      - cell [ref=e9799]
+                      - cell [ref=e9800]
+                      - cell [ref=e9801]
+                      - cell [ref=e9802]
+                      - cell [ref=e9803]
+                      - cell [ref=e9804]
+                      - cell [ref=e9805]
+                      - cell [ref=e9806]
+                      - cell [ref=e9807]
+                      - cell [ref=e9808]
+                    - row "9" [ref=e9809]:
+                      - cell [ref=e9810]:
+                        - generic [ref=e9813] [cursor=pointer]:
+                          - checkbox
+                      - cell "9" [ref=e9815]:
+                        - generic [ref=e9817]: "9"
+                      - cell [ref=e9818]
+                      - cell [ref=e9819]
+                      - cell [ref=e9820]
+                      - cell [ref=e9821]
+                      - cell [ref=e9822]
+                      - cell [ref=e9823]
+                      - cell [ref=e9824]
+                      - cell [ref=e9825]
+                      - cell [ref=e9826]
+                      - cell [ref=e9827]
+                      - cell [ref=e9828]
+                      - cell [ref=e9829]
+                      - cell [ref=e9830]
+                      - cell [ref=e9831]
+                      - cell [ref=e9832]
+                      - cell [ref=e9833]
+                    - row "10" [ref=e9834]:
+                      - cell [ref=e9835]:
+                        - generic [ref=e9838] [cursor=pointer]:
+                          - checkbox
+                      - cell "10" [ref=e9840]:
+                        - generic [ref=e9842]: "10"
+                      - cell [ref=e9843]
+                      - cell [ref=e9844]
+                      - cell [ref=e9845]
+                      - cell [ref=e9846]
+                      - cell [ref=e9847]
+                      - cell [ref=e9848]
+                      - cell [ref=e9849]
+                      - cell [ref=e9850]
+                      - cell [ref=e9851]
+                      - cell [ref=e9852]
+                      - cell [ref=e9853]
+                      - cell [ref=e9854]
+                      - cell [ref=e9855]
+                      - cell [ref=e9856]
+                      - cell [ref=e9857]
+                      - cell [ref=e9858]
+              - generic [ref=e9859]:
+                - table [ref=e9861]:
+                  - rowgroup [ref=e9881]:
+                    - row "操作" [ref=e9882]:
+                      - columnheader [ref=e9883]
+                      - columnheader [ref=e9884]
+                      - columnheader [ref=e9885]
+                      - columnheader [ref=e9886]
+                      - columnheader [ref=e9887]
+                      - columnheader [ref=e9888]
+                      - columnheader [ref=e9889]
+                      - columnheader [ref=e9890]
+                      - columnheader [ref=e9891]
+                      - columnheader [ref=e9892]
+                      - columnheader [ref=e9893]
+                      - columnheader [ref=e9894]
+                      - columnheader [ref=e9895]
+                      - columnheader [ref=e9896]
+                      - columnheader [ref=e9897]
+                      - columnheader [ref=e9898]
+                      - columnheader [ref=e9899]
+                      - columnheader "操作" [ref=e9900]:
+                        - generic [ref=e9901]: 操作
+                - table [ref=e9903]:
+                  - rowgroup [ref=e9923]:
+                    - row [ref=e9924]:
+                      - cell [ref=e9925]
+                      - cell [ref=e9926]
+                      - cell [ref=e9927]
+                      - cell [ref=e9928]
+                      - cell [ref=e9929]
+                      - cell [ref=e9930]
+                      - cell [ref=e9931]
+                      - cell [ref=e9932]
+                      - cell [ref=e9933]
+                      - cell [ref=e9934]
+                      - cell [ref=e9935]
+                      - cell [ref=e9936]
+                      - cell [ref=e9937]
+                      - cell [ref=e9938]
+                      - cell [ref=e9939]
+                      - cell [ref=e9940]
+                      - cell [ref=e9941]
+                      - cell [ref=e9942]
+                    - row [ref=e9943]:
+                      - cell [ref=e9944]
+                      - cell [ref=e9945]
+                      - cell [ref=e9946]
+                      - cell [ref=e9947]
+                      - cell [ref=e9948]
+                      - cell [ref=e9949]
+                      - cell [ref=e9950]
+                      - cell [ref=e9951]
+                      - cell [ref=e9952]
+                      - cell [ref=e9953]
+                      - cell [ref=e9954]
+                      - cell [ref=e9955]
+                      - cell [ref=e9956]
+                      - cell [ref=e9957]
+                      - cell [ref=e9958]
+                      - cell [ref=e9959]
+                      - cell [ref=e9960]
+                      - cell [ref=e9961]
+                    - row [ref=e9962]:
+                      - cell [ref=e9963]
+                      - cell [ref=e9964]
+                      - cell [ref=e9965]
+                      - cell [ref=e9966]
+                      - cell [ref=e9967]
+                      - cell [ref=e9968]
+                      - cell [ref=e9969]
+                      - cell [ref=e9970]
+                      - cell [ref=e9971]
+                      - cell [ref=e9972]
+                      - cell [ref=e9973]
+                      - cell [ref=e9974]
+                      - cell [ref=e9975]
+                      - cell [ref=e9976]
+                      - cell [ref=e9977]
+                      - cell [ref=e9978]
+                      - cell [ref=e9979]
+                      - cell [ref=e9980]
+                    - row [ref=e9981]:
+                      - cell [ref=e9982]
+                      - cell [ref=e9983]
+                      - cell [ref=e9984]
+                      - cell [ref=e9985]
+                      - cell [ref=e9986]
+                      - cell [ref=e9987]
+                      - cell [ref=e9988]
+                      - cell [ref=e9989]
+                      - cell [ref=e9990]
+                      - cell [ref=e9991]
+                      - cell [ref=e9992]
+                      - cell [ref=e9993]
+                      - cell [ref=e9994]
+                      - cell [ref=e9995]
+                      - cell [ref=e9996]
+                      - cell [ref=e9997]
+                      - cell [ref=e9998]
+                      - cell [ref=e9999]
+                    - row [ref=e10000]:
+                      - cell [ref=e10001]
+                      - cell [ref=e10002]
+                      - cell [ref=e10003]
+                      - cell [ref=e10004]
+                      - cell [ref=e10005]
+                      - cell [ref=e10006]
+                      - cell [ref=e10007]
+                      - cell [ref=e10008]
+                      - cell [ref=e10009]
+                      - cell [ref=e10010]
+                      - cell [ref=e10011]
+                      - cell [ref=e10012]
+                      - cell [ref=e10013]
+                      - cell [ref=e10014]
+                      - cell [ref=e10015]
+                      - cell [ref=e10016]
+                      - cell [ref=e10017]
+                      - cell [ref=e10018]
+                    - row [ref=e10019]:
+                      - cell [ref=e10020]
+                      - cell [ref=e10021]
+                      - cell [ref=e10022]
+                      - cell [ref=e10023]
+                      - cell [ref=e10024]
+                      - cell [ref=e10025]
+                      - cell [ref=e10026]
+                      - cell [ref=e10027]
+                      - cell [ref=e10028]
+                      - cell [ref=e10029]
+                      - cell [ref=e10030]
+                      - cell [ref=e10031]
+                      - cell [ref=e10032]
+                      - cell [ref=e10033]
+                      - cell [ref=e10034]
+                      - cell [ref=e10035]
+                      - cell [ref=e10036]
+                      - cell [ref=e10037]
+                    - row [ref=e10038]:
+                      - cell [ref=e10039]
+                      - cell [ref=e10040]
+                      - cell [ref=e10041]
+                      - cell [ref=e10042]
+                      - cell [ref=e10043]
+                      - cell [ref=e10044]
+                      - cell [ref=e10045]
+                      - cell [ref=e10046]
+                      - cell [ref=e10047]
+                      - cell [ref=e10048]
+                      - cell [ref=e10049]
+                      - cell [ref=e10050]
+                      - cell [ref=e10051]
+                      - cell [ref=e10052]
+                      - cell [ref=e10053]
+                      - cell [ref=e10054]
+                      - cell [ref=e10055]
+                      - cell [ref=e10056]
+                    - row [ref=e10057]:
+                      - cell [ref=e10058]
+                      - cell [ref=e10059]
+                      - cell [ref=e10060]
+                      - cell [ref=e10061]
+                      - cell [ref=e10062]
+                      - cell [ref=e10063]
+                      - cell [ref=e10064]
+                      - cell [ref=e10065]
+                      - cell [ref=e10066]
+                      - cell [ref=e10067]
+                      - cell [ref=e10068]
+                      - cell [ref=e10069]
+                      - cell [ref=e10070]
+                      - cell [ref=e10071]
+                      - cell [ref=e10072]
+                      - cell [ref=e10073]
+                      - cell [ref=e10074]
+                      - cell [ref=e10075]
+                    - row [ref=e10076]:
+                      - cell [ref=e10077]
+                      - cell [ref=e10078]
+                      - cell [ref=e10079]
+                      - cell [ref=e10080]
+                      - cell [ref=e10081]
+                      - cell [ref=e10082]
+                      - cell [ref=e10083]
+                      - cell [ref=e10084]
+                      - cell [ref=e10085]
+                      - cell [ref=e10086]
+                      - cell [ref=e10087]
+                      - cell [ref=e10088]
+                      - cell [ref=e10089]
+                      - cell [ref=e10090]
+                      - cell [ref=e10091]
+                      - cell [ref=e10092]
+                      - cell [ref=e10093]
+                      - cell [ref=e10094]
+                    - row [ref=e10095]:
+                      - cell [ref=e10096]
+                      - cell [ref=e10097]
+                      - cell [ref=e10098]
+                      - cell [ref=e10099]
+                      - cell [ref=e10100]
+                      - cell [ref=e10101]
+                      - cell [ref=e10102]
+                      - cell [ref=e10103]
+                      - cell [ref=e10104]
+                      - cell [ref=e10105]
+                      - cell [ref=e10106]
+                      - cell [ref=e10107]
+                      - cell [ref=e10108]
+                      - cell [ref=e10109]
+                      - cell [ref=e10110]
+                      - cell [ref=e10111]
+                      - cell [ref=e10112]
+                      - cell [ref=e10113]
+            - generic [ref=e10115]:
+              - generic [ref=e10116]: 共 46 条
+              - generic [ref=e10119]:
+                - textbox "请选择" [ref=e10120] [cursor=pointer]: 10条/页
+                - generic [ref=e10122] [cursor=pointer]: 
+              - button "" [disabled] [ref=e10123]:
+                - generic [ref=e10124]: 
+              - list [ref=e10125]:
+                - listitem [ref=e10126]: "1"
+                - listitem [ref=e10127] [cursor=pointer]: "2"
+                - listitem [ref=e10128] [cursor=pointer]: "3"
+                - listitem [ref=e10129] [cursor=pointer]: "4"
+                - listitem [ref=e10130] [cursor=pointer]: "5"
+              - button "" [ref=e10131] [cursor=pointer]:
+                - generic [ref=e10132]: 
+              - generic [ref=e10133]:
+                - text: 前往
+                - spinbutton [ref=e10135]: "1"
+                - text: 页
+          - text:     
+    - generic:   
+    - text: 
+  - text:  

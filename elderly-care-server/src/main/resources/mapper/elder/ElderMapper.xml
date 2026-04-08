@@ -1,0 +1,54 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.elderlycare.mapper.elder.ElderMapper">
+
+    <resultMap id="BaseResultMap" type="com.elderlycare.entity.elder.Elder">
+        <id column="elder_id" property="elderId"/>
+        <result column="elder_name" property="name"/>
+        <result column="gender" property="gender"/>
+        <result column="birth_date" property="birthDate"/>
+        <result column="age" property="age"/>
+        <result column="id_card" property="idCard"/>
+        <result column="phone" property="phone"/>
+        <result column="ethnicity" property="ethnicity"/>
+        <result column="education" property="education"/>
+        <result column="marital_status" property="maritalStatus"/>
+        <result column="political_status" property="politicalStatus"/>
+        <result column="photo_url" property="photoUrl"/>
+        <result column="status" property="status"/>
+        <result column="register_date" property="registerDate"/>
+        <result column="address" property="address"/>
+        <result column="care_level" property="careLevel"/>
+        <result column="living_status" property="livingStatus"/>
+        <result column="health_status" property="healthStatus"/>
+        <result column="create_time" property="createTime"/>
+        <result column="update_time" property="updateTime"/>
+        <result column="deleted" property="deleted"/>
+    </resultMap>
+
+    <select id="selectElderPage" resultMap="BaseResultMap">
+        SELECT elder_id, elder_name, gender, birth_date, age, id_card, phone,
+               ethnicity, education, marital_status, political_status, photo_url,
+               status, register_date, address, care_level, living_status,
+               health_status, create_time, update_time, deleted
+        FROM t_elder
+        WHERE deleted = 0
+        <if test="dto.name != null and dto.name != ''">
+            AND elder_name LIKE CONCAT('%', #{dto.name}, '%')
+        </if>
+        <if test="dto.idCard != null and dto.idCard != ''">
+            AND id_card = #{dto.idCard}
+        </if>
+        <if test="dto.phone != null and dto.phone != ''">
+            AND phone = #{dto.phone}
+        </if>
+        <if test="dto.status != null">
+            AND status = #{dto.status}
+        </if>
+        <if test="dto.careLevel != null">
+            AND care_level = #{dto.careLevel}
+        </if>
+        ORDER BY create_time DESC
+    </select>
+
+</mapper>

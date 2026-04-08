@@ -1,0 +1,20 @@
+[   19189ms] NavigationDuplicated: Avoided redundant navigation to current location: "/wel/index".
+    at xt (https://yspt.jinyangtong.cn/cdn/vue-router/vue-router.min.js:6:16100)
+    at St.confirmTransition (https://yspt.jinyangtong.cn/cdn/vue-router/vue-router.min.js:6:18994)
+    at St.transitionTo (https://yspt.jinyangtong.cn/cdn/vue-router/vue-router.min.js:6:18362)
+    at e.push (https://yspt.jinyangtong.cn/cdn/vue-router/vue-router.min.js:6:22687)
+    at https://yspt.jinyangtong.cn/cdn/vue-router/vue-router.min.js:6:26072
+    at new Promise (<anonymous>)
+    at Ft.push (https://yspt.jinyangtong.cn/cdn/vue-router/vue-router.min.js:6:26036)
+    at a.openHome (https://yspt.jinyangtong.cn/static/js/chunk-pages.b63a505c.js:1:164375)
+    at click (https://yspt.jinyangtong.cn/static/js/chunk-pages.b63a505c.js:1:13591)
+    at He (https://yspt.jinyangtong.cn/cdn/vue/vue.min.js:6:11384)
+[  236041ms] [LOG] 断开连接 @ https://yspt.jinyangtong.cn/static/js/chunk-views.a88fa422.js:0
+[  236051ms] [LOG] 关闭连接 @ https://yspt.jinyangtong.cn/static/js/chunk-views.a88fa422.js:0
+[  236562ms] [LOG] socket连接成功 @ https://yspt.jinyangtong.cn/static/js/chunk-views.a88fa422.js:0
+[  536566ms] [LOG] 断开连接 @ https://yspt.jinyangtong.cn/static/js/chunk-views.a88fa422.js:0
+[  536574ms] [LOG] 关闭连接 @ https://yspt.jinyangtong.cn/static/js/chunk-views.a88fa422.js:0
+[  537390ms] [LOG] socket连接成功 @ https://yspt.jinyangtong.cn/static/js/chunk-views.a88fa422.js:0
+[  837372ms] [LOG] 断开连接 @ https://yspt.jinyangtong.cn/static/js/chunk-views.a88fa422.js:0
+[  837383ms] [LOG] 关闭连接 @ https://yspt.jinyangtong.cn/static/js/chunk-views.a88fa422.js:0
+[  837909ms] [LOG] socket连接成功 @ https://yspt.jinyangtong.cn/static/js/chunk-views.a88fa422.js:0

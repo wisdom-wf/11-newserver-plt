@@ -1,0 +1,267 @@
+- generic [ref=e1]:
+  - generic [ref=e116]:
+    - generic [ref=e118]:
+      - generic [ref=e121]: 
+      - generic [ref=e122]:
+        - menubar [ref=e125]:
+          - menuitem " 首页" [ref=e126] [cursor=pointer]:
+            - generic [ref=e127]: 
+            - text: 首页
+        - combobox [ref=e128]:
+          - textbox "请输入搜索内容" [ref=e130]
+      - generic [ref=e131]:
+        - button "" [ref=e133]:
+          - generic [ref=e134]: 
+        - generic [ref=e140] [cursor=pointer]: 
+        - generic [ref=e142]:
+          - generic [ref=e143]: 
+          - text: 
+        - generic [ref=e145]:
+          - text: 
+          - generic [ref=e147]: 
+        - generic [ref=e148]:
+          - generic [ref=e150]: 
+          - generic:  
+        - generic [ref=e152]: 
+        - img [ref=e153]
+        - generic [ref=e154]: 政府监管
+        - button "" [ref=e156]:
+          - generic [ref=e157]: 
+        - text: 
+    - generic:
+      - generic [ref=e159]:
+        - generic [ref=e162]: 智慧养老服务管理平台
+        - menubar [ref=e166]:
+          - generic [ref=e167]:
+            - menuitem "大数据中心 " [ref=e168]:
+              - generic [ref=e169] [cursor=pointer]:
+                - generic [ref=e170]: 
+                - text: 大数据中心
+                - generic [ref=e171]: 
+              - text:         
+            - menuitem "数据统计分析 " [ref=e172]:
+              - generic [ref=e173] [cursor=pointer]:
+                - generic [ref=e174]: 
+                - text: 数据统计分析
+                - generic [ref=e175]: 
+              - text:                            
+            - menuitem "助餐 " [ref=e176]:
+              - generic [ref=e177] [cursor=pointer]:
+                - generic [ref=e178]: 
+                - text: 助餐
+                - generic [ref=e179]: 
+              - text:      
+            - menuitem "政府补贴 " [expanded] [ref=e180]:
+              - generic [ref=e181] [cursor=pointer]:
+                - generic [ref=e182]: 
+                - text: 政府补贴
+                - generic [ref=e183]: 
+              - menu [ref=e14749]:
+                - menuitem "政府补贴概览" [active] [ref=e14750] [cursor=pointer]:
+                  - generic [ref=e14751]: 
+                  - text: 政府补贴概览
+                - menuitem "政府采购项目" [ref=e14752] [cursor=pointer]:
+                  - generic [ref=e14753]: 
+                  - text: 政府采购项目
+                - menuitem "项目管理员" [ref=e14754] [cursor=pointer]:
+                  - generic [ref=e14755]: 
+                  - text: 项目管理员
+                - menuitem "服务项目设置" [ref=e14756] [cursor=pointer]:
+                  - generic [ref=e14757]: 
+                  - text: 服务项目设置
+                - menuitem "服务补贴套餐设置" [ref=e14758] [cursor=pointer]:
+                  - generic [ref=e14759]: 
+                  - text: 服务补贴套餐设置
+                - menuitem "服务对象管理" [ref=e14760] [cursor=pointer]:
+                  - generic [ref=e14761]: 
+                  - text: 服务对象管理
+                - menuitem "第三方合作商家" [ref=e14762] [cursor=pointer]:
+                  - generic [ref=e14763]: 
+                  - text: 第三方合作商家
+                - menuitem "服务人员管理" [ref=e14764] [cursor=pointer]:
+                  - generic [ref=e14765]: 
+                  - text: 服务人员管理
+                - menuitem "已充值套餐管理" [ref=e14766] [cursor=pointer]:
+                  - generic [ref=e14767]: 
+                  - text: 已充值套餐管理
+                - menuitem "账户充值记录" [ref=e14768] [cursor=pointer]:
+                  - generic [ref=e14769]: 
+                  - text: 账户充值记录
+                - menuitem "账户流水" [ref=e14770] [cursor=pointer]:
+                  - generic [ref=e14771]: 
+                  - text: 账户流水
+                - menuitem "补贴统计报表 " [ref=e14773]:
+                  - generic [ref=e14774] [cursor=pointer]:
+                    - generic [ref=e14775]: 
+                    - text: 补贴统计报表
+                    - generic [ref=e14776]: 
+                  - text:                  
+                - menuitem "补贴下单" [ref=e14777] [cursor=pointer]:
+                  - generic [ref=e14778]: 
+                  - text: 补贴下单
+                - menuitem "套餐服务计划" [ref=e14779] [cursor=pointer]:
+                  - generic [ref=e14780]: 
+                  - text: 套餐服务计划
+            - menuitem "基础设置 " [ref=e184]:
+              - generic [ref=e185] [cursor=pointer]:
+                - generic [ref=e186]: 
+                - text: 基础设置
+                - generic [ref=e187]: 
+              - text:   
+      - generic [ref=e190]:
+        - generic [ref=e192]:
+          - generic [ref=e193]:
+            - generic [ref=e195]:
+              - generic [ref=e2859] [cursor=pointer]: 
+              - generic [ref=e2861] [cursor=pointer]: 
+              - tablist [ref=e197]:
+                - tab "首页" [ref=e198]: 首页 
+                - tab "服务商工单报表 " [ref=e407]:
+                  - text: 服务商工单报表
+                  - generic: 
+                - tab "社区管家工单报表 " [ref=e756]:
+                  - text: 社区管家工单报表
+                  - generic: 
+                - tab "商品订单报表 " [ref=e1112]:
+                  - text: 商品订单报表
+                  - generic: 
+                - tab "健康检测报表 " [ref=e1333]:
+                  - text: 健康检测报表
+                  - generic: 
+                - tab "老人数据统计 " [ref=e1644]:
+                  - text: 老人数据统计
+                  - generic: 
+                - tab "性别比例统计 " [ref=e2735]:
+                  - text: 性别比例统计
+                  - generic: 
+                - tab "年龄分析统计 " [ref=e2862]:
+                  - text: 年龄分析统计
+                  - generic: 
+                - tab "子女情况统计 " [ref=e5533]:
+                  - text: 子女情况统计
+                  - generic: 
+                - tab "老人失能情况统计 " [ref=e7314]:
+                  - text: 老人失能情况统计
+                  - generic: 
+                - tab "区域分析统计 " [ref=e8662]:
+                  - text: 区域分析统计
+                  - generic: 
+                - tab "服务工单明细 " [ref=e10145]:
+                  - text: 服务工单明细
+                  - generic: 
+                - tab "服务商数据统计 " [ref=e11355]:
+                  - text: 服务商数据统计
+                  - generic: 
+                - tab "服务工单数据统计 " [ref=e11701]:
+                  - text: 服务工单数据统计
+                  - generic: 
+                - tab "客户服务量统计 " [ref=e11941]:
+                  - text: 客户服务量统计
+                  - generic: 
+                - tab "养老机构分布 " [ref=e13666]:
+                  - text: 养老机构分布
+                  - generic: 
+                - tab "机构人数统计 " [ref=e13692]:
+                  - text: 机构人数统计
+                  - generic: 
+                - tab "床位数据统计 " [ref=e13786]:
+                  - text: 床位数据统计
+                  - generic: 
+                - tab "床位补贴统计 " [ref=e14049]:
+                  - text: 床位补贴统计
+                  - generic: 
+                - tab "老人补贴统计 " [ref=e14246]:
+                  - text: 老人补贴统计
+                  - generic: 
+                - tab "机构补贴统计 " [ref=e14367]:
+                  - text: 机构补贴统计
+                  - generic: 
+                - tab "政府补贴概览 " [selected] [ref=e14781]:
+                  - text: 政府补贴概览
+                  - generic [ref=e14782]: 
+            - generic:
+              - tabpanel "政府补贴概览 "
+          - button "更多 " [ref=e200]:
+            - text: 更多
+            - generic [ref=e201]: 
+        - text:                                                                  
+        - generic [ref=e14783]:
+          - generic [ref=e14785]:
+            - generic [ref=e14787] [cursor=pointer]:
+              - img [ref=e14788]
+              - generic [ref=e14789]:
+                - paragraph [ref=e14790]: 政府采购项目数量
+                - paragraph [ref=e14791]: "3"
+            - generic [ref=e14793] [cursor=pointer]:
+              - img [ref=e14794]
+              - generic [ref=e14795]:
+                - paragraph [ref=e14796]: 已用补贴金额
+                - paragraph [ref=e14797]: 0元
+            - generic [ref=e14799] [cursor=pointer]:
+              - img [ref=e14800]
+              - generic [ref=e14801]:
+                - paragraph [ref=e14802]: 服务对象
+                - paragraph [ref=e14803]: 102人
+            - generic [ref=e14805] [cursor=pointer]:
+              - img [ref=e14806]
+              - generic [ref=e14807]:
+                - paragraph [ref=e14808]: 已完成服务工单
+                - paragraph [ref=e14809]: 0单
+          - generic [ref=e14811]:
+            - tablist [ref=e14815]:
+              - tab "老年人补助" [selected] [ref=e14817]
+              - tab "刘思怡专属服务" [ref=e14818]
+            - generic [ref=e14819]:
+              - tabpanel "老年人补助" [ref=e14820]:
+                - generic [ref=e14821]:
+                  - generic [ref=e14822]:
+                    - generic [ref=e14823]: 时间轴
+                    - generic [ref=e14824]: 项目已经进行1018天
+                  - progressbar [ref=e14825]:
+                    - generic [ref=e14829]: 278%
+                  - generic [ref=e14830]:
+                    - generic [ref=e14831]: 2023-06-21
+                    - generic [ref=e14832]: 2024-06-21
+                - generic [ref=e14833]:
+                  - generic [ref=e14834]:
+                    - generic [ref=e14836]:
+                      - img [ref=e14837]
+                      - generic [ref=e14838]:
+                        - paragraph [ref=e14839]: 预算总金额
+                        - paragraph [ref=e14840]: 200000.00元
+                    - generic [ref=e14842]:
+                      - img [ref=e14843]
+                      - generic [ref=e14844]:
+                        - paragraph [ref=e14845]: 已发放金额
+                        - paragraph [ref=e14846]: 500.00元
+                  - progressbar [ref=e14847]:
+                    - generic [ref=e14850]: 0%
+                - generic [ref=e14852]:
+                  - generic [ref=e14854]:
+                    - img [ref=e14855]
+                    - generic [ref=e14856]:
+                      - paragraph [ref=e14857]: 预算服务人数
+                      - paragraph [ref=e14858]: 10人
+                  - generic [ref=e14860]:
+                    - img [ref=e14861]
+                    - generic [ref=e14862]:
+                      - paragraph [ref=e14863]: 已服务人数
+                      - paragraph [ref=e14864]: 0人
+                  - generic [ref=e14866]:
+                    - img [ref=e14867]
+                    - generic [ref=e14868]:
+                      - paragraph [ref=e14869]: 服务覆盖率
+                      - paragraph [ref=e14870]: 0%
+                  - progressbar [ref=e14873]:
+                    - img [ref=e14875]
+                    - generic [ref=e14878]: 0%
+              - generic [ref=e14880]:
+                - generic [ref=e14882]:
+                  - generic [ref=e14883]: 服务项目占比（按服务小类统计）
+                  - generic [ref=e14884]:
+                    - img [ref=e14886]
+                    - paragraph [ref=e14903]: 暂无数据
+                - generic [ref=e14909]: 服务对象类型占比
+    - generic:   
+    - text: 
+  - text:  
