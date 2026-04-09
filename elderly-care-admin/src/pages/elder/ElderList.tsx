@@ -1,7 +1,7 @@
 import { useState, useEffect } from 'react';
 import { Table, Card, Button, Space, message, Tag, Modal, Form, Input, Select } from 'antd';
 import { PlusOutlined, EditOutlined, DeleteOutlined, ReloadOutlined, CheckOutlined, CloseOutlined, DownloadOutlined } from '@ant-design/icons';
-import type { ColumnsType } from 'antd/es/table';
+import type { ColumnsType, TablePaginationConfig } from 'antd/es/table';
 import { getElderList, createElder, updateElder, deleteElder, enableElder, disableElder, exportElders } from '../../api/elder';
 import type { Elder, ElderQuery } from '../../types';
 import { getGenderText, getCareLevelText } from '../../utils';
@@ -35,8 +35,10 @@ const ElderList: React.FC = () => {
     }
   };
 
-  const handleTableChange = (pag: { current: number; pageSize: number }) => {
-    fetchData(pag.current, pag.pageSize);
+  const handleTableChange = (pag: TablePaginationConfig) => {
+    if (pag.current && pag.pageSize) {
+      fetchData(pag.current, pag.pageSize);
+    }
   };
 
   const handleAdd = () => {

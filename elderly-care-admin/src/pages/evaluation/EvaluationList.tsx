@@ -1,7 +1,7 @@
 import { useState, useEffect } from 'react';
 import { Table, Card, Button, Space, message, Tag, Rate, Modal, Input } from 'antd';
 import { ReloadOutlined, SendOutlined, DownloadOutlined } from '@ant-design/icons';
-import type { ColumnsType } from 'antd/es/table';
+import type { ColumnsType, TablePaginationConfig } from 'antd/es/table';
 import { getEvaluationList, replyEvaluation, exportEvaluations } from '../../api/evaluation';
 import type { Evaluation, EvaluationQuery } from '../../types';
 import { formatDate } from '../../utils';
@@ -35,8 +35,10 @@ const EvaluationList: React.FC = () => {
     }
   };
 
-  const handleTableChange = (pag: { current: number; pageSize: number }) => {
-    fetchData(pag.current, pag.pageSize);
+  const handleTableChange = (pag: TablePaginationConfig) => {
+    if (pag.current && pag.pageSize) {
+      fetchData(pag.current, pag.pageSize);
+    }
   };
 
   const handleReply = (record: Evaluation) => {

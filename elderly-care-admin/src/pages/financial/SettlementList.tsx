@@ -1,7 +1,7 @@
 import { useState, useEffect } from 'react';
 import { Table, Card, Button, Space, message, Tag, Modal } from 'antd';
 import { ReloadOutlined, CheckOutlined, DownloadOutlined } from '@ant-design/icons';
-import type { ColumnsType } from 'antd/es/table';
+import type { ColumnsType, TablePaginationConfig } from 'antd/es/table';
 import { getFinancialList, confirmSettlement, exportFinancial } from '../../api/financial';
 import type { Financial, FinancialQuery } from '../../types';
 import { formatDate, getSettlementStatusText, formatCurrency } from '../../utils';
@@ -32,8 +32,10 @@ const SettlementList: React.FC = () => {
     }
   };
 
-  const handleTableChange = (pag: { current: number; pageSize: number }) => {
-    fetchData(pag.current, pag.pageSize);
+  const handleTableChange = (pag: TablePaginationConfig) => {
+    if (pag.current && pag.pageSize) {
+      fetchData(pag.current, pag.pageSize);
+    }
   };
 
   const handleConfirm = (id: number) => {

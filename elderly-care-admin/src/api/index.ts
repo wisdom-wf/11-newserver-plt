@@ -23,10 +23,21 @@ api.interceptors.request.use(
 // Response interceptor for error handling
 api.interceptors.response.use(
   (response) => {
-    // Unwrap the data from the Result wrapper
-    return response.data;
+    const res = response.data;
+    // Check if the request was successful (code 200)
+    if (res.code === 200) {
+      return res;
+    }
+    // If not successful, reject with the error
+    return Promise.reject(res);
   },
   (error) => {
+    // Handle backend error response (non-axios error)
+    if (error && error.code !== undefined) {
+      message.error(error.message || '请求失败');
+      return Promise.reject(error);
+    }
+    // Handle axios error
     if (error.response) {
       const { status, data } = error.response;
       if (status === 401) {

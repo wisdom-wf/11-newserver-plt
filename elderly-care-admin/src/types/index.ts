@@ -5,21 +5,26 @@ export interface LoginRequest {
 }
 
 export interface LoginResponse {
-  token: string;
-  user: UserInfo;
+  accessToken: string;
+  tokenType: string;
+  expiresIn: number;
+  userInfo: UserInfo;
 }
 
 export interface UserInfo {
-  id: number;
+  userId: number;
   username: string;
   realName: string;
   phone?: string;
   email?: string;
+  gender?: string;
   avatar?: string;
+  userType?: string;
+  tenantId?: string;
   roles: string[];
   permissions: string[];
-  level?: number;
-  regionCode?: string;
+  status?: number;
+  createTime?: string;
 }
 
 // Provider Types

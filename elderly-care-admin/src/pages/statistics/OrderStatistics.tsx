@@ -1,4 +1,4 @@
-import { useState, useEffect, useRef } from 'react';
+import { useState, useEffect, useRef, useCallback } from 'react';
 import { Row, Col, Card, Statistic, Spin, Button } from 'antd';
 import { ReloadOutlined, ShoppingCartOutlined, CheckCircleOutlined, ClockCircleOutlined } from '@ant-design/icons';
 import { getOrderTrend, getServiceTypeStats, getStaffStats } from '../../api/statistics';
@@ -16,18 +16,24 @@ const OrderStatistics: React.FC = () => {
   const orderTrendRef = useRef<HTMLDivElement>(null);
   const serviceTypeRef = useRef<HTMLDivElement>(null);
   const staffStatsRef = useRef<HTMLDivElement>(null);
+  const resizeHandlerRef = useRef<() => void>(() => {});
 
   useEffect(() => {
     fetchData();
+  }, []);
+
+  const handleResize = useCallback(() => {
+    echarts.getInstanceByDom(orderTrendRef.current!)?.resize();
+    echarts.getInstanceByDom(serviceTypeRef.current!)?.resize();
+    echarts.getInstanceByDom(staffStatsRef.current!)?.resize();
   }, []);
 
   useEffect(() => {
     if (!loading) {
       initCharts();
     }
-    // eslint-disable-next-line react-hooks/exhaustive-deps
     return () => {
-      window.removeEventListener('resize', handleResize);
+      window.removeEventListener('resize', resizeHandlerRef.current);
     };
   }, [loading, orderTrendData, serviceTypeData, staffData]);
 
@@ -96,35 +102,7 @@ const OrderStatistics: React.FC = () => {
       serviceTypeChart.resize();
     }
 
-    // Staff Stats Chart
-    if (staffStatsRef.current) {
-      const staffStatsChart = echarts.init(staffStatsRef.current);
-      staffStatsChart.setOption({
-        title: { text: '服务人员统计', left: 'center' },
-        tooltip: { trigger: 'axis' },
-        legend: { data: ['服务订单数'], top: 30 },
-        grid: { left: '3%', right: '4%', bottom: '3%', containLabel: true },
-        xAxis: {
-          type: 'category',
-          data: staffData.slice(0, 10).map(item => item.label),
-          axisLabel: { rotate: 45 },
-        },
-        yAxis: { type: 'value', name: '订单数' },
-        series: [{
-          name: '服务订单数',
-          type: 'bar',
-          data: staffData.slice(0, 10).map(item => item.value),
-          itemStyle: { color: '#52c41a' },
-        }],
-      });
-      staffStatsChart.resize();
-    }
-
-    const handleResize = () => {
-      echarts.getInstanceByDom(orderTrendRef.current!)?.resize();
-      echarts.getInstanceByDom(serviceTypeRef.current!)?.resize();
-      echarts.getInstanceByDom(staffStatsRef.current!)?.resize();
-    };
+    resizeHandlerRef.current = handleResize;
     window.addEventListener('resize', handleResize);
   };
 

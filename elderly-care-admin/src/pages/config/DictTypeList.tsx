@@ -1,7 +1,7 @@
 import { useState, useEffect } from 'react';
 import { Table, Card, Button, Space, message, Tag, Modal, Form, Input, Select } from 'antd';
 import { PlusOutlined, EditOutlined, DeleteOutlined, ReloadOutlined } from '@ant-design/icons';
-import type { ColumnsType } from 'antd/es/table';
+import type { ColumnsType, TablePaginationConfig } from 'antd/es/table';
 import { getConfigList, createConfig, updateConfig, deleteConfig } from '../../api/config';
 import type { Config } from '../../types';
 import { formatDate } from '../../utils';
@@ -35,8 +35,10 @@ const DictTypeList: React.FC = () => {
     }
   };
 
-  const handleTableChange = (pag: { current: number; pageSize: number }) => {
-    fetchData(pag.current, pag.pageSize);
+  const handleTableChange = (pag: TablePaginationConfig) => {
+    if (pag.current && pag.pageSize) {
+      fetchData(pag.current, pag.pageSize);
+    }
   };
 
   const handleAdd = () => {

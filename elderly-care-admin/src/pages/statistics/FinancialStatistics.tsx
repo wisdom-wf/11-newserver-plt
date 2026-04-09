@@ -1,4 +1,4 @@
-import { useState, useEffect, useRef } from 'react';
+import { useState, useEffect, useRef, useCallback } from 'react';
 import { Row, Col, Card, Statistic, Spin, Button } from 'antd';
 import { ReloadOutlined, DollarOutlined, BankOutlined, WalletOutlined } from '@ant-design/icons';
 import { getRevenueTrend, getProviderStats } from '../../api/statistics';
@@ -15,18 +15,23 @@ const FinancialStatistics: React.FC = () => {
   const [totalSelfPay, setTotalSelfPay] = useState(0);
   const revenueTrendRef = useRef<HTMLDivElement>(null);
   const providerStatsRef = useRef<HTMLDivElement>(null);
+  const resizeHandlerRef = useRef<() => void>(() => {});
 
   useEffect(() => {
     fetchData();
+  }, []);
+
+  const handleResize = useCallback(() => {
+    echarts.getInstanceByDom(revenueTrendRef.current!)?.resize();
+    echarts.getInstanceByDom(providerStatsRef.current!)?.resize();
   }, []);
 
   useEffect(() => {
     if (!loading) {
       initCharts();
     }
-    // eslint-disable-next-line react-hooks/exhaustive-deps
     return () => {
-      window.removeEventListener('resize', handleResize);
+      window.removeEventListener('resize', resizeHandlerRef.current);
     };
   }, [loading, revenueTrendData, providerData]);
 
@@ -102,10 +107,7 @@ const FinancialStatistics: React.FC = () => {
       providerStatsChart.resize();
     }
 
-    const handleResize = () => {
-      echarts.getInstanceByDom(revenueTrendRef.current!)?.resize();
-      echarts.getInstanceByDom(providerStatsRef.current!)?.resize();
-    };
+    resizeHandlerRef.current = handleResize;
     window.addEventListener('resize', handleResize);
   };
 

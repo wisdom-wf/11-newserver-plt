@@ -1,7 +1,7 @@
 import { useState, useEffect } from 'react';
 import { Table, Card, Button, Space, message, Tag, Modal, Form, Input, Select } from 'antd';
 import { PlusOutlined, EditOutlined, DeleteOutlined, ReloadOutlined } from '@ant-design/icons';
-import type { ColumnsType } from 'antd/es/table';
+import type { ColumnsType, TablePaginationConfig } from 'antd/es/table';
 import { getUserList, createUser, updateUser, deleteUser } from '../../api/user';
 import type { UserInfo } from '../../types';
 import { formatDate } from '../../utils';
@@ -35,8 +35,10 @@ const UserList: React.FC = () => {
     }
   };
 
-  const handleTableChange = (pag: { current: number; pageSize: number }) => {
-    fetchData(pag.current, pag.pageSize);
+  const handleTableChange = (pag: TablePaginationConfig) => {
+    if (pag.current && pag.pageSize) {
+      fetchData(pag.current, pag.pageSize);
+    }
   };
 
   const handleAdd = () => {
@@ -71,7 +73,7 @@ const UserList: React.FC = () => {
     try {
       const values = await form.validateFields();
       if (editingUser) {
-        await updateUser(editingUser.id, values);
+        await updateUser(editingUser.userId, values);
         message.success('更新成功');
       } else {
         await createUser(values);
@@ -116,7 +118,7 @@ const UserList: React.FC = () => {
           <Button type="link" size="small" icon={<EditOutlined />} onClick={() => handleEdit(record)}>
             编辑
           </Button>
-          <Button type="link" size="small" danger icon={<DeleteOutlined />} onClick={() => handleDelete(record.id)}>
+          <Button type="link" size="small" danger icon={<DeleteOutlined />} onClick={() => handleDelete(record.userId)}>
             删除
           </Button>
         </Space>

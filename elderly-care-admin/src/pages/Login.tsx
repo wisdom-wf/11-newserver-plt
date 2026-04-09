@@ -18,8 +18,9 @@ const Login: React.FC = () => {
       storage.set('user', JSON.stringify(userInfo));
       message.success('登录成功');
       navigate('/');
-    } catch (error) {
+    } catch (error: any) {
       console.error('Login failed:', error);
+      message.error(error?.message || '登录失败');
     } finally {
       setLoading(false);
     }

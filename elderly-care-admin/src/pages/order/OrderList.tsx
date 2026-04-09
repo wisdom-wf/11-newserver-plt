@@ -1,7 +1,7 @@
 import { useState, useEffect } from 'react';
 import { Table, Card, Button, Space, message, Tag, Modal, Form, Input, DatePicker } from 'antd';
 import { PlusOutlined, EditOutlined, DeleteOutlined, ReloadOutlined, PlayCircleOutlined, CheckCircleOutlined, StopOutlined } from '@ant-design/icons';
-import type { ColumnsType } from 'antd/es/table';
+import type { ColumnsType, TablePaginationConfig } from 'antd/es/table';
 import { getOrderList, createOrder, updateOrder, deleteOrder, cancelOrder, startService, completeService } from '../../api/order';
 import type { Order, OrderQuery } from '../../types';
 import { getOrderStatusText, formatCurrency, formatDate } from '../../utils';
@@ -35,8 +35,10 @@ const OrderList: React.FC = () => {
     }
   };
 
-  const handleTableChange = (pag: { current: number; pageSize: number }) => {
-    fetchData(pag.current, pag.pageSize);
+  const handleTableChange = (pag: TablePaginationConfig) => {
+    if (pag.current && pag.pageSize) {
+      fetchData(pag.current, pag.pageSize);
+    }
   };
 
   const handleAdd = () => {
