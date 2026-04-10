@@ -24,8 +24,18 @@ export const useAuthStore = defineStore(SetupStoreId.Auth, () => {
   const userInfo: Api.Auth.UserInfo = reactive({
     userId: '',
     userName: '',
+    realName: '',
     roles: [],
-    buttons: []
+    buttons: [],
+    userType: '',
+    areaId: '',
+    areaCode: '',
+    areaName: '',
+    providerId: '',
+    providerName: '',
+    phone: '',
+    email: '',
+    avatar: ''
   });
 
   /** is super role in static route */
