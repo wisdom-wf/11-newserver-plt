@@ -231,7 +231,9 @@ const local: App.I18n.Schema = {
     system_menu: '菜单管理',
     system_dict: '字典管理',
     system_role: '角色管理',
-    system_user: '用户管理'
+    system_user: '用户管理',
+    business: '业务管理',
+    business_appointment: '预约信息管理'
   },
   page: {
     login: {
