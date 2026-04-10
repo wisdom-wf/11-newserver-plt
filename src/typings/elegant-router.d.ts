@@ -22,6 +22,7 @@ declare module "@elegant-router/types" {
     "500": "/500";
     "business": "/business";
     "business_appointment": "/business/appointment";
+    "business_elder": "/business/elder";
     "business_order": "/business/order";
     "home": "/home";
     "iframe-page": "/iframe-page/:url";
@@ -93,6 +94,7 @@ declare module "@elegant-router/types" {
     | "iframe-page"
     | "login"
     | "business_appointment"
+    | "business_elder"
     | "business_order"
     | "home"
     | "system_area"

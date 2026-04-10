@@ -234,7 +234,8 @@ const local: App.I18n.Schema = {
     system_user: '用户管理',
     business: '业务管理',
     business_appointment: '预约信息管理',
-    business_order: '订单管理'
+    business_order: '订单管理',
+    business_elder: '老人档案管理'
   },
   page: {
     login: {

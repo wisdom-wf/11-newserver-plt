@@ -238,7 +238,8 @@ const local: App.I18n.Schema = {
     system_user: 'User Management',
     business: 'Business Management',
     business_appointment: 'Appointment Management',
-    business_order: 'Order Management'
+    business_order: 'Order Management',
+    business_elder: 'Elder Archive'
   },
   page: {
     login: {

@@ -168,6 +168,7 @@ const routeMap: RouteMap = {
   "500": "/500",
   "business": "/business",
   "business_appointment": "/business/appointment",
+  "business_elder": "/business/elder",
   "business_order": "/business/order",
   "home": "/home",
   "iframe-page": "/iframe-page/:url",
