@@ -31,6 +31,14 @@ declare namespace Api {
      */
     type EnableStatus = '1' | '2';
 
+    /** common query params for paginating */
+    interface PaginatingQueryParams {
+      /** current page number */
+      current: number;
+      /** page size */
+      pageSize: number;
+    }
+
     /** common record */
     type CommonRecord<T = any> = {
       /** record id */

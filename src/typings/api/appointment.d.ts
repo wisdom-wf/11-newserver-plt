@@ -85,7 +85,14 @@ declare namespace Api {
     }
 
     /** 预约状态 */
-    type AppointmentStatus = 'PENDING' | 'CONFIRMED' | 'ASSIGNED' | 'IN_SERVICE' | 'COMPLETED' | 'CANCELLED' | 'INVALID';
+    type AppointmentStatus =
+      | 'PENDING'
+      | 'CONFIRMED'
+      | 'ASSIGNED'
+      | 'IN_SERVICE'
+      | 'COMPLETED'
+      | 'CANCELLED'
+      | 'INVALID';
 
     /** 数据有效性 */
     type Validity = 'VALID' | 'INVALID';

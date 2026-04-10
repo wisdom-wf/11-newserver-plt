@@ -78,7 +78,12 @@ export function fetchRecheck(id: string, data: { result: string; remark?: string
 /**
  * 获取质检统计
  */
-export function fetchGetQualityStatistics(params?: { areaId?: string; providerId?: string; startDate?: string; endDate?: string }) {
+export function fetchGetQualityStatistics(params?: {
+  areaId?: string;
+  providerId?: string;
+  startDate?: string;
+  endDate?: string;
+}) {
   return request<Api.Quality.Statistics>({
     url: '/quality-check/statistics',
     method: 'get',

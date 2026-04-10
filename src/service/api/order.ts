@@ -120,7 +120,12 @@ export function fetchDeleteOrder(orderId: string) {
 /**
  * 获取订单统计
  */
-export function fetchGetOrderStatistics(params?: { areaId?: string; providerId?: string; startDate?: string; endDate?: string }) {
+export function fetchGetOrderStatistics(params?: {
+  areaId?: string;
+  providerId?: string;
+  startDate?: string;
+  endDate?: string;
+}) {
   return request<Api.Order.Statistics>({
     url: '/order/statistics',
     method: 'get',

@@ -3,7 +3,9 @@ import { request } from '../request';
 /**
  * 获取字典类型列表
  */
-export function fetchGetDictTypeList(params?: Api.Common.PaginatingQueryParams & { dictName?: string; dictCode?: string; status?: string }) {
+export function fetchGetDictTypeList(
+  params?: Api.Common.PaginatingQueryParams & { dictName?: string; dictCode?: string; status?: string }
+) {
   return request<Api.Common.PaginatingQueryRecord<Api.System.DictType>>({
     url: '/system/dict/type/list',
     method: 'get',

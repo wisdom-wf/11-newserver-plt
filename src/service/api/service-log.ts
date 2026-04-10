@@ -56,7 +56,10 @@ export function fetchUpdateServiceLog(id: string, data: Api.ServiceLog.ServiceLo
 /**
  * 上报异常
  */
-export function fetchReportAnomaly(id: string, data: { anomalyType: string; anomalyDesc: string; anomalyPhotos?: string[] }) {
+export function fetchReportAnomaly(
+  id: string,
+  data: { anomalyType: string; anomalyDesc: string; anomalyPhotos?: string[] }
+) {
   return request({
     url: `/service-log/${id}/anomaly`,
     method: 'put',
@@ -67,7 +70,13 @@ export function fetchReportAnomaly(id: string, data: { anomalyType: string; anom
 /**
  * 获取服务日志统计
  */
-export function fetchGetServiceLogStatistics(params?: { areaId?: string; providerId?: string; staffId?: string; startDate?: string; endDate?: string }) {
+export function fetchGetServiceLogStatistics(params?: {
+  areaId?: string;
+  providerId?: string;
+  staffId?: string;
+  startDate?: string;
+  endDate?: string;
+}) {
   return request<Api.ServiceLog.Statistics>({
     url: '/service-log/statistics',
     method: 'get',

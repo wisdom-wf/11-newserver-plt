@@ -56,7 +56,12 @@ export function fetchReplyEvaluation(id: string, data: { reply: string }) {
 /**
  * 获取评价统计
  */
-export function fetchGetEvaluationStatistics(params?: { areaId?: string; providerId?: string; startDate?: string; endDate?: string }) {
+export function fetchGetEvaluationStatistics(params?: {
+  areaId?: string;
+  providerId?: string;
+  startDate?: string;
+  endDate?: string;
+}) {
   return request<Api.Evaluation.Statistics>({
     url: '/evaluation/statistics',
     method: 'get',
