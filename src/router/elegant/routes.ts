@@ -58,12 +58,39 @@ export const generatedRoutes: GeneratedRoute[] = [
         }
       },
       {
+        name: 'business_cockpit',
+        path: '/business/cockpit',
+        component: 'view.business_cockpit',
+        meta: {
+          title: 'business_cockpit',
+          i18nKey: 'route.business_cockpit'
+        }
+      },
+      {
         name: 'business_elder',
         path: '/business/elder',
         component: 'view.business_elder',
         meta: {
           title: 'business_elder',
           i18nKey: 'route.business_elder'
+        }
+      },
+      {
+        name: 'business_evaluation',
+        path: '/business/evaluation',
+        component: 'view.business_evaluation',
+        meta: {
+          title: 'business_evaluation',
+          i18nKey: 'route.business_evaluation'
+        }
+      },
+      {
+        name: 'business_financial',
+        path: '/business/financial',
+        component: 'view.business_financial',
+        meta: {
+          title: 'business_financial',
+          i18nKey: 'route.business_financial'
         }
       },
       {
@@ -82,6 +109,15 @@ export const generatedRoutes: GeneratedRoute[] = [
         meta: {
           title: 'business_provider',
           i18nKey: 'route.business_provider'
+        }
+      },
+      {
+        name: 'business_quality',
+        path: '/business/quality',
+        component: 'view.business_quality',
+        meta: {
+          title: 'business_quality',
+          i18nKey: 'route.business_quality'
         }
       },
       {

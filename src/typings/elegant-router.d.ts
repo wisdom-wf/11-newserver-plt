@@ -22,9 +22,13 @@ declare module "@elegant-router/types" {
     "500": "/500";
     "business": "/business";
     "business_appointment": "/business/appointment";
+    "business_cockpit": "/business/cockpit";
     "business_elder": "/business/elder";
+    "business_evaluation": "/business/evaluation";
+    "business_financial": "/business/financial";
     "business_order": "/business/order";
     "business_provider": "/business/provider";
+    "business_quality": "/business/quality";
     "business_service-log": "/business/service-log";
     "business_staff": "/business/staff";
     "home": "/home";
@@ -97,9 +101,13 @@ declare module "@elegant-router/types" {
     | "iframe-page"
     | "login"
     | "business_appointment"
+    | "business_cockpit"
     | "business_elder"
+    | "business_evaluation"
+    | "business_financial"
     | "business_order"
     | "business_provider"
+    | "business_quality"
     | "business_service-log"
     | "business_staff"
     | "home"

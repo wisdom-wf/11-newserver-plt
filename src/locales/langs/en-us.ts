@@ -242,7 +242,11 @@ const local: App.I18n.Schema = {
     business_elder: 'Elder Archive',
     business_provider: 'Provider Management',
     business_staff: 'Staff Management',
-    'business_service-log': 'Service Log'
+    'business_service-log': 'Service Log',
+    business_cockpit: 'Operations Cockpit',
+    business_evaluation: 'Satisfaction Evaluation',
+    business_financial: 'Financial Settlement',
+    business_quality: 'Quality Inspection'
   },
   page: {
     login: {

@@ -238,7 +238,11 @@ const local: App.I18n.Schema = {
     business_elder: '老人档案管理',
     business_provider: '服务商管理',
     business_staff: '服务人员管理',
-    'business_service-log': '服务日志'
+    'business_service-log': '服务日志',
+    business_cockpit: '运营驾驶舱',
+    business_evaluation: '满意度评价',
+    business_financial: '财务结算',
+    business_quality: '质检管理'
   },
   page: {
     login: {
