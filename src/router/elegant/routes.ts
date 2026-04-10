@@ -45,7 +45,9 @@ export const generatedRoutes: GeneratedRoute[] = [
     component: 'layout.base',
     meta: {
       title: 'business',
-      i18nKey: 'route.business'
+      i18nKey: 'route.business',
+      icon: 'mdi:briefcase-outline',
+      order: 2
     },
     children: [
       {
@@ -54,7 +56,9 @@ export const generatedRoutes: GeneratedRoute[] = [
         component: 'view.business_appointment',
         meta: {
           title: 'business_appointment',
-          i18nKey: 'route.business_appointment'
+          i18nKey: 'route.business_appointment',
+          icon: 'mdi:calendar-clock',
+          order: 2
         }
       },
       {
@@ -63,7 +67,9 @@ export const generatedRoutes: GeneratedRoute[] = [
         component: 'view.business_cockpit',
         meta: {
           title: 'business_cockpit',
-          i18nKey: 'route.business_cockpit'
+          i18nKey: 'route.business_cockpit',
+          icon: 'mdi:view-dashboard',
+          order: 1
         }
       },
       {
@@ -72,7 +78,9 @@ export const generatedRoutes: GeneratedRoute[] = [
         component: 'view.business_elder',
         meta: {
           title: 'business_elder',
-          i18nKey: 'route.business_elder'
+          i18nKey: 'route.business_elder',
+          icon: 'mdi:human-handsup',
+          order: 4
         }
       },
       {
@@ -81,7 +89,9 @@ export const generatedRoutes: GeneratedRoute[] = [
         component: 'view.business_evaluation',
         meta: {
           title: 'business_evaluation',
-          i18nKey: 'route.business_evaluation'
+          i18nKey: 'route.business_evaluation',
+          icon: 'mdi:star-check',
+          order: 9
         }
       },
       {
@@ -90,7 +100,9 @@ export const generatedRoutes: GeneratedRoute[] = [
         component: 'view.business_financial',
         meta: {
           title: 'business_financial',
-          i18nKey: 'route.business_financial'
+          i18nKey: 'route.business_financial',
+          icon: 'mdi:cash-multiple',
+          order: 10
         }
       },
       {
@@ -99,7 +111,9 @@ export const generatedRoutes: GeneratedRoute[] = [
         component: 'view.business_order',
         meta: {
           title: 'business_order',
-          i18nKey: 'route.business_order'
+          i18nKey: 'route.business_order',
+          icon: 'mdi:clipboard-list',
+          order: 3
         }
       },
       {
@@ -108,7 +122,9 @@ export const generatedRoutes: GeneratedRoute[] = [
         component: 'view.business_provider',
         meta: {
           title: 'business_provider',
-          i18nKey: 'route.business_provider'
+          i18nKey: 'route.business_provider',
+          icon: 'mdi:domain',
+          order: 5
         }
       },
       {
@@ -117,7 +133,9 @@ export const generatedRoutes: GeneratedRoute[] = [
         component: 'view.business_quality',
         meta: {
           title: 'business_quality',
-          i18nKey: 'route.business_quality'
+          i18nKey: 'route.business_quality',
+          icon: 'mdi:clipboard-check-outline',
+          order: 8
         }
       },
       {
@@ -126,7 +144,9 @@ export const generatedRoutes: GeneratedRoute[] = [
         component: 'view.business_service-log',
         meta: {
           title: 'business_service-log',
-          i18nKey: 'route.business_service-log'
+          i18nKey: 'route.business_service-log',
+          icon: 'mdi:clipboard-text-clock',
+          order: 7
         }
       },
       {
@@ -135,7 +155,9 @@ export const generatedRoutes: GeneratedRoute[] = [
         component: 'view.business_staff',
         meta: {
           title: 'business_staff',
-          i18nKey: 'route.business_staff'
+          i18nKey: 'route.business_staff',
+          icon: 'mdi:account-tie',
+          order: 6
         }
       }
     ]
@@ -182,7 +204,9 @@ export const generatedRoutes: GeneratedRoute[] = [
     component: 'layout.base',
     meta: {
       title: 'system',
-      i18nKey: 'route.system'
+      i18nKey: 'route.system',
+      icon: 'mdi:cog-outline',
+      order: 3
     },
     children: [
       {
@@ -191,7 +215,9 @@ export const generatedRoutes: GeneratedRoute[] = [
         component: 'view.system_area',
         meta: {
           title: 'system_area',
-          i18nKey: 'route.system_area'
+          i18nKey: 'route.system_area',
+          icon: 'mdi:map-marker-radius',
+          order: 1
         }
       },
       {
@@ -200,7 +226,9 @@ export const generatedRoutes: GeneratedRoute[] = [
         component: 'view.system_dict',
         meta: {
           title: 'system_dict',
-          i18nKey: 'route.system_dict'
+          i18nKey: 'route.system_dict',
+          icon: 'mdi:book-alphabet',
+          order: 3
         }
       },
       {
@@ -209,7 +237,9 @@ export const generatedRoutes: GeneratedRoute[] = [
         component: 'view.system_menu',
         meta: {
           title: 'system_menu',
-          i18nKey: 'route.system_menu'
+          i18nKey: 'route.system_menu',
+          icon: 'mdi:menu',
+          order: 2
         }
       },
       {
@@ -218,7 +248,9 @@ export const generatedRoutes: GeneratedRoute[] = [
         component: 'view.system_role',
         meta: {
           title: 'system_role',
-          i18nKey: 'route.system_role'
+          i18nKey: 'route.system_role',
+          icon: 'mdi:shield-account',
+          order: 4
         }
       },
       {
@@ -227,7 +259,9 @@ export const generatedRoutes: GeneratedRoute[] = [
         component: 'view.system_user',
         meta: {
           title: 'system_user',
-          i18nKey: 'route.system_user'
+          i18nKey: 'route.system_user',
+          icon: 'mdi:account-group',
+          order: 5
         }
       }
     ]
