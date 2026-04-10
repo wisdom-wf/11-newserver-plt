@@ -3,6 +3,7 @@ export * from './route';
 export * from './area';
 export * from './role';
 export * from './dict';
+export * from './menu';
 export * from './appointment';
 export * from './order';
 export * from './service-log';

@@ -74,5 +74,34 @@ export const generatedRoutes: GeneratedRoute[] = [
       constant: true,
       hideInMenu: true
     }
+  },
+  {
+    name: 'system',
+    path: '/system',
+    component: 'layout.base',
+    meta: {
+      title: 'system',
+      i18nKey: 'route.system'
+    },
+    children: [
+      {
+        name: 'system_area',
+        path: '/system/area',
+        component: 'view.system_area',
+        meta: {
+          title: 'system_area',
+          i18nKey: 'route.system_area'
+        }
+      },
+      {
+        name: 'system_menu',
+        path: '/system/menu',
+        component: 'view.system_menu',
+        meta: {
+          title: 'system_menu',
+          i18nKey: 'route.system_menu'
+        }
+      }
+    ]
   }
 ];
