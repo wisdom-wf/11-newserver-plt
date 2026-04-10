@@ -53,7 +53,7 @@ const DictTypeList: React.FC = () => {
     setModalVisible(true);
   };
 
-  const handleDelete = (id: number) => {
+  const handleDelete = (id: string) => {
     Modal.confirm({
       title: '确认删除',
       content: '确定要删除该字典类型吗？',

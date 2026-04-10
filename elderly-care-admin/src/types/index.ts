@@ -154,11 +154,11 @@ export interface OrderQuery {
 
 // Financial Types
 export interface Financial {
-  id: number;
+  id: string;
   settlementNo: string;
-  orderId: number;
+  orderId: string;
   orderNo: string;
-  providerId: number;
+  providerId: string;
   providerName: string;
   elderName: string;
   serviceType: string;
@@ -176,7 +176,7 @@ export interface Financial {
 
 export interface FinancialQuery {
   settlementNo?: string;
-  providerId?: number;
+  providerId?: string;
   elderName?: string;
   settlementStatus?: number;
   startDate?: string;
@@ -187,14 +187,14 @@ export interface FinancialQuery {
 
 // Evaluation Types
 export interface Evaluation {
-  id: number;
-  orderId: number;
+  id: string;
+  orderId: string;
   orderNo: string;
-  elderId: number;
+  elderId: string;
   elderName: string;
-  providerId: number;
+  providerId: string;
   providerName: string;
-  staffId: number;
+  staffId: string;
   staffName: string;
   serviceType: string;
   serviceScore: number;
@@ -212,8 +212,8 @@ export interface Evaluation {
 export interface EvaluationQuery {
   orderNo?: string;
   elderName?: string;
-  providerId?: number;
-  staffId?: number;
+  providerId?: string;
+  staffId?: string;
   serviceType?: string;
   startDate?: string;
   endDate?: string;
@@ -223,7 +223,7 @@ export interface EvaluationQuery {
 
 // Config Types
 export interface Config {
-  id: number;
+  id: string;
   category: string;
   code: string;
   name: string;
@@ -263,7 +263,7 @@ export interface StatisticsQuery {
 }
 
 export interface ChartData {
-  date: string;
+  date?: string;
   value: number;
   label?: string;
 }

@@ -38,7 +38,7 @@ const SettlementList: React.FC = () => {
     }
   };
 
-  const handleConfirm = (id: number) => {
+  const handleConfirm = (id: string) => {
     Modal.confirm({
       title: '确认结算',
       content: '确定要确认该结算单吗？',
@@ -56,15 +56,8 @@ const SettlementList: React.FC = () => {
 
   const handleExport = async () => {
     try {
-      const response = await exportFinancial();
-      const blob = new Blob([response.data], { type: 'application/vnd.ms-excel' });
-      const url = window.URL.createObjectURL(blob);
-      const link = document.createElement('a');
-      link.href = url;
-      link.download = 'settlement_list.xls';
-      link.click();
-      window.URL.revokeObjectURL(url);
-      message.success('导出成功');
+      await exportFinancial();
+      message.info('导出功能暂不可用');
     } catch {
       message.error('导出失败');
     }
