@@ -23,6 +23,7 @@ export const views: Record<LastLevelRouteKey, RouteComponent | (() => Promise<Ro
   business_appointment: () => import("@/views/business/appointment/index.vue"),
   business_elder: () => import("@/views/business/elder/index.vue"),
   business_order: () => import("@/views/business/order/index.vue"),
+  business_provider: () => import("@/views/business/provider/index.vue"),
   home: () => import("@/views/home/index.vue"),
   system_area: () => import("@/views/system/area/index.vue"),
   system_dict: () => import("@/views/system/dict/index.vue"),

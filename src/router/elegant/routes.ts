@@ -74,6 +74,15 @@ export const generatedRoutes: GeneratedRoute[] = [
           title: 'business_order',
           i18nKey: 'route.business_order'
         }
+      },
+      {
+        name: 'business_provider',
+        path: '/business/provider',
+        component: 'view.business_provider',
+        meta: {
+          title: 'business_provider',
+          i18nKey: 'route.business_provider'
+        }
       }
     ]
   },
