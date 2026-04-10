@@ -53,7 +53,7 @@ const OrderList: React.FC = () => {
     setModalVisible(true);
   };
 
-  const handleDelete = (id: number) => {
+  const handleDelete = (id: string) => {
     Modal.confirm({
       title: '确认删除',
       content: '确定要删除该订单吗？',
@@ -69,7 +69,7 @@ const OrderList: React.FC = () => {
     });
   };
 
-  const handleCancel = (id: number) => {
+  const handleCancel = (id: string) => {
     Modal.confirm({
       title: '确认取消',
       content: '确定要取消该订单吗？',
@@ -85,7 +85,7 @@ const OrderList: React.FC = () => {
     });
   };
 
-  const handleStart = async (id: number) => {
+  const handleStart = async (id: string) => {
     try {
       await startService(id);
       message.success('服务已开始');
@@ -95,7 +95,7 @@ const OrderList: React.FC = () => {
     }
   };
 
-  const handleComplete = async (id: number) => {
+  const handleComplete = async (id: string) => {
     try {
       await completeService(id);
       message.success('服务已完成');

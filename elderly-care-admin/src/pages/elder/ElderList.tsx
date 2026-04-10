@@ -53,7 +53,7 @@ const ElderList: React.FC = () => {
     setModalVisible(true);
   };
 
-  const handleDelete = (id: number) => {
+  const handleDelete = (id: string) => {
     Modal.confirm({
       title: '确认删除',
       content: '确定要删除该老人吗？',
@@ -69,7 +69,7 @@ const ElderList: React.FC = () => {
     });
   };
 
-  const handleToggleStatus = async (id: number, currentStatus: number) => {
+  const handleToggleStatus = async (id: string, currentStatus: number) => {
     try {
       if (currentStatus === 1) {
         await disableElder(id);

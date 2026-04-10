@@ -5,7 +5,7 @@ export const getElderList = (params: ElderQuery) => {
   return api.get<PageResponse<Elder>>('/elders', { params });
 };
 
-export const getElderById = (id: number) => {
+export const getElderById = (id: string) => {
   return api.get<Elder>(`/elders/${id}`);
 };
 
@@ -13,20 +13,20 @@ export const createElder = (data: Record<string, unknown>) => {
   return api.post('/elders', data);
 };
 
-export const updateElder = (id: number, data: Record<string, unknown>) => {
+export const updateElder = (id: string, data: Record<string, unknown>) => {
   return api.put(`/elders/${id}`, data);
 };
 
-export const deleteElder = (id: number) => {
+export const deleteElder = (id: string) => {
   return api.delete(`/elders/${id}`);
 };
 
-export const enableElder = (id: number) => {
-  return api.post(`/elders/${id}/enable`);
+export const enableElder = (id: string) => {
+  return api.put(`/elders/${id}/status`, { status: 1 });
 };
 
-export const disableElder = (id: number) => {
-  return api.post(`/elders/${id}/disable`);
+export const disableElder = (id: string) => {
+  return api.put(`/elders/${id}/status`, { status: 0 });
 };
 
 export const getElderStats = (params?: Record<string, unknown>) => {

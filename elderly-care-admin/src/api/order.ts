@@ -5,7 +5,7 @@ export const getOrderList = (params: OrderQuery) => {
   return api.get<PageResponse<Order>>('/orders', { params });
 };
 
-export const getOrderById = (id: number) => {
+export const getOrderById = (id: string) => {
   return api.get<Order>(`/orders/${id}`);
 };
 
@@ -13,28 +13,28 @@ export const createOrder = (data: Record<string, unknown>) => {
   return api.post('/orders', data);
 };
 
-export const updateOrder = (id: number, data: Record<string, unknown>) => {
+export const updateOrder = (id: string, data: Record<string, unknown>) => {
   return api.put(`/orders/${id}`, data);
 };
 
-export const deleteOrder = (id: number) => {
+export const deleteOrder = (id: string) => {
   return api.delete(`/orders/${id}`);
 };
 
-export const cancelOrder = (id: number, reason?: string) => {
-  return api.post(`/orders/${id}/cancel`, { reason });
+export const cancelOrder = (id: string, reason?: string) => {
+  return api.put(`/orders/${id}/cancel`, { reason });
 };
 
-export const assignStaff = (orderId: number, staffId: number) => {
-  return api.post(`/orders/${orderId}/assign`, { staffId });
+export const assignStaff = (orderId: string, staffId: string) => {
+  return api.post(`/orders/${orderId}/dispatch`, { staffId });
 };
 
-export const startService = (orderId: number) => {
-  return api.post(`/orders/${orderId}/start`);
+export const startService = (id: string) => {
+  return api.put(`/orders/${id}/start`, {});
 };
 
-export const completeService = (orderId: number, data?: Record<string, unknown>) => {
-  return api.post(`/orders/${orderId}/complete`, data);
+export const completeService = (id: string, data?: Record<string, unknown>) => {
+  return api.put(`/orders/${id}/complete`, data || {});
 };
 
 export const getOrderStats = (params?: Record<string, unknown>) => {

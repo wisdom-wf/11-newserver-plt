@@ -29,7 +29,7 @@ export interface UserInfo {
 
 // Provider Types
 export interface Provider {
-  id: number;
+  id: string;
   name: string;
   code: string;
   businessLicense: string;
@@ -56,13 +56,13 @@ export interface ProviderQuery {
 
 // Staff Types
 export interface Staff {
-  id: number;
+  id: string;
   name: string;
   idCard: string;
   phone: string;
   gender: number;
   age: number;
-  providerId: number;
+  providerId: string;
   providerName: string;
   serviceTypes: string[];
   serviceAreas: string[];
@@ -75,7 +75,7 @@ export interface Staff {
 export interface StaffQuery {
   name?: string;
   phone?: string;
-  providerId?: number;
+  providerId?: string;
   serviceType?: string;
   status?: number;
   page: number;
@@ -84,7 +84,7 @@ export interface StaffQuery {
 
 // Elder Types
 export interface Elder {
-  id: number;
+  id: string;
   name: string;
   idCard: string;
   phone: string;
@@ -116,15 +116,15 @@ export interface ElderQuery {
 
 // Order Types
 export interface Order {
-  id: number;
+  id: string;
   orderNo: string;
-  elderId: number;
+  elderId: string;
   elderName: string;
   elderPhone: string;
   elderAddress: string;
-  providerId: number;
+  providerId: string;
   providerName: string;
-  staffId?: number;
+  staffId?: string;
   staffName?: string;
   serviceType: string;
   serviceContent: string;
@@ -142,8 +142,8 @@ export interface Order {
 export interface OrderQuery {
   orderNo?: string;
   elderName?: string;
-  providerId?: number;
-  staffId?: number;
+  providerId?: string;
+  staffId?: string;
   serviceType?: string;
   status?: number;
   startDate?: string;
