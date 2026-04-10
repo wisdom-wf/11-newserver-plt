@@ -113,58 +113,60 @@ onMounted(() => {
 </script>
 
 <template>
-  <NSpace vertical :size="16">
-    <NCard :bordered="false">
-      <NGrid :cols="2" :x-gap="16" responsive="screen" item-responsive>
-        <NGi span="2 m:6">
-          <NCard :bordered="false">
-            <template #header>
-              <NSpace>
-                <NButton type="primary" size="small" @click="handleAdd">新增</NButton>
+  <div>
+    <NSpace vertical :size="16">
+      <NCard :bordered="false">
+        <NGrid :cols="2" :x-gap="16" responsive="screen" item-responsive>
+          <NGi span="2 m:6">
+            <NCard :bordered="false">
+              <template #header>
+                <NSpace>
+                  <NButton type="primary" size="small" @click="handleAdd">新增</NButton>
+                  <NButton size="small" @click="getTreeData">刷新</NButton>
+                </NSpace>
+              </template>
+              <NDataTable
+                :columns="columns"
+                :data="treeData"
+                :scroll-x="800"
+                :expanded-row-keys="expandedKeys"
+                :row-key="(row: Api.User.Area) => row.id"
+                row-expandable
+              />
+            </NCard>
+          </NGi>
+          <NGi span="2 m:6">
+            <NCard title="区域树" :bordered="false">
+              <template #header-extra>
                 <NButton size="small" @click="getTreeData">刷新</NButton>
-              </NSpace>
-            </template>
-            <NDataTable
-              :columns="columns"
-              :data="treeData"
-              :scroll-x="800"
-              :expanded-row-keys="expandedKeys"
-              :row-key="(row: Api.User.Area) => row.id"
-              row-expandable
-            />
-          </NCard>
-        </NGi>
-        <NGi span="2 m:6">
-          <NCard title="区域树" :bordered="false">
-            <template #header-extra>
-              <NButton size="small" @click="getTreeData">刷新</NButton>
-            </template>
-            <NTree
-              :data="treeData"
-              :expanded-keys="expandedKeys"
-              :block-line="true"
-              block-node
-              virtual-scroll
-              @update:expanded-keys="keys => (expandedKeys = keys)"
-            />
-          </NCard>
-        </NGi>
-      </NGrid>
-    </NCard>
-  </NSpace>
+              </template>
+              <NTree
+                :data="treeData"
+                :expanded-keys="expandedKeys"
+                :block-line="true"
+                block-node
+                virtual-scroll
+                @update:expanded-keys="keys => (expandedKeys = keys)"
+              />
+            </NCard>
+          </NGi>
+        </NGrid>
+      </NCard>
+    </NSpace>
 
-  <NModal
-    v-model:show="modalVisible"
-    :title="operateType === 'add' ? '新增区域' : '编辑区域'"
-    preset="card"
-    style="width: 600px"
-  >
-    <AreaForm
-      ref="formRef"
-      :operate-type="operateType"
-      :editing-data="editingData"
-      @close="modalVisible = false"
-      @submit="handleModalSubmit"
-    />
-  </NModal>
+    <NModal
+      v-model:show="modalVisible"
+      :title="operateType === 'add' ? '新增区域' : '编辑区域'"
+      preset="card"
+      style="width: 600px"
+    >
+      <AreaForm
+        ref="formRef"
+        :operate-type="operateType"
+        :editing-data="editingData"
+        @close="modalVisible = false"
+        @submit="handleModalSubmit"
+      />
+    </NModal>
+  </div>
 </template>

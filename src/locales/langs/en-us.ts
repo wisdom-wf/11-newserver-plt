@@ -1,6 +1,6 @@
 const local: App.I18n.Schema = {
   system: {
-    title: 'SoybeanAdmin',
+    title: 'Community Service Platform',
     updateTitle: 'System Version Update Notification',
     updateContent: 'A new version of the system has been detected. Do you want to refresh the page immediately?',
     updateConfirm: 'Refresh immediately',
@@ -232,7 +232,10 @@ const local: App.I18n.Schema = {
     home: 'Home',
     system: 'System',
     system_area: 'Area Management',
-    system_menu: 'Menu Management'
+    system_menu: 'Menu Management',
+    system_dict: 'Dict Management',
+    system_role: 'Role Management',
+    system_user: 'User Management'
   },
   page: {
     login: {

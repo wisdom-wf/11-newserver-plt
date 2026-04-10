@@ -94,12 +94,39 @@ export const generatedRoutes: GeneratedRoute[] = [
         }
       },
       {
+        name: 'system_dict',
+        path: '/system/dict',
+        component: 'view.system_dict',
+        meta: {
+          title: 'system_dict',
+          i18nKey: 'route.system_dict'
+        }
+      },
+      {
         name: 'system_menu',
         path: '/system/menu',
         component: 'view.system_menu',
         meta: {
           title: 'system_menu',
           i18nKey: 'route.system_menu'
+        }
+      },
+      {
+        name: 'system_role',
+        path: '/system/role',
+        component: 'view.system_role',
+        meta: {
+          title: 'system_role',
+          i18nKey: 'route.system_role'
+        }
+      },
+      {
+        name: 'system_user',
+        path: '/system/user',
+        component: 'view.system_user',
+        meta: {
+          title: 'system_user',
+          i18nKey: 'route.system_user'
         }
       }
     ]
