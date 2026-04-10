@@ -171,6 +171,7 @@ const routeMap: RouteMap = {
   "business_elder": "/business/elder",
   "business_order": "/business/order",
   "business_provider": "/business/provider",
+  "business_service-log": "/business/service-log",
   "business_staff": "/business/staff",
   "home": "/home",
   "iframe-page": "/iframe-page/:url",

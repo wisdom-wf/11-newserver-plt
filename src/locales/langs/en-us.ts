@@ -241,7 +241,8 @@ const local: App.I18n.Schema = {
     business_order: 'Order Management',
     business_elder: 'Elder Archive',
     business_provider: 'Provider Management',
-    business_staff: 'Staff Management'
+    business_staff: 'Staff Management',
+    'business_service-log': 'Service Log'
   },
   page: {
     login: {
