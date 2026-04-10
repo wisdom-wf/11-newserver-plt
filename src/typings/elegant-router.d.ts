@@ -25,6 +25,7 @@ declare module "@elegant-router/types" {
     "business_elder": "/business/elder";
     "business_order": "/business/order";
     "business_provider": "/business/provider";
+    "business_staff": "/business/staff";
     "home": "/home";
     "iframe-page": "/iframe-page/:url";
     "login": "/login/:module(pwd-login|code-login|register|reset-pwd|bind-wechat)?";
@@ -98,6 +99,7 @@ declare module "@elegant-router/types" {
     | "business_elder"
     | "business_order"
     | "business_provider"
+    | "business_staff"
     | "home"
     | "system_area"
     | "system_dict"
