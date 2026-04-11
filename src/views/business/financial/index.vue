@@ -65,21 +65,19 @@ function getStatusLabel(status: string): string {
 
 const columns: DataTableColumns<any> = [
   { title: '结算单号', key: 'settlementNo', width: 160 },
-  { title: '订单号', key: 'orderNo', width: 160 },
-  { title: '老人姓名', key: 'elderName', width: 100 },
   { title: '服务商', key: 'providerName', width: 150 },
-  { title: '服务类型', key: 'serviceType', width: 120 },
-  { title: '服务费', key: 'serviceFee', width: 100 },
-  { title: '补贴金额', key: 'subsidyFee', width: 100 },
-  { title: '自付金额', key: 'selfPayFee', width: 100 },
-  { title: '实付金额', key: 'actualFee', width: 100 },
+  { title: '服务人员', key: 'staffName', width: 100 },
+  { title: '总服务费', key: 'totalServiceAmount', width: 100 },
+  { title: '补贴金额', key: 'totalSubsidyAmount', width: 100 },
+  { title: '自付金额', key: 'totalSelfPayAmount', width: 100 },
+  { title: '结算金额', key: 'settlementAmount', width: 100 },
   {
     title: '结算状态',
     key: 'status',
     width: 100,
     render: row => h(NTag, { type: getStatusType(row.status), size: 'small' }, () => getStatusLabel(row.status))
   },
-  { title: '结算时间', key: 'settlementTime', width: 170 },
+  { title: '确认时间', key: 'confirmTime', width: 170 },
   { title: '创建时间', key: 'createTime', width: 170 }
 ];
 
@@ -142,10 +140,10 @@ onMounted(() => {
     <!-- Statistics Cards -->
     <NCard title="财务结算统计" :bordered="false" style="margin-bottom: 16px">
       <NSpace :size="20" :wrap="true">
-        <NStatistic label="总金额" :value="`¥${statistics.totalAmount.toFixed(2)}`" />
-        <NStatistic label="补贴金额" :value="`¥${statistics.subsidyTotal.toFixed(2)}`" />
-        <NStatistic label="自付金额" :value="`¥${statistics.selfPayTotal.toFixed(2)}`" />
-        <NStatistic label="待结算金额" :value="`¥${statistics.pending.toFixed(2)}`" />
+        <NStatistic label="总金额" :value="`¥${Number(statistics.totalAmount || 0).toFixed(2)}`" />
+        <NStatistic label="补贴金额" :value="`¥${Number(statistics.subsidyTotal || 0).toFixed(2)}`" />
+        <NStatistic label="自付金额" :value="`¥${Number(statistics.selfPayTotal || 0).toFixed(2)}`" />
+        <NStatistic label="待结算金额" :value="`¥${Number(statistics.pending || 0).toFixed(2)}`" />
         <NStatistic label="结算单数" :value="statistics.completed" />
       </NSpace>
     </NCard>

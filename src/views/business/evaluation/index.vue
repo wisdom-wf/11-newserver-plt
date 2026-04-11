@@ -20,19 +20,14 @@ defineOptions({
 });
 
 // Statistics
-const statistics = ref<Api.Evaluation.Statistics>({
-  total: 0,
-  avgOverallScore: 0,
-  avgServiceScore: 0,
-  avgAttitudeScore: 0,
-  avgSkillScore: 0,
-  avgPunctualityScore: 0,
-  verySatisfiedCount: 0,
-  satisfiedCount: 0,
-  neutralCount: 0,
-  dissatisfiedCount: 0,
-  veryDissatisfiedCount: 0,
-  satisfactionRate: 0
+const statistics = ref<any>({
+  totalCount: 0,
+  averageRating: 0,
+  fiveStarCount: 0,
+  fourStarCount: 0,
+  threeStarCount: 0,
+  twoStarCount: 0,
+  oneStarCount: 0
 });
 
 // Search
@@ -47,22 +42,12 @@ const tableData = ref<any[]>([]);
 const pagination = ref({ page: 1, pageSize: 10, total: 0 });
 
 const columns: DataTableColumns<any> = [
-  { title: '评价编号', key: 'evaluationNo', width: 160 },
-  { title: '订单号', key: 'orderNo', width: 160 },
+  { title: '评价编号', key: 'evaluationId', width: 160 },
+  { title: '订单ID', key: 'orderId', width: 160 },
   { title: '老人姓名', key: 'elderName', width: 100 },
   { title: '服务商', key: 'providerName', width: 150 },
   { title: '服务人员', key: 'staffName', width: 100 },
-  { title: '评分', key: 'score', width: 80 },
-  {
-    title: '满意度',
-    key: 'satisfaction',
-    width: 100,
-    render: row => {
-      const type = row.satisfaction === 'SATISFIED' ? 'success' : row.satisfaction === 'NEUTRAL' ? 'warning' : 'error';
-      const label = row.satisfaction === 'SATISFIED' ? '满意' : row.satisfaction === 'NEUTRAL' ? '一般' : '不满意';
-      return h(NTag, { type, size: 'small' }, () => label);
-    }
-  },
+  { title: '综合评分', key: 'rating', width: 80 },
   { title: '评价内容', key: 'content', width: 200, ellipsis: { tooltip: true } },
   { title: '评价时间', key: 'createTime', width: 170 }
 ];
@@ -125,10 +110,10 @@ onMounted(() => {
     <!-- Statistics Cards -->
     <NCard title="满意度评价统计" :bordered="false" style="margin-bottom: 16px">
       <NSpace :size="20" :wrap="true">
-        <NStatistic label="总评价数" :value="statistics.total" />
-        <NStatistic label="平均评分" :value="`${statistics.avgOverallScore.toFixed(1)}分`" />
-        <NStatistic label="满意率" :value="`${statistics.satisfactionRate}%`" />
-        <NStatistic label="投诉数" :value="statistics.dissatisfiedCount + statistics.veryDissatisfiedCount" />
+        <NStatistic label="总评价数" :value="statistics.totalCount" />
+        <NStatistic label="平均评分" :value="`${Number(statistics.averageRating || 0).toFixed(1)}分`" />
+        <NStatistic label="5星评价" :value="statistics.fiveStarCount" />
+        <NStatistic label="4星评价" :value="statistics.fourStarCount" />
       </NSpace>
     </NCard>
 
