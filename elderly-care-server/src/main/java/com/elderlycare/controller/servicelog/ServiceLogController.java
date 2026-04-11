@@ -1,0 +1,98 @@
+package com.elderlycare.controller.servicelog;
+
+import com.elderlycare.common.PageResult;
+import com.elderlycare.common.Result;
+import com.elderlycare.dto.servicelog.ServiceLogQueryDTO;
+import com.elderlycare.service.servicelog.ServiceLogService;
+import com.elderlycare.vo.servicelog.ServiceLogStatisticsVO;
+import com.elderlycare.vo.servicelog.ServiceLogVO;
+import lombok.RequiredArgsConstructor;
+import org.springframework.web.bind.annotation.*;
+
+import java.util.Map;
+
+/**
+ * 服务日志控制器
+ */
+@RestController
+@RequestMapping("/api/service-log")
+@RequiredArgsConstructor
+public class ServiceLogController {
+
+    private final ServiceLogService serviceLogService;
+
+    /**
+     * 获取服务日志列表
+     * GET /api/service-log/list
+     */
+    @GetMapping("/list")
+    public Result<PageResult<ServiceLogVO>> getServiceLogList(ServiceLogQueryDTO query) {
+        PageResult<ServiceLogVO> result = serviceLogService.getServiceLogList(query);
+        return Result.success(result);
+    }
+
+    /**
+     * 获取服务日志详情
+     * GET /api/service-log/{id}
+     */
+    @GetMapping("/{id}")
+    public Result<ServiceLogVO> getServiceLog(@PathVariable String id) {
+        ServiceLogVO vo = serviceLogService.getServiceLog(id);
+        return Result.success(vo);
+    }
+
+    /**
+     * 根据订单ID获取服务日志
+     * GET /api/service-log/order/{orderId}
+     */
+    @GetMapping("/order/{orderId}")
+    public Result<ServiceLogVO> getServiceLogByOrderId(@PathVariable String orderId) {
+        ServiceLogVO vo = serviceLogService.getServiceLogByOrderId(orderId);
+        return Result.success(vo);
+    }
+
+    /**
+     * 提交服务日志
+     * POST /api/service-log
+     */
+    @PostMapping
+    public Result<Void> submitServiceLog(@RequestBody ServiceLogVO vo) {
+        serviceLogService.submitServiceLog(vo);
+        return Result.success("服务日志提交成功");
+    }
+
+    /**
+     * 更新服务日志
+     * PUT /api/service-log/{id}
+     */
+    @PutMapping("/{id}")
+    public Result<Void> updateServiceLog(@PathVariable String id, @RequestBody ServiceLogVO vo) {
+        serviceLogService.updateServiceLog(id, vo);
+        return Result.success("服务日志更新成功");
+    }
+
+    /**
+     * 上报异常
+     * PUT /api/service-log/{id}/anomaly
+     */
+    @PutMapping("/{id}/anomaly")
+    public Result<Void> reportAnomaly(@PathVariable String id, @RequestBody Map<String, Object> params) {
+        serviceLogService.reportAnomaly(id, params);
+        return Result.success("异常上报成功");
+    }
+
+    /**
+     * 获取服务日志统计
+     * GET /api/service-log/statistics
+     */
+    @GetMapping("/statistics")
+    public Result<ServiceLogStatisticsVO> getStatistics(
+            @RequestParam(required = false) String areaId,
+            @RequestParam(required = false) String providerId,
+            @RequestParam(required = false) String staffId,
+            @RequestParam(required = false) String startDate,
+            @RequestParam(required = false) String endDate) {
+        ServiceLogStatisticsVO result = serviceLogService.getStatistics(areaId, providerId, staffId, startDate, endDate);
+        return Result.success(result);
+    }
+}

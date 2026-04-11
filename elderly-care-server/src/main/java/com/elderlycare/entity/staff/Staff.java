@@ -102,9 +102,9 @@ public class Staff implements Serializable {
     private String serviceTypes;
 
     /**
-     * 员工状态：0-待审核，1-正常，2-禁用，3-离职
+     * 员工状态：ON_JOB-在职，OFF_JOB-离职
      */
-    private Integer status;
+    private String status;
 
     /**
      * 审核备注
@@ -130,6 +130,26 @@ public class Staff implements Serializable {
      * 头像URL
      */
     private String avatarUrl;
+
+    /**
+     * 年龄
+     */
+    private Integer age;
+
+    /**
+     * 邮箱
+     */
+    private String email;
+
+    /**
+     * 地址
+     */
+    private String address;
+
+    /**
+     * 工作状态：IDLE-空闲，ON_JOB-工作中，OFF_DUTY-下班
+     */
+    private String workStatus;
 
     /**
      * 删除标记：0-未删除，1-已删除

@@ -62,13 +62,12 @@ public class ServiceEvaluationServiceImpl extends ServiceImpl<ServiceEvaluationM
 
         // 设置订单相关信息
         evaluation.setElderId(order.getElderId());
-        evaluation.setElderName(order.getElderName());
         evaluation.setProviderId(order.getProviderId());
-        evaluation.setServiceTypeCode(order.getServiceTypeCode());
-        evaluation.setServiceTypeName(order.getServiceTypeName());
-        evaluation.setStatus(1); // 默认显示
 
-        // 设置默认评分
+        // 设置总体评分
+        evaluation.setOverallScore(dto.getRating());
+
+        // 设置各维度评分
         if (evaluation.getAttitudeScore() == null) {
             evaluation.setAttitudeScore(dto.getRating());
         }
@@ -133,18 +132,20 @@ public class ServiceEvaluationServiceImpl extends ServiceImpl<ServiceEvaluationM
         int fiveStar = 0, fourStar = 0, threeStar = 0, twoStar = 0, oneStar = 0;
 
         for (ServiceEvaluation e : evaluations) {
-            totalRating += e.getRating();
-            totalAttitude += e.getAttitudeScore() != null ? e.getAttitudeScore() : e.getRating();
-            totalQuality += e.getQualityScore() != null ? e.getQualityScore() : e.getRating();
-            totalEfficiency += e.getEfficiencyScore() != null ? e.getEfficiencyScore() : e.getRating();
-
-            switch (e.getRating()) {
-                case 5: fiveStar++; break;
-                case 4: fourStar++; break;
-                case 3: threeStar++; break;
-                case 2: twoStar++; break;
-                case 1: oneStar++; break;
+            Integer rating = e.getOverallScore();
+            if (rating != null) {
+                totalRating += rating;
+                switch (rating) {
+                    case 5: fiveStar++; break;
+                    case 4: fourStar++; break;
+                    case 3: threeStar++; break;
+                    case 2: twoStar++; break;
+                    case 1: oneStar++; break;
+                }
             }
+            totalAttitude += e.getAttitudeScore() != null ? e.getAttitudeScore() : 0;
+            totalQuality += e.getQualityScore() != null ? e.getQualityScore() : 0;
+            totalEfficiency += e.getEfficiencyScore() != null ? e.getEfficiencyScore() : 0;
         }
 
         int count = evaluations.size();
@@ -192,25 +193,25 @@ public class ServiceEvaluationServiceImpl extends ServiceImpl<ServiceEvaluationM
         int fiveStar = 0, fourStar = 0, threeStar = 0, twoStar = 0, oneStar = 0;
 
         for (ServiceEvaluation e : evaluations) {
-            totalRating += e.getRating();
-            totalAttitude += e.getAttitudeScore() != null ? e.getAttitudeScore() : e.getRating();
-            totalQuality += e.getQualityScore() != null ? e.getQualityScore() : e.getRating();
-            totalEfficiency += e.getEfficiencyScore() != null ? e.getEfficiencyScore() : e.getRating();
-
-            switch (e.getRating()) {
-                case 5: fiveStar++; break;
-                case 4: fourStar++; break;
-                case 3: threeStar++; break;
-                case 2: twoStar++; break;
-                case 1: oneStar++; break;
+            Integer rating = e.getOverallScore();
+            if (rating != null) {
+                totalRating += rating;
+                switch (rating) {
+                    case 5: fiveStar++; break;
+                    case 4: fourStar++; break;
+                    case 3: threeStar++; break;
+                    case 2: twoStar++; break;
+                    case 1: oneStar++; break;
+                }
             }
+            totalAttitude += e.getAttitudeScore() != null ? e.getAttitudeScore() : 0;
+            totalQuality += e.getQualityScore() != null ? e.getQualityScore() : 0;
+            totalEfficiency += e.getEfficiencyScore() != null ? e.getEfficiencyScore() : 0;
         }
 
         // Get provider info from first evaluation
         ServiceEvaluation first = evaluations.get(0);
         vo.setProviderId(first.getProviderId());
-        vo.setProviderName(first.getProviderName());
-        vo.setStaffName(first.getStaffName());
 
         int count = evaluations.size();
         vo.setEvaluationCount(count);
@@ -234,9 +235,6 @@ public class ServiceEvaluationServiceImpl extends ServiceImpl<ServiceEvaluationM
         if (StringUtils.isNotBlank(dto.getProviderId())) {
             wrapper.eq(ServiceEvaluation::getProviderId, dto.getProviderId());
         }
-        if (StringUtils.isNotBlank(dto.getServiceTypeCode())) {
-            wrapper.eq(ServiceEvaluation::getServiceTypeCode, dto.getServiceTypeCode());
-        }
 
         List<ServiceEvaluation> evaluations = evaluationMapper.selectList(wrapper);
 
@@ -258,69 +256,35 @@ public class ServiceEvaluationServiceImpl extends ServiceImpl<ServiceEvaluationM
         // Calculate overall statistics
         int totalRating = 0;
         long fiveStar = 0, fourStar = 0, threeStar = 0, twoStar = 0, oneStar = 0;
-        Map<String, List<ServiceEvaluation>> byServiceType = new HashMap<>();
-        Map<String, List<ServiceEvaluation>> byProvider = new HashMap<>();
 
         for (ServiceEvaluation e : evaluations) {
-            totalRating += e.getRating();
-
-            switch (e.getRating()) {
-                case 5: fiveStar++; break;
-                case 4: fourStar++; break;
-                case 3: threeStar++; break;
-                case 2: twoStar++; break;
-                case 1: oneStar++; break;
+            Integer rating = e.getOverallScore();
+            if (rating != null) {
+                totalRating += rating;
+                switch (rating) {
+                    case 5: fiveStar++; break;
+                    case 4: fourStar++; break;
+                    case 3: threeStar++; break;
+                    case 2: twoStar++; break;
+                    case 1: oneStar++; break;
+                }
             }
-
-            // Group by service type
-            String serviceType = e.getServiceTypeCode();
-            byServiceType.computeIfAbsent(serviceType, k -> new ArrayList<>()).add(e);
-
-            // Group by provider
-            String provider = e.getProviderId();
-            byProvider.computeIfAbsent(provider, k -> new ArrayList<>()).add(e);
         }
 
         int count = evaluations.size();
         vo.setTotalCount((long) count);
-        vo.setAverageRating(BigDecimal.valueOf(totalRating).divide(BigDecimal.valueOf(count), 2, RoundingMode.HALF_UP));
+        if (count > 0) {
+            vo.setAverageRating(BigDecimal.valueOf(totalRating).divide(BigDecimal.valueOf(count), 2, RoundingMode.HALF_UP));
+        } else {
+            vo.setAverageRating(BigDecimal.ZERO);
+        }
         vo.setFiveStarCount(fiveStar);
         vo.setFourStarCount(fourStar);
         vo.setThreeStarCount(threeStar);
         vo.setTwoStarCount(twoStar);
         vo.setOneStarCount(oneStar);
-
-        // Calculate service type statistics
-        List<EvaluationStatisticsVO.ServiceTypeStatistics> serviceTypeStats = new ArrayList<>();
-        for (Map.Entry<String, List<ServiceEvaluation>> entry : byServiceType.entrySet()) {
-            EvaluationStatisticsVO.ServiceTypeStatistics stat = new EvaluationStatisticsVO.ServiceTypeStatistics();
-            stat.setServiceTypeCode(entry.getKey());
-            stat.setCount((long) entry.getValue().size());
-
-            int typeTotal = entry.getValue().stream().mapToInt(ServiceEvaluation::getRating).sum();
-            stat.setAverageRating(BigDecimal.valueOf(typeTotal).divide(BigDecimal.valueOf(entry.getValue().size()), 2, RoundingMode.HALF_UP));
-
-            // Get service type name from first entry
-            stat.setServiceTypeName(entry.getValue().get(0).getServiceTypeName());
-            serviceTypeStats.add(stat);
-        }
-        vo.setByServiceType(serviceTypeStats);
-
-        // Calculate provider statistics
-        List<EvaluationStatisticsVO.ProviderStatistics> providerStats = new ArrayList<>();
-        for (Map.Entry<String, List<ServiceEvaluation>> entry : byProvider.entrySet()) {
-            EvaluationStatisticsVO.ProviderStatistics stat = new EvaluationStatisticsVO.ProviderStatistics();
-            stat.setProviderId(entry.getKey());
-            stat.setCount((long) entry.getValue().size());
-
-            int typeTotal = entry.getValue().stream().mapToInt(ServiceEvaluation::getRating).sum();
-            stat.setAverageRating(BigDecimal.valueOf(typeTotal).divide(BigDecimal.valueOf(entry.getValue().size()), 2, RoundingMode.HALF_UP));
-
-            // Get provider name from first entry
-            stat.setProviderName(entry.getValue().get(0).getProviderName());
-            providerStats.add(stat);
-        }
-        vo.setByProvider(providerStats);
+        vo.setByServiceType(new ArrayList<>());
+        vo.setByProvider(new ArrayList<>());
 
         return vo;
     }
@@ -333,8 +297,7 @@ public class ServiceEvaluationServiceImpl extends ServiceImpl<ServiceEvaluationM
             throw BusinessException.notFound("评价不存在");
         }
 
-        evaluation.setReplyContent(replyContent);
-        evaluation.setReplyTime(LocalDateTime.now());
+        // Reply fields not in database table - reply functionality disabled
         evaluationMapper.updateById(evaluation);
     }
 }

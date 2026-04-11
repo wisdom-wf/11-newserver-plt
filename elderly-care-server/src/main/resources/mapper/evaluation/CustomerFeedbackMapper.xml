@@ -4,36 +4,44 @@
 
     <resultMap id="BaseResultMap" type="com.elderlycare.entity.evaluation.CustomerFeedback">
         <id column="feedback_id" property="feedbackId"/>
-        <result column="feedback_type" property="feedbackType"/>
         <result column="elder_id" property="elderId"/>
-        <result column="elder_name" property="elderName"/>
-        <result column="elder_phone" property="elderPhone"/>
-        <result column="staff_id" property="staffId"/>
-        <result column="staff_name" property="staffName"/>
-        <result column="provider_id" property="providerId"/>
-        <result column="provider_name" property="providerName"/>
-        <result column="order_id" property="orderId"/>
-        <result column="content" property="content"/>
-        <result column="photos" property="photos"/>
-        <result column="handle_status" property="handleStatus"/>
+        <result column="feedback_type" property="feedbackType"/>
+        <result column="feedback_content" property="content"/>
+        <result column="feedback_date" property="feedbackDate"/>
+        <result column="feedback_channel" property="feedbackChannel"/>
+        <result column="feedback_attachments" property="photos"/>
         <result column="handler_id" property="handlerId"/>
-        <result column="handler_name" property="handlerName"/>
+        <result column="handling_status" property="handleStatus"/>
         <result column="handling_result" property="handlingResult"/>
-        <result column="handle_time" property="handleTime"/>
-        <result column="status" property="status"/>
+        <result column="handling_time" property="handleTime"/>
+        <result column="feedback_response" property="handlingResult"/>
+        <result column="satisfaction" property="satisfaction"/>
         <result column="create_time" property="createTime"/>
-        <result column="update_time" property="updateTime"/>
-        <result column="deleted" property="deleted"/>
     </resultMap>
 
     <select id="selectFeedbackPage" resultMap="BaseResultMap">
-        SELECT * FROM t_customer_feedback
+        SELECT
+            feedback_id,
+            elder_id,
+            feedback_type,
+            feedback_content,
+            feedback_date,
+            feedback_channel,
+            feedback_attachments,
+            handler_id,
+            handling_status,
+            handling_result,
+            handling_time,
+            feedback_response,
+            satisfaction,
+            create_time
+        FROM t_customer_feedback
         WHERE deleted = 0
         <if test="query.feedbackType != null and query.feedbackType != ''">
             AND feedback_type = #{query.feedbackType}
         </if>
         <if test="query.handleStatus != null and query.handleStatus != ''">
-            AND handle_status = #{query.handleStatus}
+            AND handling_status = #{query.handleStatus}
         </if>
         <if test="query.providerId != null and query.providerId != ''">
             AND provider_id = #{query.providerId}

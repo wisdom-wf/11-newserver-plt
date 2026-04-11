@@ -63,7 +63,7 @@ public class StaffServiceImpl implements StaffService {
         staff.setEmergencyContact(createDTO.getEmergencyContact());
         staff.setEmergencyPhone(createDTO.getEmergencyPhone());
         staff.setServiceTypes(createDTO.getServiceTypes());
-        staff.setStatus(0); // 待审核
+        staff.setStatus("PENDING"); // 待审核
         staff.setHireDate(createDTO.getHireDate());
         staff.setAvatarUrl(createDTO.getAvatarUrl());
         staff.setRemark(createDTO.getRemark());
@@ -626,13 +626,12 @@ public class StaffServiceImpl implements StaffService {
         };
     }
 
-    private String getStatusText(Integer status) {
+    private String getStatusText(String status) {
         if (status == null) return "";
         return switch (status) {
-            case 0 -> "待审核";
-            case 1 -> "正常";
-            case 2 -> "禁用";
-            case 3 -> "离职";
+            case "PENDING" -> "待审核";
+            case "ON_JOB" -> "正常";
+            case "OFF_JOB" -> "离职";
             default -> "未知";
         };
     }

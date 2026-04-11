@@ -209,6 +209,16 @@ public class StatisticsServiceImpl implements StatisticsService {
         return vo;
     }
 
+    @Override
+    public StaffStatisticsVO getStaffStatistics() {
+        StaffStatisticsVO vo = new StaffStatisticsVO();
+        vo.setTotal(statisticsMapper.selectTotalStaff());
+        vo.setActive(statisticsMapper.selectActiveStaff());
+        vo.setPending(statisticsMapper.selectPendingStaff());
+        vo.setInactive(statisticsMapper.selectInactiveStaff());
+        return vo;
+    }
+
     // ==================== 转换方法 ====================
 
     private List<DashboardVO.ServiceTypeDistribution> convertServiceTypeDistribution(List<Map<String, Object>> data) {

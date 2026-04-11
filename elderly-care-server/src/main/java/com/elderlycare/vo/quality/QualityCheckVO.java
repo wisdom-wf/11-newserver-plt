@@ -1,0 +1,99 @@
+package com.elderlycare.vo.quality;
+
+import lombok.Data;
+
+import java.io.Serializable;
+import java.math.BigDecimal;
+
+/**
+ * 质检VO
+ */
+@Data
+public class QualityCheckVO implements Serializable {
+
+    private static final long serialVersionUID = 1L;
+
+    /** 质检ID */
+    private String qualityCheckId;
+
+    /** 质检编号 */
+    private String checkNo;
+
+    /** 订单ID */
+    private String orderId;
+
+    /** 订单号 */
+    private String orderNo;
+
+    /** 服务日志ID */
+    private String serviceLogId;
+
+    /** 服务类别 */
+    private String serviceCategory;
+
+    /** 服务商ID */
+    private String providerId;
+
+    /** 服务商名称 */
+    private String providerName;
+
+    /** 服务人员ID */
+    private String staffId;
+
+    /** 服务人员姓名 */
+    private String staffName;
+
+    /** 质检类型 */
+    private String checkType;
+
+    /** 质检方式 */
+    private String checkMethod;
+
+    /** 综合评分 */
+    private BigDecimal checkScore;
+
+    /** 质检结果 */
+    private String checkResult;
+
+    /** 质检照片 */
+    private String checkPhotos;
+
+    /** 质检备注 */
+    private String checkRemark;
+
+    /** 质检时间 */
+    private String checkTime;
+
+    /** 质检员ID */
+    private String checkerId;
+
+    /** 质检员姓名 */
+    private String checkerName;
+
+    /** 是否需要整改 */
+    private Boolean needRectify;
+
+    /** 整改通知 */
+    private String rectifyNotice;
+
+    /** 整改期限 */
+    private String rectifyDeadline;
+
+    /** 整改状态 */
+    private String rectifyStatus;
+
+    /** 整改照片 */
+    private String rectifyPhotos;
+
+    /** 整改说明 */
+    private String rectifyRemark;
+
+    /** 复检时间 */
+    private String recheckTime;
+
+    /** 复检结果 */
+    private String recheckResult;
+
+    /** 创建时间 */
+    private String createTime;
+}

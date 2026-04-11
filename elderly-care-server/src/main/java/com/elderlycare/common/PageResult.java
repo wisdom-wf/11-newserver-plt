@@ -16,20 +16,20 @@ public class PageResult<T> implements Serializable {
     private Integer page;
     private Integer pageSize;
     private Integer pages;
-    private List<T> list;
+    private List<T> records;
 
     public PageResult() {
     }
 
-    public PageResult(Long total, Integer page, Integer pageSize, List<T> list) {
+    public PageResult(Long total, Integer page, Integer pageSize, List<T> records) {
         this.total = total;
         this.page = page;
         this.pageSize = pageSize;
         this.pages = (int) Math.ceil((double) total / pageSize);
-        this.list = list;
+        this.records = records;
     }
 
-    public static <T> PageResult<T> of(Long total, Integer page, Integer pageSize, List<T> list) {
-        return new PageResult<>(total, page, pageSize, list);
+    public static <T> PageResult<T> of(Long total, Integer page, Integer pageSize, List<T> records) {
+        return new PageResult<>(total, page, pageSize, records);
     }
 }

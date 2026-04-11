@@ -8,30 +8,22 @@
         <result column="staff_no" property="staffNo"/>
         <result column="staff_name" property="staffName"/>
         <result column="gender" property="gender"/>
+        <result column="birth_date" property="birthDate"/>
+        <result column="age" property="age"/>
         <result column="id_card" property="idCard"/>
         <result column="phone" property="phone"/>
-        <result column="birth_date" property="birthDate"/>
-        <result column="nation" property="nation"/>
-        <result column="education" property="education"/>
-        <result column="political_status" property="politicalStatus"/>
-        <result column="marital_status" property="maritalStatus"/>
-        <result column="domicile_address" property="domicileAddress"/>
-        <result column="residence_address" property="residenceAddress"/>
+        <result column="email" property="email"/>
+        <result column="address" property="address"/>
         <result column="emergency_contact" property="emergencyContact"/>
         <result column="emergency_phone" property="emergencyPhone"/>
-        <result column="service_types" property="serviceTypes"/>
+        <result column="education" property="education"/>
+        <result column="photo_url" property="avatarUrl"/>
         <result column="status" property="status"/>
-        <result column="audit_remark" property="auditRemark"/>
+        <result column="work_status" property="workStatus"/>
         <result column="hire_date" property="hireDate"/>
-        <result column="leave_date" property="leaveDate"/>
-        <result column="leave_reason" property="leaveReason"/>
-        <result column="avatar_url" property="avatarUrl"/>
         <result column="deleted" property="deleted"/>
-        <result column="create_by" property="createBy"/>
         <result column="create_time" property="createTime"/>
-        <result column="update_by" property="updateBy"/>
         <result column="update_time" property="updateTime"/>
-        <result column="remark" property="remark"/>
     </resultMap>
 
     <select id="selectStaffPage" resultMap="BaseResultMap">

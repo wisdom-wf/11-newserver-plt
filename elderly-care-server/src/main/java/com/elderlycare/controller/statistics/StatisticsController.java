@@ -97,4 +97,14 @@ public class StatisticsController {
         QualityStatisticsVO data = statisticsService.getQualityStatistics();
         return Result.success(data);
     }
+
+    /**
+     * 服务人员统计
+     * 返回: 总数、在职、待上岗、已离职
+     */
+    @GetMapping("/staff")
+    public Result<StaffStatisticsVO> getStaffStatistics() {
+        StaffStatisticsVO data = statisticsService.getStaffStatistics();
+        return Result.success(data);
+    }
 }

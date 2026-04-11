@@ -29,44 +29,14 @@ public class ServiceEvaluation implements Serializable {
     private String staffId;
 
     /**
-     * 服务人员姓名
-     */
-    private String staffName;
-
-    /**
      * 服务商ID
      */
     private String providerId;
 
     /**
-     * 服务商名称
-     */
-    private String providerName;
-
-    /**
      * 老人ID
      */
     private String elderId;
-
-    /**
-     * 老人姓名
-     */
-    private String elderName;
-
-    /**
-     * 服务类型编码
-     */
-    private String serviceTypeCode;
-
-    /**
-     * 服务类型名称
-     */
-    private String serviceTypeName;
-
-    /**
-     * 总体评分(1-5)
-     */
-    private Integer rating;
 
     /**
      * 态度评分(1-5)
@@ -84,40 +54,41 @@ public class ServiceEvaluation implements Serializable {
     private Integer efficiencyScore;
 
     /**
+     * 总体评分(1-5)
+     */
+    private Integer overallScore;
+
+    /**
+     * 平均评分
+     */
+    private BigDecimal averageScore;
+
+    /**
      * 评价内容
      */
+    @TableField("evaluation_content")
     private String content;
 
     /**
      * 评价标签(多个逗号分隔)
      */
+    @TableField("evaluation_tags")
     private String tags;
 
     /**
      * 是否匿名(0-否,1-是)
      */
+    @TableField("is_anonymous")
     private Integer anonymous;
 
     /**
-     * 评价状态(0-隐藏,1-显示)
+     * 评价时间
      */
-    private Integer status;
-
-    /**
-     * 回复内容
-     */
-    private String replyContent;
-
-    /**
-     * 回复时间
-     */
-    private LocalDateTime replyTime;
+    @TableField("evaluation_time")
+    private LocalDateTime evaluationTime;
 
     @TableField(fill = FieldFill.INSERT)
     private LocalDateTime createTime;
-
-    @TableField(fill = FieldFill.INSERT_UPDATE)
-    private LocalDateTime updateTime;
 
     @TableLogic
     private Integer deleted;

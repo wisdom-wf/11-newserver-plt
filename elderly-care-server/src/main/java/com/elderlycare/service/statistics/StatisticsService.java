@@ -41,4 +41,9 @@ public interface StatisticsService {
      * 获取质量统计数据
      */
     QualityStatisticsVO getQualityStatistics();
+
+    /**
+     * 获取服务人员统计数据
+     */
+    StaffStatisticsVO getStaffStatistics();
 }

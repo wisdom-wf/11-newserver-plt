@@ -29,7 +29,7 @@ public interface StatisticsMapper {
     /**
      * 查询服务人员总数
      */
-    @Select("SELECT COUNT(*) FROM t_staff WHERE deleted = 1")
+    @Select("SELECT COUNT(*) FROM t_staff WHERE deleted = 0")
     Long selectTotalStaff();
 
     /**
@@ -148,9 +148,9 @@ public interface StatisticsMapper {
      * 查询老人服务需求分布
      */
     @Select("""
-        SELECT service_type AS serviceType, COUNT(*) AS count
+        SELECT service_type_code AS serviceType, COUNT(*) AS count
         FROM t_elder_demand WHERE deleted = 0
-        GROUP BY service_type
+        GROUP BY service_type_code
         ORDER BY count DESC
         """)
     List<Map<String, Object>> selectElderServiceDemandDistribution();
@@ -158,13 +158,13 @@ public interface StatisticsMapper {
     /**
      * 查询待审核服务商数
      */
-    @Select("SELECT COUNT(*) FROM t_provider WHERE deleted = 0 AND audit_status = 'PENDING'")
+    @Select("SELECT COUNT(*) FROM t_provider WHERE deleted = 0 AND status = 'PENDING'")
     Long selectPendingProviders();
 
     /**
      * 查询已审核通过服务商数
      */
-    @Select("SELECT COUNT(*) FROM t_provider WHERE deleted = 0 AND audit_status = 'APPROVED'")
+    @Select("SELECT COUNT(*) FROM t_provider WHERE deleted = 0 AND status = 'APPROVED'")
     Long selectApprovedProviders();
 
     /**
@@ -205,11 +205,7 @@ public interface StatisticsMapper {
      * 查询订单平均评分
      */
     @Select("""
-        SELECT AVG(rating) FROM (
-            SELECT o.provider_id, o.rating FROM t_order o WHERE o.deleted = 0 AND o.rating IS NOT NULL
-            UNION ALL
-            SELECT o.provider_id, o.rating FROM t_order o WHERE o.deleted = 0 AND o.rating IS NOT NULL
-        ) AS ratings
+        SELECT COALESCE(AVG(overall_score), 0) FROM t_service_evaluation WHERE deleted = 0 AND overall_score IS NOT NULL
         """)
     Double selectAverageRating();
 
@@ -311,7 +307,7 @@ public interface StatisticsMapper {
      * 查询评价总数
      */
     @Select("""
-        SELECT COUNT(*) FROM t_order WHERE deleted = 0 AND rating IS NOT NULL
+        SELECT COUNT(*) FROM t_service_evaluation WHERE deleted = 0 AND overall_score IS NOT NULL
         """)
     Long selectTotalEvaluations();
 
@@ -319,7 +315,7 @@ public interface StatisticsMapper {
      * 查询好评数（评分>=4）
      */
     @Select("""
-        SELECT COUNT(*) FROM t_order WHERE deleted = 0 AND rating IS NOT NULL AND rating >= 4
+        SELECT COUNT(*) FROM t_service_evaluation WHERE deleted = 0 AND overall_score IS NOT NULL AND overall_score >= 4
         """)
     Long selectPositiveEvaluations();
 
@@ -327,7 +323,7 @@ public interface StatisticsMapper {
      * 查询中评数（评分=3）
      */
     @Select("""
-        SELECT COUNT(*) FROM t_order WHERE deleted = 0 AND rating IS NOT NULL AND rating = 3
+        SELECT COUNT(*) FROM t_service_evaluation WHERE deleted = 0 AND overall_score IS NOT NULL AND overall_score = 3
         """)
     Long selectNeutralEvaluations();
 
@@ -335,7 +331,7 @@ public interface StatisticsMapper {
      * 查询差评数（评分<3）
      */
     @Select("""
-        SELECT COUNT(*) FROM t_order WHERE deleted = 0 AND rating IS NOT NULL AND rating < 3
+        SELECT COUNT(*) FROM t_service_evaluation WHERE deleted = 0 AND overall_score IS NOT NULL AND overall_score < 3
         """)
     Long selectNegativeEvaluations();
 
@@ -343,11 +339,11 @@ public interface StatisticsMapper {
      * 查询近7天评分趋势
      */
     @Select("""
-        SELECT DATE(create_time) AS date,
-               COALESCE(AVG(rating), 0) AS averageRating,
+        SELECT DATE(evaluation_time) AS date,
+               COALESCE(AVG(overall_score), 0) AS averageRating,
                COUNT(*) AS evaluationCount
-        FROM t_order WHERE deleted = 0 AND rating IS NOT NULL AND create_time >= DATE_SUB(CURDATE(), INTERVAL 7 DAY)
-        GROUP BY DATE(create_time)
+        FROM t_service_evaluation WHERE deleted = 0 AND overall_score IS NOT NULL AND evaluation_time >= DATE_SUB(CURDATE(), INTERVAL 7 DAY)
+        GROUP BY DATE(evaluation_time)
         ORDER BY date
         """)
     List<Map<String, Object>> selectRatingTrendLast7Days();
@@ -367,4 +363,22 @@ public interface StatisticsMapper {
             @Param("startDate") String startDate,
             @Param("endDate") String endDate,
             @Param("serviceTypeCode") String serviceTypeCode);
+
+    /**
+     * 查询在职员工数
+     */
+    @Select("SELECT COUNT(*) FROM t_staff WHERE deleted = 0 AND status = 'ON_JOB'")
+    Long selectActiveStaff();
+
+    /**
+     * 查询待上岗员工数
+     */
+    @Select("SELECT COUNT(*) FROM t_staff WHERE deleted = 0 AND status = 'PENDING'")
+    Long selectPendingStaff();
+
+    /**
+     * 查询离职员工数
+     */
+    @Select("SELECT COUNT(*) FROM t_staff WHERE deleted = 0 AND status = 'OFF_JOB'")
+    Long selectInactiveStaff();
 }

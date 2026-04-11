@@ -12,9 +12,9 @@ public class StaffStatusDTO implements Serializable {
     private static final long serialVersionUID = 1L;
 
     /**
-     * 目标状态：0-待审核，1-正常，2-禁用，3-离职
+     * 目标状态：PENDING-待审核，ON_JOB-正常，OFF_JOB-离职
      */
-    private Integer status;
+    private String status;
 
     /**
      * 审核备注

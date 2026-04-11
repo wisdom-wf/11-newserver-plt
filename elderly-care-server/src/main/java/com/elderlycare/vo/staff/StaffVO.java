@@ -129,9 +129,9 @@ public class StaffVO implements Serializable {
     private String serviceTypesText;
 
     /**
-     * 员工状态：0-待审核，1-正常，2-禁用，3-离职
+     * 员工状态：ON_JOB-在职，OFF_JOB-离职
      */
-    private Integer status;
+    private String status;
 
     /**
      * 状态文本

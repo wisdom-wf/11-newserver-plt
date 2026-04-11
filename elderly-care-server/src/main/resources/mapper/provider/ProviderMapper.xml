@@ -12,7 +12,7 @@
         <result column="address" property="address"/>
         <result column="service_areas" property="serviceAreas"/>
         <result column="description" property="description"/>
-        <result column="audit_status" property="auditStatus"/>
+        <result column="status" property="auditStatus"/>
         <result column="audit_comment" property="auditComment"/>
         <result column="audit_time" property="auditTime"/>
         <result column="auditor_id" property="auditorId"/>
@@ -34,7 +34,7 @@
             AND provider_type = #{query.providerType}
         </if>
         <if test="query.auditStatus != null and query.auditStatus != ''">
-            AND audit_status = #{query.auditStatus}
+            AND status = #{query.auditStatus}
         </if>
         <if test="query.status != null">
             AND status = #{query.status}
