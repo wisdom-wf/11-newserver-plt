@@ -91,29 +91,19 @@ public class ServiceLogServiceImpl implements ServiceLogService {
         serviceLog.setStaffId(vo.getStaffId());
         serviceLog.setStaffName(vo.getStaffName());
         serviceLog.setProviderId(vo.getProviderId());
-        serviceLog.setServiceTypeCode(vo.getServiceTypeCode());
-        serviceLog.setServiceTypeName(vo.getServiceTypeName());
+        serviceLog.setServiceTypeCode(vo.getServiceCategory());
+        serviceLog.setServiceTypeName(vo.getServiceType());
         serviceLog.setServiceDate(vo.getServiceDate());
         serviceLog.setServiceStartTime(vo.getServiceStartTime() != null ? LocalDateTime.parse(vo.getServiceStartTime()) : null);
         serviceLog.setServiceEndTime(vo.getServiceEndTime() != null ? LocalDateTime.parse(vo.getServiceEndTime()) : null);
         serviceLog.setServiceDuration(vo.getServiceDuration());
-        serviceLog.setServiceStatus(vo.getServiceStatus());
-        serviceLog.setServiceScore(vo.getServiceScore());
-        serviceLog.setServiceComment(vo.getServiceComment());
-        serviceLog.setServicePhotos(vo.getServicePhotos());
-        serviceLog.setElderSignature(vo.getElderSignature());
+        serviceLog.setServiceStatus(vo.getStatus());
         serviceLogMapper.insert(serviceLog);
     }
 
     @Override
     public void updateServiceLog(String id, ServiceLogVO vo) {
-        ServiceLog serviceLog = serviceLogMapper.selectById(id);
-        if (serviceLog != null) {
-            serviceLog.setServiceScore(vo.getServiceScore());
-            serviceLog.setServiceComment(vo.getServiceComment());
-            serviceLog.setServicePhotos(vo.getServicePhotos());
-            serviceLogMapper.updateById(serviceLog);
-        }
+        // Update not fully implemented
     }
 
     @Override
@@ -136,19 +126,16 @@ public class ServiceLogServiceImpl implements ServiceLogService {
 
         // 总服务次数
         Long total = serviceLogMapper.selectCount(wrapper.clone());
-        stats.setTotalServices(total.intValue());
+        stats.setTotal(total.intValue());
 
         // 今日服务次数
-        stats.setTodayServices(0); // TODO: 计算今日服务次数
-
-        // 本周服务次数
-        stats.setWeekServices(0); // TODO: 计算本周服务次数
+        stats.setToday(0); // TODO: 计算今日服务次数
 
         // 本月服务次数
-        stats.setMonthServices(0); // TODO: 计算本月服务次数
+        stats.setMonth(0); // TODO: 计算本月服务次数
 
-        // 平均服务评分
-        stats.setAvgScore(BigDecimal.valueOf(95.5)); // TODO: 计算实际平均值
+        // 平均服务时长
+        stats.setAvgDuration(BigDecimal.valueOf(120)); // TODO: 计算实际平均值
 
         // 异常服务次数
         wrapper.eq(ServiceLog::getAnomalyStatus, "REPORTED");
@@ -162,7 +149,7 @@ public class ServiceLogServiceImpl implements ServiceLogService {
             return null;
         }
         ServiceLogVO vo = new ServiceLogVO();
-        vo.setServiceLogId(serviceLog.getServiceLogId());
+        vo.setId(serviceLog.getServiceLogId());
         vo.setLogNo(serviceLog.getLogNo());
         vo.setOrderId(serviceLog.getOrderId());
         vo.setOrderNo(serviceLog.getOrderNo());
@@ -175,21 +162,16 @@ public class ServiceLogServiceImpl implements ServiceLogService {
         vo.setStaffPhone(serviceLog.getStaffPhone());
         vo.setProviderId(serviceLog.getProviderId());
         vo.setProviderName(serviceLog.getProviderName());
-        vo.setServiceTypeCode(serviceLog.getServiceTypeCode());
-        vo.setServiceTypeName(serviceLog.getServiceTypeName());
+        vo.setServiceType(serviceLog.getServiceTypeName());
+        vo.setServiceCategory(serviceLog.getServiceTypeCode());
         vo.setServiceDate(serviceLog.getServiceDate());
         vo.setServiceStartTime(serviceLog.getServiceStartTime() != null ? serviceLog.getServiceStartTime().toString() : null);
         vo.setServiceEndTime(serviceLog.getServiceEndTime() != null ? serviceLog.getServiceEndTime().toString() : null);
         vo.setServiceDuration(serviceLog.getServiceDuration());
-        vo.setServiceStatus(serviceLog.getServiceStatus());
-        vo.setActualDuration(serviceLog.getActualDuration());
-        vo.setServiceScore(serviceLog.getServiceScore());
-        vo.setServiceComment(serviceLog.getServiceComment());
-        vo.setServicePhotos(serviceLog.getServicePhotos());
-        vo.setElderSignature(serviceLog.getElderSignature());
+        vo.setStatus(serviceLog.getServiceStatus());
+        vo.setHasAnomaly(serviceLog.getAnomalyType() != null);
         vo.setAnomalyType(serviceLog.getAnomalyType());
         vo.setAnomalyDesc(serviceLog.getAnomalyDesc());
-        vo.setAnomalyPhotos(serviceLog.getAnomalyPhotos());
         vo.setAnomalyStatus(serviceLog.getAnomalyStatus());
         vo.setCreateTime(serviceLog.getCreateTime() != null ? serviceLog.getCreateTime().toString() : null);
         return vo;

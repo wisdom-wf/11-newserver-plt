@@ -14,22 +14,16 @@ public class ServiceLogStatisticsVO implements Serializable {
     private static final long serialVersionUID = 1L;
 
     /** 总服务次数 */
-    private Integer totalServices;
-
-    /** 总服务时长（分钟） */
-    private Integer totalDuration;
+    private Integer total;
 
     /** 今日服务次数 */
-    private Integer todayServices;
-
-    /** 本周服务次数 */
-    private Integer weekServices;
+    private Integer today;
 
     /** 本月服务次数 */
-    private Integer monthServices;
+    private Integer month;
 
-    /** 平均服务评分 */
-    private BigDecimal avgScore;
+    /** 平均服务时长（分钟） */
+    private BigDecimal avgDuration;
 
     /** 异常服务次数 */
     private Integer anomalyCount;

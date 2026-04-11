@@ -14,7 +14,7 @@ public class ServiceLogVO implements Serializable {
     private static final long serialVersionUID = 1L;
 
     /** 服务日志ID */
-    private String serviceLogId;
+    private String id;
 
     /** 服务日志编号 */
     private String logNo;
@@ -52,11 +52,11 @@ public class ServiceLogVO implements Serializable {
     /** 服务商名称 */
     private String providerName;
 
-    /** 服务类型编码 */
-    private String serviceTypeCode;
+    /** 服务类别 */
+    private String serviceCategory;
 
-    /** 服务类型名称 */
-    private String serviceTypeName;
+    /** 服务类型 */
+    private String serviceType;
 
     /** 服务日期 */
     private String serviceDate;
@@ -71,31 +71,19 @@ public class ServiceLogVO implements Serializable {
     private Integer serviceDuration;
 
     /** 服务状态 */
-    private String serviceStatus;
+    private String status;
 
-    /** 实际服务时长 */
-    private Integer actualDuration;
+    /** 提交时间 */
+    private String submitTime;
 
-    /** 服务评分 */
-    private BigDecimal serviceScore;
-
-    /** 服务评价 */
-    private String serviceComment;
-
-    /** 服务照片 */
-    private String servicePhotos;
-
-    /** 老人签名 */
-    private String elderSignature;
+    /** 是否有异常 */
+    private Boolean hasAnomaly;
 
     /** 异常类型 */
     private String anomalyType;
 
     /** 异常描述 */
     private String anomalyDesc;
-
-    /** 异常照片 */
-    private String anomalyPhotos;
 
     /** 异常处理状态 */
     private String anomalyStatus;
