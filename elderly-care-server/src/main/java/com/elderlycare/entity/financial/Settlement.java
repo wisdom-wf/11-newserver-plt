@@ -45,6 +45,7 @@ public class Settlement implements Serializable {
 
     private BigDecimal settlementAmount;
 
+    @TableField("payment_status")
     private String status;
 
     private String confirmTime;

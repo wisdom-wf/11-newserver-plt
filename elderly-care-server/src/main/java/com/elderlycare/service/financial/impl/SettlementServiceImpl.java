@@ -93,7 +93,8 @@ public class SettlementServiceImpl extends ServiceImpl<SettlementMapper, Settlem
         if (settlement == null) {
             throw BusinessException.notFound("结算单不存在");
         }
-        if (!"PENDING".equals(settlement.getStatus())) {
+        String status = settlement.getStatus();
+        if (!"PENDING".equals(status) && !"UNPAID".equals(status)) {
             throw BusinessException.fail("该结算单已确认或已取消，无法重复确认");
         }
 
@@ -206,13 +207,13 @@ public class SettlementServiceImpl extends ServiceImpl<SettlementMapper, Settlem
     }
 
     private String getStatusName(String status) {
-        if ("PENDING".equals(status)) {
-            return "待确认";
+        if ("PENDING".equals(status) || "UNPAID".equals(status)) {
+            return "待结算";
         } else if ("CONFIRMED".equals(status)) {
             return "已确认";
         } else if ("CANCELLED".equals(status)) {
             return "已取消";
-        } else if ("PAID".equals(status)) {
+        } else if ("PAID".equals(status) || "SETTLED".equals(status)) {
             return "已支付";
         }
         return status;
