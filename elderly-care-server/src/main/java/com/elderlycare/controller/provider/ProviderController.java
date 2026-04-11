@@ -7,6 +7,7 @@ import com.elderlycare.entity.provider.Provider;
 import com.elderlycare.service.provider.ProviderQualificationService;
 import com.elderlycare.service.provider.ProviderService;
 import com.elderlycare.service.provider.ProviderServiceTypeService;
+import com.elderlycare.vo.provider.ProviderOptionsVO;
 import com.elderlycare.vo.provider.ProviderRatingVO;
 import com.elderlycare.vo.provider.ProviderVO;
 import com.elderlycare.vo.provider.QualificationVO;
@@ -107,6 +108,15 @@ public class ProviderController {
     public Result<ProviderRatingVO> getProviderRating(@PathVariable String providerId) {
         ProviderRatingVO vo = providerService.getProviderRating(providerId);
         return Result.success(vo);
+    }
+
+    /**
+     * 获取服务商选择列表
+     */
+    @GetMapping("/options")
+    public Result<List<ProviderOptionsVO>> getProviderOptions() {
+        List<ProviderOptionsVO> options = providerService.getProviderOptions();
+        return Result.success(options);
     }
 
     // ==================== 服务商资质管理接口 ====================

@@ -4,6 +4,7 @@ import lombok.Data;
 import java.io.Serializable;
 import java.math.BigDecimal;
 import java.util.List;
+import java.util.Map;
 
 /**
  * 老人统计视图对象
@@ -13,34 +14,20 @@ public class ElderStatisticsVO implements Serializable {
 
     private static final long serialVersionUID = 1L;
 
-    /**
-     * 老人总数
-     */
+    // 基础统计（匹配前端Api.Elder.Statistics）
+    private Long total;
+    private Long registered;
+    private Long suspended;
+    private Map<String, Long> careTypeStats;
+    private Map<String, Long> careLevelStats;
+    private Map<String, Long> subsidyTypeStats;
+
+    // 额外统计
     private Long totalElders;
-
-    /**
-     * 本月新增老人数
-     */
     private Long monthlyNewElders;
-
-    /**
-     * 活跃老人数（近30天有订单的老人）
-     */
     private Long activeElders;
-
-    /**
-     * 按年龄段分布
-     */
     private List<AgeDistribution> ageDistribution;
-
-    /**
-     * 按护理级别分布
-     */
     private List<CareLevelDistribution> careLevelDistribution;
-
-    /**
-     * 按服务需求分布
-     */
     private List<ServiceDemandDistribution> serviceDemandDistribution;
 
     /**

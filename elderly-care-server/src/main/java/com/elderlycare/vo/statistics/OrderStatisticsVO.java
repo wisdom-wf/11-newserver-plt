@@ -13,44 +13,25 @@ public class OrderStatisticsVO implements Serializable {
 
     private static final long serialVersionUID = 1L;
 
-    /**
-     * 订单总数
-     */
-    private Long totalOrders;
-
-    /**
-     * 完成订单数
-     */
-    private Long completedOrders;
-
-    /**
-     * 完成率
-     */
+    // 基础统计（匹配前端Api.Order.Statistics）
+    private Long total;
+    private Long today;
+    private Long month;
+    private Long pending;
+    private Long assigned;
+    private Long inService;
+    private Long completed;
+    private Long cancelled;
     private BigDecimal completionRate;
+    private Double avgDuration;
 
-    /**
-     * 平均评分
-     */
+    // 额外统计
+    private Long totalOrders;
+    private Long completedOrders;
     private Double averageRating;
-
-    /**
-     * 订单总额
-     */
     private BigDecimal totalAmount;
-
-    /**
-     * 按服务类型分布
-     */
     private List<ServiceTypeDistribution> serviceTypeDistribution;
-
-    /**
-     * 订单趋势数据
-     */
     private List<TrendData> orderTrend;
-
-    /**
-     * 订单来源分布
-     */
     private List<OrderSourceDistribution> orderSourceDistribution;
 
     /**

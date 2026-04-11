@@ -63,6 +63,42 @@ public interface StatisticsMapper {
     Long selectTodayCancelledOrders();
 
     /**
+     * 查询本月订单数
+     */
+    @Select("SELECT COUNT(*) FROM t_order WHERE deleted = 0 AND DATE(create_time) >= DATE_SUB(CURDATE(), INTERVAL 1 MONTH)")
+    Long selectMonthOrders();
+
+    /**
+     * 查询待分配订单数
+     */
+    @Select("SELECT COUNT(*) FROM t_order WHERE deleted = 0 AND status IN ('PENDING', 'PENDING_DISPATCH')")
+    Long selectPendingOrders();
+
+    /**
+     * 查询已分配订单数
+     */
+    @Select("SELECT COUNT(*) FROM t_order WHERE deleted = 0 AND status IN ('ASSIGNED', 'DISPATCHED')")
+    Long selectAssignedOrders();
+
+    /**
+     * 查询服务中订单数
+     */
+    @Select("SELECT COUNT(*) FROM t_order WHERE deleted = 0 AND status IN ('IN_SERVICE', 'ACCEPTED', 'RECEIVED')")
+    Long selectInServiceOrders();
+
+    /**
+     * 查询已完成订单数
+     */
+    @Select("SELECT COUNT(*) FROM t_order WHERE deleted = 0 AND status = 'COMPLETED'")
+    Long selectAllCompletedOrders();
+
+    /**
+     * 查询已取消订单数
+     */
+    @Select("SELECT COUNT(*) FROM t_order WHERE deleted = 0 AND status = 'CANCELLED'")
+    Long selectCancelledOrders();
+
+    /**
      * 查询服务类型分布
      */
     @Select("""
@@ -154,6 +190,18 @@ public interface StatisticsMapper {
         ORDER BY count DESC
         """)
     List<Map<String, Object>> selectElderServiceDemandDistribution();
+
+    /**
+     * 查询在册老人数（状态为ACTIVE）
+     */
+    @Select("SELECT COUNT(*) FROM t_elder WHERE deleted = 0 AND status = 'ACTIVE'")
+    Long selectRegisteredElders();
+
+    /**
+     * 查询暂停服务老人数（状态不为ACTIVE）
+     */
+    @Select("SELECT COUNT(*) FROM t_elder WHERE deleted = 0 AND status != 'ACTIVE'")
+    Long selectSuspendedElders();
 
     /**
      * 查询待审核服务商数
@@ -385,12 +433,22 @@ public interface StatisticsMapper {
     /**
      * 查询待结算数
      */
-    @Select("SELECT COUNT(*) FROM t_settlement WHERE deleted = 0 AND status = 'PENDING'")
+    @Select("SELECT COUNT(*) FROM t_settlement WHERE payment_status = 'UNPAID'")
     Long selectPendingSettlementCount();
 
     /**
      * 查询已完成结算数
      */
-    @Select("SELECT COUNT(*) FROM t_settlement WHERE deleted = 0 AND status IN ('CONFIRMED', 'PAID')")
+    @Select("SELECT COUNT(*) FROM t_settlement WHERE payment_status = 'PAID'")
     Long selectCompletedSettlementCount();
+
+    /**
+     * 查询服务人员平均评分
+     */
+    @Select("""
+        SELECT COALESCE(AVG(e.overall_score), 0) FROM t_service_evaluation e
+        INNER JOIN t_staff s ON e.staff_id = s.staff_id
+        WHERE e.deleted = 0 AND e.overall_score IS NOT NULL AND s.deleted = 0
+        """)
+    Double selectAverageStaffRating();
 }

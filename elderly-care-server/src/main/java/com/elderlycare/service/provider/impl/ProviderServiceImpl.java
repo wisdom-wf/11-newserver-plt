@@ -14,6 +14,7 @@ import com.elderlycare.mapper.provider.ProviderMapper;
 import com.elderlycare.service.provider.ProviderQualificationService;
 import com.elderlycare.service.provider.ProviderService;
 import com.elderlycare.service.provider.ProviderServiceTypeService;
+import com.elderlycare.vo.provider.ProviderOptionsVO;
 import com.elderlycare.vo.provider.ProviderRatingVO;
 import com.elderlycare.vo.provider.ProviderVO;
 import lombok.RequiredArgsConstructor;
@@ -197,5 +198,20 @@ public class ProviderServiceImpl extends ServiceImpl<ProviderMapper, Provider> i
     @Override
     public List<Provider> listByIds(List<String> providerIds) {
         return baseMapper.selectBatchIds(providerIds);
+    }
+
+    @Override
+    public List<ProviderOptionsVO> getProviderOptions() {
+        LambdaQueryWrapper<Provider> wrapper = new LambdaQueryWrapper<>();
+        wrapper.eq(Provider::getStatus, "APPROVED");
+        wrapper.select(Provider::getProviderId, Provider::getProviderName);
+        List<Provider> providers = baseMapper.selectList(wrapper);
+
+        return providers.stream().map(p -> {
+            ProviderOptionsVO vo = new ProviderOptionsVO();
+            vo.setId(p.getProviderId());
+            vo.setName(p.getProviderName());
+            return vo;
+        }).collect(Collectors.toList());
     }
 }

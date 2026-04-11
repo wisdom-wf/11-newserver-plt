@@ -3,6 +3,7 @@ package com.elderlycare.vo.statistics;
 import lombok.Data;
 
 import java.io.Serializable;
+import java.math.BigDecimal;
 
 /**
  * 服务人员统计VO
@@ -23,4 +24,7 @@ public class StaffStatisticsVO implements Serializable {
 
     /** 已离职 */
     private Long inactive;
+
+    /** 平均评分 */
+    private BigDecimal avgRating;
 }

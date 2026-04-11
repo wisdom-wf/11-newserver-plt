@@ -53,7 +53,40 @@ public class StatisticsServiceImpl implements StatisticsService {
     public ElderStatisticsVO getElderStatistics() {
         ElderStatisticsVO vo = new ElderStatisticsVO();
 
-        vo.setTotalElders(statisticsMapper.selectTotalElders());
+        // 基础统计（匹配前端Api.Elder.Statistics）
+        Long total = statisticsMapper.selectTotalElders();
+        Long registered = statisticsMapper.selectRegisteredElders();
+        Long suspended = statisticsMapper.selectSuspendedElders();
+
+        vo.setTotal(total);
+        vo.setRegistered(registered);
+        vo.setSuspended(suspended);
+
+        // 养老类型分布（t_elder表无此字段，默认0）
+        Map<String, Long> careTypeStats = new java.util.HashMap<>();
+        careTypeStats.put("HOME", total != null ? total : 0L);
+        careTypeStats.put("COMMUNITY", 0L);
+        careTypeStats.put("INSTITUTION", 0L);
+        vo.setCareTypeStats(careTypeStats);
+
+        // 护理等级分布
+        Map<String, Long> careLevelStats = new java.util.HashMap<>();
+        careLevelStats.put("LEVEL_1", 0L);
+        careLevelStats.put("LEVEL_2", 0L);
+        careLevelStats.put("LEVEL_3", 0L);
+        careLevelStats.put("LEVEL_4", 0L);
+        careLevelStats.put("LEVEL_5", 0L);
+        vo.setCareLevelStats(careLevelStats);
+
+        // 补贴类型分布（t_elder表无此字段，默认0）
+        Map<String, Long> subsidyTypeStats = new java.util.HashMap<>();
+        subsidyTypeStats.put("FULL_SUBSIDY", 0L);
+        subsidyTypeStats.put("PARTIAL_SUBSIDY", 0L);
+        subsidyTypeStats.put("SELF_PAY", total != null ? total : 0L);
+        vo.setSubsidyTypeStats(subsidyTypeStats);
+
+        // 额外统计
+        vo.setTotalElders(total);
         vo.setMonthlyNewElders(statisticsMapper.selectMonthlyNewElders());
         vo.setActiveElders(statisticsMapper.selectActiveElders());
 
@@ -90,6 +123,26 @@ public class StatisticsServiceImpl implements StatisticsService {
     public OrderStatisticsVO getOrderStatistics(String startDate, String endDate, String groupBy, String serviceTypeCode) {
         OrderStatisticsVO vo = new OrderStatisticsVO();
 
+        // 基础统计（匹配前端Api.Order.Statistics）
+        Long total = statisticsMapper.selectTotalOrders();
+        Long today = statisticsMapper.selectTodayOrders();
+        Long month = statisticsMapper.selectMonthOrders();
+        Long pending = statisticsMapper.selectPendingOrders();
+        Long assigned = statisticsMapper.selectAssignedOrders();
+        Long inService = statisticsMapper.selectInServiceOrders();
+        Long completed = statisticsMapper.selectAllCompletedOrders();
+        Long cancelled = statisticsMapper.selectCancelledOrders();
+
+        vo.setTotal(total);
+        vo.setToday(today);
+        vo.setMonth(month);
+        vo.setPending(pending);
+        vo.setAssigned(assigned);
+        vo.setInService(inService);
+        vo.setCompleted(completed);
+        vo.setCancelled(cancelled);
+
+        // 额外统计
         Long totalOrders = statisticsMapper.selectTotalOrders();
         Long completedOrders = statisticsMapper.selectCompletedOrders();
 
@@ -218,6 +271,8 @@ public class StatisticsServiceImpl implements StatisticsService {
         vo.setActive(statisticsMapper.selectActiveStaff());
         vo.setPending(statisticsMapper.selectPendingStaff());
         vo.setInactive(statisticsMapper.selectInactiveStaff());
+        Double avgRating = statisticsMapper.selectAverageStaffRating();
+        vo.setAvgRating(avgRating != null ? BigDecimal.valueOf(avgRating) : BigDecimal.ZERO);
         return vo;
     }
 
