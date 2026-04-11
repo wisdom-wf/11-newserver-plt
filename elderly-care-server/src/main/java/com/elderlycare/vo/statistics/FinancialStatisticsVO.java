@@ -14,39 +14,39 @@ public class FinancialStatisticsVO implements Serializable {
     private static final long serialVersionUID = 1L;
 
     /**
-     * 总金额
+     * 待结算数
+     */
+    private Long pending;
+
+    /**
+     * 已结算数
+     */
+    private Long completed;
+
+    /**
+     * 本月结算金额
+     */
+    private BigDecimal monthAmount;
+
+    /**
+     * 累计结算金额
      */
     private BigDecimal totalAmount;
 
     /**
-     * 政府补贴总额
+     * 服务费统计
      */
-    private BigDecimal totalSubsidyAmount;
+    private BigDecimal serviceFeeTotal;
 
     /**
-     * 自付金额总额
+     * 补贴统计
      */
-    private BigDecimal totalSelfPayAmount;
+    private BigDecimal subsidyTotal;
 
     /**
-     * 平台费总额
+     * 自付统计
      */
-    private BigDecimal totalPlatformFee;
-
-    /**
-     * 本月金额
-     */
-    private BigDecimal monthlyAmount;
-
-    /**
-     * 本月政府补贴
-     */
-    private BigDecimal monthlySubsidyAmount;
-
-    /**
-     * 本月自付金额
-     */
-    private BigDecimal monthlySelfPayAmount;
+    private BigDecimal selfPayTotal;
 
     /**
      * 月度趋势

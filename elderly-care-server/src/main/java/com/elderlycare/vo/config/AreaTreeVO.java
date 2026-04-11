@@ -19,6 +19,11 @@ public class AreaTreeVO implements Serializable {
     private String areaId;
 
     /**
+     * 区域ID (前端兼容)
+     */
+    private String id;
+
+    /**
      * 区域编码
      */
     private String areaCode;
@@ -37,6 +42,11 @@ public class AreaTreeVO implements Serializable {
      * 区域层级
      */
     private String areaLevel;
+
+    /**
+     * 区域层级 (前端兼容)
+     */
+    private String level;
 
     /**
      * 经度

@@ -381,4 +381,16 @@ public interface StatisticsMapper {
      */
     @Select("SELECT COUNT(*) FROM t_staff WHERE deleted = 0 AND status = 'OFF_JOB'")
     Long selectInactiveStaff();
+
+    /**
+     * 查询待结算数
+     */
+    @Select("SELECT COUNT(*) FROM t_settlement WHERE deleted = 0 AND status = 'PENDING'")
+    Long selectPendingSettlementCount();
+
+    /**
+     * 查询已完成结算数
+     */
+    @Select("SELECT COUNT(*) FROM t_settlement WHERE deleted = 0 AND status IN ('CONFIRMED', 'PAID')")
+    Long selectCompletedSettlementCount();
 }

@@ -138,6 +138,9 @@ public class AreaServiceImpl extends ServiceImpl<AreaMapper, Area> implements Ar
                 .map(area -> {
                     AreaTreeVO vo = new AreaTreeVO();
                     BeanUtils.copyProperties(area, vo);
+                    // 前端兼容字段
+                    vo.setId(area.getAreaId());
+                    vo.setLevel(area.getAreaLevel());
                     vo.setChildren(buildTree(areas, area.getAreaId()));
                     return vo;
                 })

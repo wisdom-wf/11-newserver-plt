@@ -130,14 +130,18 @@ public class StatisticsServiceImpl implements StatisticsService {
     public FinancialStatisticsVO getFinancialStatistics() {
         FinancialStatisticsVO vo = new FinancialStatisticsVO();
 
+        // 待结算数和已结算数
+        vo.setPending(statisticsMapper.selectPendingSettlementCount());
+        vo.setCompleted(statisticsMapper.selectCompletedSettlementCount());
+
         Map<String, Object> summary = statisticsMapper.selectFinancialSummary();
         if (summary != null) {
             vo.setTotalAmount(toBigDecimal(summary.get("totalAmount")));
-            vo.setTotalSubsidyAmount(toBigDecimal(summary.get("totalSubsidyAmount")));
-            vo.setTotalSelfPayAmount(toBigDecimal(summary.get("totalSelfPayAmount")));
-            // 平台费暂按5%计算
+            vo.setSubsidyTotal(toBigDecimal(summary.get("totalSubsidyAmount")));
+            vo.setSelfPayTotal(toBigDecimal(summary.get("totalSelfPayAmount")));
+            // 服务费暂按5%计算
             if (vo.getTotalAmount() != null) {
-                vo.setTotalPlatformFee(vo.getTotalAmount()
+                vo.setServiceFeeTotal(vo.getTotalAmount()
                         .multiply(BigDecimal.valueOf(0.05))
                         .setScale(2, RoundingMode.HALF_UP));
             }
@@ -145,9 +149,7 @@ public class StatisticsServiceImpl implements StatisticsService {
 
         Map<String, Object> monthlySummary = statisticsMapper.selectMonthlyFinancialSummary();
         if (monthlySummary != null) {
-            vo.setMonthlyAmount(toBigDecimal(monthlySummary.get("monthlyAmount")));
-            vo.setMonthlySubsidyAmount(toBigDecimal(monthlySummary.get("monthlySubsidyAmount")));
-            vo.setMonthlySelfPayAmount(toBigDecimal(monthlySummary.get("monthlySelfPayAmount")));
+            vo.setMonthAmount(toBigDecimal(monthlySummary.get("monthlyAmount")));
         }
 
         // 月度趋势
