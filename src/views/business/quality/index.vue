@@ -139,14 +139,32 @@ onMounted(() => {
   <div>
     <!-- Statistics Cards -->
     <NCard title="质检统计" :bordered="false" style="margin-bottom: 16px">
-      <NSpace :size="20" :wrap="true">
-        <NStatistic label="总质检数" :value="statistics.total" />
-        <NStatistic label="合格数" :value="statistics.qualifiedCount" />
-        <NStatistic label="不合格数" :value="statistics.unqualifiedCount" />
-        <NStatistic label="需整改数" :value="statistics.needRectifyCount" />
-        <NStatistic label="合格率" :value="`${statistics.qualifiedRate}%`" />
-        <NStatistic label="平均评分" :value="`${statistics.avgScore.toFixed(1)}分`" />
-      </NSpace>
+      <div class="statistics-grid">
+        <div class="stat-card stat-primary">
+          <div class="stat-label">总质检数</div>
+          <div class="stat-value">{{ statistics.total }}</div>
+        </div>
+        <div class="stat-card stat-success">
+          <div class="stat-label">合格数</div>
+          <div class="stat-value">{{ statistics.qualifiedCount }}</div>
+        </div>
+        <div class="stat-card stat-error">
+          <div class="stat-label">不合格数</div>
+          <div class="stat-value">{{ statistics.unqualifiedCount }}</div>
+        </div>
+        <div class="stat-card stat-warning">
+          <div class="stat-label">需整改数</div>
+          <div class="stat-value">{{ statistics.needRectifyCount }}</div>
+        </div>
+        <div class="stat-card stat-info">
+          <div class="stat-label">合格率</div>
+          <div class="stat-value">{{ statistics.qualifiedRate }}%</div>
+        </div>
+        <div class="stat-card stat-info">
+          <div class="stat-label">平均评分</div>
+          <div class="stat-value">{{ Number(statistics.avgScore || 0).toFixed(1) }}</div>
+        </div>
+      </div>
     </NCard>
 
     <!-- Table -->
@@ -192,3 +210,79 @@ onMounted(() => {
     </NCard>
   </div>
 </template>
+
+<style scoped>
+.statistics-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(140px, 1fr));
+  gap: 16px;
+}
+
+.stat-card {
+  padding: 16px;
+  border-radius: 8px;
+  text-align: center;
+  transition: transform 0.2s ease;
+}
+
+.stat-card:hover {
+  transform: translateY(-2px);
+}
+
+.stat-label {
+  font-size: 13px;
+  color: #666;
+  margin-bottom: 8px;
+}
+
+.stat-value {
+  font-size: 28px;
+  font-weight: 600;
+  line-height: 1.2;
+}
+
+.stat-primary {
+  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  color: white;
+}
+
+.stat-primary .stat-label {
+  color: rgba(255, 255, 255, 0.85);
+}
+
+.stat-info {
+  background: linear-gradient(135deg, #4facfe 0%, #00f2fe 100%);
+  color: white;
+}
+
+.stat-info .stat-label {
+  color: rgba(255, 255, 255, 0.85);
+}
+
+.stat-success {
+  background: linear-gradient(135deg, #11998e 0%, #38ef7d 100%);
+  color: white;
+}
+
+.stat-success .stat-label {
+  color: rgba(255, 255, 255, 0.85);
+}
+
+.stat-warning {
+  background: linear-gradient(135deg, #f093fb 0%, #f5576c 100%);
+  color: white;
+}
+
+.stat-warning .stat-label {
+  color: rgba(255, 255, 255, 0.85);
+}
+
+.stat-error {
+  background: linear-gradient(135deg, #ff0844 0%, #ffb199 100%);
+  color: white;
+}
+
+.stat-error .stat-label {
+  color: rgba(255, 255, 255, 0.85);
+}
+</style>

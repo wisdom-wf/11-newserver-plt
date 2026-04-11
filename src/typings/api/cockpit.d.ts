@@ -32,6 +32,10 @@ declare namespace Api {
       satisfaction: number;
       /** 合格率 */
       qualifiedRate: number;
+      /** 服务类型分布 */
+      serviceTypeDistribution?: Array<{ category?: string; serviceTypeName?: string; count?: number }>;
+      /** 区域分布 */
+      areaDistribution?: Array<{ areaId?: string; areaName?: string; orderCount?: number }>;
     }
 
     /** 订单趋势 */

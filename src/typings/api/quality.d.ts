@@ -140,6 +140,14 @@ declare namespace Api {
       qualifiedRate: number;
       /** 平均评分 */
       avgScore: number;
+      /** 好评数 */
+      positiveCount?: number;
+      /** 中评数 */
+      neutralCount?: number;
+      /** 差评数 */
+      negativeCount?: number;
+      /** 投诉类型分布 */
+      complaintTypes?: Array<{ typeName?: string; complaintType?: string; count?: number }>;
     }
 
     /** 养老服务评分明细 */
