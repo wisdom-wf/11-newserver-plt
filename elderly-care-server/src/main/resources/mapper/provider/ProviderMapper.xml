@@ -16,7 +16,6 @@
         <result column="audit_comment" property="auditComment"/>
         <result column="audit_time" property="auditTime"/>
         <result column="auditor_id" property="auditorId"/>
-        <result column="status" property="status"/>
         <result column="rating" property="rating"/>
         <result column="rating_count" property="ratingCount"/>
         <result column="create_time" property="createTime"/>

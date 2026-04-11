@@ -38,6 +38,7 @@ public class Refund implements Serializable {
 
     private String refundType;
 
+    @TableField("refund_status")
     private String auditStatus;
 
     private String auditComment;
