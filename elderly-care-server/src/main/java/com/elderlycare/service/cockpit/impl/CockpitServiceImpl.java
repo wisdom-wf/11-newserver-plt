@@ -39,24 +39,31 @@ public class CockpitServiceImpl implements CockpitService {
         FinancialStatisticsVO financialStats = statisticsService.getFinancialStatistics();
         QualityStatisticsVO qualityStats = statisticsService.getQualityStatistics();
 
-        // 设置基础数据
-        overview.setTodayOrders(dashboard.getTodayOrders());
-        overview.setMonthOrders(dashboard.getTodayOrders() * 30L); // 估算
-        overview.setTotalOrders(dashboard.getTotalOrders());
-        overview.setProviderCount(dashboard.getTotalProviders());
-        overview.setStaffCount(dashboard.getTotalStaff());
-        overview.setElderCount(dashboard.getTotalElders());
+        // 设置基础数据（处理空值）
+        Long todayOrders = dashboard.getTodayOrders() != null ? dashboard.getTodayOrders() : 0L;
+        Long totalOrders = dashboard.getTotalOrders() != null ? dashboard.getTotalOrders() : 0L;
+        Long totalProviders = dashboard.getTotalProviders() != null ? dashboard.getTotalProviders() : 0L;
+        Long totalStaff = dashboard.getTotalStaff() != null ? dashboard.getTotalStaff() : 0L;
+        Long totalElders = dashboard.getTotalElders() != null ? dashboard.getTotalElders() : 0L;
+        Long todayCompleted = dashboard.getTodayCompletedOrders() != null ? dashboard.getTodayCompletedOrders() : 0L;
+
+        overview.setTodayOrders(todayOrders);
+        overview.setMonthOrders(todayOrders * 30L); // 估算
+        overview.setTotalOrders(totalOrders);
+        overview.setProviderCount(totalProviders);
+        overview.setStaffCount(totalStaff);
+        overview.setElderCount(totalElders);
 
         // 服务人次
-        overview.setTodayServices(dashboard.getTodayCompletedOrders());
-        overview.setMonthServices(dashboard.getTodayCompletedOrders() * 30L);
-        overview.setTotalServices(dashboard.getTotalOrders());
+        overview.setTodayServices(todayCompleted);
+        overview.setMonthServices(todayCompleted * 30L);
+        overview.setTotalServices(totalOrders);
 
         // 营收
         overview.setMonthRevenue(financialStats.getMonthAmount() != null ? financialStats.getMonthAmount() : BigDecimal.ZERO);
         overview.setTotalRevenue(financialStats.getTotalAmount() != null ? financialStats.getTotalAmount() : BigDecimal.ZERO);
 
-        // 满意度和合格率 - positiveRate已经是百分比(0-100)，直接使用
+        // 满意度和合格率
         if (qualityStats.getPositiveRate() != null) {
             overview.setSatisfaction(qualityStats.getPositiveRate());
         } else {
