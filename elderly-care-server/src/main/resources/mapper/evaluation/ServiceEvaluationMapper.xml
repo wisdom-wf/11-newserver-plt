@@ -49,7 +49,7 @@
             AND order_id = #{query.orderId}
         </if>
         <if test="query.elderId != null and query.elderId != ''">
-            AND elder_id = #{query.ellderId}
+            AND elder_id = #{query.elderId}
         </if>
         <if test="query.startDate != null and query.startDate != ''">
             AND DATE(create_time) &gt;= #{query.startDate}
