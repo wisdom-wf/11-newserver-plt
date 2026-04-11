@@ -53,7 +53,7 @@ public class CockpitServiceImpl implements CockpitService {
         overview.setTotalServices(dashboard.getTotalOrders());
 
         // 营收
-        overview.setMonthRevenue(financialStats.getMonthlyAmount() != null ? financialStats.getMonthlyAmount() : BigDecimal.ZERO);
+        overview.setMonthRevenue(financialStats.getMonthAmount() != null ? financialStats.getMonthAmount() : BigDecimal.ZERO);
         overview.setTotalRevenue(financialStats.getTotalAmount() != null ? financialStats.getTotalAmount() : BigDecimal.ZERO);
 
         // 满意度和合格率 - positiveRate已经是百分比(0-100)，直接使用
