@@ -5,7 +5,7 @@ import { request } from '../request';
  */
 export function fetchGetElderList(params?: Api.Elder.ElderQuery & Api.Common.PaginatingQueryParams) {
   return request<Api.Common.PaginatingQueryRecord<Api.Elder.Elder>>({
-    url: '/elder/list',
+    url: '/api/elders',
     method: 'get',
     params
   });
@@ -16,7 +16,7 @@ export function fetchGetElderList(params?: Api.Elder.ElderQuery & Api.Common.Pag
  */
 export function fetchGetElder(id: string) {
   return request<Api.Elder.Elder>({
-    url: `/elder/${id}`,
+    url: `/api/elders/${id}`,
     method: 'get'
   });
 }
@@ -26,7 +26,7 @@ export function fetchGetElder(id: string) {
  */
 export function fetchCreateElder(data: Api.Elder.ElderForm) {
   return request({
-    url: '/elder',
+    url: '/api/elders',
     method: 'post',
     data
   });
@@ -37,7 +37,7 @@ export function fetchCreateElder(data: Api.Elder.ElderForm) {
  */
 export function fetchUpdateElder(id: string, data: Api.Elder.ElderForm) {
   return request({
-    url: `/elder/${id}`,
+    url: `/api/elders/${id}`,
     method: 'put',
     data
   });
@@ -48,7 +48,7 @@ export function fetchUpdateElder(id: string, data: Api.Elder.ElderForm) {
  */
 export function fetchDeleteElder(id: string) {
   return request({
-    url: `/elder/${id}`,
+    url: `/api/elders/${id}`,
     method: 'delete'
   });
 }
@@ -58,7 +58,7 @@ export function fetchDeleteElder(id: string) {
  */
 export function fetchUpdateElderStatus(id: string, status: Api.Common.EnableStatus) {
   return request({
-    url: `/elder/${id}/status`,
+    url: `/api/elders/${id}/status`,
     method: 'put',
     data: { status }
   });
@@ -69,7 +69,7 @@ export function fetchUpdateElderStatus(id: string, status: Api.Common.EnableStat
  */
 export function fetchGetElderStatistics(params?: { areaId?: string; communityId?: string }) {
   return request<Api.Elder.Statistics>({
-    url: '/elder/statistics',
+    url: '/api/statistics/elder',
     method: 'get',
     params
   });
@@ -80,7 +80,7 @@ export function fetchGetElderStatistics(params?: { areaId?: string; communityId?
  */
 export function fetchGetElderOptions(params?: { areaId?: string; communityId?: string }) {
   return request<{ id: string; name: string; phone?: string }[]>({
-    url: '/elder/options',
+    url: '/api/elders/options',
     method: 'get',
     params
   });
@@ -91,7 +91,7 @@ export function fetchGetElderOptions(params?: { areaId?: string; communityId?: s
  */
 export function fetchGetElderByIdCard(idCard: string) {
   return request<Api.Elder.Elder>({
-    url: `/elder/idCard/${idCard}`,
+    url: `/api/elders/idCard/${idCard}`,
     method: 'get'
   });
 }

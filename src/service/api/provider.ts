@@ -5,7 +5,7 @@ import { request } from '../request';
  */
 export function fetchGetProviderList(params?: Api.Provider.ProviderQuery & Api.Common.PaginatingQueryParams) {
   return request<Api.Common.PaginatingQueryRecord<Api.Provider.Provider>>({
-    url: '/provider/list',
+    url: '/api/providers',
     method: 'get',
     params
   });
@@ -16,7 +16,7 @@ export function fetchGetProviderList(params?: Api.Provider.ProviderQuery & Api.C
  */
 export function fetchGetProvider(id: string) {
   return request<Api.Provider.Provider>({
-    url: `/provider/${id}`,
+    url: `/api/providers/${id}`,
     method: 'get'
   });
 }
@@ -26,7 +26,7 @@ export function fetchGetProvider(id: string) {
  */
 export function fetchCreateProvider(data: Api.Provider.ProviderForm) {
   return request({
-    url: '/provider',
+    url: '/api/providers',
     method: 'post',
     data
   });
@@ -37,7 +37,7 @@ export function fetchCreateProvider(data: Api.Provider.ProviderForm) {
  */
 export function fetchUpdateProvider(id: string, data: Api.Provider.ProviderForm) {
   return request({
-    url: `/provider/${id}`,
+    url: `/api/providers/${id}`,
     method: 'put',
     data
   });
@@ -48,7 +48,7 @@ export function fetchUpdateProvider(id: string, data: Api.Provider.ProviderForm)
  */
 export function fetchDeleteProvider(id: string) {
   return request({
-    url: `/provider/${id}`,
+    url: `/api/providers/${id}`,
     method: 'delete'
   });
 }
@@ -58,7 +58,7 @@ export function fetchDeleteProvider(id: string) {
  */
 export function fetchUpdateProviderStatus(id: string, status: Api.Common.EnableStatus) {
   return request({
-    url: `/provider/${id}/status`,
+    url: `/api/providers/${id}/status`,
     method: 'put',
     data: { status }
   });
@@ -69,7 +69,7 @@ export function fetchUpdateProviderStatus(id: string, status: Api.Common.EnableS
  */
 export function fetchAuditProvider(id: string, data: { auditStatus: Api.Provider.AuditStatus; auditRemark?: string }) {
   return request({
-    url: `/provider/${id}/audit`,
+    url: `/api/providers/${id}/audit`,
     method: 'put',
     data
   });
@@ -80,7 +80,7 @@ export function fetchAuditProvider(id: string, data: { auditStatus: Api.Provider
  */
 export function fetchGetProviderStatistics(params?: { areaId?: string }) {
   return request<Api.Provider.Statistics>({
-    url: '/provider/statistics',
+    url: '/api/statistics/provider',
     method: 'get',
     params
   });
@@ -91,7 +91,7 @@ export function fetchGetProviderStatistics(params?: { areaId?: string }) {
  */
 export function fetchGetProviderOptions(params?: { areaId?: string; serviceCategory?: string }) {
   return request<{ id: string; name: string }[]>({
-    url: '/provider/options',
+    url: '/api/providers/options',
     method: 'get',
     params
   });

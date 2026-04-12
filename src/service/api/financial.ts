@@ -5,7 +5,7 @@ import { request } from '../request';
  */
 export function fetchGetSettlementList(params?: Api.Financial.SettlementQuery & Api.Common.PaginatingQueryParams) {
   return request<Api.Common.PaginatingQueryRecord<Api.Financial.Settlement>>({
-    url: '/financial/settlement/list',
+    url: '/api/financial/settlements',
     method: 'get',
     params
   });
@@ -16,7 +16,7 @@ export function fetchGetSettlementList(params?: Api.Financial.SettlementQuery & 
  */
 export function fetchGetSettlement(id: string) {
   return request<Api.Financial.Settlement>({
-    url: `/financial/settlement/${id}`,
+    url: `/api/financial/settlements/${id}`,
     method: 'get'
   });
 }
@@ -26,7 +26,7 @@ export function fetchGetSettlement(id: string) {
  */
 export function fetchCreateSettlement(data: Api.Financial.SettlementForm) {
   return request({
-    url: '/financial/settlement',
+    url: '/api/financial/settlements/calculate',
     method: 'post',
     data
   });
@@ -37,8 +37,8 @@ export function fetchCreateSettlement(data: Api.Financial.SettlementForm) {
  */
 export function fetchConfirmSettlement(id: string) {
   return request({
-    url: `/financial/settlement/${id}/confirm`,
-    method: 'put'
+    url: `/api/financial/settlements/${id}/confirm`,
+    method: 'post'
   });
 }
 
@@ -47,7 +47,7 @@ export function fetchConfirmSettlement(id: string) {
  */
 export function fetchCancelSettlement(id: string, reason?: string) {
   return request({
-    url: `/financial/settlement/${id}/cancel`,
+    url: `/api/financial/settlements/${id}/cancel`,
     method: 'put',
     data: { reason }
   });
@@ -63,7 +63,7 @@ export function fetchGetSettlementStatistics(params?: {
   endDate?: string;
 }) {
   return request<Api.Financial.Statistics>({
-    url: '/financial/settlement/statistics',
+    url: '/api/statistics/financial',
     method: 'get',
     params
   });
@@ -74,7 +74,7 @@ export function fetchGetSettlementStatistics(params?: {
  */
 export function fetchGetInvoiceList(params?: Api.Financial.InvoiceQuery & Api.Common.PaginatingQueryParams) {
   return request<Api.Common.PaginatingQueryRecord<Api.Financial.Invoice>>({
-    url: '/financial/invoice/list',
+    url: '/api/financial/invoices',
     method: 'get',
     params
   });
@@ -85,7 +85,7 @@ export function fetchGetInvoiceList(params?: Api.Financial.InvoiceQuery & Api.Co
  */
 export function fetchGetInvoice(id: string) {
   return request<Api.Financial.Invoice>({
-    url: `/financial/invoice/${id}`,
+    url: `/api/financial/invoices/${id}`,
     method: 'get'
   });
 }
@@ -100,7 +100,7 @@ export function fetchCreateInvoice(data: {
   remark?: string;
 }) {
   return request({
-    url: '/financial/invoice',
+    url: '/api/financial/invoices',
     method: 'post',
     data
   });
@@ -111,7 +111,7 @@ export function fetchCreateInvoice(data: {
  */
 export function fetchVoidInvoice(id: string, reason: string) {
   return request({
-    url: `/financial/invoice/${id}/void`,
+    url: `/api/financial/invoices/${id}/void`,
     method: 'put',
     data: { reason }
   });

@@ -5,7 +5,7 @@ import { request } from '../request';
  */
 export function fetchGetCockpitOverview(params?: Api.Cockpit.CockpitQuery) {
   return request<Api.Cockpit.Overview>({
-    url: '/cockpit/overview',
+    url: '/api/cockpit/overview',
     method: 'get',
     params
   });
@@ -16,7 +16,7 @@ export function fetchGetCockpitOverview(params?: Api.Cockpit.CockpitQuery) {
  */
 export function fetchGetOrderTrend(params?: Api.Cockpit.CockpitQuery & { type?: 'day' | 'week' | 'month' }) {
   return request<Api.Cockpit.OrderTrend[]>({
-    url: '/cockpit/orderTrend',
+    url: '/api/cockpit/orderTrend',
     method: 'get',
     params
   });
@@ -27,7 +27,7 @@ export function fetchGetOrderTrend(params?: Api.Cockpit.CockpitQuery & { type?: 
  */
 export function fetchGetServiceDistribution(params?: Api.Cockpit.CockpitQuery) {
   return request<Api.Cockpit.ServiceDistribution[]>({
-    url: '/cockpit/serviceDistribution',
+    url: '/api/cockpit/serviceDistribution',
     method: 'get',
     params
   });
@@ -38,7 +38,7 @@ export function fetchGetServiceDistribution(params?: Api.Cockpit.CockpitQuery) {
  */
 export function fetchGetAreaDistribution(params?: Api.Cockpit.CockpitQuery) {
   return request<Api.Cockpit.AreaDistribution[]>({
-    url: '/cockpit/areaDistribution',
+    url: '/api/cockpit/areaDistribution',
     method: 'get',
     params
   });
@@ -51,7 +51,7 @@ export function fetchGetProviderRanking(
   params?: Api.Cockpit.CockpitQuery & { type?: 'order' | 'service' | 'rating' | 'amount'; limit?: number }
 ) {
   return request<Api.Cockpit.ProviderRanking[]>({
-    url: '/cockpit/providerRanking',
+    url: '/api/cockpit/providerRanking',
     method: 'get',
     params
   });
@@ -64,7 +64,7 @@ export function fetchGetStaffRanking(
   params?: Api.Cockpit.CockpitQuery & { type?: 'order' | 'rating'; limit?: number }
 ) {
   return request<Api.Cockpit.StaffRanking[]>({
-    url: '/cockpit/staffRanking',
+    url: '/api/cockpit/staffRanking',
     method: 'get',
     params
   });
@@ -75,7 +75,7 @@ export function fetchGetStaffRanking(
  */
 export function fetchGetSatisfactionDistribution(params?: Api.Cockpit.CockpitQuery) {
   return request<Api.Cockpit.SatisfactionDistribution>({
-    url: '/cockpit/satisfactionDistribution',
+    url: '/api/cockpit/satisfactionDistribution',
     method: 'get',
     params
   });
@@ -86,7 +86,7 @@ export function fetchGetSatisfactionDistribution(params?: Api.Cockpit.CockpitQue
  */
 export function fetchGetQualityDistribution(params?: Api.Cockpit.CockpitQuery) {
   return request<Api.Cockpit.QualityDistribution>({
-    url: '/cockpit/qualityDistribution',
+    url: '/api/cockpit/qualityDistribution',
     method: 'get',
     params
   });
@@ -97,7 +97,7 @@ export function fetchGetQualityDistribution(params?: Api.Cockpit.CockpitQuery) {
  */
 export function fetchGetFinancialTrend(params?: Api.Cockpit.CockpitQuery & { type?: 'day' | 'week' | 'month' }) {
   return request<Api.Cockpit.FinancialTrend[]>({
-    url: '/cockpit/financialTrend',
+    url: '/api/cockpit/financialTrend',
     method: 'get',
     params
   });
@@ -108,7 +108,7 @@ export function fetchGetFinancialTrend(params?: Api.Cockpit.CockpitQuery & { typ
  */
 export function fetchGetAgeDistribution(params?: Api.Cockpit.CockpitQuery) {
   return request<Api.Cockpit.AgeDistribution[]>({
-    url: '/cockpit/ageDistribution',
+    url: '/api/cockpit/ageDistribution',
     method: 'get',
     params
   });
@@ -119,7 +119,7 @@ export function fetchGetAgeDistribution(params?: Api.Cockpit.CockpitQuery) {
  */
 export function fetchGetCareLevelDistribution(params?: Api.Cockpit.CockpitQuery) {
   return request<Api.Cockpit.CareLevelDistribution[]>({
-    url: '/cockpit/careLevelDistribution',
+    url: '/api/cockpit/careLevelDistribution',
     method: 'get',
     params
   });
@@ -130,7 +130,7 @@ export function fetchGetCareLevelDistribution(params?: Api.Cockpit.CockpitQuery)
  */
 export function fetchGetRealtimeOrders(params?: { limit?: number }) {
   return request<Api.Cockpit.RealtimeOrder[]>({
-    url: '/cockpit/realtimeOrders',
+    url: '/api/cockpit/realtimeOrders',
     method: 'get',
     params
   });
@@ -141,7 +141,7 @@ export function fetchGetRealtimeOrders(params?: { limit?: number }) {
  */
 export function fetchGetWarnings(params?: { level?: Api.Cockpit.WarningLevel; limit?: number }) {
   return request<Api.Cockpit.Warning[]>({
-    url: '/cockpit/warnings',
+    url: '/api/cockpit/warnings',
     method: 'get',
     params
   });

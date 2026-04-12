@@ -5,7 +5,7 @@ import { request } from '../request';
  */
 export function fetchGetStaffList(params?: Api.Staff.StaffQuery & Api.Common.PaginatingQueryParams) {
   return request<Api.Common.PaginatingQueryRecord<Api.Staff.Staff>>({
-    url: '/staff/list',
+    url: '/api/staff',
     method: 'get',
     params
   });
@@ -16,7 +16,7 @@ export function fetchGetStaffList(params?: Api.Staff.StaffQuery & Api.Common.Pag
  */
 export function fetchGetStaff(id: string) {
   return request<Api.Staff.Staff>({
-    url: `/staff/${id}`,
+    url: `/api/staff/${id}`,
     method: 'get'
   });
 }
@@ -26,7 +26,7 @@ export function fetchGetStaff(id: string) {
  */
 export function fetchCreateStaff(data: Api.Staff.StaffForm) {
   return request({
-    url: '/staff',
+    url: '/api/staff',
     method: 'post',
     data
   });
@@ -37,7 +37,7 @@ export function fetchCreateStaff(data: Api.Staff.StaffForm) {
  */
 export function fetchUpdateStaff(id: string, data: Api.Staff.StaffForm) {
   return request({
-    url: `/staff/${id}`,
+    url: `/api/staff/${id}`,
     method: 'put',
     data
   });
@@ -48,7 +48,7 @@ export function fetchUpdateStaff(id: string, data: Api.Staff.StaffForm) {
  */
 export function fetchDeleteStaff(id: string) {
   return request({
-    url: `/staff/${id}`,
+    url: `/api/staff/${id}`,
     method: 'delete'
   });
 }
@@ -58,7 +58,7 @@ export function fetchDeleteStaff(id: string) {
  */
 export function fetchUpdateStaffStatus(id: string, status: Api.Common.EnableStatus) {
   return request({
-    url: `/staff/${id}/status`,
+    url: `/api/staff/${id}/status`,
     method: 'put',
     data: { status }
   });
@@ -69,7 +69,7 @@ export function fetchUpdateStaffStatus(id: string, status: Api.Common.EnableStat
  */
 export function fetchGetStaffStatistics(params?: { providerId?: string; areaId?: string }) {
   return request<Api.Staff.Statistics>({
-    url: '/staff/statistics',
+    url: '/api/statistics/staff',
     method: 'get',
     params
   });
@@ -80,7 +80,7 @@ export function fetchGetStaffStatistics(params?: { providerId?: string; areaId?:
  */
 export function fetchGetStaffOptions(params?: { providerId?: string; serviceCategory?: string; serviceType?: string }) {
   return request<{ id: string; name: string; phone?: string }[]>({
-    url: '/staff/options',
+    url: '/api/staff/select',
     method: 'get',
     params
   });

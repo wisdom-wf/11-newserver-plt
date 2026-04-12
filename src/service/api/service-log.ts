@@ -5,7 +5,7 @@ import { request } from '../request';
  */
 export function fetchGetServiceLogList(params?: Api.ServiceLog.ServiceLogQuery & Api.Common.PaginatingQueryParams) {
   return request<Api.Common.PaginatingQueryRecord<Api.ServiceLog.ServiceLog>>({
-    url: '/service-log/list',
+    url: '/api/service-log/list',
     method: 'get',
     params
   });
@@ -16,7 +16,7 @@ export function fetchGetServiceLogList(params?: Api.ServiceLog.ServiceLogQuery &
  */
 export function fetchGetServiceLog(id: string) {
   return request<Api.ServiceLog.ServiceLog>({
-    url: `/service-log/${id}`,
+    url: `/api/service-log/${id}`,
     method: 'get'
   });
 }
@@ -26,7 +26,7 @@ export function fetchGetServiceLog(id: string) {
  */
 export function fetchGetServiceLogByOrderId(orderId: string) {
   return request<Api.ServiceLog.ServiceLog>({
-    url: `/service-log/order/${orderId}`,
+    url: `/api/service-log/order/${orderId}`,
     method: 'get'
   });
 }
@@ -36,7 +36,7 @@ export function fetchGetServiceLogByOrderId(orderId: string) {
  */
 export function fetchSubmitServiceLog(data: Api.ServiceLog.ServiceLogForm) {
   return request({
-    url: '/service-log',
+    url: '/api/service-log',
     method: 'post',
     data
   });
@@ -47,7 +47,7 @@ export function fetchSubmitServiceLog(data: Api.ServiceLog.ServiceLogForm) {
  */
 export function fetchUpdateServiceLog(id: string, data: Api.ServiceLog.ServiceLogForm) {
   return request({
-    url: `/service-log/${id}`,
+    url: `/api/service-log/${id}`,
     method: 'put',
     data
   });
@@ -61,7 +61,7 @@ export function fetchReportAnomaly(
   data: { anomalyType: string; anomalyDesc: string; anomalyPhotos?: string[] }
 ) {
   return request({
-    url: `/service-log/${id}/anomaly`,
+    url: `/api/service-log/${id}/anomaly`,
     method: 'put',
     data
   });
@@ -78,7 +78,7 @@ export function fetchGetServiceLogStatistics(params?: {
   endDate?: string;
 }) {
   return request<Api.ServiceLog.Statistics>({
-    url: '/service-log/statistics',
+    url: '/api/service-log/statistics',
     method: 'get',
     params
   });

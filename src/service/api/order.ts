@@ -5,7 +5,7 @@ import { request } from '../request';
  */
 export function fetchGetOrderList(params?: Api.Order.OrderQuery & Api.Common.PaginatingQueryParams) {
   return request<Api.Common.PaginatingQueryRecord<Api.Order.Order>>({
-    url: '/order/list',
+    url: '/api/orders',
     method: 'get',
     params
   });
@@ -16,7 +16,7 @@ export function fetchGetOrderList(params?: Api.Order.OrderQuery & Api.Common.Pag
  */
 export function fetchGetOrder(id: string) {
   return request<Api.Order.Order>({
-    url: `/order/${id}`,
+    url: `/api/orders/${id}`,
     method: 'get'
   });
 }
@@ -26,7 +26,7 @@ export function fetchGetOrder(id: string) {
  */
 export function fetchCreateOrderFromAppointment(appointmentId: string, data: { providerId: string; staffId?: string }) {
   return request({
-    url: `/order/appointment/${appointmentId}`,
+    url: `/api/orders/appointment/${appointmentId}`,
     method: 'post',
     data
   });
@@ -37,7 +37,7 @@ export function fetchCreateOrderFromAppointment(appointmentId: string, data: { p
  */
 export function fetchCreateOrder(data: Api.Order.OrderForm) {
   return request({
-    url: '/order',
+    url: '/api/orders',
     method: 'post',
     data
   });
@@ -48,7 +48,7 @@ export function fetchCreateOrder(data: Api.Order.OrderForm) {
  */
 export function fetchUpdateOrder(id: string, data: Api.Order.OrderForm) {
   return request({
-    url: `/order/${id}`,
+    url: `/api/orders/${id}`,
     method: 'put',
     data
   });
@@ -59,7 +59,7 @@ export function fetchUpdateOrder(id: string, data: Api.Order.OrderForm) {
  */
 export function fetchAssignOrder(orderId: string, data: { staffId: string }) {
   return request({
-    url: `/order/${orderId}/assign`,
+    url: `/api/orders/${orderId}/assign`,
     method: 'put',
     data
   });
@@ -70,7 +70,7 @@ export function fetchAssignOrder(orderId: string, data: { staffId: string }) {
  */
 export function fetchAcceptOrder(orderId: string) {
   return request({
-    url: `/order/${orderId}/accept`,
+    url: `/api/orders/${orderId}/accept`,
     method: 'put'
   });
 }
@@ -80,7 +80,7 @@ export function fetchAcceptOrder(orderId: string) {
  */
 export function fetchStartOrder(orderId: string) {
   return request({
-    url: `/order/${orderId}/start`,
+    url: `/api/orders/${orderId}/start`,
     method: 'put'
   });
 }
@@ -90,7 +90,7 @@ export function fetchStartOrder(orderId: string) {
  */
 export function fetchCompleteOrder(orderId: string, data?: { actualFee?: number; selfPayFee?: number }) {
   return request({
-    url: `/order/${orderId}/complete`,
+    url: `/api/orders/${orderId}/complete`,
     method: 'put',
     data
   });
@@ -101,7 +101,7 @@ export function fetchCompleteOrder(orderId: string, data?: { actualFee?: number;
  */
 export function fetchCancelOrder(orderId: string, data: { reason: string }) {
   return request({
-    url: `/order/${orderId}/cancel`,
+    url: `/api/orders/${orderId}/cancel`,
     method: 'put',
     data
   });
@@ -112,7 +112,7 @@ export function fetchCancelOrder(orderId: string, data: { reason: string }) {
  */
 export function fetchDeleteOrder(orderId: string) {
   return request({
-    url: `/order/${orderId}`,
+    url: `/api/orders/${orderId}`,
     method: 'delete'
   });
 }
@@ -127,7 +127,7 @@ export function fetchGetOrderStatistics(params?: {
   endDate?: string;
 }) {
   return request<Api.Order.Statistics>({
-    url: '/order/statistics',
+    url: '/api/statistics/order',
     method: 'get',
     params
   });

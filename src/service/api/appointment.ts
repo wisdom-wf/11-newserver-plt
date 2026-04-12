@@ -5,7 +5,7 @@ import { request } from '../request';
  */
 export function fetchGetAppointmentList(params?: Api.Appointment.AppointmentQuery & Api.Common.PaginatingQueryParams) {
   return request<Api.Common.PaginatingQueryRecord<Api.Appointment.Appointment>>({
-    url: '/appointment/list',
+    url: '/api/appointment/list',
     method: 'get',
     params
   });
@@ -16,7 +16,7 @@ export function fetchGetAppointmentList(params?: Api.Appointment.AppointmentQuer
  */
 export function fetchGetAppointment(id: string) {
   return request<Api.Appointment.Appointment>({
-    url: `/appointment/${id}`,
+    url: `/api/appointment/${id}`,
     method: 'get'
   });
 }
@@ -26,7 +26,7 @@ export function fetchGetAppointment(id: string) {
  */
 export function fetchConfirmAppointment(id: string, data: { providerId: string; appointmentTime: string }) {
   return request({
-    url: `/appointment/${id}/confirm`,
+    url: `/api/appointment/${id}/confirm`,
     method: 'put',
     data
   });
@@ -37,7 +37,7 @@ export function fetchConfirmAppointment(id: string, data: { providerId: string; 
  */
 export function fetchAssignAppointment(id: string, data: { providerId: string }) {
   return request({
-    url: `/appointment/${id}/assign`,
+    url: `/api/appointment/${id}/assign`,
     method: 'put',
     data
   });
@@ -48,7 +48,7 @@ export function fetchAssignAppointment(id: string, data: { providerId: string })
  */
 export function fetchCancelAppointment(id: string, data: { reason: string }) {
   return request({
-    url: `/appointment/${id}/cancel`,
+    url: `/api/appointment/${id}/cancel`,
     method: 'put',
     data
   });
@@ -59,7 +59,7 @@ export function fetchCancelAppointment(id: string, data: { reason: string }) {
  */
 export function fetchInvalidateAppointment(id: string, data: { reason: string }) {
   return request({
-    url: `/appointment/${id}/invalidate`,
+    url: `/api/appointment/${id}/invalidate`,
     method: 'put',
     data
   });
@@ -72,7 +72,7 @@ export function fetchImportAppointment(file: File) {
   const formData = new FormData();
   formData.append('file', file);
   return request<{ successCount: number; failCount: number; errors: string[] }>({
-    url: '/appointment/import',
+    url: '/api/appointment/import',
     method: 'post',
     data: formData,
     headers: { 'Content-Type': 'multipart/form-data' }
@@ -84,7 +84,7 @@ export function fetchImportAppointment(file: File) {
  */
 export function fetchDownloadAppointmentTemplate() {
   return request({
-    url: '/appointment/template',
+    url: '/api/appointment/template',
     method: 'get',
     responseType: 'blob'
   });
@@ -95,7 +95,7 @@ export function fetchDownloadAppointmentTemplate() {
  */
 export function fetchGetAppointmentStatistics(params?: { areaId?: string; startDate?: string; endDate?: string }) {
   return request<Api.Appointment.Statistics>({
-    url: '/appointment/statistics',
+    url: '/api/appointment/statistics',
     method: 'get',
     params
   });
@@ -106,7 +106,7 @@ export function fetchGetAppointmentStatistics(params?: { areaId?: string; startD
  */
 export function fetchGetAppointmentsByPhone(phone: string) {
   return request<Api.Appointment.Appointment[]>({
-    url: '/appointment/phone',
+    url: '/api/appointment/phone',
     method: 'get',
     params: { phone }
   });

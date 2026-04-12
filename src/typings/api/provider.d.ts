@@ -27,21 +27,21 @@ declare namespace Api {
     /** 服务商表单 */
     interface ProviderForm {
       /** 服务商ID（编辑时需要） */
-      id?: string;
+      providerId?: string;
       /** 服务商名称 */
-      name: string;
+      providerName: string;
       /** 统一社会信用代码 */
       creditCode?: string;
       /** 法人姓名 */
       legalPerson?: string;
       /** 联系电话 */
-      phone?: string;
+      contactPhone?: string;
       /** 联系地址 */
       address?: string;
       /** 区域ID */
       areaId?: string;
       /** 服务类别 */
-      serviceCategory: ServiceCategory;
+      serviceCategory?: string;
       /** 服务类型列表 */
       serviceTypes?: string[];
       /** 服务区域 */
@@ -59,15 +59,17 @@ declare namespace Api {
     /** 服务商详情 */
     interface Provider {
       /** 服务商ID */
-      id: string;
+      providerId: string;
       /** 服务商名称 */
-      name: string;
+      providerName: string;
+      /** 服务商类型 */
+      providerType?: string;
       /** 统一社会信用代码 */
       creditCode?: string;
       /** 法人姓名 */
       legalPerson?: string;
       /** 联系电话 */
-      phone?: string;
+      contactPhone?: string;
       /** 联系地址 */
       address?: string;
       /** 区域ID */
@@ -75,7 +77,7 @@ declare namespace Api {
       /** 区域名称 */
       areaName?: string;
       /** 服务类别 */
-      serviceCategory: ServiceCategory;
+      serviceCategory?: string;
       /** 服务类型列表 */
       serviceTypes?: string[];
       /** 服务区域 */
@@ -87,7 +89,7 @@ declare namespace Api {
       /** 简介 */
       description?: string;
       /** 状态 */
-      status: EnableStatus;
+      status: string;
       /** 审核状态 */
       auditStatus?: AuditStatus;
       /** 审核备注 */
@@ -101,13 +103,11 @@ declare namespace Api {
     /** 服务商统计 */
     interface Statistics {
       /** 总数 */
-      total: number;
-      /** 已认证 */
-      certified: number;
-      /** 认证中 */
-      certifying: number;
-      /** 已暂停 */
-      suspended: number;
+      totalProviders: number;
+      /** 待审核 */
+      pendingProviders: number;
+      /** 已通过 */
+      approvedProviders: number;
     }
 
     /** 审核状态 */

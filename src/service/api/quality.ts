@@ -5,7 +5,7 @@ import { request } from '../request';
  */
 export function fetchGetQualityCheckList(params?: Api.Quality.QualityCheckQuery & Api.Common.PaginatingQueryParams) {
   return request<Api.Common.PaginatingQueryRecord<Api.Quality.QualityCheck>>({
-    url: '/quality-check/list',
+    url: '/api/quality-check/list',
     method: 'get',
     params
   });
@@ -16,7 +16,7 @@ export function fetchGetQualityCheckList(params?: Api.Quality.QualityCheckQuery 
  */
 export function fetchGetQualityCheck(id: string) {
   return request<Api.Quality.QualityCheck>({
-    url: `/quality-check/${id}`,
+    url: `/api/quality-check/${id}`,
     method: 'get'
   });
 }
@@ -26,7 +26,7 @@ export function fetchGetQualityCheck(id: string) {
  */
 export function fetchGetQualityCheckByOrderId(orderId: string) {
   return request<Api.Quality.QualityCheck>({
-    url: `/quality-check/order/${orderId}`,
+    url: `/api/quality-check/order/${orderId}`,
     method: 'get'
   });
 }
@@ -36,7 +36,7 @@ export function fetchGetQualityCheckByOrderId(orderId: string) {
  */
 export function fetchCreateQualityCheck(data: Api.Quality.QualityCheckForm) {
   return request({
-    url: '/quality-check',
+    url: '/api/quality-check',
     method: 'post',
     data
   });
@@ -47,7 +47,7 @@ export function fetchCreateQualityCheck(data: Api.Quality.QualityCheckForm) {
  */
 export function fetchUpdateQualityCheck(id: string, data: Api.Quality.QualityCheckForm) {
   return request({
-    url: `/quality-check/${id}`,
+    url: `/api/quality-check/${id}`,
     method: 'put',
     data
   });
@@ -58,7 +58,7 @@ export function fetchUpdateQualityCheck(id: string, data: Api.Quality.QualityChe
  */
 export function fetchSubmitRectify(id: string, data: { photos?: string[]; remark: string }) {
   return request({
-    url: `/quality-check/${id}/rectify`,
+    url: `/api/quality-check/${id}/rectify`,
     method: 'put',
     data
   });
@@ -69,7 +69,7 @@ export function fetchSubmitRectify(id: string, data: { photos?: string[]; remark
  */
 export function fetchRecheck(id: string, data: { result: string; remark?: string }) {
   return request({
-    url: `/quality-check/${id}/recheck`,
+    url: `/api/quality-check/${id}/recheck`,
     method: 'put',
     data
   });
@@ -85,7 +85,7 @@ export function fetchGetQualityStatistics(params?: {
   endDate?: string;
 }) {
   return request<Api.Quality.Statistics>({
-    url: '/quality-check/statistics',
+    url: '/api/quality-check/statistics',
     method: 'get',
     params
   });

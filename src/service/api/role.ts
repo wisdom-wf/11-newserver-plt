@@ -5,7 +5,7 @@ import { request } from '../request';
  */
 export function fetchGetRoleList(params?: Api.User.RoleQuery) {
   return request<Api.Common.PaginatingQueryRecord<Api.User.Role>>({
-    url: '/system/role/list',
+    url: '/api/system/roles',
     method: 'get',
     params
   });
@@ -16,7 +16,7 @@ export function fetchGetRoleList(params?: Api.User.RoleQuery) {
  */
 export function fetchGetRole(id: string) {
   return request<Api.User.Role>({
-    url: `/system/role/${id}`,
+    url: `/api/system/roles/${id}`,
     method: 'get'
   });
 }
@@ -26,7 +26,7 @@ export function fetchGetRole(id: string) {
  */
 export function fetchCreateRole(data: Api.User.RoleForm) {
   return request({
-    url: '/system/role',
+    url: '/api/system/roles',
     method: 'post',
     data
   });
@@ -37,7 +37,7 @@ export function fetchCreateRole(data: Api.User.RoleForm) {
  */
 export function fetchUpdateRole(id: string, data: Api.User.RoleForm) {
   return request({
-    url: `/system/role/${id}`,
+    url: `/api/system/roles/${id}`,
     method: 'put',
     data
   });
@@ -48,7 +48,7 @@ export function fetchUpdateRole(id: string, data: Api.User.RoleForm) {
  */
 export function fetchDeleteRole(id: string) {
   return request({
-    url: `/system/role/${id}`,
+    url: `/api/system/roles/${id}`,
     method: 'delete'
   });
 }
@@ -58,7 +58,7 @@ export function fetchDeleteRole(id: string) {
  */
 export function fetchUpdateRoleStatus(id: string, status: string) {
   return request({
-    url: `/system/role/${id}/status`,
+    url: `/api/system/roles/${id}/status`,
     method: 'put',
     data: { status }
   });
@@ -69,7 +69,7 @@ export function fetchUpdateRoleStatus(id: string, status: string) {
  */
 export function fetchGetRoleMenus(roleId: string) {
   return request<string[]>({
-    url: `/system/role/${roleId}/menus`,
+    url: `/api/system/roles/${roleId}/permissions`,
     method: 'get'
   });
 }
@@ -79,7 +79,7 @@ export function fetchGetRoleMenus(roleId: string) {
  */
 export function fetchAssignRoleMenus(roleId: string, menuIds: string[]) {
   return request({
-    url: `/system/role/${roleId}/menus`,
+    url: `/api/system/roles/${roleId}/permissions`,
     method: 'put',
     data: { menuIds }
   });
@@ -90,7 +90,7 @@ export function fetchAssignRoleMenus(roleId: string, menuIds: string[]) {
  */
 export function fetchGetAllRoles() {
   return request<Api.User.Role[]>({
-    url: '/system/role/all',
+    url: '/api/system/roles/all',
     method: 'get'
   });
 }

@@ -5,7 +5,7 @@ import { request } from '../request';
  */
 export function fetchGetAreaTree() {
   return request<Api.User.Area[]>({
-    url: '/system/area/tree',
+    url: '/api/config/areas/tree',
     method: 'get'
   });
 }
@@ -15,7 +15,7 @@ export function fetchGetAreaTree() {
  */
 export function fetchGetAreaList(params?: { parentId?: string; level?: string }) {
   return request<Api.User.Area[]>({
-    url: '/system/area/list',
+    url: '/api/config/areas',
     method: 'get',
     params
   });
@@ -26,7 +26,7 @@ export function fetchGetAreaList(params?: { parentId?: string; level?: string })
  */
 export function fetchGetArea(id: string) {
   return request<Api.User.Area>({
-    url: `/system/area/${id}`,
+    url: `/api/config/areas/${id}`,
     method: 'get'
   });
 }
@@ -36,7 +36,7 @@ export function fetchGetArea(id: string) {
  */
 export function fetchCreateArea(data: Api.User.Area & { id?: string }) {
   return request({
-    url: '/system/area',
+    url: '/api/config/areas',
     method: 'post',
     data
   });
@@ -47,7 +47,7 @@ export function fetchCreateArea(data: Api.User.Area & { id?: string }) {
  */
 export function fetchUpdateArea(id: string, data: Api.User.Area) {
   return request({
-    url: `/system/area/${id}`,
+    url: `/api/config/areas/${id}`,
     method: 'put',
     data
   });
@@ -58,7 +58,7 @@ export function fetchUpdateArea(id: string, data: Api.User.Area) {
  */
 export function fetchDeleteArea(id: string) {
   return request({
-    url: `/system/area/${id}`,
+    url: `/api/config/areas/${id}`,
     method: 'delete'
   });
 }

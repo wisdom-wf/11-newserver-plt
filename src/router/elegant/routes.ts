@@ -40,6 +40,17 @@ export const generatedRoutes: GeneratedRoute[] = [
     }
   },
   {
+    name: 'appointment',
+    path: '/appointment',
+    component: 'layout.base$view.appointment',
+    meta: {
+      title: 'appointment',
+      i18nKey: 'route.appointment',
+      icon: 'mdi:calendar-clock',
+      order: 2
+    }
+  },
+  {
     name: 'business',
     path: '/business',
     component: 'layout.base',
@@ -47,31 +58,9 @@ export const generatedRoutes: GeneratedRoute[] = [
       title: 'business',
       i18nKey: 'route.business',
       icon: 'mdi:briefcase-outline',
-      order: 2
+      order: 5
     },
     children: [
-      {
-        name: 'business_appointment',
-        path: '/business/appointment',
-        component: 'view.business_appointment',
-        meta: {
-          title: 'business_appointment',
-          i18nKey: 'route.business_appointment',
-          icon: 'mdi:calendar-clock',
-          order: 2
-        }
-      },
-      {
-        name: 'business_cockpit',
-        path: '/business/cockpit',
-        component: 'view.business_cockpit',
-        meta: {
-          title: 'business_cockpit',
-          i18nKey: 'route.business_cockpit',
-          icon: 'mdi:view-dashboard',
-          order: 1
-        }
-      },
       {
         name: 'business_elder',
         path: '/business/elder',
@@ -114,17 +103,6 @@ export const generatedRoutes: GeneratedRoute[] = [
           i18nKey: 'route.business_order',
           icon: 'mdi:clipboard-list',
           order: 3
-        }
-      },
-      {
-        name: 'business_provider',
-        path: '/business/provider',
-        component: 'view.business_provider',
-        meta: {
-          title: 'business_provider',
-          i18nKey: 'route.business_provider',
-          icon: 'mdi:domain',
-          order: 5
         }
       },
       {
@@ -199,6 +177,17 @@ export const generatedRoutes: GeneratedRoute[] = [
     }
   },
   {
+    name: 'provider',
+    path: '/provider',
+    component: 'layout.base$view.provider',
+    meta: {
+      title: 'provider',
+      i18nKey: 'route.provider',
+      icon: 'mdi:domain',
+      order: 4
+    }
+  },
+  {
     name: 'system',
     path: '/system',
     component: 'layout.base',
@@ -206,7 +195,7 @@ export const generatedRoutes: GeneratedRoute[] = [
       title: 'system',
       i18nKey: 'route.system',
       icon: 'mdi:cog-outline',
-      order: 3
+      order: 6
     },
     children: [
       {

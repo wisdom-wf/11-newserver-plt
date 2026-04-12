@@ -5,7 +5,7 @@ import { request } from '../request';
  */
 export function fetchGetEvaluationList(params?: Api.Evaluation.EvaluationQuery & Api.Common.PaginatingQueryParams) {
   return request<Api.Common.PaginatingQueryRecord<Api.Evaluation.Evaluation>>({
-    url: '/evaluation/list',
+    url: '/api/evaluations',
     method: 'get',
     params
   });
@@ -16,7 +16,7 @@ export function fetchGetEvaluationList(params?: Api.Evaluation.EvaluationQuery &
  */
 export function fetchGetEvaluation(id: string) {
   return request<Api.Evaluation.Evaluation>({
-    url: `/evaluation/${id}`,
+    url: `/api/evaluations/${id}`,
     method: 'get'
   });
 }
@@ -26,7 +26,7 @@ export function fetchGetEvaluation(id: string) {
  */
 export function fetchGetEvaluationByOrderId(orderId: string) {
   return request<Api.Evaluation.Evaluation>({
-    url: `/evaluation/order/${orderId}`,
+    url: `/api/evaluations/order/${orderId}`,
     method: 'get'
   });
 }
@@ -36,7 +36,7 @@ export function fetchGetEvaluationByOrderId(orderId: string) {
  */
 export function fetchCreateEvaluation(data: Api.Evaluation.EvaluationForm) {
   return request({
-    url: '/evaluation',
+    url: '/api/evaluations',
     method: 'post',
     data
   });
@@ -47,7 +47,7 @@ export function fetchCreateEvaluation(data: Api.Evaluation.EvaluationForm) {
  */
 export function fetchReplyEvaluation(id: string, data: { reply: string }) {
   return request({
-    url: `/evaluation/${id}/reply`,
+    url: `/api/evaluations/${id}/reply`,
     method: 'put',
     data
   });
@@ -63,7 +63,7 @@ export function fetchGetEvaluationStatistics(params?: {
   endDate?: string;
 }) {
   return request<Api.Evaluation.Statistics>({
-    url: '/evaluation/statistics',
+    url: '/api/evaluations/statistics',
     method: 'get',
     params
   });

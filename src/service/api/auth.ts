@@ -8,10 +8,10 @@ import { request } from '../request';
  */
 export function fetchLogin(userName: string, password: string) {
   return request<Api.Auth.LoginToken>({
-    url: '/auth/login',
+    url: '/api/auth/login',
     method: 'post',
     data: {
-      userName,
+      username: userName,
       password
     }
   });
@@ -19,7 +19,7 @@ export function fetchLogin(userName: string, password: string) {
 
 /** Get user info */
 export function fetchGetUserInfo() {
-  return request<Api.Auth.UserInfo>({ url: '/auth/getUserInfo' });
+  return request<Api.Auth.UserInfo>({ url: '/api/auth/userinfo' });
 }
 
 /**
@@ -29,7 +29,7 @@ export function fetchGetUserInfo() {
  */
 export function fetchRefreshToken(refreshToken: string) {
   return request<Api.Auth.LoginToken>({
-    url: '/auth/refreshToken',
+    url: '/api/auth/refreshToken',
     method: 'post',
     data: {
       refreshToken
@@ -44,7 +44,7 @@ export function fetchRefreshToken(refreshToken: string) {
  * @param msg error message
  */
 export function fetchCustomBackendError(code: string, msg: string) {
-  return request({ url: '/auth/error', params: { code, msg } });
+  return request({ url: '/api/auth/error', params: { code, msg } });
 }
 
 /**
@@ -52,7 +52,7 @@ export function fetchCustomBackendError(code: string, msg: string) {
  */
 export function fetchGetUserList(params: Api.Common.PaginatingQueryParams & Api.User.UserQuery) {
   return request<Api.Common.PaginatingQueryRecord<Api.User.User>>({
-    url: '/system/user/list',
+    url: '/api/system/users',
     method: 'get',
     params
   });
@@ -63,7 +63,7 @@ export function fetchGetUserList(params: Api.Common.PaginatingQueryParams & Api.
  */
 export function fetchGetUser(id: string) {
   return request<Api.User.User>({
-    url: `/system/user/${id}`,
+    url: `/api/system/users/${id}`,
     method: 'get'
   });
 }
@@ -73,7 +73,7 @@ export function fetchGetUser(id: string) {
  */
 export function fetchCreateUser(data: Api.User.UserForm) {
   return request({
-    url: '/system/user',
+    url: '/api/system/users',
     method: 'post',
     data
   });
@@ -84,7 +84,7 @@ export function fetchCreateUser(data: Api.User.UserForm) {
  */
 export function fetchUpdateUser(id: string, data: Api.User.UserForm) {
   return request({
-    url: `/system/user/${id}`,
+    url: `/api/system/users/${id}`,
     method: 'put',
     data
   });
@@ -95,7 +95,7 @@ export function fetchUpdateUser(id: string, data: Api.User.UserForm) {
  */
 export function fetchDeleteUser(id: string) {
   return request({
-    url: `/system/user/${id}`,
+    url: `/api/system/users/${id}`,
     method: 'delete'
   });
 }
@@ -105,7 +105,7 @@ export function fetchDeleteUser(id: string) {
  */
 export function fetchUpdateUserStatus(id: string, status: string) {
   return request({
-    url: `/system/user/${id}/status`,
+    url: `/api/system/users/${id}/status`,
     method: 'put',
     data: { status }
   });
@@ -116,7 +116,7 @@ export function fetchUpdateUserStatus(id: string, status: string) {
  */
 export function fetchResetPassword(id: string, password: string) {
   return request({
-    url: `/system/user/${id}/password`,
+    url: `/api/system/users/${id}/password`,
     method: 'put',
     data: { password }
   });
@@ -127,7 +127,7 @@ export function fetchResetPassword(id: string, password: string) {
  */
 export function fetchAssignRoles(id: string, data: { roleIds: string[] }) {
   return request({
-    url: `/system/user/${id}/roles`,
+    url: `/api/system/users/${id}/roles`,
     method: 'put',
     data
   });

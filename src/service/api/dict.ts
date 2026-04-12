@@ -7,7 +7,7 @@ export function fetchGetDictTypeList(
   params?: Api.Common.PaginatingQueryParams & { dictName?: string; dictCode?: string; status?: string }
 ) {
   return request<Api.Common.PaginatingQueryRecord<Api.System.DictType>>({
-    url: '/system/dict/type/list',
+    url: '/api/config/dict-types',
     method: 'get',
     params
   });
@@ -18,7 +18,7 @@ export function fetchGetDictTypeList(
  */
 export function fetchGetDictType(id: string) {
   return request<Api.System.DictType>({
-    url: `/system/dict/type/${id}`,
+    url: `/api/config/dict-types/${id}`,
     method: 'get'
   });
 }
@@ -28,7 +28,7 @@ export function fetchGetDictType(id: string) {
  */
 export function fetchCreateDictType(data: Api.System.DictTypeForm) {
   return request({
-    url: '/system/dict/type',
+    url: '/api/config/dict-types',
     method: 'post',
     data
   });
@@ -39,7 +39,7 @@ export function fetchCreateDictType(data: Api.System.DictTypeForm) {
  */
 export function fetchUpdateDictType(id: string, data: Api.System.DictTypeForm) {
   return request({
-    url: `/system/dict/type/${id}`,
+    url: `/api/config/dict-types/${id}`,
     method: 'put',
     data
   });
@@ -50,7 +50,7 @@ export function fetchUpdateDictType(id: string, data: Api.System.DictTypeForm) {
  */
 export function fetchDeleteDictType(id: string) {
   return request({
-    url: `/system/dict/type/${id}`,
+    url: `/api/config/dict-types/${id}`,
     method: 'delete'
   });
 }
@@ -60,7 +60,7 @@ export function fetchDeleteDictType(id: string) {
  */
 export function fetchGetDictItemList(params: { dictTypeCode: string }) {
   return request<Api.System.DictItem[]>({
-    url: '/system/dict/item/list',
+    url: '/api/config/dict-items',
     method: 'get',
     params
   });
@@ -71,7 +71,7 @@ export function fetchGetDictItemList(params: { dictTypeCode: string }) {
  */
 export function fetchGetDictItem(id: string) {
   return request<Api.System.DictItem>({
-    url: `/system/dict/item/${id}`,
+    url: `/api/config/dict-items/${id}`,
     method: 'get'
   });
 }
@@ -81,7 +81,7 @@ export function fetchGetDictItem(id: string) {
  */
 export function fetchCreateDictItem(data: Api.System.DictItemForm) {
   return request({
-    url: '/system/dict/item',
+    url: '/api/config/dict-items',
     method: 'post',
     data
   });
@@ -92,7 +92,7 @@ export function fetchCreateDictItem(data: Api.System.DictItemForm) {
  */
 export function fetchUpdateDictItem(id: string, data: Api.System.DictItemForm) {
   return request({
-    url: `/system/dict/item/${id}`,
+    url: `/api/config/dict-items/${id}`,
     method: 'put',
     data
   });
@@ -103,7 +103,7 @@ export function fetchUpdateDictItem(id: string, data: Api.System.DictItemForm) {
  */
 export function fetchDeleteDictItem(id: string) {
   return request({
-    url: `/system/dict/item/${id}`,
+    url: `/api/config/dict-items/${id}`,
     method: 'delete'
   });
 }
@@ -113,7 +113,7 @@ export function fetchDeleteDictItem(id: string) {
  */
 export function fetchGetDictItemsByCode(dictCode: string) {
   return request<Api.System.DictItem[]>({
-    url: `/system/dict/items/${dictCode}`,
+    url: `/api/config/dict-items/${dictCode}`,
     method: 'get'
   });
 }

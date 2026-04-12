@@ -5,7 +5,7 @@ import { request } from '../request';
  */
 export function fetchGetMenuTree() {
   return request<Api.User.Menu[]>({
-    url: '/system/menu/tree',
+    url: '/api/system/permissions/tree',
     method: 'get'
   });
 }
@@ -15,7 +15,7 @@ export function fetchGetMenuTree() {
  */
 export function fetchGetMenuList(params?: { menuType?: string; status?: string }) {
   return request<Api.User.Menu[]>({
-    url: '/system/menu/list',
+    url: '/api/system/permissions/tree',
     method: 'get',
     params
   });
@@ -26,7 +26,7 @@ export function fetchGetMenuList(params?: { menuType?: string; status?: string }
  */
 export function fetchGetMenu(id: string) {
   return request<Api.User.Menu>({
-    url: `/system/menu/${id}`,
+    url: `/api/system/permissions/${id}`,
     method: 'get'
   });
 }
@@ -36,7 +36,7 @@ export function fetchGetMenu(id: string) {
  */
 export function fetchCreateMenu(data: Api.User.Menu & { id?: string }) {
   return request({
-    url: '/system/menu',
+    url: '/api/system/permissions',
     method: 'post',
     data
   });
@@ -47,7 +47,7 @@ export function fetchCreateMenu(data: Api.User.Menu & { id?: string }) {
  */
 export function fetchUpdateMenu(id: string, data: Api.User.Menu) {
   return request({
-    url: `/system/menu/${id}`,
+    url: `/api/system/permissions/${id}`,
     method: 'put',
     data
   });
@@ -58,7 +58,7 @@ export function fetchUpdateMenu(id: string, data: Api.User.Menu) {
  */
 export function fetchDeleteMenu(id: string) {
   return request({
-    url: `/system/menu/${id}`,
+    url: `/api/system/permissions/${id}`,
     method: 'delete'
   });
 }
@@ -68,7 +68,7 @@ export function fetchDeleteMenu(id: string) {
  */
 export function fetchGetMenuPermissions(roleId: string) {
   return request<string[]>({
-    url: `/system/menu/permissions/${roleId}`,
+    url: `/api/system/permissions/role/${roleId}`,
     method: 'get'
   });
 }
@@ -78,8 +78,8 @@ export function fetchGetMenuPermissions(roleId: string) {
  */
 export function fetchAssignPermissions(roleId: string, menuIds: string[]) {
   return request({
-    url: `/system/menu/assign`,
+    url: `/api/system/roles/${roleId}/permissions`,
     method: 'put',
-    data: { roleId, menuIds }
+    data: { menuIds }
   });
 }

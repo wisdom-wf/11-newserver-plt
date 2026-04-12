@@ -20,20 +20,19 @@ declare module "@elegant-router/types" {
     "403": "/403";
     "404": "/404";
     "500": "/500";
+    "appointment": "/appointment";
     "business": "/business";
-    "business_appointment": "/business/appointment";
-    "business_cockpit": "/business/cockpit";
     "business_elder": "/business/elder";
     "business_evaluation": "/business/evaluation";
     "business_financial": "/business/financial";
     "business_order": "/business/order";
-    "business_provider": "/business/provider";
     "business_quality": "/business/quality";
     "business_service-log": "/business/service-log";
     "business_staff": "/business/staff";
     "home": "/home";
     "iframe-page": "/iframe-page/:url";
     "login": "/login/:module(pwd-login|code-login|register|reset-pwd|bind-wechat)?";
+    "provider": "/provider";
     "system": "/system";
     "system_area": "/system/area";
     "system_dict": "/system/dict";
@@ -74,10 +73,12 @@ declare module "@elegant-router/types" {
     | "403"
     | "404"
     | "500"
+    | "appointment"
     | "business"
     | "home"
     | "iframe-page"
     | "login"
+    | "provider"
     | "system"
   >;
 
@@ -100,17 +101,16 @@ declare module "@elegant-router/types" {
     | "500"
     | "iframe-page"
     | "login"
-    | "business_appointment"
-    | "business_cockpit"
+    | "appointment"
     | "business_elder"
     | "business_evaluation"
     | "business_financial"
     | "business_order"
-    | "business_provider"
     | "business_quality"
     | "business_service-log"
     | "business_staff"
     | "home"
+    | "provider"
     | "system_area"
     | "system_dict"
     | "system_menu"
