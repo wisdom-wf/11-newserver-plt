@@ -17,11 +17,110 @@ TRUNCATE TABLE t_service_evaluation;
 TRUNCATE TABLE t_settlement;
 
 -- ============================================
--- 第二步：修复数据一致性问题
+-- 第二步：修复数据一致性问题并补充完整员工信息
 -- ============================================
 
 UPDATE t_staff SET provider_id = 'b147a7db096643eb97385136c555f933' WHERE staff_id IN ('S003', 'S004');
 UPDATE t_staff SET provider_id = '4253cf396b68903505ea8f74b3d37700' WHERE staff_id IN ('S005', 'S008');
+
+-- 补充员工完整信息
+UPDATE t_staff SET
+    id_card = CASE staff_id
+        WHEN 'S001' THEN '61060219850512001X'
+        WHEN 'S002' THEN '610602198203250012'
+        WHEN 'S003' THEN '610602199005180033'
+        WHEN 'S004' THEN '610602198210050044'
+        WHEN 'S005' THEN '610602199308120055'
+        WHEN 'S006' THEN '610602198708250066'
+        WHEN 'S007' THEN '610602199512080077'
+        WHEN 'S008' THEN '610602198012030088'
+        ELSE id_card
+    END,
+    emergency_contact = CASE staff_id
+        WHEN 'S001' THEN '张建国'
+        WHEN 'S002' THEN '李秀英'
+        WHEN 'S003' THEN '王大海'
+        WHEN 'S004' THEN '陈淑芬'
+        WHEN 'S005' THEN '林志强'
+        WHEN 'S006' THEN '周桂英'
+        WHEN 'S007' THEN '吴建平'
+        WHEN 'S008' THEN '黄丽华'
+        ELSE emergency_contact
+    END,
+    emergency_phone = CASE staff_id
+        WHEN 'S001' THEN '13800138011'
+        WHEN 'S002' THEN '13800138012'
+        WHEN 'S003' THEN '13800138013'
+        WHEN 'S004' THEN '13800138014'
+        WHEN 'S005' THEN '13800138015'
+        WHEN 'S006' THEN '13800138016'
+        WHEN 'S007' THEN '13800138017'
+        WHEN 'S008' THEN '13800138018'
+        ELSE emergency_phone
+    END,
+    education = CASE staff_id
+        WHEN 'S001' THEN 'COLLEGE'
+        WHEN 'S002' THEN 'BACHELOR'
+        WHEN 'S003' THEN 'SENIOR'
+        WHEN 'S004' THEN 'COLLEGE'
+        WHEN 'S005' THEN 'BACHELOR'
+        WHEN 'S006' THEN 'COLLEGE'
+        WHEN 'S007' THEN 'BACHELOR'
+        WHEN 'S008' THEN 'SENIOR'
+        ELSE education
+    END,
+    address = CASE staff_id
+        WHEN 'S001' THEN '延安市宝塔区中心街1号'
+        WHEN 'S002' THEN '延安市宝塔区东关街2号'
+        WHEN 'S003' THEN '延安市安塞区真武洞3号'
+        WHEN 'S004' THEN '延安市宝塔区南关街4号'
+        WHEN 'S005' THEN '延安市宝塔区北关街5号'
+        WHEN 'S006' THEN '延安市宝塔区市场街6号'
+        WHEN 'S007' THEN '延安市宝塔区新建路7号'
+        WHEN 'S008' THEN '延安市宝塔区七里铺街8号'
+        ELSE address
+    END,
+    hire_date = CASE staff_id
+        WHEN 'S001' THEN '2022-03-15'
+        WHEN 'S002' THEN '2022-05-20'
+        WHEN 'S003' THEN '2023-01-10'
+        WHEN 'S004' THEN '2023-04-25'
+        WHEN 'S005' THEN '2023-07-08'
+        WHEN 'S006' THEN '2023-09-12'
+        WHEN 'S007' THEN '2024-01-18'
+        WHEN 'S008' THEN '2024-02-22'
+        ELSE hire_date
+    END,
+    nation = '汉族',
+    political_status = CASE staff_id
+        WHEN 'S002' THEN 'COMMUNIST'
+        WHEN 'S006' THEN 'COMMUNIST'
+        ELSE 'MEMBER'
+    END,
+    marital_status = CASE staff_id
+        WHEN 'S001' THEN 'MARRIED'
+        WHEN 'S002' THEN 'MARRIED'
+        WHEN 'S003' THEN 'UNMARRIED'
+        WHEN 'S004' THEN 'MARRIED'
+        WHEN 'S005' THEN 'UNMARRIED'
+        WHEN 'S006' THEN 'MARRIED'
+        WHEN 'S007' THEN 'UNMARRIED'
+        WHEN 'S008' THEN 'MARRIED'
+        ELSE marital_status
+    END,
+    work_status = 'IDLE',
+    remark = CASE staff_id
+        WHEN 'S001' THEN '资深护理员，擅长老人日常照料'
+        WHEN 'S002' THEN '金牌服务员，客户好评率高'
+        WHEN 'S003' THEN '专业护士资格，医疗护理经验足'
+        WHEN 'S004' THEN '居家保洁专家，服务细致耐心'
+        WHEN 'S005' THEN '康复护理师，擅长术后康复'
+        WHEN 'S006' THEN '家政服务多年，口碑良好'
+        WHEN 'S007' THEN '年轻有活力，学习能力强'
+        WHEN 'S008' THEN '经验丰富，应变能力强'
+        ELSE remark
+    END
+WHERE staff_id IN ('S001', 'S002', 'S003', 'S004', 'S005', 'S006', 'S007', 'S008');
 
 -- ============================================
 -- 第三步：更新部分订单为已完成
