@@ -20,8 +20,10 @@ TRUNCATE TABLE t_settlement;
 -- 第二步：修复数据一致性问题并补充完整员工信息
 -- ============================================
 
-UPDATE t_staff SET provider_id = 'b147a7db096643eb97385136c555f933' WHERE staff_id IN ('S003', 'S004');
-UPDATE t_staff SET provider_id = '4253cf396b68903505ea8f74b3d37700' WHERE staff_id IN ('S005', 'S008');
+UPDATE t_staff SET provider_id = 'P002' WHERE staff_id IN ('S003', 'S004');
+UPDATE t_staff SET provider_id = 'P003' WHERE staff_id IN ('S005', 'S006');
+UPDATE t_staff SET provider_id = 'P004' WHERE staff_id IN ('S007');
+UPDATE t_staff SET provider_id = 'P006' WHERE staff_id IN ('S008');
 
 -- 补充员工完整信息
 UPDATE t_staff SET
@@ -197,8 +199,11 @@ SELECT
     si.staff_phone,
     o.provider_id,
     CASE o.provider_id
-        WHEN '4253cf396b68903505ea8f74b3d37700' THEN '延安市宝塔区丁峰家政服务有限公司'
-        WHEN 'b147a7db096643eb97385136c555f933' THEN '延安家享悠网络科技有限公司'
+        WHEN 'P001' THEN '北京福寿康养老服务有限公司'
+        WHEN 'P002' THEN '上海幸福里养老服务中心'
+        WHEN 'P003' THEN '广州夕阳红养老服务公司'
+        WHEN 'P004' THEN '深圳温馨家园养老服务'
+        WHEN 'P006' THEN '杭州银龄养老服务中心'
         ELSE '未知服务商'
     END AS provider_name,
     o.service_type_code,
@@ -283,7 +288,7 @@ SELECT
     NOW() AS create_time
 FROM t_order
 WHERE status = 'COMPLETED'
-AND provider_id IN ('4253cf396b68903505ea8f74b3d37700', 'b147a7db096643eb97385136c555f933')
+AND provider_id IN ('P001', 'P002', 'P003', 'P004', 'P006')
 LIMIT 100;
 
 -- ============================================
@@ -308,8 +313,8 @@ SELECT
     '05' AS service_type_code,
     DATE_ADD(NOW(), INTERVAL 3 DAY) AS appointment_time,
     120 AS service_duration,
-    '4253cf396b68903505ea8f74b3d37700' AS provider_id,
-    '延安市宝塔区丁峰家政服务有限公司' AS provider_name,
+    'P001' AS provider_id,
+    '北京福寿康养老服务有限公司' AS provider_name,
     'PENDING' AS status,
     '日常养老服务预约' AS remark,
     NOW() AS create_time
