@@ -39,6 +39,31 @@ public class ServiceEvaluation implements Serializable {
     private String elderId;
 
     /**
+     * 老人姓名(联表)
+     */
+    private String elderName;
+
+    /**
+     * 服务类型编码(联表)
+     */
+    private String serviceTypeCode;
+
+    /**
+     * 服务类型名称(联表)
+     */
+    private String serviceTypeName;
+
+    /**
+     * 服务人员姓名(联表)
+     */
+    private String staffName;
+
+    /**
+     * 服务商名称(联表)
+     */
+    private String providerName;
+
+    /**
      * 态度评分(1-5)
      */
     private Integer attitudeScore;

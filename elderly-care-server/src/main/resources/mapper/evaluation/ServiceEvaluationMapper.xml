@@ -22,23 +22,32 @@
 
     <select id="selectEvaluationPage" resultMap="BaseResultMap">
         SELECT
-            evaluation_id,
-            order_id,
-            staff_id,
-            provider_id,
-            elder_id,
-            attitude_score,
-            quality_score,
-            efficiency_score,
-            overall_score,
-            average_score,
-            evaluation_content,
-            evaluation_tags,
-            is_anonymous,
-            evaluation_time,
-            create_time
-        FROM t_service_evaluation
-        WHERE deleted = 0
+            se.evaluation_id,
+            se.order_id,
+            se.staff_id,
+            s.staff_name,
+            se.provider_id,
+            p.provider_name,
+            se.elder_id,
+            e.elder_name,
+            o.service_type_code,
+            o.service_type_name,
+            se.attitude_score,
+            se.quality_score,
+            se.efficiency_score,
+            se.overall_score,
+            se.average_score,
+            se.evaluation_content,
+            se.evaluation_tags,
+            se.is_anonymous,
+            se.evaluation_time,
+            se.create_time
+        FROM t_service_evaluation se
+        LEFT JOIN t_staff s ON se.staff_id = s.staff_id
+        LEFT JOIN t_provider p ON se.provider_id = p.provider_id
+        LEFT JOIN t_elder e ON se.elder_id = e.elder_id
+        LEFT JOIN t_order o ON se.order_id = o.order_id
+        WHERE se.deleted = 0
         <if test="query.providerId != null and query.providerId != ''">
             AND provider_id = #{query.providerId}
         </if>

@@ -17,31 +17,35 @@
 
     <select id="selectSettlementPage" resultMap="BaseResultMap">
         SELECT
-            settlement_id,
-            settlement_no,
-            provider_id,
-            staff_id,
-            total_amount,
-            subsidy_amount,
-            self_pay_amount,
-            payment_status,
-            payment_time,
-            create_time
-        FROM t_settlement
+            st.settlement_id,
+            st.settlement_no,
+            st.provider_id,
+            p.provider_name AS providerName,
+            st.staff_id,
+            s.staff_name AS staffName,
+            st.total_amount,
+            st.subsidy_amount,
+            st.self_pay_amount,
+            st.payment_status,
+            st.payment_time,
+            st.create_time
+        FROM t_settlement st
+        LEFT JOIN t_provider p ON st.provider_id = p.provider_id
+        LEFT JOIN t_staff s ON st.staff_id = s.staff_id
         WHERE 1=1
         <if test="query.settlementNo != null and query.settlementNo != ''">
-            AND settlement_no LIKE CONCAT('%', #{query.settlementNo}, '%')
+            AND st.settlement_no LIKE CONCAT('%', #{query.settlementNo}, '%')
         </if>
         <if test="query.providerId != null and query.providerId != ''">
-            AND provider_id = #{query.providerId}
+            AND st.provider_id = #{query.providerId}
         </if>
         <if test="query.staffId != null and query.staffId != ''">
-            AND staff_id = #{query.staffId}
+            AND st.staff_id = #{query.staffId}
         </if>
         <if test="query.status != null and query.status != ''">
-            AND payment_status = #{query.status}
+            AND st.payment_status = #{query.status}
         </if>
-        ORDER BY create_time DESC
+        ORDER BY st.create_time DESC
     </select>
 
 </mapper>

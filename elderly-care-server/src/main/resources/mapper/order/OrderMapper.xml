@@ -42,30 +42,30 @@
         LEFT JOIN t_staff s ON o.staff_id = s.staff_id
         WHERE o.deleted = 0
         <if test="query.elderId != null and query.elderId != ''">
-            AND elder_id = #{query.elderId}
+            AND o.elder_id = #{query.elderId}
         </if>
         <if test="query.elderName != null and query.elderName != ''">
-            AND elder_name LIKE CONCAT('%', #{query.elderName}, '%')
+            AND o.elder_name LIKE CONCAT('%', #{query.elderName}, '%')
         </if>
         <if test="query.serviceTypeCode != null and query.serviceTypeCode != ''">
-            AND service_type_code = #{query.serviceTypeCode}
+            AND o.service_type_code = #{query.serviceTypeCode}
         </if>
         <if test="query.status != null and query.status != ''">
-            AND status = #{query.status}
+            AND o.status = #{query.status}
         </if>
         <if test="query.startDate != null">
-            AND service_date >= #{query.startDate}
+            AND o.service_date >= #{query.startDate}
         </if>
         <if test="query.endDate != null">
-            AND service_date &lt;= #{query.endDate}
+            AND o.service_date &lt;= #{query.endDate}
         </if>
         <if test="query.providerId != null and query.providerId != ''">
-            AND provider_id = #{query.providerId}
+            AND o.provider_id = #{query.providerId}
         </if>
         <if test="query.staffId != null and query.staffId != ''">
-            AND staff_id = #{query.staffId}
+            AND o.staff_id = #{query.staffId}
         </if>
-        ORDER BY create_time DESC
+        ORDER BY o.create_time DESC
     </select>
 
     <select id="selectByOrderNo" resultMap="BaseResultMap">
