@@ -211,7 +211,7 @@ function handleConfirm(row: Api.Appointment.Appointment) {
 async function handleConfirmSubmit() {
   if (!currentRow.value) return;
   try {
-    await fetchConfirmAppointment(currentRow.value.id, confirmForm.value);
+    await fetchConfirmAppointment(currentRow.value.appointmentId, confirmForm.value);
     message.success('确认成功');
     confirmModalVisible.value = false;
     await getTableData();
@@ -230,7 +230,7 @@ function handleCancel(row: Api.Appointment.Appointment) {
 async function handleCancelSubmit() {
   if (!currentRow.value) return;
   try {
-    await fetchCancelAppointment(currentRow.value.id, cancelForm.value);
+    await fetchCancelAppointment(currentRow.value.appointmentId, cancelForm.value);
     message.success('取消成功');
     cancelModalVisible.value = false;
     await getTableData();
@@ -249,7 +249,7 @@ function handleAssign(row: Api.Appointment.Appointment) {
 async function handleAssignSubmit() {
   if (!currentRow.value) return;
   try {
-    await fetchAssignAppointment(currentRow.value.id, assignForm.value);
+    await fetchAssignAppointment(currentRow.value.appointmentId, assignForm.value);
     message.success('分配成功');
     assignModalVisible.value = false;
     await getTableData();
@@ -268,7 +268,7 @@ function handleInvalidate(row: Api.Appointment.Appointment) {
 async function handleInvalidateSubmit() {
   if (!currentRow.value) return;
   try {
-    await fetchInvalidateAppointment(currentRow.value.id, invalidateForm.value);
+    await fetchInvalidateAppointment(currentRow.value.appointmentId, invalidateForm.value);
     message.success('作废成功');
     invalidateModalVisible.value = false;
     await getTableData();
@@ -365,7 +365,7 @@ onMounted(() => {
         :data="tableData"
         :loading="loading"
         :scroll-x="1400"
-        :row-key="(row: Api.Appointment.Appointment) => row.id"
+        :row-key="(row: Api.Appointment.Appointment) => row.appointmentId"
       />
       <div style="padding: 12px 0">
         <NSpace justify="end">

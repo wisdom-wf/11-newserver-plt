@@ -190,7 +190,7 @@ onMounted(() => {
         :data="tableData"
         :loading="loading"
         :scroll-x="1400"
-        :row-key="(row: Api.Quality.QualityCheck) => row.id"
+        :row-key="(row: Api.Quality.QualityCheck) => row.qualityCheckId"
       />
       <div style="padding: 12px 0">
         <NSpace justify="end">

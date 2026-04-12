@@ -31,7 +31,7 @@ declare namespace Api {
     /** 预约详情 */
     interface Appointment {
       /** 预约ID */
-      id: string;
+      appointmentId: string;
       /** 预约单号 */
       appointmentNo: string;
       /** 老人姓名 */

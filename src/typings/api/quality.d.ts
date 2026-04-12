@@ -57,7 +57,7 @@ declare namespace Api {
     /** 质检详情 */
     interface QualityCheck {
       /** 质检ID */
-      id: string;
+      qualityCheckId: string;
       /** 质检编号 */
       checkNo: string;
       /** 订单ID */

@@ -102,7 +102,7 @@ declare namespace Api {
     /** 服务日志详情 */
     interface ServiceLog {
       /** 日志ID */
-      id: string;
+      serviceLogId: string;
       /** 日志编号 */
       logNo: string;
       /** 订单ID */

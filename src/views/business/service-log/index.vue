@@ -207,7 +207,7 @@ onMounted(() => {
         :data="tableData"
         :loading="loading"
         :scroll-x="1400"
-        :row-key="(row: Api.ServiceLog.ServiceLog) => row.id"
+        :row-key="(row: Api.ServiceLog.ServiceLog) => row.serviceLogId"
       />
       <div style="padding: 12px 0">
         <NSpace justify="end">
