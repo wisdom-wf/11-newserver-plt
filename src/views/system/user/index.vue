@@ -127,6 +127,7 @@ async function getUserList() {
     current: page.value,
     pageSize: pageSize.value,
     userName: searchUsername.value || undefined,
+    realName: searchRealname.value || undefined,
     phone: searchPhone.value || undefined
   });
   userData.value = data?.records || [];
