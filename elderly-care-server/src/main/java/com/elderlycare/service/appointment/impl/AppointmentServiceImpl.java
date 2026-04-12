@@ -3,17 +3,23 @@ package com.elderlycare.service.appointment.impl;
 import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
 import com.baomidou.mybatisplus.core.metadata.IPage;
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
+import com.elderlycare.common.IDGenerator;
 import com.elderlycare.common.PageResult;
 import com.elderlycare.dto.appointment.AppointmentQueryDTO;
 import com.elderlycare.entity.appointment.Appointment;
+import com.elderlycare.entity.order.Order;
+import com.elderlycare.entity.order.OrderStatus;
 import com.elderlycare.mapper.appointment.AppointmentMapper;
+import com.elderlycare.mapper.order.OrderMapper;
 import com.elderlycare.service.appointment.AppointmentService;
 import com.elderlycare.vo.appointment.AppointmentStatisticsVO;
 import com.elderlycare.vo.appointment.AppointmentVO;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.multipart.MultipartFile;
 
+import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.HashMap;
 import java.util.List;
@@ -28,6 +34,7 @@ import java.util.stream.Collectors;
 public class AppointmentServiceImpl implements AppointmentService {
 
     private final AppointmentMapper appointmentMapper;
+    private final OrderMapper orderMapper;
 
     @Override
     public PageResult<AppointmentVO> getAppointmentList(AppointmentQueryDTO query) {
@@ -71,14 +78,86 @@ public class AppointmentServiceImpl implements AppointmentService {
     }
 
     @Override
+    @Transactional(rollbackFor = Exception.class)
     public void confirmAppointment(String id, String providerId, String appointmentTime) {
-        Appointment appointment = new Appointment();
-        appointment.setAppointmentId(id);
+        // 1. 先查询预约详情
+        Appointment appointment = appointmentMapper.selectById(id);
+        if (appointment == null) {
+            throw new RuntimeException("预约不存在");
+        }
+
+        // 2. 更新预约状态
         appointment.setProviderId(providerId);
         appointment.setAppointmentTime(appointmentTime);
         appointment.setStatus("CONFIRMED");
         appointment.setConfirmTime(LocalDateTime.now());
         appointmentMapper.updateById(appointment);
+
+        // 3. 根据预约创建订单
+        createOrderFromAppointment(appointment);
+    }
+
+    /**
+     * 根据预约创建订单
+     */
+    private void createOrderFromAppointment(Appointment appointment) {
+        // 生成订单编号
+        String orderNo = generateOrderNo();
+
+        // 解析预约时间为日期和时间
+        String appointmentTime = appointment.getAppointmentTime();
+        LocalDate serviceDate = LocalDate.now(); // 默认今天
+        String serviceTime = "09:00:00"; // 默认时间
+
+        if (appointmentTime != null && !appointmentTime.isEmpty()) {
+            try {
+                // 尝试解析 "2024-04-15 10:00:00" 格式
+                if (appointmentTime.contains(" ")) {
+                    String[] parts = appointmentTime.split(" ");
+                    if (parts.length >= 1) {
+                        serviceDate = LocalDate.parse(parts[0]);
+                    }
+                    if (parts.length >= 2) {
+                        serviceTime = parts[1];
+                    }
+                } else {
+                    serviceDate = LocalDate.parse(appointmentTime);
+                }
+            } catch (Exception e) {
+                // 解析失败，使用默认值
+            }
+        }
+
+        // 创建订单
+        Order order = new Order();
+        order.setOrderId(IDGenerator.generateId());
+        order.setOrderNo(orderNo);
+        order.setElderName(appointment.getElderName());
+        order.setElderPhone(appointment.getElderPhone());
+        order.setServiceTypeCode(appointment.getServiceTypeCode());
+        order.setServiceTypeName(appointment.getServiceType());
+        order.setServiceDate(serviceDate);
+        order.setServiceTime(serviceTime);
+        order.setServiceDuration(appointment.getServiceDuration());
+        order.setServiceAddress(appointment.getElderAddress());
+        order.setOrderType("NORMAL");
+        order.setOrderSource("APPOINTMENT"); // 标记来源为预约
+        order.setSubsidyType("SELF_PAY"); // 默认自费
+        order.setStatus(OrderStatus.CREATED.getCode());
+        order.setProviderId(appointment.getProviderId());
+        order.setCreateTime(LocalDateTime.now());
+
+        orderMapper.insert(order);
+    }
+
+    /**
+     * 生成订单编号
+     */
+    private String generateOrderNo() {
+        String prefix = "ORD";
+        String date = new java.text.SimpleDateFormat("yyyyMMdd").format(new java.util.Date());
+        String random = String.format("%04d", (int) (Math.random() * 10000));
+        return prefix + date + random;
     }
 
     @Override

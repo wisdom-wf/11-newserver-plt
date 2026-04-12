@@ -6,6 +6,8 @@
 
 USE elderly_care;
 
+SET NAMES utf8mb4;
+
 -- ============================================
 -- 第一步：清理旧测试数据
 -- ============================================
@@ -108,41 +110,28 @@ UPDATE t_staff SET
         WHEN 'S008' THEN '2024-02-22'
         ELSE hire_date
     END,
-    nation = '汉族',
-    political_status = CASE staff_id
-        WHEN 'S002' THEN 'COMMUNIST'
-        WHEN 'S006' THEN 'COMMUNIST'
-        ELSE 'MEMBER'
-    END,
-    marital_status = CASE staff_id
-        WHEN 'S001' THEN 'MARRIED'
-        WHEN 'S002' THEN 'MARRIED'
-        WHEN 'S003' THEN 'UNMARRIED'
-        WHEN 'S004' THEN 'MARRIED'
-        WHEN 'S005' THEN 'UNMARRIED'
-        WHEN 'S006' THEN 'MARRIED'
-        WHEN 'S007' THEN 'UNMARRIED'
-        WHEN 'S008' THEN 'MARRIED'
-        ELSE marital_status
-    END,
-    work_status = 'IDLE',
-    remark = CASE staff_id
-        WHEN 'S001' THEN '资深护理员，擅长老人日常照料'
-        WHEN 'S002' THEN '金牌服务员，客户好评率高'
-        WHEN 'S003' THEN '专业护士资格，医疗护理经验足'
-        WHEN 'S004' THEN '居家保洁专家，服务细致耐心'
-        WHEN 'S005' THEN '康复护理师，擅长术后康复'
-        WHEN 'S006' THEN '家政服务多年，口碑良好'
-        WHEN 'S007' THEN '年轻有活力，学习能力强'
-        WHEN 'S008' THEN '经验丰富，应变能力强'
-        ELSE remark
-    END
+    work_status = 'IDLE'
 WHERE staff_id IN ('S001', 'S002', 'S003', 'S004', 'S005', 'S006', 'S007', 'S008');
 
 -- ============================================
--- 第三步：更新部分订单为已完成
+-- 第三步：更新订单状态为多样化
 -- ============================================
 
+-- 3.1 更新部分订单为服务中（已分配服务人员）
+UPDATE t_order
+SET status = 'SERVICE_STARTED',
+    staff_id = CASE
+        WHEN provider_id = '4253cf396b68903505ea8f74b3d37700' THEN 'S001'
+        WHEN provider_id = 'b147a7db096643eb97385136c555f933' THEN 'S003'
+        WHEN provider_id = 'c49391a097025dcb9bf629975df2726c' THEN 'S005'
+        ELSE 'S001'
+    END,
+    update_time = NOW()
+WHERE status = 'DISPATCHED'
+AND provider_id IS NOT NULL
+LIMIT 80;
+
+-- 3.2 更新部分订单为已完成
 UPDATE t_order
 SET status = 'COMPLETED',
     service_duration = CASE
@@ -159,24 +148,36 @@ SET status = 'COMPLETED',
     END,
     actual_price = COALESCE(estimated_price, 80),
     update_time = NOW()
-WHERE order_id IN (
-    SELECT order_id FROM (
-        SELECT order_id FROM t_order
-        WHERE status = 'DISPATCHED'
-        AND staff_id IS NOT NULL
-        AND provider_id IS NOT NULL
-        LIMIT 150
+WHERE status = 'SERVICE_STARTED'
+LIMIT 60;
+
+-- 3.3 更新部分订单为已取消
+UPDATE t_order
+SET status = 'CANCELLED',
+    cancel_reason = '用户主动取消',
+    cancel_time = NOW(),
+    update_time = NOW()
+WHERE status IN ('CREATED', 'DISPATCHED', 'RECEIVED')
+LIMIT 20;
+
+-- 3.4 确保所有订单都有服务商ID
+UPDATE t_order o
+SET provider_id = (
+    SELECT provider_id FROM (
+        SELECT staff_id, provider_id FROM t_staff
+        WHERE staff_id = o.staff_id
     ) AS tmp
-);
+)
+WHERE o.provider_id IS NULL AND o.staff_id IS NOT NULL;
 
 -- ============================================
 -- 第四步：创建临时员工信息表
 -- ============================================
 
 CREATE TEMPORARY TABLE staff_info (
-    staff_id VARCHAR(32) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci,
-    staff_name VARCHAR(50) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci,
-    staff_phone VARCHAR(11) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci
+    staff_id VARCHAR(32) CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_ai_ci,
+    staff_name VARCHAR(50) CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_ai_ci,
+    staff_phone VARCHAR(11) CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_ai_ci
 );
 
 INSERT INTO staff_info VALUES
@@ -315,12 +316,12 @@ INSERT INTO appointment (
     status, remark, create_time
 )
 SELECT
-    MD5(CONCAT(elder_id, 'apt')) AS appointment_id,
-    CONCAT('APT', DATE_FORMAT(NOW(), '%Y%m%d'), SUBSTRING(elder_id, 1, 3)) AS appointment_no,
-    elder_name,
+    MD5(CONCAT(e.elder_id, 'apt')) AS appointment_id,
+    CONCAT('APT', DATE_FORMAT(NOW(), '%Y%m%d%H%i%s'), SUBSTRING(e.elder_id, 1, 4)) AS appointment_no,
+    e.elder_name,
     CONCAT('610602195', FLOOR(19500000 + RAND() * 9999999)) AS elder_id_card,
-    elder_phone,
-    elder_address,
+    e.phone AS elder_phone,
+    e.address AS elder_address,
     '宝塔区' AS elder_area_name,
     '上门服务' AS service_type,
     '05' AS service_type_code,
@@ -331,8 +332,8 @@ SELECT
     'PENDING' AS status,
     '日常养老服务预约' AS remark,
     NOW() AS create_time
-FROM t_elder
-WHERE elder_id IN (SELECT elder_id FROM t_order LIMIT 30);
+FROM t_elder e
+INNER JOIN (SELECT DISTINCT elder_id FROM t_order LIMIT 30) o ON e.elder_id = o.elder_id;
 
 -- ============================================
 -- 第九步：生成质检数据

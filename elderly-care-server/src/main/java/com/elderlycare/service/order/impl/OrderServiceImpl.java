@@ -438,7 +438,9 @@ public class OrderServiceImpl implements OrderService {
         vo.setStatus(order.getStatus());
         vo.setStatusName(getStatusName(order.getStatus()));
         vo.setProviderId(order.getProviderId());
+        vo.setProviderName(order.getProviderName());
         vo.setStaffId(order.getStaffId());
+        vo.setStaffName(order.getStaffName());
         vo.setCancelReason(order.getCancelReason());
         vo.setDispatchTime(order.getDispatchTime());
         vo.setReceiveTime(order.getReceiveTime());

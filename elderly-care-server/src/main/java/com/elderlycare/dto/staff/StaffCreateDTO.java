@@ -48,19 +48,19 @@ public class StaffCreateDTO implements Serializable {
     private String nation;
 
     /**
-     * 学历：0-小学，1-初中，2-高中，3-中专，4-大专，5-本科，6-硕士，7-博士
+     * 学历
      */
-    private Integer education;
+    private String education;
 
     /**
-     * 政治面貌：0-群众，1-共青团员，2-中共党员，3-其他
+     * 政治面貌
      */
-    private Integer politicalStatus;
+    private String politicalStatus;
 
     /**
-     * 婚姻状况：0-未婚，1-已婚，2-离异，3-丧偶
+     * 婚姻状况
      */
-    private Integer maritalStatus;
+    private String maritalStatus;
 
     /**
      * 户籍地址

@@ -591,40 +591,40 @@ public class StaffServiceImpl implements StaffService {
         };
     }
 
-    private String getEducationText(Integer education) {
+    private String getEducationText(String education) {
         if (education == null) return "";
         return switch (education) {
-            case 0 -> "小学";
-            case 1 -> "初中";
-            case 2 -> "高中";
-            case 3 -> "中专";
-            case 4 -> "大专";
-            case 5 -> "本科";
-            case 6 -> "硕士";
-            case 7 -> "博士";
-            default -> "未知";
+            case "PRIMARY" -> "小学";
+            case "JUNIOR" -> "初中";
+            case "SENIOR" -> "高中";
+            case "SECONDARY" -> "中专";
+            case "COLLEGE" -> "大专";
+            case "BACHELOR" -> "本科";
+            case "MASTER" -> "硕士";
+            case "DOCTOR" -> "博士";
+            default -> education;
         };
     }
 
-    private String getPoliticalStatusText(Integer politicalStatus) {
+    private String getPoliticalStatusText(String politicalStatus) {
         if (politicalStatus == null) return "";
         return switch (politicalStatus) {
-            case 0 -> "群众";
-            case 1 -> "共青团员";
-            case 2 -> "中共党员";
-            case 3 -> "其他";
-            default -> "未知";
+            case "PUBLIC" -> "群众";
+            case "MEMBER" -> "共青团员";
+            case "COMMUNIST" -> "中共党员";
+            case "OTHER" -> "其他";
+            default -> politicalStatus;
         };
     }
 
-    private String getMaritalStatusText(Integer maritalStatus) {
+    private String getMaritalStatusText(String maritalStatus) {
         if (maritalStatus == null) return "";
         return switch (maritalStatus) {
-            case 0 -> "未婚";
-            case 1 -> "已婚";
-            case 2 -> "离异";
-            case 3 -> "丧偶";
-            default -> "未知";
+            case "UNMARRIED" -> "未婚";
+            case "MARRIED" -> "已婚";
+            case "DIVORCED" -> "离异";
+            case "WIDOWED" -> "丧偶";
+            default -> maritalStatus;
         };
     }
 

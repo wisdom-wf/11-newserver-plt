@@ -59,6 +59,12 @@ public class Order implements Serializable {
 
     private String staffId;
 
+    @TableField(exist = false)
+    private String staffName;
+
+    @TableField(exist = false)
+    private String providerName;
+
     private String cancelReason;
 
     private LocalDateTime dispatchTime;
