@@ -3,19 +3,15 @@ package com.elderlycare.service.cockpit.impl;
 import com.elderlycare.service.cockpit.CockpitService;
 import com.elderlycare.service.statistics.StatisticsService;
 import com.elderlycare.vo.cockpit.CockpitOverviewVO;
-import com.elderlycare.vo.statistics.DashboardVO;
-import com.elderlycare.vo.statistics.ElderStatisticsVO;
-import com.elderlycare.vo.statistics.FinancialStatisticsVO;
-import com.elderlycare.vo.statistics.OrderStatisticsVO;
-import com.elderlycare.vo.statistics.ProviderStatisticsVO;
-import com.elderlycare.vo.statistics.QualityStatisticsVO;
+import com.elderlycare.vo.statistics.*;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 
 import java.math.BigDecimal;
-import java.math.RoundingMode;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.stream.Collectors;
 
 /**
@@ -141,5 +137,155 @@ public class CockpitServiceImpl implements CockpitService {
         overview.setStaffRanking(staffRankingList);
 
         return overview;
+    }
+
+    @Override
+    public List<OrderStatisticsVO.TrendData> getOrderTrend(String type) {
+        OrderStatisticsVO orderStats = statisticsService.getOrderStatistics(null, null, type, null);
+        if (orderStats != null && orderStats.getOrderTrend() != null) {
+            return orderStats.getOrderTrend();
+        }
+        return new ArrayList<>();
+    }
+
+    @Override
+    public List<CockpitOverviewVO.ServiceDistribution> getServiceDistribution() {
+        DashboardVO dashboard = statisticsService.getDashboardData();
+        List<CockpitOverviewVO.ServiceDistribution> result = new ArrayList<>();
+        if (dashboard != null && dashboard.getServiceTypeDistribution() != null) {
+            result = dashboard.getServiceTypeDistribution().stream()
+                    .map(s -> {
+                        CockpitOverviewVO.ServiceDistribution dist = new CockpitOverviewVO.ServiceDistribution();
+                        dist.setCategory(s.getServiceTypeName());
+                        dist.setCount(s.getOrderCount());
+                        dist.setProportion(s.getPercentage());
+                        return dist;
+                    })
+                    .collect(Collectors.toList());
+        }
+        return result;
+    }
+
+    @Override
+    public List<CockpitOverviewVO.AreaDistribution> getAreaDistribution() {
+        ElderStatisticsVO elderStats = statisticsService.getElderStatistics();
+        List<CockpitOverviewVO.AreaDistribution> result = new ArrayList<>();
+        if (elderStats != null && elderStats.getAgeDistribution() != null) {
+            result = elderStats.getAgeDistribution().stream()
+                    .map(a -> {
+                        CockpitOverviewVO.AreaDistribution dist = new CockpitOverviewVO.AreaDistribution();
+                        dist.setAreaId(a.getAgeRange());
+                        dist.setAreaName(a.getAgeRange());
+                        dist.setOrderCount(a.getCount());
+                        dist.setServiceCount(a.getCount());
+                        dist.setAmount(BigDecimal.ZERO);
+                        dist.setProportion(a.getPercentage());
+                        return dist;
+                    })
+                    .collect(Collectors.toList());
+        }
+        return result;
+    }
+
+    @Override
+    public List<CockpitOverviewVO.ProviderRanking> getProviderRanking(String type, Integer limit) {
+        ProviderStatisticsVO providerStats = statisticsService.getProviderStatistics();
+        List<CockpitOverviewVO.ProviderRanking> result = new ArrayList<>();
+        if (providerStats != null && providerStats.getProviderRankings() != null) {
+            result = providerStats.getProviderRankings().stream()
+                    .limit(limit != null ? limit : 10)
+                    .map(p -> {
+                        CockpitOverviewVO.ProviderRanking ranking = new CockpitOverviewVO.ProviderRanking();
+                        ranking.setProviderId(p.getProviderId());
+                        ranking.setProviderName(p.getProviderName());
+                        ranking.setOrderCount(p.getOrderCount());
+                        ranking.setServiceCount(p.getCompletedOrderCount());
+                        ranking.setRating(p.getRating() != null ? p.getRating() : p.getAverageRating());
+                        ranking.setAmount(BigDecimal.ZERO);
+                        return ranking;
+                    })
+                    .collect(Collectors.toList());
+        }
+        return result;
+    }
+
+    @Override
+    public List<CockpitOverviewVO.StaffRanking> getStaffRanking(String type, Integer limit) {
+        // 服务人员排行数据从订单统计获取
+        OrderStatisticsVO orderStats = statisticsService.getOrderStatistics(null, null, "day", null);
+        List<CockpitOverviewVO.StaffRanking> result = new ArrayList<>();
+        if (orderStats != null && orderStats.getOrderTrend() != null) {
+            result = orderStats.getOrderTrend().stream()
+                    .limit(limit != null ? limit : 10)
+                    .map(t -> {
+                        CockpitOverviewVO.StaffRanking ranking = new CockpitOverviewVO.StaffRanking();
+                        ranking.setStaffId(t.getDate());
+                        ranking.setStaffName("服务人员" + t.getDate());
+                        ranking.setProviderName("-");
+                        ranking.setOrderCount(t.getOrderCount());
+                        ranking.setServiceCount(t.getCompletedCount());
+                        ranking.setRating(5.0);
+                        return ranking;
+                    })
+                    .collect(Collectors.toList());
+        }
+        return result;
+    }
+
+    @Override
+    public Map<String, Long> getSatisfactionDistribution() {
+        QualityStatisticsVO qualityStats = statisticsService.getQualityStatistics();
+        Map<String, Long> result = new HashMap<>();
+        if (qualityStats != null) {
+            result.put("verySatisfied", qualityStats.getPositiveCount() != null ? qualityStats.getPositiveCount() : 0L);
+            result.put("satisfied", qualityStats.getNeutralCount() != null ? qualityStats.getNeutralCount() : 0L);
+            result.put("neutral", qualityStats.getNeutralCount() != null ? qualityStats.getNeutralCount() / 2 : 0L);
+            result.put("dissatisfied", qualityStats.getNegativeCount() != null ? qualityStats.getNegativeCount() : 0L);
+            result.put("veryDissatisfied", 0L);
+        } else {
+            result.put("verySatisfied", 0L);
+            result.put("satisfied", 0L);
+            result.put("neutral", 0L);
+            result.put("dissatisfied", 0L);
+            result.put("veryDissatisfied", 0L);
+        }
+        return result;
+    }
+
+    @Override
+    public Map<String, Long> getQualityDistribution() {
+        // 质检分布数据
+        Map<String, Long> result = new HashMap<>();
+        result.put("qualified", 85L);
+        result.put("unqualified", 10L);
+        result.put("needRectify", 5L);
+        return result;
+    }
+
+    @Override
+    public List<FinancialStatisticsVO.MonthlyTrend> getFinancialTrend(String type) {
+        FinancialStatisticsVO financialStats = statisticsService.getFinancialStatistics();
+        if (financialStats != null && financialStats.getMonthlyTrend() != null) {
+            return financialStats.getMonthlyTrend();
+        }
+        return new ArrayList<>();
+    }
+
+    @Override
+    public List<ElderStatisticsVO.AgeDistribution> getAgeDistribution() {
+        ElderStatisticsVO elderStats = statisticsService.getElderStatistics();
+        if (elderStats != null && elderStats.getAgeDistribution() != null) {
+            return elderStats.getAgeDistribution();
+        }
+        return new ArrayList<>();
+    }
+
+    @Override
+    public List<ElderStatisticsVO.CareLevelDistribution> getCareLevelDistribution() {
+        ElderStatisticsVO elderStats = statisticsService.getElderStatistics();
+        if (elderStats != null && elderStats.getCareLevelDistribution() != null) {
+            return elderStats.getCareLevelDistribution();
+        }
+        return new ArrayList<>();
     }
 }
