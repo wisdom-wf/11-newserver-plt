@@ -1,6 +1,6 @@
 <script setup lang="ts">
-import { ref, h, onMounted } from 'vue';
-import { NButton, NCard, NDataTable, NGrid, NGi, NSpace, NTree, NModal, NPopconfirm, NTag, useMessage } from 'naive-ui';
+import { ref, h, onMounted, computed } from 'vue';
+import { NButton, NCard, NDataTable, NGrid, NGi, NSpace, NTree, NModal, NPopconfirm, NTag, useMessage, NSpin } from 'naive-ui';
 import { fetchGetAreaTree, fetchDeleteArea, fetchCreateArea, fetchUpdateArea } from '@/service/api';
 import type { DataTableColumns } from 'naive-ui';
 
@@ -10,6 +10,7 @@ defineOptions({
 
 const message = useMessage();
 
+const loading = ref(false);
 const treeData = ref<Api.User.Area[]>([]);
 const expandedKeys = ref<string[]>([]);
 
@@ -22,13 +23,13 @@ const columns: DataTableColumns<Api.User.Area> = [
     width: 100,
     render: (row: Api.User.Area) => {
       const map: Record<string, string> = {
-        PROVINCE: '省/直辖市',
-        CITY: '市/区',
-        DISTRICT: '区县',
-        STREET: '街道/乡镇',
-        COMMUNITY: '社区'
+        '1': '省/直辖市',
+        '2': '市/区',
+        '3': '区县',
+        '4': '街道/乡镇',
+        '5': '社区'
       };
-      const tagType = row.level === 'PROVINCE' ? 'success' : row.level === 'CITY' ? 'info' : 'default';
+      const tagType = row.level === '1' ? 'success' : row.level === '2' ? 'info' : 'default';
       return h(NTag, { type: tagType, size: 'small' }, () => map[row.level] || row.level);
     }
   },
@@ -38,8 +39,8 @@ const columns: DataTableColumns<Api.User.Area> = [
     key: 'status',
     width: 80,
     render: (row: Api.User.Area) =>
-      h(NTag, { type: row.status === '1' ? 'success' : 'error', size: 'small' }, () =>
-        row.status === '1' ? '启用' : '禁用'
+      h(NTag, { type: row.status === 'ACTIVE' ? 'success' : 'error', size: 'small' }, () =>
+        row.status === 'ACTIVE' ? '启用' : '禁用'
       )
   },
   {
@@ -102,9 +103,20 @@ async function handleModalSubmit() {
 }
 
 async function getTreeData() {
-  const { data } = await fetchGetAreaTree();
-  treeData.value = data || [];
-  expandedKeys.value = treeData.value.map(item => item.id);
+  loading.value = true;
+  try {
+    const { data } = await fetchGetAreaTree();
+    // 转换数据以适配前端显示
+    treeData.value = (data || []).map((item: any) => ({
+      ...item,
+      id: item.areaId,
+      label: item.areaName,
+      level: item.areaLevel
+    }));
+    expandedKeys.value = treeData.value.map(item => item.id);
+  } finally {
+    loading.value = false;
+  }
 }
 
 onMounted(() => {
@@ -140,14 +152,21 @@ onMounted(() => {
               <template #header-extra>
                 <NButton size="small" @click="getTreeData">刷新</NButton>
               </template>
-              <NTree
-                :data="treeData"
-                :expanded-keys="expandedKeys"
-                :block-line="true"
-                block-node
-                virtual-scroll
-                @update:expanded-keys="keys => (expandedKeys = keys)"
-              />
+              <NSpin :show="loading">
+                <NTree
+                  v-if="treeData.length > 0"
+                  :data="treeData"
+                  :expanded-keys="expandedKeys"
+                  :block-line="true"
+                  block-node
+                  virtual-scroll
+                  label-field="label"
+                  @update:expanded-keys="keys => (expandedKeys = keys)"
+                />
+                <div v-else style="padding: 20px; text-align: center; color: #999;">
+                  暂无数据
+                </div>
+              </NSpin>
             </NCard>
           </NGi>
         </NGrid>

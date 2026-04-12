@@ -1,6 +1,6 @@
 <script setup lang="ts">
 import { ref, h, onMounted } from 'vue';
-import { NButton, NCard, NDataTable, NGrid, NGi, NModal, NPopconfirm, NTree, NSpace, NTag, useMessage } from 'naive-ui';
+import { NButton, NCard, NDataTable, NGrid, NGi, NModal, NPopconfirm, NTree, NSpace, NTag, useMessage, NSpin } from 'naive-ui';
 import { fetchGetMenuTree, fetchDeleteMenu, fetchCreateMenu, fetchUpdateMenu } from '@/service/api';
 import type { DataTableColumns } from 'naive-ui';
 
@@ -9,46 +9,48 @@ defineOptions({
 });
 
 const message = useMessage();
+const loading = ref(false);
 
 const treeData = ref<Api.User.Menu[]>([]);
 const expandedKeys = ref<string[]>([]);
 
 const columns: DataTableColumns<Api.User.Menu> = [
-  { title: '菜单名称', key: 'menuName', width: 150 },
-  { title: '菜单编码', key: 'menuCode', width: 120 },
+  { title: '菜单名称', key: 'permissionName', width: 150 },
+  { title: '菜单编码', key: 'permissionCode', width: 180 },
   {
     title: '菜单类型',
-    key: 'menuType',
+    key: 'permissionType',
     width: 80,
     render: (row: Api.User.Menu) => {
-      const map: Record<string, string> = { MENU: '菜单', BUTTON: '按钮', PERMISSION: '权限' };
-      const tagType = row.menuType === 'MENU' ? 'success' : row.menuType === 'BUTTON' ? 'info' : 'warning';
-      return h(NTag, { type: tagType, size: 'small' }, () => map[row.menuType] || row.menuType);
+      const map: Record<string, string> = { MENU: '菜单', BUTTON: '按钮', API: '接口' };
+      const tagType = row.permissionType === 'MENU' ? 'success' : row.permissionType === 'BUTTON' ? 'info' : 'warning';
+      return h(NTag, { type: tagType, size: 'small' }, () => map[row.permissionType] || row.permissionType);
     }
   },
-  { title: '路由路径', key: 'path', width: 150 },
-  { title: '图标', key: 'icon', width: 100 },
-  { title: '排序', key: 'sortOrder', width: 80 },
+  { title: '路由路径', key: 'permissionUrl', width: 150 },
+  { title: '请求方法', key: 'permissionMethod', width: 80 },
+  { title: '图标', key: 'icon', width: 120 },
+  { title: '排序', key: 'sortOrder', width: 60 },
   {
     title: '状态',
     key: 'status',
-    width: 80,
+    width: 70,
     render: (row: Api.User.Menu) =>
-      h(NTag, { type: row.status === '1' ? 'success' : 'error', size: 'small' }, () =>
-        row.status === '1' ? '启用' : '禁用'
+      h(NTag, { type: row.status === 'NORMAL' ? 'success' : 'error', size: 'small' }, () =>
+        row.status === 'NORMAL' ? '启用' : '禁用'
       )
   },
   {
     title: '操作',
     key: 'actions',
-    width: 150,
+    width: 120,
     fixed: 'right' as const,
     render: (row: Api.User.Menu) => {
       return h(NSpace, { size: 'small' }, () => [
         h(NButton, { size: 'small', onClick: () => handleEdit(row) }, () => '编辑'),
         h(
           NPopconfirm,
-          { onPositiveClick: () => handleDelete(row.id) },
+          { onPositiveClick: () => handleDelete(row.permissionId) },
           {
             trigger: () => h(NButton, { size: 'small', type: 'error' }, () => '删除'),
             default: () => '确认删除吗？'
@@ -90,7 +92,7 @@ async function handleModalSubmit() {
     await fetchCreateMenu(formModel);
     message.success('添加成功');
   } else {
-    await fetchUpdateMenu(formModel.id!, formModel);
+    await fetchUpdateMenu(formModel.permissionId!, formModel);
     message.success('修改成功');
   }
   modalVisible.value = false;
@@ -98,15 +100,25 @@ async function handleModalSubmit() {
 }
 
 async function getTreeData() {
-  const { data } = await fetchGetMenuTree();
-  treeData.value = data || [];
-  expandedKeys.value = getAllKeys(treeData.value);
+  loading.value = true;
+  try {
+    const { data } = await fetchGetMenuTree();
+    // 转换数据以适配前端显示
+    treeData.value = (data || []).map((item: Api.User.Menu) => ({
+      ...item,
+      id: item.permissionId,
+      label: item.permissionName
+    }));
+    expandedKeys.value = getAllKeys(treeData.value);
+  } finally {
+    loading.value = false;
+  }
 }
 
 function getAllKeys(menus: Api.User.Menu[]): string[] {
   const keys: string[] = [];
   menus.forEach(menu => {
-    keys.push(menu.id);
+    keys.push(menu.permissionId);
     if (menu.children && menu.children.length > 0) {
       keys.push(...getAllKeys(menu.children));
     }
@@ -135,9 +147,9 @@ onMounted(() => {
               <NDataTable
                 :columns="columns"
                 :data="treeData"
-                :scroll-x="900"
+                :scroll-x="1200"
                 :expanded-row-keys="expandedKeys"
-                :row-key="(row: Api.User.Menu) => row.id"
+                :row-key="(row: Api.User.Menu) => row.permissionId"
                 row-expandable
               />
             </NCard>
@@ -147,14 +159,21 @@ onMounted(() => {
               <template #header-extra>
                 <NButton size="small" @click="getTreeData">刷新</NButton>
               </template>
-              <NTree
-                :data="treeData"
-                :expanded-keys="expandedKeys"
-                :block-line="true"
-                block-node
-                virtual-scroll
-                @update:expanded-keys="keys => (expandedKeys = keys)"
-              />
+              <NSpin :show="loading">
+                <NTree
+                  v-if="treeData.length > 0"
+                  :data="treeData"
+                  :expanded-keys="expandedKeys"
+                  :block-line="true"
+                  block-node
+                  virtual-scroll
+                  label-field="permissionName"
+                  @update:expanded-keys="keys => (expandedKeys = keys)"
+                />
+                <div v-else style="padding: 20px; text-align: center; color: #999;">
+                  暂无数据
+                </div>
+              </NSpin>
             </NCard>
           </NGi>
         </NGrid>

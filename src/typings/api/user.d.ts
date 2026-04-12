@@ -140,20 +140,20 @@ declare namespace Api {
 
     /** 菜单权限 */
     interface Menu {
-      /** 菜单ID */
-      id: string;
-      /** 菜单名称 */
-      menuName: string;
-      /** 菜单编码 */
-      menuCode: string;
-      /** 父菜单ID */
+      /** 权限ID */
+      permissionId: string;
+      /** 权限编码 */
+      permissionCode: string;
+      /** 权限名称 */
+      permissionName: string;
+      /** 父权限ID */
       parentId?: string;
-      /** 菜单类型：menu/button */
-      menuType: string;
-      /** 路由路径 */
-      path?: string;
-      /** 组件路径 */
-      component?: string;
+      /** 权限类型：MENU/BUTTON/API */
+      permissionType: string;
+      /** 权限URL */
+      permissionUrl?: string;
+      /** 请求方法 */
+      permissionMethod?: string;
       /** 图标 */
       icon?: string;
       /** 排序 */
@@ -162,6 +162,10 @@ declare namespace Api {
       status: string;
       /** 子菜单 */
       children?: Menu[];
+      /** 别名id（兼容前端） */
+      id?: string;
+      /** 别名label（兼容前端） */
+      label?: string;
     }
 
     /** 区域 */
