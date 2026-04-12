@@ -484,6 +484,126 @@ CREATE TABLE IF NOT EXISTS t_service_record (
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COMMENT='服务记录表';
 
 -- ============================================
+-- 5.5. 预约管理表 (appointment)
+-- ============================================
+DROP TABLE IF EXISTS `appointment`;
+CREATE TABLE `appointment` (
+  `appointment_id` VARCHAR(64) NOT NULL PRIMARY KEY COMMENT '预约ID',
+  `appointment_no` VARCHAR(64) DEFAULT NULL COMMENT '预约单号',
+  `elder_name` VARCHAR(100) DEFAULT NULL COMMENT '老人姓名',
+  `elder_id_card` VARCHAR(18) DEFAULT NULL COMMENT '老人身份证号',
+  `elder_phone` VARCHAR(11) DEFAULT NULL COMMENT '老人手机号',
+  `elder_address` VARCHAR(255) DEFAULT NULL COMMENT '老人地址',
+  `elder_area_id` VARCHAR(64) DEFAULT NULL COMMENT '区域ID',
+  `elder_area_name` VARCHAR(100) DEFAULT NULL COMMENT '区域名称',
+  `service_type` VARCHAR(50) DEFAULT NULL COMMENT '服务类型',
+  `service_type_code` VARCHAR(20) DEFAULT NULL COMMENT '服务类型编码',
+  `service_content` VARCHAR(255) DEFAULT NULL COMMENT '服务内容',
+  `appointment_time` VARCHAR(50) DEFAULT NULL COMMENT '预约时间',
+  `service_duration` INT DEFAULT NULL COMMENT '预计服务时长(分钟)',
+  `provider_id` VARCHAR(64) DEFAULT NULL COMMENT '服务机构ID',
+  `provider_name` VARCHAR(200) DEFAULT NULL COMMENT '服务机构名称',
+  `provider_address` VARCHAR(255) DEFAULT NULL COMMENT '服务机构地址',
+  `visitor_count` INT DEFAULT NULL COMMENT '来访人数',
+  `remark` VARCHAR(500) DEFAULT NULL COMMENT '备注',
+  `status` VARCHAR(20) DEFAULT 'PENDING' COMMENT '状态',
+  `validity` VARCHAR(20) DEFAULT 'VALID' COMMENT '数据有效性',
+  `cancel_reason` VARCHAR(255) DEFAULT NULL COMMENT '取消原因',
+  `reply_info` VARCHAR(255) DEFAULT NULL COMMENT '回复信息',
+  `assessment_type` VARCHAR(50) DEFAULT NULL COMMENT '评估类型',
+  `create_time` DATETIME DEFAULT CURRENT_TIMESTAMP COMMENT '创建时间',
+  `confirm_time` DATETIME DEFAULT NULL COMMENT '确认时间',
+  `update_time` DATETIME DEFAULT NULL ON UPDATE CURRENT_TIMESTAMP COMMENT '更新时间',
+  `deleted` TINYINT(1) DEFAULT 0 COMMENT '逻辑删除',
+  UNIQUE KEY `uk_appointment_no` (`appointment_no`),
+  KEY `idx_elder_phone` (`elder_phone`),
+  KEY `idx_status` (`status`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COMMENT='预约管理表';
+
+-- ============================================
+-- 5.6. 服务日志表 (service_log)
+-- ============================================
+DROP TABLE IF EXISTS `service_log`;
+CREATE TABLE `service_log` (
+  `service_log_id` VARCHAR(64) NOT NULL PRIMARY KEY COMMENT '服务日志ID',
+  `log_no` VARCHAR(64) DEFAULT NULL COMMENT '服务日志编号',
+  `order_id` VARCHAR(64) DEFAULT NULL COMMENT '订单ID',
+  `order_no` VARCHAR(64) DEFAULT NULL COMMENT '订单号',
+  `elder_id` VARCHAR(64) DEFAULT NULL COMMENT '老人ID',
+  `elder_name` VARCHAR(100) DEFAULT NULL COMMENT '老人姓名',
+  `elder_phone` VARCHAR(11) DEFAULT NULL COMMENT '老人手机号',
+  `elder_address` VARCHAR(255) DEFAULT NULL COMMENT '老人地址',
+  `staff_id` VARCHAR(64) DEFAULT NULL COMMENT '服务人员ID',
+  `staff_name` VARCHAR(100) DEFAULT NULL COMMENT '服务人员姓名',
+  `staff_phone` VARCHAR(11) DEFAULT NULL COMMENT '服务人员手机号',
+  `provider_id` VARCHAR(64) DEFAULT NULL COMMENT '服务商ID',
+  `provider_name` VARCHAR(200) DEFAULT NULL COMMENT '服务商名称',
+  `service_type_code` VARCHAR(20) DEFAULT NULL COMMENT '服务类型编码',
+  `service_type_name` VARCHAR(100) DEFAULT NULL COMMENT '服务类型名称',
+  `service_date` VARCHAR(20) DEFAULT NULL COMMENT '服务日期',
+  `service_start_time` DATETIME DEFAULT NULL COMMENT '服务开始时间',
+  `service_end_time` DATETIME DEFAULT NULL COMMENT '服务结束时间',
+  `service_duration` INT DEFAULT NULL COMMENT '服务时长(分钟)',
+  `service_status` VARCHAR(20) DEFAULT NULL COMMENT '服务状态',
+  `actual_duration` INT DEFAULT NULL COMMENT '实际服务时长',
+  `service_score` DECIMAL(5,2) DEFAULT NULL COMMENT '服务评分',
+  `service_comment` VARCHAR(500) DEFAULT NULL COMMENT '服务评价',
+  `service_photos` TEXT COMMENT '服务照片',
+  `elder_signature` VARCHAR(255) DEFAULT NULL COMMENT '老人签名',
+  `anomaly_type` VARCHAR(50) DEFAULT NULL COMMENT '异常类型',
+  `anomaly_desc` VARCHAR(500) DEFAULT NULL COMMENT '异常描述',
+  `anomaly_photos` TEXT COMMENT '异常照片',
+  `anomaly_status` VARCHAR(20) DEFAULT NULL COMMENT '异常处理状态',
+  `create_time` DATETIME DEFAULT CURRENT_TIMESTAMP COMMENT '创建时间',
+  `update_time` DATETIME DEFAULT NULL ON UPDATE CURRENT_TIMESTAMP COMMENT '更新时间',
+  `deleted` TINYINT(1) DEFAULT 0 COMMENT '逻辑删除',
+  KEY `idx_order_id` (`order_id`),
+  KEY `idx_staff_id` (`staff_id`),
+  KEY `idx_provider_id` (`provider_id`),
+  KEY `idx_service_date` (`service_date`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COMMENT='服务日志表';
+
+-- ============================================
+-- 5.7. 质检表 (quality_check)
+-- ============================================
+DROP TABLE IF EXISTS `quality_check`;
+CREATE TABLE `quality_check` (
+  `quality_check_id` VARCHAR(64) NOT NULL PRIMARY KEY COMMENT '质检ID',
+  `check_no` VARCHAR(64) DEFAULT NULL COMMENT '质检编号',
+  `order_id` VARCHAR(64) DEFAULT NULL COMMENT '订单ID',
+  `order_no` VARCHAR(64) DEFAULT NULL COMMENT '订单号',
+  `service_log_id` VARCHAR(64) DEFAULT NULL COMMENT '服务日志ID',
+  `service_category` VARCHAR(50) DEFAULT NULL COMMENT '服务类别',
+  `provider_id` VARCHAR(64) DEFAULT NULL COMMENT '服务商ID',
+  `provider_name` VARCHAR(200) DEFAULT NULL COMMENT '服务商名称',
+  `staff_id` VARCHAR(64) DEFAULT NULL COMMENT '服务人员ID',
+  `staff_name` VARCHAR(100) DEFAULT NULL COMMENT '服务人员姓名',
+  `check_type` VARCHAR(20) DEFAULT NULL COMMENT '质检类型',
+  `check_method` VARCHAR(20) DEFAULT NULL COMMENT '质检方式',
+  `check_score` DECIMAL(5,2) DEFAULT NULL COMMENT '综合评分',
+  `check_result` VARCHAR(20) DEFAULT NULL COMMENT '质检结果',
+  `check_photos` TEXT COMMENT '质检照片',
+  `check_remark` VARCHAR(500) DEFAULT NULL COMMENT '质检备注',
+  `check_time` DATETIME DEFAULT NULL COMMENT '质检时间',
+  `checker_id` VARCHAR(64) DEFAULT NULL COMMENT '质检员ID',
+  `checker_name` VARCHAR(100) DEFAULT NULL COMMENT '质检员姓名',
+  `need_rectify` TINYINT(1) DEFAULT 0 COMMENT '是否需要整改',
+  `rectify_notice` VARCHAR(255) DEFAULT NULL COMMENT '整改通知',
+  `rectify_deadline` DATETIME DEFAULT NULL COMMENT '整改期限',
+  `rectify_status` VARCHAR(20) DEFAULT NULL COMMENT '整改状态',
+  `rectify_photos` TEXT COMMENT '整改照片',
+  `rectify_remark` VARCHAR(500) DEFAULT NULL COMMENT '整改说明',
+  `recheck_time` DATETIME DEFAULT NULL COMMENT '复检时间',
+  `recheck_result` VARCHAR(20) DEFAULT NULL COMMENT '复检结果',
+  `create_time` DATETIME DEFAULT CURRENT_TIMESTAMP COMMENT '创建时间',
+  `update_time` DATETIME DEFAULT NULL ON UPDATE CURRENT_TIMESTAMP COMMENT '更新时间',
+  `deleted` TINYINT(1) DEFAULT 0 COMMENT '逻辑删除',
+  KEY `idx_order_id` (`order_id`),
+  KEY `idx_provider_id` (`provider_id`),
+  KEY `idx_check_result` (`check_result`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COMMENT='服务质检表';
+
+-- ============================================
 -- 6. 财务服务相关表
 -- ============================================
 
