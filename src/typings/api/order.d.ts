@@ -31,11 +31,11 @@ declare namespace Api {
     /** 订单表单 */
     interface OrderForm {
       /** 订单ID（编辑时需要） */
-      id?: string;
+      orderId?: string;
       /** 预约ID */
       appointmentId?: string;
       /** 服务类别 */
-      serviceCategory: ServiceCategory;
+      serviceCategory?: string;
       /** 老人ID */
       elderId: string;
       /** 老人姓名 */
@@ -43,17 +43,17 @@ declare namespace Api {
       /** 老人手机号 */
       elderPhone?: string;
       /** 老人地址 */
-      elderAddress?: string;
+      serviceAddress?: string;
       /** 区域ID */
-      elderAreaId?: string;
+      areaId?: string;
       /** 服务类型 */
-      serviceType: string;
+      serviceTypeName?: string;
       /** 服务类型编码 */
       serviceTypeCode?: string;
-      /** 服务内容 */
-      serviceContent?: string;
+      /** 服务日期 */
+      serviceDate?: string;
       /** 预约服务时间 */
-      serviceTime: string;
+      serviceTime?: string;
       /** 服务时长 */
       serviceDuration?: number;
       /** 服务商ID */
@@ -67,7 +67,7 @@ declare namespace Api {
     /** 订单详情 */
     interface Order {
       /** 订单ID */
-      id: string;
+      orderId: string;
       /** 订单号 */
       orderNo: string;
       /** 预约ID */
@@ -75,7 +75,7 @@ declare namespace Api {
       /** 预约单号 */
       appointmentNo?: string;
       /** 服务类别 */
-      serviceCategory: ServiceCategory;
+      serviceCategory?: string;
       /** 老人ID */
       elderId: string;
       /** 老人姓名 */
@@ -83,19 +83,19 @@ declare namespace Api {
       /** 老人手机号 */
       elderPhone?: string;
       /** 老人地址 */
-      elderAddress?: string;
+      serviceAddress?: string;
       /** 区域ID */
-      elderAreaId?: string;
+      areaId?: string;
       /** 区域名称 */
-      elderAreaName?: string;
+      areaName?: string;
       /** 服务类型 */
-      serviceType: string;
+      serviceTypeName?: string;
       /** 服务类型编码 */
       serviceTypeCode?: string;
-      /** 服务内容 */
-      serviceContent?: string;
+      /** 服务日期 */
+      serviceDate?: string;
       /** 预约服务时间 */
-      serviceTime: string;
+      serviceTime?: string;
       /** 服务时长（分钟） */
       serviceDuration?: number;
       /** 服务商ID */
@@ -108,35 +108,37 @@ declare namespace Api {
       staffName?: string;
       /** 服务人员手机号 */
       staffPhone?: string;
-      /** 服务费 */
-      serviceFee?: number;
+      /** 订单类型 */
+      orderType?: string;
+      /** 订单来源 */
+      orderSource?: string;
+      /** 补贴类型 */
+      subsidyType?: string;
+      /** 预估价格 */
+      estimatedPrice?: number;
       /** 补贴金额 */
-      subsidyFee?: number;
+      subsidyAmount?: number;
       /** 自付金额 */
-      selfPayFee?: number;
-      /** 实际收费 */
-      actualFee?: number;
+      selfPayAmount?: number;
       /** 订单状态 */
-      status: OrderStatus;
-      /** 备注 */
-      remark?: string;
-      /** 创建时间 */
-      createTime: string;
-      /** 分配时间 */
-      assignTime?: string;
+      status: string;
+      /** 状态名称 */
+      statusName?: string;
+      /** 取消原因 */
+      cancelReason?: string;
+      /** 派单时间 */
+      dispatchTime?: string;
+      /** 接单时间 */
+      receiveTime?: string;
       /** 开始服务时间 */
       startTime?: string;
       /** 完成时间 */
       completeTime?: string;
+      /** 创建时间 */
+      createTime: string;
       /** 更新时间 */
       updateTime?: string;
     }
-
-    /** 服务类别 */
-    type ServiceCategory = 'ELDER_CARE' | 'HOME_CARE';
-
-    /** 订单状态 */
-    type OrderStatus = 'PENDING' | 'ASSIGNED' | 'ACCEPTED' | 'IN_SERVICE' | 'COMPLETED' | 'CANCELLED';
 
     /** 订单统计 */
     interface Statistics {

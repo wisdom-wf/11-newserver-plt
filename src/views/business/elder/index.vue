@@ -134,7 +134,7 @@ const columns: DataTableColumns<Api.Elder.Elder> = [
     render: row =>
       h(NSpace, { size: 'small' }, () => [
         h(NButton, { size: 'small', onClick: () => handleEdit(row) }, () => '编辑'),
-        h(NButton, { size: 'small', type: 'error', onClick: () => handleDelete(row.id) }, () => '删除')
+        h(NButton, { size: 'small', type: 'error', onClick: () => handleDelete(row.elderId) }, () => '删除')
       ])
   }
 ];
@@ -259,7 +259,7 @@ async function handleSubmit() {
       await fetchCreateElder(form.value);
       message.success('添加成功');
     } else if (editingData.value) {
-      await fetchUpdateElder(editingData.value.id, form.value);
+      await fetchUpdateElder(editingData.value.elderId, form.value);
       message.success('修改成功');
     }
     modalVisible.value = false;

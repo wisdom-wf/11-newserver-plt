@@ -27,11 +27,11 @@ declare namespace Api {
     /** 老人表单 */
     interface ElderForm {
       /** 老人ID（编辑时需要） */
-      id?: string;
+      elderId?: string;
       /** 姓名 */
       name: string;
       /** 性别 */
-      gender?: Gender;
+      gender?: string;
       /** 出生日期 */
       birthDate?: string;
       /** 年龄 */
@@ -41,7 +41,7 @@ declare namespace Api {
       /** 手机号 */
       phone?: string;
       /** 头像 */
-      avatar?: string;
+      photoUrl?: string;
       /** 区域ID */
       areaId?: string;
       /** 社区ID */
@@ -49,25 +49,25 @@ declare namespace Api {
       /** 详细地址 */
       address?: string;
       /** 养老类型 */
-      careType?: CareType;
+      careType?: string;
       /** 补贴类型 */
-      subsidyType?: SubsidyType;
+      subsidyType?: string;
       /** 紧急联系人 */
       emergencyContact?: string;
       /** 紧急联系电话 */
       emergencyPhone?: string;
       /** 健康状况 */
-      healthStatus?: HealthStatus;
+      healthStatus?: string;
       /** 既往病史 */
-      medicalHistory?: string[];
+      medicalHistory?: string;
       /** 过敏信息 */
-      allergies?: string[];
+      allergies?: string;
       /** 护理等级 */
-      careLevel?: CareLevel;
+      careLevel?: string;
       /** 民族 */
       ethnicity?: string;
       /** 婚姻状况 */
-      maritalStatus?: MaritalStatus;
+      maritalStatus?: string;
       /** 退休单位 */
       retiredFrom?: string;
       /** 养老金 */
@@ -79,13 +79,15 @@ declare namespace Api {
     /** 老人详情 */
     interface Elder {
       /** 老人ID */
-      id: string;
+      elderId: string;
       /** 档案编号 */
       fileNo?: string;
       /** 姓名 */
       name: string;
       /** 性别 */
-      gender?: Gender;
+      gender?: string;
+      /** 性别名称 */
+      genderName?: string;
       /** 出生日期 */
       birthDate?: string;
       /** 年龄 */
@@ -95,7 +97,7 @@ declare namespace Api {
       /** 手机号 */
       phone?: string;
       /** 头像 */
-      avatar?: string;
+      photoUrl?: string;
       /** 区域ID */
       areaId?: string;
       /** 区域名称 */
@@ -107,25 +109,27 @@ declare namespace Api {
       /** 详细地址 */
       address?: string;
       /** 养老类型 */
-      careType?: CareType;
+      careType?: string;
       /** 补贴类型 */
-      subsidyType?: SubsidyType;
+      subsidyType?: string;
       /** 紧急联系人 */
       emergencyContact?: string;
       /** 紧急联系电话 */
       emergencyPhone?: string;
       /** 健康状况 */
-      healthStatus?: HealthStatus;
+      healthStatus?: string;
       /** 既往病史 */
-      medicalHistory?: string[];
+      medicalHistory?: string;
       /** 过敏信息 */
-      allergies?: string[];
+      allergies?: string;
       /** 护理等级 */
-      careLevel?: CareLevel;
+      careLevel?: string;
+      /** 护理等级名称 */
+      careLevelName?: string;
       /** 民族 */
       ethnicity?: string;
       /** 婚姻状况 */
-      maritalStatus?: MaritalStatus;
+      maritalStatus?: string;
       /** 退休单位 */
       retiredFrom?: string;
       /** 养老金 */
@@ -133,30 +137,14 @@ declare namespace Api {
       /** 备注 */
       remark?: string;
       /** 状态 */
-      status?: EnableStatus;
+      status?: string;
+      /** 状态名称 */
+      statusName?: string;
       /** 创建时间 */
       createTime: string;
       /** 更新时间 */
       updateTime?: string;
     }
-
-    /** 性别 */
-    type Gender = 'MALE' | 'FEMALE' | 'UNKNOWN';
-
-    /** 养老类型 */
-    type CareType = 'HOME' | 'COMMUNITY' | 'INSTITUTION';
-
-    /** 补贴类型 */
-    type SubsidyType = 'FULL_SUBSIDY' | 'PARTIAL_SUBSIDY' | 'SELF_PAY';
-
-    /** 健康状况 */
-    type HealthStatus = 'GOOD' | 'FAIR' | 'POOR' | 'CRITICAL';
-
-    /** 护理等级 */
-    type CareLevel = 'LEVEL_1' | 'LEVEL_2' | 'LEVEL_3' | 'LEVEL_4' | 'LEVEL_5';
-
-    /** 婚姻状况 */
-    type MaritalStatus = 'MARRIED' | 'WIDOWED' | 'DIVORCED' | 'SINGLE';
 
     /** 老人统计 */
     interface Statistics {
@@ -167,11 +155,11 @@ declare namespace Api {
       /** 暂停服务 */
       suspended: number;
       /** 养老类型分布 */
-      careTypeStats: Record<CareType, number>;
+      careTypeStats: Record<string, number>;
       /** 护理等级分布 */
-      careLevelStats: Record<CareLevel, number>;
+      careLevelStats: Record<string, number>;
       /** 补贴类型分布 */
-      subsidyTypeStats: Record<SubsidyType, number>;
+      subsidyTypeStats: Record<string, number>;
     }
   }
 }

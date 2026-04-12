@@ -50,53 +50,52 @@ const pagination = ref({ page: 1, pageSize: 10, total: 0 });
 
 // Gender options
 const genderOptions = [
-  { label: '男', value: 'MALE' },
-  { label: '女', value: 'FEMALE' },
-  { label: '未知', value: 'UNKNOWN' }
-];
-
-// Service category options
-const categoryOptions = [
-  { label: '养老服务', value: 'ELDER_CARE' },
-  { label: '家政服务', value: 'HOME_CARE' }
+  { label: '女', value: 0 },
+  { label: '男', value: 1 }
 ];
 
 // Status options
 const statusOptions = [
-  { label: '启用', value: '1' },
-  { label: '禁用', value: '2' }
+  { label: '在职', value: 'ON_JOB' },
+  { label: '离职', value: 'OFF_JOB' }
 ];
 
-function getGenderLabel(gender?: string): string {
-  const option = genderOptions.find(o => o.value === gender);
-  return option?.label || gender || '';
+function getGenderLabel(gender?: number): string {
+  if (gender === 0) return '女';
+  if (gender === 1) return '男';
+  return '未知';
 }
 
-function getCategoryLabel(category?: string): string {
-  const option = categoryOptions.find(o => o.value === category);
-  return option?.label || category || '';
+function getStatusType(status?: string): 'success' | 'warning' | 'error' | 'default' {
+  if (status === 'ON_JOB') return 'success';
+  if (status === 'OFF_JOB') return 'error';
+  return 'default';
+}
+
+function getStatusLabel(status?: string): string {
+  if (status === 'ON_JOB') return '在职';
+  if (status === 'OFF_JOB') return '离职';
+  return status || '';
 }
 
 const columns: DataTableColumns<Api.Staff.Staff> = [
-  { title: '工号', key: 'staffNo', width: 100 },
-  { title: '姓名', key: 'name', width: 100 },
+  { title: '工号', key: 'staffNo', width: 110 },
+  { title: '姓名', key: 'staffName', width: 90 },
   { title: '性别', key: 'gender', width: 60, render: row => getGenderLabel(row.gender) },
   { title: '年龄', key: 'age', width: 60 },
-  { title: '手机号', key: 'phone', width: 130 },
-  { title: '所属服务商', key: 'providerName', width: 150 },
-  { title: '服务类别', key: 'serviceCategory', width: 100, render: row => getCategoryLabel(row.serviceCategory) },
-  { title: '接单数', key: 'orderCount', width: 80 },
-  { title: '评分', key: 'rating', width: 80 },
+  { title: '手机号', key: 'phone', width: 120 },
+  { title: '所属服务商', key: 'providerName', width: 180 },
+  { title: '身份证号', key: 'idCard', width: 170 },
+  { title: '紧急联系人', key: 'emergencyContact', width: 100 },
+  { title: '紧急联系电话', key: 'emergencyPhone', width: 130 },
   {
     title: '状态',
     key: 'status',
     width: 80,
     render: row =>
-      h(NTag, { type: row.status === '1' ? 'success' : 'error', size: 'small' }, () =>
-        row.status === '1' ? '启用' : '禁用'
-      )
+      h(NTag, { type: getStatusType(row.status), size: 'small' }, () => getStatusLabel(row.status))
   },
-  { title: '创建时间', key: 'createTime', width: 170 },
+  { title: '入职日期', key: 'hireDate', width: 110 },
   {
     title: '操作',
     key: 'actions',
@@ -105,7 +104,7 @@ const columns: DataTableColumns<Api.Staff.Staff> = [
     render: row =>
       h(NSpace, { size: 'small' }, () => [
         h(NButton, { size: 'small', onClick: () => handleEdit(row) }, () => '编辑'),
-        h(NButton, { size: 'small', type: 'error', onClick: () => handleDelete(row.id) }, () => '删除')
+        h(NButton, { size: 'small', type: 'error', onClick: () => handleDelete(row.staffId) }, () => '删除')
       ])
   }
 ];
@@ -116,16 +115,15 @@ const operateType = ref<'add' | 'edit'>('add');
 const editingData = ref<Api.Staff.Staff | null>(null);
 
 const form = ref({
-  name: '',
-  gender: 'UNKNOWN' as Api.Staff.Gender,
+  staffName: '',
+  gender: 0,
   idCard: '',
   phone: '',
-  serviceCategory: 'ELDER_CARE' as Api.Order.ServiceCategory,
   providerId: '',
   emergencyContact: '',
   emergencyPhone: '',
-  description: '',
-  status: '1' as Api.Common.EnableStatus
+  remark: '',
+  status: 'ON_JOB'
 });
 
 async function getStatistics() {
@@ -165,16 +163,15 @@ function handleAdd() {
   operateType.value = 'add';
   editingData.value = null;
   form.value = {
-    name: '',
-    gender: 'UNKNOWN',
+    staffName: '',
+    gender: 0,
     idCard: '',
     phone: '',
-    serviceCategory: 'ELDER_CARE',
     providerId: '',
     emergencyContact: '',
     emergencyPhone: '',
-    description: '',
-    status: '1'
+    remark: '',
+    status: 'ON_JOB'
   };
   modalVisible.value = true;
 }
@@ -183,23 +180,22 @@ function handleEdit(row: Api.Staff.Staff) {
   operateType.value = 'edit';
   editingData.value = row;
   form.value = {
-    name: row.name,
-    gender: row.gender || 'UNKNOWN',
+    staffName: row.staffName || '',
+    gender: row.gender ?? 0,
     idCard: row.idCard || '',
     phone: row.phone || '',
-    serviceCategory: row.serviceCategory,
-    providerId: row.providerId,
+    providerId: row.providerId || '',
     emergencyContact: row.emergencyContact || '',
     emergencyPhone: row.emergencyPhone || '',
-    description: row.description || '',
-    status: row.status
+    remark: row.remark || '',
+    status: row.status || 'ON_JOB'
   };
   modalVisible.value = true;
 }
 
-async function handleDelete(id: string) {
+async function handleDelete(staffId: string) {
   try {
-    await fetchDeleteStaff(id);
+    await fetchDeleteStaff(staffId);
     message.success('删除成功');
     await getTableData();
     await getStatistics();
@@ -214,7 +210,7 @@ async function handleSubmit() {
       await fetchCreateStaff(form.value);
       message.success('添加成功');
     } else if (editingData.value) {
-      await fetchUpdateStaff(editingData.value.id, form.value);
+      await fetchUpdateStaff(editingData.value.staffId, form.value);
       message.success('修改成功');
     }
     modalVisible.value = false;
@@ -327,7 +323,7 @@ onMounted(() => {
     >
       <NForm :model="form" label-placement="left" label-width="100">
         <NFormItem label="姓名">
-          <NInput v-model:value="form.name" placeholder="请输入姓名" />
+          <NInput v-model:value="form.staffName" placeholder="请输入姓名" />
         </NFormItem>
         <NFormItem label="性别">
           <NSelect v-model:value="form.gender" :options="genderOptions" style="width: 120px" />
@@ -338,9 +334,6 @@ onMounted(() => {
         <NFormItem label="手机号">
           <NInput v-model:value="form.phone" placeholder="请输入手机号" />
         </NFormItem>
-        <NFormItem label="服务类别">
-          <NSelect v-model:value="form.serviceCategory" :options="categoryOptions" style="width: 150px" />
-        </NFormItem>
         <NFormItem label="服务商ID">
           <NInput v-model:value="form.providerId" placeholder="请输入服务商ID" />
         </NFormItem>
@@ -350,8 +343,8 @@ onMounted(() => {
         <NFormItem label="紧急联系电话">
           <NInput v-model:value="form.emergencyPhone" placeholder="请输入紧急联系电话" />
         </NFormItem>
-        <NFormItem label="简介">
-          <NInput v-model:value="form.description" type="textarea" placeholder="请输入简介" />
+        <NFormItem label="备注">
+          <NInput v-model:value="form.remark" type="textarea" placeholder="请输入备注" />
         </NFormItem>
         <NSpace justify="end">
           <NButton @click="modalVisible = false">取消</NButton>

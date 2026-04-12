@@ -7,13 +7,13 @@ declare namespace Api {
     /** 服务人员查询参数 */
     interface StaffQuery {
       /** 姓名 */
-      name?: string;
+      staffName?: string;
+      /** 工号 */
+      staffNo?: string;
       /** 手机号 */
       phone?: string;
       /** 身份证号 */
       idCard?: string;
-      /** 服务类别 */
-      serviceCategory?: string;
       /** 服务类型 */
       serviceType?: string;
       /** 服务商ID */
@@ -21,17 +21,17 @@ declare namespace Api {
       /** 区域ID */
       areaId?: string;
       /** 状态 */
-      status?: string;
+      status?: string | number;
     }
 
     /** 服务人员表单 */
     interface StaffForm {
       /** 服务人员ID（编辑时需要） */
-      id?: string;
+      staffId?: string;
       /** 姓名 */
-      name: string;
+      staffName: string;
       /** 性别 */
-      gender?: Gender;
+      gender?: number;
       /** 出生日期 */
       birthDate?: string;
       /** 身份证号 */
@@ -40,38 +40,32 @@ declare namespace Api {
       phone?: string;
       /** 头像 */
       avatar?: string;
-      /** 服务类别 */
-      serviceCategory: ServiceCategory;
       /** 服务类型列表 */
-      serviceTypes?: string[];
-      /** 服务区域 */
-      serviceAreas?: string[];
+      serviceTypes?: string;
       /** 所属服务商ID */
       providerId: string;
       /** 紧急联系人 */
       emergencyContact?: string;
       /** 紧急联系电话 */
       emergencyPhone?: string;
-      /** 健康证 */
-      healthCert?: string;
-      /** 资质证书 */
-      qualificationCerts?: string[];
       /** 简介 */
-      description?: string;
+      remark?: string;
       /** 状态 */
-      status?: EnableStatus;
+      status?: string;
     }
 
     /** 服务人员详情 */
     interface Staff {
       /** 服务人员ID */
-      id: string;
+      staffId: string;
       /** 工号 */
       staffNo?: string;
       /** 姓名 */
-      name: string;
-      /** 性别 */
-      gender?: Gender;
+      staffName: string;
+      /** 性别：0-女，1-男 */
+      gender?: number;
+      /** 性别文本 */
+      genderText?: string;
       /** 出生日期 */
       birthDate?: string;
       /** 年龄 */
@@ -80,14 +74,26 @@ declare namespace Api {
       idCard?: string;
       /** 手机号 */
       phone?: string;
-      /** 头像 */
-      avatar?: string;
-      /** 服务类别 */
-      serviceCategory: ServiceCategory;
-      /** 服务类型列表 */
-      serviceTypes?: string[];
-      /** 服务区域 */
-      serviceAreas?: string[];
+      /** 民族 */
+      nation?: string;
+      /** 学历 */
+      education?: string;
+      /** 学历文本 */
+      educationText?: string;
+      /** 政治面貌 */
+      politicalStatus?: string;
+      /** 政治面貌文本 */
+      politicalStatusText?: string;
+      /** 婚姻状况 */
+      maritalStatus?: string;
+      /** 婚姻状况文本 */
+      maritalStatusText?: string;
+      /** 户籍地址 */
+      domicileAddress?: string;
+      /** 居住地址 */
+      residenceAddress?: string;
+      /** 头像URL */
+      avatarUrl?: string;
       /** 所属服务商ID */
       providerId: string;
       /** 所属服务商名称 */
@@ -96,14 +102,24 @@ declare namespace Api {
       emergencyContact?: string;
       /** 紧急联系电话 */
       emergencyPhone?: string;
-      /** 健康证 */
-      healthCert?: string;
-      /** 资质证书 */
-      qualificationCerts?: string[];
-      /** 简介 */
-      description?: string;
-      /** 状态 */
-      status: EnableStatus;
+      /** 服务类型 */
+      serviceTypes?: string;
+      /** 服务类型文本 */
+      serviceTypesText?: string;
+      /** 员工状态 */
+      status?: string;
+      /** 状态文本 */
+      statusText?: string;
+      /** 审核备注 */
+      auditRemark?: string;
+      /** 入职日期 */
+      hireDate?: string;
+      /** 离职日期 */
+      leaveDate?: string;
+      /** 离职原因 */
+      leaveReason?: string;
+      /** 备注 */
+      remark?: string;
       /** 评分 */
       rating?: number;
       /** 接单数 */
@@ -113,9 +129,6 @@ declare namespace Api {
       /** 更新时间 */
       updateTime?: string;
     }
-
-    /** 性别 */
-    type Gender = 'MALE' | 'FEMALE' | 'UNKNOWN';
 
     /** 服务人员统计 */
     interface Statistics {

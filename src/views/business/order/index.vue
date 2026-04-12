@@ -60,16 +60,17 @@ const pagination = ref({ page: 1, pageSize: 10, total: 0 });
 // Status options
 const statusOptions = [
   { label: '待分配', value: 'PENDING' },
-  { label: '已分配', value: 'ASSIGNED' },
+  { label: '已派单', value: 'DISPATCHED' },
   { label: '已接单', value: 'ACCEPTED' },
   { label: '服务中', value: 'IN_SERVICE' },
   { label: '已完成', value: 'COMPLETED' },
   { label: '已取消', value: 'CANCELLED' }
 ];
 
-function getStatusType(status: Api.Order.OrderStatus): 'warning' | 'success' | 'info' | 'error' | 'default' {
+function getStatusType(status: string): 'warning' | 'success' | 'info' | 'error' | 'default' {
   const map: Record<string, 'warning' | 'success' | 'info' | 'error' | 'default'> = {
     PENDING: 'warning',
+    DISPATCHED: 'info',
     ASSIGNED: 'info',
     ACCEPTED: 'info',
     IN_SERVICE: 'info',
@@ -88,7 +89,7 @@ const columns: DataTableColumns<Api.Order.Order> = [
   { title: '订单号', key: 'orderNo', width: 160 },
   { title: '老人姓名', key: 'elderName', width: 100 },
   { title: '老人手机', key: 'elderPhone', width: 130 },
-  { title: '服务类型', key: 'serviceType', width: 120 },
+  { title: '服务类型', key: 'serviceTypeName', width: 120 },
   { title: '预约服务时间', key: 'serviceTime', width: 170 },
   { title: '服务商', key: 'providerName', width: 150 },
   { title: '服务人员', key: 'staffName', width: 100 },
@@ -98,8 +99,8 @@ const columns: DataTableColumns<Api.Order.Order> = [
     width: 100,
     render: row => h(NTag, { type: getStatusType(row.status), size: 'small' }, () => getStatusLabel(row.status))
   },
-  { title: '服务费', key: 'serviceFee', width: 100 },
-  { title: '实付金额', key: 'actualFee', width: 100 },
+  { title: '服务费', key: 'estimatedPrice', width: 100 },
+  { title: '实付金额', key: 'selfPayAmount', width: 100 },
   { title: '创建时间', key: 'createTime', width: 170 },
   {
     title: '操作',
@@ -179,7 +180,7 @@ async function getTableData() {
 }
 
 function handleAssign(row: Api.Order.Order) {
-  currentOrderId.value = row.id;
+  currentOrderId.value = row.orderId;
   assignForm.value = { staffId: '' };
   assignModalVisible.value = true;
 }
@@ -198,7 +199,7 @@ async function handleAssignSubmit() {
 
 async function handleAccept(row: Api.Order.Order) {
   try {
-    await fetchAcceptOrder(row.id);
+    await fetchAcceptOrder(row.orderId);
     message.success('接单成功');
     await getTableData();
     await getStatistics();
@@ -209,7 +210,7 @@ async function handleAccept(row: Api.Order.Order) {
 
 async function handleStart(row: Api.Order.Order) {
   try {
-    await fetchStartOrder(row.id);
+    await fetchStartOrder(row.orderId);
     message.success('开始服务');
     await getTableData();
     await getStatistics();
@@ -219,7 +220,7 @@ async function handleStart(row: Api.Order.Order) {
 }
 
 function handleComplete(row: Api.Order.Order) {
-  currentOrderId.value = row.id;
+  currentOrderId.value = row.orderId;
   completeForm.value = { actualFee: row.actualFee || 0, selfPayFee: row.selfPayFee || 0 };
   completeModalVisible.value = true;
 }
@@ -237,7 +238,7 @@ async function handleCompleteSubmit() {
 }
 
 function handleCancel(row: Api.Order.Order) {
-  currentOrderId.value = row.id;
+  currentOrderId.value = row.orderId;
   cancelForm.value = { reason: '' };
   cancelModalVisible.value = true;
 }
@@ -337,7 +338,7 @@ onMounted(() => {
         :data="tableData"
         :loading="loading"
         :scroll-x="1600"
-        :row-key="(row: Api.Order.Order) => row.id"
+        :row-key="(row: Api.Order.Order) => row.orderId"
       />
       <div style="padding: 12px 0">
         <NSpace justify="end">

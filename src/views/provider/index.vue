@@ -86,12 +86,11 @@ function getAuditStatusLabel(status?: string): string {
 }
 
 const columns: DataTableColumns<Api.Provider.Provider> = [
-  { title: '服务商名称', key: 'providerName', width: 180 },
+  { title: '服务商名称', key: 'providerName', width: 200 },
   { title: '信用代码', key: 'creditCode', width: 180 },
   { title: '法人', key: 'legalPerson', width: 100 },
   { title: '联系电话', key: 'contactPhone', width: 130 },
-  { title: '区域', key: 'areaName', width: 120 },
-  { title: '服务类别', key: 'serviceCategory', width: 100, render: row => getCategoryLabel(row.serviceCategory) },
+  { title: '服务类型', key: 'providerType', width: 100, render: row => getCategoryLabel(row.providerType) },
   {
     title: '审核状态',
     key: 'auditStatus',
