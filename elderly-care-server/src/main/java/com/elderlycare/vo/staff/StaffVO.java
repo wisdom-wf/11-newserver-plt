@@ -59,6 +59,11 @@ public class StaffVO implements Serializable {
     private String phone;
 
     /**
+     * 年龄
+     */
+    private Integer age;
+
+    /**
      * 出生日期
      */
     private LocalDate birthDate;

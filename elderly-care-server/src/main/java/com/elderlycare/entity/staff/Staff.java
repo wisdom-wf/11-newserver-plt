@@ -27,6 +27,12 @@ public class Staff implements Serializable {
     private String providerId;
 
     /**
+     * 所属服务商名称（非数据库字段）
+     */
+    @TableField(exist = false)
+    private String providerName;
+
+    /**
      * 员工编号
      */
     private String staffNo;

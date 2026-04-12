@@ -20,23 +20,38 @@ TRUNCATE TABLE t_settlement;
 -- 第二步：修复数据一致性问题并补充完整员工信息
 -- ============================================
 
-UPDATE t_staff SET provider_id = 'P002' WHERE staff_id IN ('S003', 'S004');
-UPDATE t_staff SET provider_id = 'P003' WHERE staff_id IN ('S005', 'S006');
-UPDATE t_staff SET provider_id = 'P004' WHERE staff_id IN ('S007');
-UPDATE t_staff SET provider_id = 'P006' WHERE staff_id IN ('S008');
+-- 实际的provider UUID:
+-- 4253cf396b68903505ea8f74b3d37700 - 延安市宝塔区丁峰家政服务有限公司
+-- b147a7db096643eb97385136c555f933 - 延安家享悠网络科技有限公司
+-- c49391a097025dcb9bf629975df2726c - 延安丁峰窑洞养老服务有限公司
+
+UPDATE t_staff SET provider_id = 'b147a7db096643eb97385136c555f933' WHERE staff_id IN ('S003', 'S004');
+UPDATE t_staff SET provider_id = 'c49391a097025dcb9bf629975df2726c' WHERE staff_id IN ('S005', 'S006');
+UPDATE t_staff SET provider_id = '4253cf396b68903505ea8f74b3d37700' WHERE staff_id IN ('S007');
+UPDATE t_staff SET provider_id = 'b147a7db096643eb97385136c555f933' WHERE staff_id IN ('S008');
 
 -- 补充员工完整信息
 UPDATE t_staff SET
     id_card = CASE staff_id
-        WHEN 'S001' THEN '61060219850512001X'
-        WHEN 'S002' THEN '610602198203250012'
-        WHEN 'S003' THEN '610602199005180033'
-        WHEN 'S004' THEN '610602198210050044'
-        WHEN 'S005' THEN '610602199308120055'
-        WHEN 'S006' THEN '610602198708250066'
-        WHEN 'S007' THEN '610602199512080077'
+        WHEN 'S001' THEN '610602198503150013'
+        WHEN 'S002' THEN '61060219780722001X'
+        WHEN 'S003' THEN '610602199011080033'
+        WHEN 'S004' THEN '610602198205300044'
+        WHEN 'S005' THEN '610602198809120055'
+        WHEN 'S006' THEN '610602199201250066'
+        WHEN 'S007' THEN '610602199506180077'
         WHEN 'S008' THEN '610602198012030088'
         ELSE id_card
+    END,
+    age = CASE staff_id
+        WHEN 'S001' THEN TIMESTAMPDIFF(YEAR, '1985-03-15', CURDATE())
+        WHEN 'S002' THEN TIMESTAMPDIFF(YEAR, '1978-07-22', CURDATE())
+        WHEN 'S003' THEN TIMESTAMPDIFF(YEAR, '1990-11-08', CURDATE())
+        WHEN 'S004' THEN TIMESTAMPDIFF(YEAR, '1982-05-30', CURDATE())
+        WHEN 'S005' THEN TIMESTAMPDIFF(YEAR, '1988-09-12', CURDATE())
+        WHEN 'S006' THEN TIMESTAMPDIFF(YEAR, '1992-01-25', CURDATE())
+        WHEN 'S007' THEN TIMESTAMPDIFF(YEAR, '1995-06-18', CURDATE())
+        WHEN 'S008' THEN TIMESTAMPDIFF(YEAR, '1980-12-03', CURDATE())
     END,
     emergency_contact = CASE staff_id
         WHEN 'S001' THEN '张建国'
@@ -199,11 +214,9 @@ SELECT
     si.staff_phone,
     o.provider_id,
     CASE o.provider_id
-        WHEN 'P001' THEN '北京福寿康养老服务有限公司'
-        WHEN 'P002' THEN '上海幸福里养老服务中心'
-        WHEN 'P003' THEN '广州夕阳红养老服务公司'
-        WHEN 'P004' THEN '深圳温馨家园养老服务'
-        WHEN 'P006' THEN '杭州银龄养老服务中心'
+        WHEN '4253cf396b68903505ea8f74b3d37700' THEN '延安市宝塔区丁峰家政服务有限公司'
+        WHEN 'b147a7db096643eb97385136c555f933' THEN '延安家享悠网络科技有限公司'
+        WHEN 'c49391a097025dcb9bf629975df2726c' THEN '延安丁峰窑洞养老服务有限公司'
         ELSE '未知服务商'
     END AS provider_name,
     o.service_type_code,
@@ -288,7 +301,7 @@ SELECT
     NOW() AS create_time
 FROM t_order
 WHERE status = 'COMPLETED'
-AND provider_id IN ('P001', 'P002', 'P003', 'P004', 'P006')
+AND provider_id IN ('4253cf396b68903505ea8f74b3d37700', 'b147a7db096643eb97385136c555f933', 'c49391a097025dcb9bf629975df2726c')
 LIMIT 100;
 
 -- ============================================
@@ -313,8 +326,8 @@ SELECT
     '05' AS service_type_code,
     DATE_ADD(NOW(), INTERVAL 3 DAY) AS appointment_time,
     120 AS service_duration,
-    'P001' AS provider_id,
-    '北京福寿康养老服务有限公司' AS provider_name,
+    '4253cf396b68903505ea8f74b3d37700' AS provider_id,
+    '延安市宝塔区丁峰家政服务有限公司' AS provider_name,
     'PENDING' AS status,
     '日常养老服务预约' AS remark,
     NOW() AS create_time

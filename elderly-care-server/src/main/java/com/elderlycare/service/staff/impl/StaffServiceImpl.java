@@ -467,12 +467,14 @@ public class StaffServiceImpl implements StaffService {
         StaffVO vo = new StaffVO();
         vo.setStaffId(staff.getStaffId());
         vo.setProviderId(staff.getProviderId());
+        vo.setProviderName(staff.getProviderName());
         vo.setStaffNo(staff.getStaffNo());
         vo.setStaffName(staff.getStaffName());
         vo.setGender(staff.getGender());
         vo.setGenderText(getGenderText(staff.getGender()));
         vo.setIdCard(staff.getIdCard());
         vo.setPhone(staff.getPhone());
+        vo.setAge(staff.getAge());
         vo.setBirthDate(staff.getBirthDate());
         vo.setNation(staff.getNation());
         vo.setEducation(staff.getEducation());

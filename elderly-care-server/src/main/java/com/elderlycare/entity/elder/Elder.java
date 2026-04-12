@@ -24,6 +24,7 @@ public class Elder implements Serializable {
     /**
      * 老人姓名
      */
+    @TableField("elder_name")
     private String name;
 
     /**
@@ -105,6 +106,21 @@ public class Elder implements Serializable {
      * 健康状态：GOOD/FAIR/POOR
      */
     private String healthStatus;
+
+    /**
+     * 养老类型：HOME/COMMUNITY/INSTITUTION
+     */
+    private String careType;
+
+    /**
+     * 紧急联系人
+     */
+    private String emergencyContact;
+
+    /**
+     * 紧急联系电话
+     */
+    private String emergencyPhone;
 
     /**
      * 创建时间

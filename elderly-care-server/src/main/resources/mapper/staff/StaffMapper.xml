@@ -5,6 +5,7 @@
     <resultMap id="BaseResultMap" type="com.elderlycare.entity.staff.Staff">
         <id column="staff_id" property="staffId"/>
         <result column="provider_id" property="providerId"/>
+        <result column="provider_name" property="providerName"/>
         <result column="staff_no" property="staffNo"/>
         <result column="staff_name" property="staffName"/>
         <result column="gender" property="gender"/>
@@ -27,38 +28,42 @@
     </resultMap>
 
     <select id="selectStaffPage" resultMap="BaseResultMap">
-        SELECT * FROM t_staff
-        WHERE deleted = 0
+        SELECT s.*, p.provider_name
+        FROM t_staff s
+        LEFT JOIN t_provider p ON s.provider_id = p.provider_id
+        WHERE s.deleted = 0
         <if test="query.staffName != null and query.staffName != ''">
-            AND staff_name LIKE CONCAT('%', #{query.staffName}, '%')
+            AND s.staff_name LIKE CONCAT('%', #{query.staffName}, '%')
         </if>
         <if test="query.staffNo != null and query.staffNo != ''">
-            AND staff_no = #{query.staffNo}
+            AND s.staff_no = #{query.staffNo}
         </if>
         <if test="query.phone != null and query.phone != ''">
-            AND phone = #{query.phone}
+            AND s.phone = #{query.phone}
         </if>
         <if test="query.idCard != null and query.idCard != ''">
-            AND id_card = #{query.idCard}
+            AND s.id_card = #{query.idCard}
         </if>
         <if test="query.status != null">
-            AND status = #{query.status}
+            AND s.status = #{query.status}
         </if>
         <if test="query.providerId != null">
-            AND provider_id = #{query.providerId}
+            AND s.provider_id = #{query.providerId}
         </if>
         <if test="query.hireDateStart != null">
-            AND hire_date &gt;= #{query.hireDateStart}
+            AND s.hire_date &gt;= #{query.hireDateStart}
         </if>
         <if test="query.hireDateEnd != null">
-            AND hire_date &lt;= #{query.hireDateEnd}
+            AND s.hire_date &lt;= #{query.hireDateEnd}
         </if>
-        ORDER BY create_time DESC
+        ORDER BY s.create_time DESC
     </select>
 
     <select id="selectStaffById" resultMap="BaseResultMap">
-        SELECT * FROM t_staff
-        WHERE staff_id = #{staffId} AND deleted = 0
+        SELECT s.*, p.provider_name
+        FROM t_staff s
+        LEFT JOIN t_provider p ON s.provider_id = p.provider_id
+        WHERE s.staff_id = #{staffId} AND s.deleted = 0
     </select>
 
 </mapper>

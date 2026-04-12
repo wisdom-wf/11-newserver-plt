@@ -21,6 +21,9 @@
         <result column="care_level" property="careLevel"/>
         <result column="living_status" property="livingStatus"/>
         <result column="health_status" property="healthStatus"/>
+        <result column="care_type" property="careType"/>
+        <result column="emergency_contact" property="emergencyContact"/>
+        <result column="emergency_phone" property="emergencyPhone"/>
         <result column="create_time" property="createTime"/>
         <result column="update_time" property="updateTime"/>
         <result column="deleted" property="deleted"/>
@@ -30,7 +33,8 @@
         SELECT elder_id, elder_name, gender, birth_date, age, id_card, phone,
                ethnicity, education, marital_status, political_status, photo_url,
                status, register_date, address, care_level, living_status,
-               health_status, create_time, update_time, deleted
+               health_status, care_type, emergency_contact, emergency_phone,
+               create_time, update_time, deleted
         FROM t_elder
         WHERE deleted = 0
         <if test="dto.name != null and dto.name != ''">
