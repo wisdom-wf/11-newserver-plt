@@ -4,6 +4,9 @@ import {
   NButton,
   NCard,
   NDataTable,
+  NForm,
+  NFormItem,
+  NModal,
   NTag,
   NSpace,
   NInput,
@@ -13,7 +16,7 @@ import {
   NStatistic
 } from 'naive-ui';
 import type { DataTableColumns } from 'naive-ui';
-import { fetchGetQualityCheckList, fetchGetQualityStatistics } from '@/service/api';
+import { fetchGetQualityCheckList, fetchGetQualityStatistics, fetchGetStaff } from '@/service/api';
 
 defineOptions({
   name: 'BusinessQuality'
@@ -41,6 +44,23 @@ const loading = ref(false);
 const tableData = ref<Api.Quality.QualityCheck[]>([]);
 const pagination = ref({ page: 1, pageSize: 10, total: 0 });
 
+// Staff detail modal
+const staffDetailVisible = ref(false);
+const staffDetailData = ref<Api.Staff.Staff | null>(null);
+
+async function showStaffDetail(row: Api.Quality.QualityCheck) {
+  if (!row.staffId) return;
+  try {
+    const { data } = await fetchGetStaff(row.staffId);
+    if (data) {
+      staffDetailData.value = data;
+      staffDetailVisible.value = true;
+    }
+  } catch (e) {
+    console.error('Failed to get staff detail', e);
+  }
+}
+
 // Check result options
 const resultOptions = [
   { label: '合格', value: 'QUALIFIED' },
@@ -66,7 +86,12 @@ const columns: DataTableColumns<Api.Quality.QualityCheck> = [
   { title: '质检编号', key: 'checkNo', width: 160 },
   { title: '订单号', key: 'orderNo', width: 160 },
   { title: '服务商', key: 'providerName', width: 150 },
-  { title: '服务人员', key: 'staffName', width: 100 },
+  {
+    title: '服务人员',
+    key: 'staffName',
+    width: 100,
+    render: row => row.staffName ? h('a', { style: { color: '#18a058', cursor: 'pointer' }, onClick: () => showStaffDetail(row) }, row.staffName) : '-'
+  },
   { title: '质检类型', key: 'checkType', width: 100 },
   { title: '质检方式', key: 'checkMethod', width: 100 },
   { title: '综合评分', key: 'checkScore', width: 100 },
@@ -208,6 +233,21 @@ onMounted(() => {
         </NSpace>
       </div>
     </NCard>
+
+    <!-- Staff Detail Modal -->
+    <NModal v-model:show="staffDetailVisible" title="服务人员详情" preset="card" style="width: 600px">
+      <NForm v-if="staffDetailData" label-placement="left" label-width="100">
+        <NFormItem label="姓名">{{ staffDetailData.staffName }}</NFormItem>
+        <NFormItem label="性别">{{ staffDetailData.gender === 1 ? '男' : '女' }}</NFormItem>
+        <NFormItem label="工号">{{ staffDetailData.staffNo || '-' }}</NFormItem>
+        <NFormItem label="手机号">{{ staffDetailData.phone || '-' }}</NFormItem>
+        <NFormItem label="身份证号">{{ staffDetailData.idCard || '-' }}</NFormItem>
+        <NFormItem label="所属服务商">{{ staffDetailData.providerName || '-' }}</NFormItem>
+        <NFormItem label="服务类型">{{ staffDetailData.serviceTypes || '-' }}</NFormItem>
+        <NFormItem label="紧急联系人">{{ staffDetailData.emergencyContact || '-' }}</NFormItem>
+        <NFormItem label="紧急联系电话">{{ staffDetailData.emergencyPhone || '-' }}</NFormItem>
+      </NForm>
+    </NModal>
   </div>
 </template>
 

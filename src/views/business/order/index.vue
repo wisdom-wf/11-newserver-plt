@@ -22,7 +22,10 @@ import {
   fetchStartOrder,
   fetchCompleteOrder,
   fetchCancelOrder,
-  fetchGetOrderStatistics
+  fetchGetOrderStatistics,
+  fetchGetElder,
+  fetchGetStaff,
+  fetchGetProviderOptions
 } from '@/service/api';
 
 defineOptions({
@@ -48,6 +51,7 @@ const statistics = ref<Api.Order.Statistics>({
 // Search
 const searchOrderNo = ref('');
 const searchElderName = ref('');
+const searchProviderId = ref('');
 const searchServiceType = ref('');
 const searchStatus = ref('');
 const searchDateRange = ref<[number, number] | null>(null);
@@ -57,15 +61,44 @@ const loading = ref(false);
 const tableData = ref<Api.Order.Order[]>([]);
 const pagination = ref({ page: 1, pageSize: 10, total: 0 });
 
+// Provider options
+const providerOptions = ref<{ label: string; value: string }[]>([]);
+
+// Service type options
+const serviceTypeOptions = [
+  { label: '生活照料', value: '01' },
+  { label: '日间照料', value: '02' },
+  { label: '助餐服务', value: '03' },
+  { label: '助洁服务', value: '04' },
+  { label: '助浴服务', value: '05' },
+  { label: '康复护理', value: '06' },
+  { label: '精神慰藉', value: '07' },
+  { label: '健康管理', value: '08' },
+  { label: '信息咨询', value: '09' }
+];
+
 // Status options
 const statusOptions = [
   { label: '待分配', value: 'PENDING' },
   { label: '已派单', value: 'DISPATCHED' },
-  { label: '已接单', value: 'ACCEPTED' },
-  { label: '服务中', value: 'IN_SERVICE' },
+  { label: '服务中', value: 'SERVICE_STARTED' },
   { label: '已完成', value: 'COMPLETED' },
   { label: '已取消', value: 'CANCELLED' }
 ];
+
+async function getProviderOptions() {
+  try {
+    const { data } = await fetchGetProviderOptions();
+    if (data) {
+      providerOptions.value = data.map((item: { id: string; name: string }) => ({
+        label: item.name,
+        value: item.id
+      }));
+    }
+  } catch (e) {
+    console.error('Failed to get provider options', e);
+  }
+}
 
 function getStatusType(status: string): 'warning' | 'success' | 'info' | 'error' | 'default' {
   const map: Record<string, 'warning' | 'success' | 'info' | 'error' | 'default'> = {
@@ -87,12 +120,22 @@ function getStatusLabel(status: string): string {
 
 const columns: DataTableColumns<Api.Order.Order> = [
   { title: '订单号', key: 'orderNo', width: 160 },
-  { title: '老人姓名', key: 'elderName', width: 100 },
+  {
+    title: '老人姓名',
+    key: 'elderName',
+    width: 100,
+    render: row => h('a', { style: { color: '#18a058', cursor: 'pointer' }, onClick: () => showElderDetail(row) }, row.elderName)
+  },
   { title: '老人手机', key: 'elderPhone', width: 130 },
   { title: '服务类型', key: 'serviceTypeName', width: 120 },
   { title: '预约服务时间', key: 'serviceTime', width: 170 },
   { title: '服务商', key: 'providerName', width: 150 },
-  { title: '服务人员', key: 'staffName', width: 100 },
+  {
+    title: '服务人员',
+    key: 'staffName',
+    width: 100,
+    render: row => row.staffName ? h('a', { style: { color: '#18a058', cursor: 'pointer' }, onClick: () => showStaffDetail(row) }, row.staffName) : '-'
+  },
   {
     title: '订单状态',
     key: 'status',
@@ -142,6 +185,40 @@ const cancelForm = ref({ reason: '' });
 const completeModalVisible = ref(false);
 const completeForm = ref({ actualFee: 0, selfPayFee: 0 });
 
+// Elder detail modal
+const elderDetailVisible = ref(false);
+const elderDetailData = ref<Api.Elder.Elder | null>(null);
+
+// Staff detail modal
+const staffDetailVisible = ref(false);
+const staffDetailData = ref<Api.Staff.Staff | null>(null);
+
+async function showElderDetail(row: Api.Order.Order) {
+  if (!row.elderId) return;
+  try {
+    const { data } = await fetchGetElder(row.elderId);
+    if (data) {
+      elderDetailData.value = data;
+      elderDetailVisible.value = true;
+    }
+  } catch (e) {
+    console.error('Failed to get elder detail', e);
+  }
+}
+
+async function showStaffDetail(row: Api.Order.Order) {
+  if (!row.staffId) return;
+  try {
+    const { data } = await fetchGetStaff(row.staffId);
+    if (data) {
+      staffDetailData.value = data;
+      staffDetailVisible.value = true;
+    }
+  } catch (e) {
+    console.error('Failed to get staff detail', e);
+  }
+}
+
 async function getStatistics() {
   try {
     const { data } = await fetchGetOrderStatistics();
@@ -162,7 +239,8 @@ async function getTableData() {
     };
     if (searchOrderNo.value) params.orderNo = searchOrderNo.value;
     if (searchElderName.value) params.elderName = searchElderName.value;
-    if (searchServiceType.value) params.serviceType = searchServiceType.value;
+    if (searchProviderId.value) params.providerId = searchProviderId.value;
+    if (searchServiceType.value) params.serviceTypeCode = searchServiceType.value;
     if (searchStatus.value) params.status = searchStatus.value;
     if (searchDateRange.value) {
       params.startDate = new Date(searchDateRange.value[0]).toISOString().split('T')[0];
@@ -269,6 +347,7 @@ function handlePageSizeChange(pageSize: number) {
 onMounted(() => {
   getStatistics();
   getTableData();
+  getProviderOptions();
 });
 </script>
 
@@ -321,7 +400,22 @@ onMounted(() => {
       <template #header>
         <NSpace :wrap="true">
           <NInput v-model:value="searchOrderNo" placeholder="订单号" clearable style="width: 150px" />
-          <NInput v-model:value="searchElderName" placeholder="老人姓名" clearable style="width: 120px" />
+          <NInput v-model:value="searchElderName" placeholder="老人姓名" clearable style="width: 100px" />
+          <NSelect
+            v-model:value="searchProviderId"
+            :options="providerOptions"
+            placeholder="服务商"
+            clearable
+            filterable
+            style="width: 180px"
+          />
+          <NSelect
+            v-model:value="searchServiceType"
+            :options="serviceTypeOptions"
+            placeholder="服务类型"
+            clearable
+            style="width: 120px"
+          />
           <NSelect
             v-model:value="searchStatus"
             :options="statusOptions"
@@ -331,6 +425,7 @@ onMounted(() => {
           />
           <NDatePicker v-model:value="searchDateRange" type="daterange" clearable style="width: 260px" />
           <NButton type="primary" @click="getTableData">搜索</NButton>
+          <NButton @click="() => { searchOrderNo = ''; searchElderName = ''; searchProviderId = ''; searchServiceType = ''; searchStatus = ''; searchDateRange = null; getTableData(); }">重置</NButton>
         </NSpace>
       </template>
       <NDataTable
@@ -403,6 +498,39 @@ onMounted(() => {
           <NButton type="primary" @click="handleCancelSubmit">确认</NButton>
         </NSpace>
       </template>
+    </NModal>
+
+    <!-- Elder Detail Modal -->
+    <NModal v-model:show="elderDetailVisible" title="老人档案详情" preset="card" style="width: 600px">
+      <NForm v-if="elderDetailData" label-placement="left" label-width="100">
+        <NFormItem label="姓名">{{ elderDetailData.name }}</NFormItem>
+        <NFormItem label="性别">{{ elderDetailData.gender === 'MALE' ? '男' : elderDetailData.gender === 'FEMALE' ? '女' : '未知' }}</NFormItem>
+        <NFormItem label="年龄">{{ elderDetailData.age }}</NFormItem>
+        <NFormItem label="身份证号">{{ elderDetailData.idCard }}</NFormItem>
+        <NFormItem label="手机号">{{ elderDetailData.phone }}</NFormItem>
+        <NFormItem label="地址">{{ elderDetailData.address }}</NFormItem>
+        <NFormItem label="养老类型">{{ elderDetailData.careType === 'HOME' ? '居家养老' : elderDetailData.careType === 'COMMUNITY' ? '社区养老' : elderDetailData.careType === 'INSTITUTION' ? '机构养老' : '-' }}</NFormItem>
+        <NFormItem label="护理等级">{{ elderDetailData.careLevel }}</NFormItem>
+        <NFormItem label="补贴类型">{{ elderDetailData.subsidyType === 'FULL_SUBSIDY' ? '全额补贴' : elderDetailData.subsidyType === 'PARTIAL_SUBSIDY' ? '部分补贴' : elderDetailData.subsidyType === 'SELF_PAY' ? '自费' : '-' }}</NFormItem>
+        <NFormItem label="紧急联系人">{{ elderDetailData.emergencyContact || '-' }}</NFormItem>
+        <NFormItem label="紧急联系电话">{{ elderDetailData.emergencyPhone || '-' }}</NFormItem>
+      </NForm>
+    </NModal>
+
+    <!-- Staff Detail Modal -->
+    <NModal v-model:show="staffDetailVisible" title="服务人员详情" preset="card" style="width: 600px">
+      <NForm v-if="staffDetailData" label-placement="left" label-width="100">
+        <NFormItem label="姓名">{{ staffDetailData.staffName }}</NFormItem>
+        <NFormItem label="性别">{{ staffDetailData.gender === 1 ? '男' : '女' }}</NFormItem>
+        <NFormItem label="工号">{{ staffDetailData.staffNo || '-' }}</NFormItem>
+        <NFormItem label="手机号">{{ staffDetailData.phone || '-' }}</NFormItem>
+        <NFormItem label="身份证号">{{ staffDetailData.idCard || '-' }}</NFormItem>
+        <NFormItem label="所属服务商">{{ staffDetailData.providerName || '-' }}</NFormItem>
+        <NFormItem label="服务类型">{{ staffDetailData.serviceTypes || '-' }}</NFormItem>
+        <NFormItem label="紧急联系人">{{ staffDetailData.emergencyContact || '-' }}</NFormItem>
+        <NFormItem label="紧急联系电话">{{ staffDetailData.emergencyPhone || '-' }}</NFormItem>
+        <NFormItem label="状态">{{ staffDetailData.status === 'ON_JOB' ? '在职' : staffDetailData.status === 'OFF_JOB' ? '离职' : '-' }}</NFormItem>
+      </NForm>
     </NModal>
   </div>
 </template>

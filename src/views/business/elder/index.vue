@@ -349,7 +349,7 @@ onMounted(() => {
         :data="tableData"
         :loading="loading"
         :scroll-x="1500"
-        :row-key="(row: Api.Elder.Elder) => row.id"
+        :row-key="(row: Api.Elder.Elder) => row.elderId"
       />
       <div style="padding: 12px 0">
         <NSpace justify="end">

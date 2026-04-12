@@ -144,7 +144,7 @@ async function getTableData() {
       current: pagination.value.page,
       pageSize: pagination.value.pageSize
     };
-    if (searchName.value) params.name = searchName.value;
+    if (searchName.value) params.staffName = searchName.value;
     if (searchPhone.value) params.phone = searchPhone.value;
     if (searchServiceCategory.value) params.serviceCategory = searchServiceCategory.value;
     if (searchStatus.value) params.status = searchStatus.value;
@@ -295,7 +295,7 @@ onMounted(() => {
         :data="tableData"
         :loading="loading"
         :scroll-x="1400"
-        :row-key="(row: Api.Staff.Staff) => row.id"
+        :row-key="(row: Api.Staff.Staff) => row.staffId"
       />
       <div style="padding: 12px 0">
         <NSpace justify="end">

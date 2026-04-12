@@ -4,6 +4,9 @@ import {
   NButton,
   NCard,
   NDataTable,
+  NForm,
+  NFormItem,
+  NModal,
   NTag,
   NSpace,
   NInput,
@@ -13,7 +16,7 @@ import {
   NStatistic
 } from 'naive-ui';
 import type { DataTableColumns } from 'naive-ui';
-import { fetchGetSettlementList, fetchGetSettlementStatistics } from '@/service/api';
+import { fetchGetSettlementList, fetchGetSettlementStatistics, fetchGetElder, fetchGetStaff } from '@/service/api';
 
 defineOptions({
   name: 'BusinessFinancial'
@@ -42,6 +45,40 @@ const loading = ref(false);
 const tableData = ref<any[]>([]);
 const pagination = ref({ page: 1, pageSize: 10, total: 0 });
 
+// Elder detail modal
+const elderDetailVisible = ref(false);
+const elderDetailData = ref<Api.Elder.Elder | null>(null);
+
+// Staff detail modal
+const staffDetailVisible = ref(false);
+const staffDetailData = ref<Api.Staff.Staff | null>(null);
+
+async function showElderDetail(row: any) {
+  if (!row.elderId) return;
+  try {
+    const { data } = await fetchGetElder(row.elderId);
+    if (data) {
+      elderDetailData.value = data;
+      elderDetailVisible.value = true;
+    }
+  } catch (e) {
+    console.error('Failed to get elder detail', e);
+  }
+}
+
+async function showStaffDetail(row: any) {
+  if (!row.staffId) return;
+  try {
+    const { data } = await fetchGetStaff(row.staffId);
+    if (data) {
+      staffDetailData.value = data;
+      staffDetailVisible.value = true;
+    }
+  } catch (e) {
+    console.error('Failed to get staff detail', e);
+  }
+}
+
 // Status options
 const statusOptions = [
   { label: '待结算', value: 'PENDING' },
@@ -66,7 +103,18 @@ function getStatusLabel(status: string): string {
 const columns: DataTableColumns<any> = [
   { title: '结算单号', key: 'settlementNo', width: 160 },
   { title: '服务商', key: 'providerName', width: 150 },
-  { title: '服务人员', key: 'staffName', width: 100 },
+  {
+    title: '老人姓名',
+    key: 'elderName',
+    width: 100,
+    render: row => row.elderName ? h('a', { style: { color: '#18a058', cursor: 'pointer' }, onClick: () => showElderDetail(row) }, row.elderName) : '-'
+  },
+  {
+    title: '服务人员',
+    key: 'staffName',
+    width: 100,
+    render: row => row.staffName ? h('a', { style: { color: '#18a058', cursor: 'pointer' }, onClick: () => showStaffDetail(row) }, row.staffName) : '-'
+  },
   { title: '总服务费', key: 'totalServiceAmount', width: 100 },
   { title: '补贴金额', key: 'totalSubsidyAmount', width: 100 },
   { title: '自付金额', key: 'totalSelfPayAmount', width: 100 },
@@ -204,6 +252,37 @@ onMounted(() => {
         </NSpace>
       </div>
     </NCard>
+
+    <!-- Elder Detail Modal -->
+    <NModal v-model:show="elderDetailVisible" title="老人档案详情" preset="card" style="width: 600px">
+      <NForm v-if="elderDetailData" label-placement="left" label-width="100">
+        <NFormItem label="姓名">{{ elderDetailData.name }}</NFormItem>
+        <NFormItem label="性别">{{ elderDetailData.gender === 'MALE' ? '男' : elderDetailData.gender === 'FEMALE' ? '女' : '未知' }}</NFormItem>
+        <NFormItem label="年龄">{{ elderDetailData.age }}</NFormItem>
+        <NFormItem label="身份证号">{{ elderDetailData.idCard }}</NFormItem>
+        <NFormItem label="手机号">{{ elderDetailData.phone }}</NFormItem>
+        <NFormItem label="地址">{{ elderDetailData.address }}</NFormItem>
+        <NFormItem label="养老类型">{{ elderDetailData.careType === 'HOME' ? '居家养老' : elderDetailData.careType === 'COMMUNITY' ? '社区养老' : elderDetailData.careType === 'INSTITUTION' ? '机构养老' : '-' }}</NFormItem>
+        <NFormItem label="护理等级">{{ elderDetailData.careLevel }}</NFormItem>
+        <NFormItem label="紧急联系人">{{ elderDetailData.emergencyContact || '-' }}</NFormItem>
+        <NFormItem label="紧急联系电话">{{ elderDetailData.emergencyPhone || '-' }}</NFormItem>
+      </NForm>
+    </NModal>
+
+    <!-- Staff Detail Modal -->
+    <NModal v-model:show="staffDetailVisible" title="服务人员详情" preset="card" style="width: 600px">
+      <NForm v-if="staffDetailData" label-placement="left" label-width="100">
+        <NFormItem label="姓名">{{ staffDetailData.staffName }}</NFormItem>
+        <NFormItem label="性别">{{ staffDetailData.gender === 1 ? '男' : '女' }}</NFormItem>
+        <NFormItem label="工号">{{ staffDetailData.staffNo || '-' }}</NFormItem>
+        <NFormItem label="手机号">{{ staffDetailData.phone || '-' }}</NFormItem>
+        <NFormItem label="身份证号">{{ staffDetailData.idCard || '-' }}</NFormItem>
+        <NFormItem label="所属服务商">{{ staffDetailData.providerName || '-' }}</NFormItem>
+        <NFormItem label="服务类型">{{ staffDetailData.serviceTypes || '-' }}</NFormItem>
+        <NFormItem label="紧急联系人">{{ staffDetailData.emergencyContact || '-' }}</NFormItem>
+        <NFormItem label="紧急联系电话">{{ staffDetailData.emergencyPhone || '-' }}</NFormItem>
+      </NForm>
+    </NModal>
   </div>
 </template>
 
