@@ -216,6 +216,8 @@ public class UserServiceImpl extends ServiceImpl<UserMapper, User> implements Us
     private UserVO convertToVO(User user) {
         UserVO userVO = new UserVO();
         BeanUtils.copyProperties(user, userVO);
+        // 手动映射username -> userName (字段名不一致)
+        userVO.setUserName(user.getUsername());
         return userVO;
     }
 

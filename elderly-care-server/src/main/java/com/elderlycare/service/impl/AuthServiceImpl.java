@@ -140,7 +140,7 @@ public class AuthServiceImpl implements AuthService {
 
         UserInfoVO userInfo = new UserInfoVO();
         userInfo.setUserId(user.getUserId());
-        userInfo.setUsername(user.getUsername());
+        userInfo.setUserName(user.getUsername());
         userInfo.setRealName(user.getRealName());
         userInfo.setPhone(user.getPhone());
         userInfo.setEmail(user.getEmail());
