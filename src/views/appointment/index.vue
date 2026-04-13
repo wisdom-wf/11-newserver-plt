@@ -13,7 +13,9 @@ import {
   useMessage,
   NBadge,
   NStatistic,
-  NPagination
+  NPagination,
+  NUpload,
+  NAlert
 } from 'naive-ui';
 import type { DataTableColumns } from 'naive-ui';
 import {
@@ -23,6 +25,7 @@ import {
   fetchCancelAppointment,
   fetchInvalidateAppointment,
   fetchDownloadAppointmentTemplate,
+  fetchImportAppointment,
   fetchGetAppointmentStatistics,
   fetchGetProviderOptions
 } from '@/service/api';
@@ -161,6 +164,12 @@ const assignForm = ref({ providerId: '' });
 const invalidateModalVisible = ref(false);
 const invalidateForm = ref({ reason: '' });
 
+// Import modal
+const importModalVisible = ref(false);
+const importFile = ref<File | null>(null);
+const importResult = ref<{ successCount: number; failCount: number; errors: string[] } | null>(null);
+const importing = ref(false);
+
 // Current row for modals
 const currentRow = ref<Api.Appointment.Appointment | null>(null);
 
@@ -287,6 +296,40 @@ async function handleDownloadTemplate() {
   }
 }
 
+function handleOpenImport() {
+  importFile.value = null;
+  importResult.value = null;
+  importModalVisible.value = true;
+}
+
+function handleImportFile(options: { file: File }) {
+  importFile.value = options.file;
+  return false; // Prevent auto upload
+}
+
+async function handleImportSubmit() {
+  if (!importFile.value) {
+    message.warning('请选择要导入的文件');
+    return;
+  }
+  importing.value = true;
+  try {
+    const res = await fetchImportAppointment(importFile.value);
+    importResult.value = res.data;
+    if (res.data && res.data.failCount === 0) {
+      message.success(`导入成功！共导入 ${res.data.successCount} 条记录`);
+      importModalVisible.value = false;
+      await getTableData();
+      await getStatistics();
+    }
+  } catch (e) {
+    console.error('Failed to import', e);
+    message.error('导入失败');
+  } finally {
+    importing.value = false;
+  }
+}
+
 function handlePageChange(page: number) {
   pagination.value.page = page;
   getTableData();
@@ -342,9 +385,15 @@ onMounted(() => {
     </NCard>
 
     <!-- Table -->
-    <NCard title="预约信息管理" :bordered="false">
+    <NCard :bordered="false" style="margin-bottom: 16px">
       <template #header>
-        <NSpace :wrap="true">
+        <div style="display: flex; justify-content: space-between; align-items: center;">
+          <span>预约信息管理</span>
+        </div>
+      </template>
+      <div style="background: #f5f5f5; padding: 12px; margin-bottom: 12px; border-radius: 4px;">
+        <NSpace :wrap="true" align="center">
+          <span style="font-size: 13px; color: #666;">筛选条件:</span>
           <NInput v-model:value="searchAppointmentNo" placeholder="预约单号" clearable style="width: 150px" />
           <NInput v-model:value="searchElderName" placeholder="老人姓名" clearable style="width: 120px" />
           <NInput v-model:value="searchElderPhone" placeholder="老人手机号" clearable style="width: 130px" />
@@ -357,9 +406,11 @@ onMounted(() => {
           />
           <NDatePicker v-model:value="searchDateRange" type="daterange" clearable style="width: 260px" />
           <NButton type="primary" @click="getTableData">搜索</NButton>
+          <NButton @click="() => { searchAppointmentNo = ''; searchElderName = ''; searchElderPhone = ''; searchServiceType = ''; searchStatus = ''; searchDateRange = null; pagination.page = 1; getTableData(); }">重置</NButton>
+          <NButton @click="handleOpenImport">导入</NButton>
           <NButton @click="handleDownloadTemplate">下载模板</NButton>
         </NSpace>
-      </template>
+      </div>
       <NDataTable
         :columns="columns"
         :data="tableData"
@@ -453,6 +504,41 @@ onMounted(() => {
         <NSpace justify="end">
           <NButton @click="invalidateModalVisible = false">取消</NButton>
           <NButton type="primary" @click="handleInvalidateSubmit">确认</NButton>
+        </NSpace>
+      </template>
+    </NModal>
+
+    <!-- Import Modal -->
+    <NModal v-model:show="importModalVisible" title="导入预约" preset="card" style="width: 500px">
+      <NForm label-placement="left" label-width="100">
+        <NFormItem label="选择文件">
+          <NUpload
+            :max-size="5 * 1024 * 1024"
+            :file-list="importFile ? [importFile] : []"
+            @update:file-list="(list: any) => { importFile = list[0]?.file || null; }"
+            @change="handleImportFile"
+            accept=".xlsx,.xls"
+          >
+            <NButton>选择Excel文件</NButton>
+          </NUpload>
+        </NFormItem>
+        <NFormItem label="提示">
+          <span style="color: #666; font-size: 13px;">请先下载模板，按模板格式填写数据后导入</span>
+        </NFormItem>
+        <NAlert v-if="importResult" type="info" style="margin-top: 12px;">
+          <template #header>导入结果</template>
+          <div>成功: {{ importResult.successCount }} 条</div>
+          <div v-if="importResult.failCount > 0">失败: {{ importResult.failCount }} 条</div>
+          <div v-if="importResult.errors && importResult.errors.length > 0" style="margin-top: 8px;">
+            <div v-for="(err, idx) in importResult.errors.slice(0, 5)" :key="idx" style="color: red; font-size: 12px;">{{ err }}</div>
+            <div v-if="importResult.errors.length > 5" style="color: #999; font-size: 12px;">...还有 {{ importResult.errors.length - 5 }} 条错误</div>
+          </div>
+        </NAlert>
+      </NForm>
+      <template #footer>
+        <NSpace justify="end">
+          <NButton @click="importModalVisible = false">取消</NButton>
+          <NButton type="primary" :loading="importing" @click="handleImportSubmit">导入</NButton>
         </NSpace>
       </template>
     </NModal>
