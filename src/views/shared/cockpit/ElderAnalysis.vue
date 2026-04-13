@@ -183,7 +183,7 @@ function formatNumber(num: number): string {
     <NGrid :cols="2" :x-gap="16" :y-gap="16" item-responsive>
       <NGi>
         <div class="chart-card">
-          <div class="chart-title">年龄段分布</div>
+          <div class="chart-title">老人年龄分布</div>
           <div ref="agePieRef" class="h-300px"></div>
         </div>
       </NGi>

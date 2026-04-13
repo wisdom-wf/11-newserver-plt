@@ -8,6 +8,7 @@ import ElderAnalysis from '@/views/shared/cockpit/ElderAnalysis.vue';
 import OrderAnalysis from '@/views/shared/cockpit/OrderAnalysis.vue';
 import FinancialAnalysis from '@/views/shared/cockpit/FinancialAnalysis.vue';
 import QualityAnalysis from '@/views/shared/cockpit/QualityAnalysis.vue';
+import GeoAnalysis from '@/views/shared/cockpit/GeoAnalysis.vue';
 import type { ECOption } from '@/hooks/common/echarts';
 
 defineOptions({
@@ -74,25 +75,96 @@ const { domRef: barDomRef, updateOptions: updateBarOptions } = useEcharts<ECOpti
   ]
 }));
 
+// 服务质量雷达图
+const { domRef: radarDomRef, updateOptions: updateRadarOptions } = useEcharts<ECOption>(() => ({
+  tooltip: {},
+  radar: {
+    indicator: [
+      { name: '满意度', max: 100 },
+      { name: '完成率', max: 100 },
+      { name: '好评率', max: 100 },
+      { name: '响应速度', max: 100 },
+      { name: '服务质量', max: 100 }
+    ],
+    radius: '65%',
+    axisName: { color: '#666' }
+  },
+  series: [
+    {
+      type: 'radar',
+      data: [
+        {
+          value: [85, 78, 92, 88, 90],
+          name: '服务质量指标',
+          itemStyle: { color: '#5da8ff' },
+          areaStyle: { color: 'rgba(93, 168, 255, 0.3)' }
+        }
+      ]
+    }
+  ]
+}));
+
+// 订单转化漏斗图
+const { domRef: funnelDomRef, updateOptions: updateFunnelOptions } = useEcharts<ECOption>(() => ({
+  tooltip: { trigger: 'item' },
+  series: [
+    {
+      type: 'funnel',
+      left: '10%',
+      top: 20,
+      bottom: 20,
+      width: '80%',
+      min: 0,
+      max: 100,
+      minSize: '0%',
+      maxSize: '100%',
+      sort: 'descending',
+      gap: 2,
+      label: { show: true, position: 'inside', formatter: '{b}: {c}' },
+      labelLine: { length: 10, lineStyle: { width: 1, type: 'solid' } },
+      itemStyle: { borderColor: '#fff', borderWidth: 1 },
+      emphasis: { label: { fontSize: 14 } },
+      data: [
+        { value: 100, name: '预约' },
+        { value: 80, name: '确认' },
+        { value: 60, name: '分配' },
+        { value: 40, name: '服务中' },
+        { value: 20, name: '完成' }
+      ]
+    }
+  ]
+}));
+
 async function getData() {
   loading.value = true;
   try {
     const res = await fetchGetCockpitOverview();
     if (res.data) {
       overview.value = res.data;
-      if (res.data.serviceTypeDistribution?.length) {
+      const serviceDist = res.data.serviceTypeDistribution;
+      const areaDist = res.data.areaDistribution;
+      if (serviceDist?.length) {
         updatePieOptions(opts => {
-          opts.series[0].data = res.data.serviceTypeDistribution.map((item: any) => ({
-            name: item.category || item.serviceTypeName || '未知',
-            value: item.count || 0
-          }));
+          const series = opts.series as any[];
+          if (series?.[0]) {
+            series[0].data = serviceDist.map((item: any) => ({
+              name: item.category || item.serviceTypeName || '未知',
+              value: item.count || 0
+            }));
+          }
           return opts;
         });
       }
-      if (res.data.areaDistribution?.length) {
+      if (areaDist?.length) {
         updateBarOptions(opts => {
-          opts.xAxis.data = res.data.areaDistribution.map((item: any) => item.areaName || item.areaId || '未知');
-          opts.series[0].data = res.data.areaDistribution.map((item: any) => item.orderCount || 0);
+          const xAxis = opts.xAxis as any;
+          const series = opts.series as any[];
+          if (xAxis && xAxis.data !== undefined) {
+            xAxis.data = areaDist.map((item: any) => item.areaName || item.areaId || '未知');
+          }
+          if (series?.[0]) {
+            series[0].data = areaDist.map((item: any) => item.orderCount || 0);
+          }
           return opts;
         });
       }
@@ -106,19 +178,28 @@ async function getData() {
 
 function initMockData() {
   updatePieOptions(opts => {
-    opts.series[0].data = [
-      { name: '生活照料', value: 320 },
-      { name: '医疗护理', value: 240 },
-      { name: '助餐服务', value: 180 },
-      { name: '康复护理', value: 150 },
-      { name: '精神慰藉', value: 90 },
-      { name: '紧急救援', value: 60 }
-    ];
+    const series = opts.series as any[];
+    if (series?.[0]) {
+      series[0].data = [
+        { name: '生活照料', value: 320 },
+        { name: '医疗护理', value: 240 },
+        { name: '助餐服务', value: 180 },
+        { name: '康复护理', value: 150 },
+        { name: '精神慰藉', value: 90 },
+        { name: '紧急救援', value: 60 }
+      ];
+    }
     return opts;
   });
   updateBarOptions(opts => {
-    opts.xAxis.data = ['宝塔区', '安塞区', '延长县', '延川县', '子长市'];
-    opts.series[0].data = [180, 120, 95, 78, 65];
+    const xAxis = opts.xAxis as any;
+    const series = opts.series as any[];
+    if (xAxis && xAxis.data !== undefined) {
+      xAxis.data = ['宝塔区', '安塞区', '延长县', '延川县', '子长市'];
+    }
+    if (series?.[0]) {
+      series[0].data = [180, 120, 95, 78, 65];
+    }
     return opts;
   });
 }
@@ -289,22 +370,34 @@ getData();
           </NGi>
         </NGrid>
 
-        <NGrid :cols="2" :x-gap="16" :y-gap="16" item-responsive class="mb-4">
+        <NGrid :cols="3" :x-gap="16" :y-gap="16" item-responsive class="mb-4">
           <NGi>
             <div class="chart-card">
               <div class="chart-title">服务类型分布</div>
-              <div ref="pieDomRef" class="h-300px"></div>
+              <div ref="pieDomRef" class="h-250px"></div>
             </div>
           </NGi>
           <NGi>
             <div class="chart-card">
-              <div class="chart-title">区域订单分布</div>
-              <div ref="barDomRef" class="h-300px"></div>
+              <div class="chart-title">服务质量雷达</div>
+              <div ref="radarDomRef" class="h-250px"></div>
+            </div>
+          </NGi>
+          <NGi>
+            <div class="chart-card">
+              <div class="chart-title">订单转化漏斗</div>
+              <div ref="funnelDomRef" class="h-250px"></div>
             </div>
           </NGi>
         </NGrid>
 
-        <NGrid :cols="2" :x-gap="16" :y-gap="16" item-responsive>
+        <NGrid :cols="2" :x-gap="16" :y-gap="16" item-responsive class="mb-4">
+          <NGi>
+            <div class="chart-card">
+              <div class="chart-title">客户年龄分布</div>
+              <div ref="barDomRef" class="h-250px"></div>
+            </div>
+          </NGi>
           <NGi>
             <div class="chart-card">
               <div class="chart-title">服务商排名TOP5</div>
@@ -327,9 +420,9 @@ getData();
           </NGi>
           <NGi>
             <div class="chart-card">
-              <div class="chart-title">服务人员排名TOP5</div>
+              <div class="chart-title">服务人员排名TOP3</div>
               <div v-if="overview.staffRanking?.length" class="ranking-list">
-                <div v-for="(item, index) in overview.staffRanking.slice(0, 5)" :key="item.staffId" class="ranking-item">
+                <div v-for="(item, index) in overview.staffRanking.slice(0, 3)" :key="item.staffId" class="ranking-item">
                   <div class="ranking-left">
                     <span class="rank-badge" :class="'rank-' + (index + 1)">{{ index + 1 }}</span>
                     <span class="ranking-name">{{ item.staffName }}</span>
@@ -360,6 +453,9 @@ getData();
 
       <NTabPane name="quality" tab="服务质量专题">
         <QualityAnalysis />
+      </NTabPane>
+      <NTabPane name="geo" tab="地理专题">
+        <GeoAnalysis />
       </NTabPane>
     </NTabs>
   </div>

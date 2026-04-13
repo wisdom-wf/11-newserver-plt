@@ -223,5 +223,31 @@ declare namespace Api {
       /** 结束日期 */
       endDate?: string;
     }
+
+    /** 热力图数据 */
+    interface HeatMapData {
+      /** 热力图数据点 */
+      heatPoints: Array<{
+        /** 经度 */
+        lng: number;
+        /** 纬度 */
+        lat: number;
+        /** 订单数 */
+        count: number;
+        /** 权重 (0-1) */
+        weight: number;
+        /** 区域名称 */
+        name: string;
+      }>;
+      /** TOP标注 */
+      topLabels: Array<{
+        /** 名称 */
+        name: string;
+        /** 订单数 */
+        count: number;
+        /** 位置 [lng, lat] */
+        position: [number, number];
+      }>;
+    }
   }
 }

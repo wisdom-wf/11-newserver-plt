@@ -1,7 +1,7 @@
 import { computed, effectScope, nextTick, onScopeDispose, shallowRef, watch } from 'vue';
 import { useElementSize } from '@vueuse/core';
 import * as echarts from 'echarts/core';
-import { BarChart, GaugeChart, LineChart, PictorialBarChart, PieChart, RadarChart, ScatterChart } from 'echarts/charts';
+import { BarChart, GaugeChart, LineChart, PictorialBarChart, PieChart, RadarChart, ScatterChart, FunnelChart } from 'echarts/charts';
 import type {
   BarSeriesOption,
   GaugeSeriesOption,
@@ -9,7 +9,8 @@ import type {
   PictorialBarSeriesOption,
   PieSeriesOption,
   RadarSeriesOption,
-  ScatterSeriesOption
+  ScatterSeriesOption,
+  FunnelSeriesOption
 } from 'echarts/charts';
 import {
   DatasetComponent,
@@ -40,6 +41,7 @@ export type ECOption = echarts.ComposeOption<
   | PictorialBarSeriesOption
   | RadarSeriesOption
   | GaugeSeriesOption
+  | FunnelSeriesOption
   | TitleComponentOption
   | LegendComponentOption
   | TooltipComponentOption
@@ -63,6 +65,7 @@ echarts.use([
   PictorialBarChart,
   RadarChart,
   GaugeChart,
+  FunnelChart,
   LabelLayout,
   UniversalTransition,
   CanvasRenderer
@@ -146,6 +149,14 @@ export function useEcharts<T extends ECOption>(optionsFactory: () => T, hooks: C
   /** render chart */
   async function render() {
     if (isRendered()) return;
+
+    // Wait for DOM to be ready
+    await nextTick();
+
+    // Check if DOM element is available and has dimensions
+    if (!domRef.value || domRef.value.clientWidth === 0 || domRef.value.clientHeight === 0) {
+      return;
+    }
 
     const chartTheme = darkMode.value ? 'dark' : 'light';
 

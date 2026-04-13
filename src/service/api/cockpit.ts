@@ -146,3 +146,14 @@ export function fetchGetWarnings(params?: { level?: Api.Cockpit.WarningLevel; li
     params
   });
 }
+
+/**
+ * 获取热力图数据
+ */
+export function fetchGetHeatMapData(params?: Api.Cockpit.CockpitQuery) {
+  return request<Api.Cockpit.HeatMapData>({
+    url: '/api/cockpit/heatMapData',
+    method: 'get',
+    params
+  });
+}
