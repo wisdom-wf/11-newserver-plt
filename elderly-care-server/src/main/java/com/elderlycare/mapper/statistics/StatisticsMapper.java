@@ -466,4 +466,24 @@ public interface StatisticsMapper {
             "ORDER BY orderCount DESC " +
             "LIMIT #{limit}")
     List<Map<String, Object>> selectTopStaffRankings(@Param("limit") int limit);
+
+    /**
+     * 查询订单地理分布（用于热力图）
+     * 返回各区域/街道的订单数量和坐标
+     */
+    @Select("""
+        SELECT
+            a.area_name AS areaName,
+            a.longitude AS longitude,
+            a.latitude AS latitude,
+            COUNT(o.order_id) AS orderCount
+        FROM t_area a
+        LEFT JOIN t_order o ON o.service_address LIKE CONCAT('%', a.area_name, '%') AND o.deleted = 0
+        WHERE a.deleted = 0 AND a.area_level IN ('STREET', '街道', 'COMMUNITY', '社区')
+        GROUP BY a.area_id, a.area_name, a.longitude, a.latitude
+        HAVING orderCount > 0
+        ORDER BY orderCount DESC
+        LIMIT 20
+        """)
+    List<Map<String, Object>> selectOrderGeoDistribution();
 }

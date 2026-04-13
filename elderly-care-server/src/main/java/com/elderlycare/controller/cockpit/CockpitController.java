@@ -175,4 +175,15 @@ public class CockpitController {
         // TODO: 实现预警信息
         return Result.success(new Object[]{});
     }
+
+    /**
+     * 获取热力图数据
+     */
+    @GetMapping("/heatMapData")
+    public Result<Map<String, Object>> getHeatMapData(
+            @RequestParam(required = false) String areaId,
+            @RequestParam(required = false) String providerId) {
+        Map<String, Object> data = cockpitService.getHeatMapData();
+        return Result.success(data);
+    }
 }

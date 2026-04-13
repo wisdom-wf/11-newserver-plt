@@ -69,4 +69,9 @@ public interface CockpitService {
      * 获取护理等级分布
      */
     List<ElderStatisticsVO.CareLevelDistribution> getCareLevelDistribution();
+
+    /**
+     * 获取热力图数据（基于预约地址）
+     */
+    Map<String, Object> getHeatMapData();
 }

@@ -357,13 +357,19 @@ public class StatisticsServiceImpl implements StatisticsService {
         if (data == null) return list;
 
         Long total = statisticsMapper.selectTotalElders();
-        String[] levelNames = {"不需要护理", "轻度失能", "中度失能", "重度失能"};
+        // 护理等级名称数组 (care_level从0开始: 0=不需要护理, 1=轻度, 2=中度, 3=重度, 4=极重度, 5=完全)
+        String[] levelNames = {"不需要护理", "轻度失能", "中度失能", "重度失能", "极重度失能", "完全失能"};
 
         for (Map<String, Object> row : data) {
             ElderStatisticsVO.CareLevelDistribution item = new ElderStatisticsVO.CareLevelDistribution();
             Integer careLevel = toInteger(row.get("careLevel"));
             item.setCareLevel(careLevel);
-            item.setLevelName(careLevel != null && careLevel < levelNames.length ? levelNames[careLevel] : "未知");
+            // careLevel >= 0 且 < levelNames.length 时显示对应名称，否则显示"未知"
+            if (careLevel != null && careLevel >= 0 && careLevel < levelNames.length) {
+                item.setLevelName(levelNames[careLevel]);
+            } else {
+                item.setLevelName("未知");
+            }
             item.setCount(toLong(row.get("count")));
             item.setPercentage(calculatePercentage(toLong(row.get("count")), total));
             list.add(item);
