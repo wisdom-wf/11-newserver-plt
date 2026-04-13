@@ -451,4 +451,19 @@ public interface StatisticsMapper {
         WHERE e.deleted = 0 AND e.overall_score IS NOT NULL AND s.deleted = 0
         """)
     Double selectAverageStaffRating();
+
+    /**
+     * 查询服务人员排名TOP
+     */
+    @Select("SELECT s.staff_id AS staffId, s.staff_name AS staffName, p.provider_name AS providerName, " +
+            "COUNT(o.order_id) AS orderCount, " +
+            "SUM(CASE WHEN o.status = 'COMPLETED' THEN 1 ELSE 0 END) AS serviceCount " +
+            "FROM t_staff s " +
+            "LEFT JOIN t_order o ON s.staff_id = o.staff_id AND o.deleted = 0 " +
+            "LEFT JOIN t_provider p ON s.provider_id = p.provider_id " +
+            "WHERE s.deleted = 0 " +
+            "GROUP BY s.staff_id, s.staff_name, p.provider_name " +
+            "ORDER BY orderCount DESC " +
+            "LIMIT #{limit}")
+    List<Map<String, Object>> selectTopStaffRankings(@Param("limit") int limit);
 }

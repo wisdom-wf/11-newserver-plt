@@ -1,10 +1,12 @@
 package com.elderlycare.service.cockpit.impl;
 
+import com.elderlycare.mapper.statistics.StatisticsMapper;
 import com.elderlycare.service.cockpit.CockpitService;
 import com.elderlycare.service.statistics.StatisticsService;
 import com.elderlycare.vo.cockpit.CockpitOverviewVO;
 import com.elderlycare.vo.statistics.*;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 
 import java.math.BigDecimal;
@@ -19,9 +21,11 @@ import java.util.stream.Collectors;
  */
 @Service
 @RequiredArgsConstructor
+@Slf4j
 public class CockpitServiceImpl implements CockpitService {
 
     private final StatisticsService statisticsService;
+    private final StatisticsMapper statisticsMapper;
 
     @Override
     public CockpitOverviewVO getOverview() {
@@ -118,23 +122,8 @@ public class CockpitServiceImpl implements CockpitService {
         }
         overview.setProviderRanking(providerRankingList);
 
-        // 服务人员排行（从订单统计获取）
-        List<CockpitOverviewVO.StaffRanking> staffRankingList = new ArrayList<>();
-        if (orderStats.getOrderTrend() != null) {
-            staffRankingList = orderStats.getOrderTrend().stream()
-                    .limit(5)
-                    .map(t -> {
-                        CockpitOverviewVO.StaffRanking ranking = new CockpitOverviewVO.StaffRanking();
-                        ranking.setStaffId(t.getDate());
-                        ranking.setStaffName("服务人员");
-                        ranking.setProviderName("-");
-                        ranking.setOrderCount(t.getOrderCount());
-                        ranking.setRating(5.0);
-                        return ranking;
-                    })
-                    .collect(Collectors.toList());
-        }
-        overview.setStaffRanking(staffRankingList);
+        // 服务人员排行（使用真实数据）
+        overview.setStaffRanking(getStaffRanking(null, 5));
 
         return overview;
     }
@@ -211,23 +200,29 @@ public class CockpitServiceImpl implements CockpitService {
 
     @Override
     public List<CockpitOverviewVO.StaffRanking> getStaffRanking(String type, Integer limit) {
-        // 服务人员排行数据从订单统计获取
-        OrderStatisticsVO orderStats = statisticsService.getOrderStatistics(null, null, "day", null);
+        // 服务人员排行数据从真实订单统计获取
         List<CockpitOverviewVO.StaffRanking> result = new ArrayList<>();
-        if (orderStats != null && orderStats.getOrderTrend() != null) {
-            result = orderStats.getOrderTrend().stream()
-                    .limit(limit != null ? limit : 10)
-                    .map(t -> {
-                        CockpitOverviewVO.StaffRanking ranking = new CockpitOverviewVO.StaffRanking();
-                        ranking.setStaffId(t.getDate());
-                        ranking.setStaffName("服务人员" + t.getDate());
-                        ranking.setProviderName("-");
-                        ranking.setOrderCount(t.getOrderCount());
-                        ranking.setServiceCount(t.getCompletedCount());
-                        ranking.setRating(5.0);
-                        return ranking;
-                    })
-                    .collect(Collectors.toList());
+        try {
+            int actualLimit = limit != null ? limit : 10;
+            List<Map<String, Object>> topStaff = statisticsMapper.selectTopStaffRankings(actualLimit);
+            if (topStaff != null && !topStaff.isEmpty()) {
+                result = topStaff.stream()
+                        .map(m -> {
+                            CockpitOverviewVO.StaffRanking ranking = new CockpitOverviewVO.StaffRanking();
+                            ranking.setStaffId((String) m.get("staffId"));
+                            ranking.setStaffName((String) m.get("staffName"));
+                            ranking.setProviderName((String) m.get("providerName"));
+                            Object orderCount = m.get("orderCount");
+                            ranking.setOrderCount(orderCount != null ? ((Number) orderCount).longValue() : 0L);
+                            Object serviceCount = m.get("serviceCount");
+                            ranking.setServiceCount(serviceCount != null ? ((Number) serviceCount).longValue() : 0L);
+                            ranking.setRating(0.0); // 默认评分
+                            return ranking;
+                        })
+                        .collect(Collectors.toList());
+            }
+        } catch (Exception e) {
+            log.error("获取服务人员排名失败", e);
         }
         return result;
     }
