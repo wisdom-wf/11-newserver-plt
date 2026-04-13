@@ -159,8 +159,8 @@ async function handleAssignMenu(row: Api.User.Role) {
 
 function transformMenuToTree(menus: Api.User.Menu[]): any[] {
   return menus.map(menu => ({
-    key: menu.id,
-    label: menu.menuName,
+    key: menu.permissionId,
+    label: menu.permissionName,
     children: menu.children ? transformMenuToTree(menu.children) : undefined
   }));
 }
@@ -189,11 +189,14 @@ onMounted(() => {
 
 <template>
   <div>
-    <NCard title="角色管理" :bordered="false">
+    <NCard :bordered="false">
       <template #header>
-        <NSpace>
-          <NButton type="primary" @click="handleAdd">新增</NButton>
-          <NButton @click="getRoleList">刷新</NButton>
+        <NSpace justify="space-between" align="center">
+          <span style="font-size: 16px; font-weight: 600;">角色管理</span>
+          <NSpace>
+            <NButton type="primary" @click="handleAdd">新增</NButton>
+            <NButton @click="getRoleList">刷新</NButton>
+          </NSpace>
         </NSpace>
       </template>
       <NDataTable :columns="roleColumns" :data="roleData" :scroll-x="1100" :row-key="(row: Api.User.Role) => row.id" />

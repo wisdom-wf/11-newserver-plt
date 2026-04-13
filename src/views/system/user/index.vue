@@ -229,14 +229,17 @@ onMounted(() => {
 
 <template>
   <div>
-    <NCard title="用户管理" :bordered="false">
+    <NCard :bordered="false">
       <template #header>
-        <NSpace align="center" :wrap="true">
-          <NInput v-model:value="searchUsername" placeholder="用户名" clearable style="width: 120px" />
-          <NInput v-model:value="searchRealname" placeholder="真实姓名" clearable style="width: 120px" />
-          <NInput v-model:value="searchPhone" placeholder="手机号" clearable style="width: 130px" />
-          <NButton type="primary" @click="getUserList">搜索</NButton>
-          <NButton type="primary" @click="handleAdd">新增</NButton>
+        <NSpace justify="space-between" align="center" :wrap="true">
+          <span style="font-size: 16px; font-weight: 600;">用户管理</span>
+          <NSpace align="center" :wrap="true">
+            <NInput v-model:value="searchUsername" placeholder="用户名" clearable style="width: 120px" />
+            <NInput v-model:value="searchRealname" placeholder="真实姓名" clearable style="width: 120px" />
+            <NInput v-model:value="searchPhone" placeholder="手机号" clearable style="width: 130px" />
+            <NButton type="primary" @click="getUserList">搜索</NButton>
+            <NButton type="primary" @click="handleAdd">新增</NButton>
+          </NSpace>
         </NSpace>
       </template>
       <NDataTable :columns="columns" :data="userData" :scroll-x="1200" :row-key="(row: Api.User.User) => row.id" />
