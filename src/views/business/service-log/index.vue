@@ -1,5 +1,6 @@
 <script setup lang="ts">
 import { ref, h, onMounted } from 'vue';
+import { useRoute } from 'vue-router';
 import {
   NButton,
   NCard,
@@ -35,6 +36,8 @@ const message = useMessage();
 // Constants
 const MAX_IMAGE_COUNT = 6;
 const MAX_IMAGE_SIZE = 3 * 1024 * 1024; // 3M
+
+const route = useRoute();
 
 // Statistics
 const statistics = ref<Api.ServiceLog.Statistics>({
@@ -456,6 +459,10 @@ function closeReviewDialog() {
 }
 
 onMounted(() => {
+  // Handle query parameters from order page
+  if (route.query.orderId) {
+    searchOrderNo.value = route.query.orderNo as string || route.query.orderId as string;
+  }
   getStatistics();
   getTableData();
 });

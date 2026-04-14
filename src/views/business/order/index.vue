@@ -1,6 +1,6 @@
 <script setup lang="ts">
 import { ref, h, onMounted } from 'vue';
-import { useRoute } from 'vue-router';
+import { useRoute, useRouter } from 'vue-router';
 import {
   NButton,
   NCard,
@@ -36,6 +36,7 @@ defineOptions({
 
 const message = useMessage();
 const route = useRoute();
+const router = useRouter();
 
 // Statistics
 const statistics = ref<Api.Order.Statistics>({
@@ -212,10 +213,7 @@ const columns: DataTableColumns<Api.Order.Order> = [
         buttons.push(h(NButton, {
           size: 'small',
           type: 'primary',
-          onClick: () => {
-            console.log('[DEBUG] 开始服务 clicked, orderId:', row.orderId, 'status:', row.status);
-            handleStart(row);
-          }
+          onClick: () => handleStart(row)
         }, { default: () => '开始服务' }));
       }
       if (row.status === 'SERVICE_STARTED') {
@@ -438,6 +436,19 @@ async function handleStart(row: Api.Order.Order) {
     message.success('开始服务成功');
     await getTableData();
     await getStatistics();
+    // Show dialog to view service log
+    window.$dialog?.success({
+      title: '操作成功',
+      content: '服务已开始，是否查看服务日志？',
+      positiveText: '查看日志',
+      negativeText: '稍后查看',
+      maskClosable: false,
+      closeOnEsc: false,
+      onPositiveClick: () => {
+        // Navigate to service log page with order filter
+        router.push({ path: '/business/service-log', query: { orderId: row.orderId, orderNo: row.orderNo } });
+      }
+    });
   } catch (e: any) {
     console.error('[DEBUG] handleStart error:', e);
     console.error('[DEBUG] error response:', e?.response);
