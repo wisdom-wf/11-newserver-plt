@@ -203,19 +203,19 @@ const columns: DataTableColumns<Api.Order.Order> = [
     render: row => {
       const buttons: ReturnType<typeof h>[] = [];
       if (row.status === 'CREATED' || row.status === 'PENDING') {
-        buttons.push(h(NButton, { size: 'small', onClick: () => handleAssign(row) }, () => '分配'));
+        buttons.push(h(NButton, { size: 'small', type: 'warning', onClick: () => handleAssign(row) }, { default: () => '分配' }));
       }
       if (row.status === 'DISPATCHED') {
-        buttons.push(h(NButton, { size: 'small', onClick: () => handleAccept(row) }, () => '接单'));
+        buttons.push(h(NButton, { size: 'small', type: 'info', onClick: () => handleAccept(row) }, { default: () => '接单' }));
       }
       if (row.status === 'RECEIVED') {
-        buttons.push(h(NButton, { size: 'small', onClick: () => handleStart(row) }, () => '开始服务'));
+        buttons.push(h(NButton, { size: 'small', type: 'primary', onClick: () => handleStart(row) }, { default: () => '开始服务' }));
       }
       if (row.status === 'SERVICE_STARTED') {
-        buttons.push(h(NButton, { size: 'small', onClick: () => handleComplete(row) }, () => '完成服务'));
+        buttons.push(h(NButton, { size: 'small', type: 'success', onClick: () => handleComplete(row) }, { default: () => '完成服务' }));
       }
       if (row.status !== 'SERVICE_COMPLETED' && row.status !== 'EVALUATED' && row.status !== 'SETTLED' && row.status !== 'CANCELLED' && row.status !== 'REJECTED') {
-        buttons.push(h(NButton, { size: 'small', type: 'error', onClick: () => handleCancel(row) }, () => '取消'));
+        buttons.push(h(NButton, { size: 'small', type: 'error', onClick: () => handleCancel(row) }, { default: () => '取消' }));
       }
       return h(NSpace, { size: 'small' }, () => buttons);
     }
@@ -409,23 +409,27 @@ async function handleAssignSubmit() {
 
 async function handleAccept(row: Api.Order.Order) {
   try {
+    message.info('正在接单...');
     await fetchAcceptOrder(row.orderId);
     message.success('接单成功');
     await getTableData();
     await getStatistics();
   } catch (e) {
     console.error('Failed to accept', e);
+    message.error('接单失败');
   }
 }
 
 async function handleStart(row: Api.Order.Order) {
   try {
+    message.info('正在开始服务...');
     await fetchStartOrder(row.orderId);
-    message.success('开始服务');
+    message.success('开始服务成功');
     await getTableData();
     await getStatistics();
   } catch (e) {
     console.error('Failed to start', e);
+    message.error('开始服务失败');
   }
 }
 
@@ -437,13 +441,15 @@ function handleComplete(row: Api.Order.Order) {
 
 async function handleCompleteSubmit() {
   try {
+    message.info('正在完成服务...');
     await fetchCompleteOrder(currentOrderId.value, completeForm.value);
-    message.success('完成服务');
+    message.success('完成服务成功');
     completeModalVisible.value = false;
     await getTableData();
     await getStatistics();
   } catch (e) {
     console.error('Failed to complete', e);
+    message.error('完成服务失败');
   }
 }
 
@@ -455,6 +461,7 @@ function handleCancel(row: Api.Order.Order) {
 
 async function handleCancelSubmit() {
   try {
+    message.info('正在取消订单...');
     await fetchCancelOrder(currentOrderId.value, cancelForm.value);
     message.success('取消成功');
     cancelModalVisible.value = false;
@@ -462,6 +469,7 @@ async function handleCancelSubmit() {
     await getStatistics();
   } catch (e) {
     console.error('Failed to cancel', e);
+    message.error('取消失败');
   }
 }
 
