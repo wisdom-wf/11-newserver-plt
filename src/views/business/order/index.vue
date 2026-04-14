@@ -209,7 +209,14 @@ const columns: DataTableColumns<Api.Order.Order> = [
         buttons.push(h(NButton, { size: 'small', type: 'info', onClick: () => handleAccept(row) }, { default: () => '接单' }));
       }
       if (row.status === 'RECEIVED') {
-        buttons.push(h(NButton, { size: 'small', type: 'primary', onClick: () => handleStart(row) }, { default: () => '开始服务' }));
+        buttons.push(h(NButton, {
+          size: 'small',
+          type: 'primary',
+          onClick: () => {
+            console.log('[DEBUG] 开始服务 clicked, orderId:', row.orderId, 'status:', row.status);
+            handleStart(row);
+          }
+        }, { default: () => '开始服务' }));
       }
       if (row.status === 'SERVICE_STARTED') {
         buttons.push(h(NButton, { size: 'small', type: 'success', onClick: () => handleComplete(row) }, { default: () => '完成服务' }));
@@ -422,14 +429,17 @@ async function handleAccept(row: Api.Order.Order) {
 }
 
 async function handleStart(row: Api.Order.Order) {
+  console.log('[DEBUG] handleStart called, orderId:', row.orderId);
   try {
     message.info('正在开始服务...');
+    console.log('[DEBUG] calling fetchStartOrder...');
     await fetchStartOrder(row.orderId);
+    console.log('[DEBUG] fetchStartOrder completed');
     message.success('开始服务成功');
     await getTableData();
     await getStatistics();
   } catch (e: any) {
-    console.error('Failed to start', e);
+    console.error('[DEBUG] handleStart error:', e);
     const errorMsg = e?.response?.data?.msg || e?.message || '开始服务失败';
     message.error(errorMsg);
   }
