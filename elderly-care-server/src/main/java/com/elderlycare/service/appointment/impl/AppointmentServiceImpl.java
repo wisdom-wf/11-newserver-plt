@@ -86,15 +86,27 @@ public class AppointmentServiceImpl implements AppointmentService {
             throw new RuntimeException("预约不存在");
         }
 
-        // 2. 更新预约状态
+        // 2. 状态校验：只有PENDING状态可以确认
+        if (!"PENDING".equals(appointment.getStatus())) {
+            throw new RuntimeException("只有待确认状态的预约可以进行确认操作");
+        }
+
+        // 3. 参数校验
+        if (providerId == null || providerId.isEmpty()) {
+            throw new RuntimeException("请选择服务商");
+        }
+        if (appointmentTime == null || appointmentTime.isEmpty()) {
+            throw new RuntimeException("请填写预约时间");
+        }
+
+        // 4. 更新预约状态
         appointment.setProviderId(providerId);
         appointment.setAppointmentTime(appointmentTime);
         appointment.setStatus("CONFIRMED");
         appointment.setConfirmTime(LocalDateTime.now());
         appointmentMapper.updateById(appointment);
 
-        // 3. 根据预约创建订单
-        createOrderFromAppointment(appointment);
+        // 5. 注意：订单创建在分配服务人员时进行，此处仅确认预约
     }
 
     /**
@@ -162,8 +174,23 @@ public class AppointmentServiceImpl implements AppointmentService {
 
     @Override
     public void assignAppointment(String id, String providerId) {
-        Appointment appointment = new Appointment();
-        appointment.setAppointmentId(id);
+        // 1. 查询预约详情
+        Appointment appointment = appointmentMapper.selectById(id);
+        if (appointment == null) {
+            throw new RuntimeException("预约不存在");
+        }
+
+        // 2. 状态校验：只有CONFIRMED状态可以分配
+        if (!"CONFIRMED".equals(appointment.getStatus())) {
+            throw new RuntimeException("只有已确认状态的预约可以进行分配");
+        }
+
+        // 3. 参数校验
+        if (providerId == null || providerId.isEmpty()) {
+            throw new RuntimeException("请选择服务商");
+        }
+
+        // 4. 执行分配
         appointment.setProviderId(providerId);
         appointment.setStatus("ASSIGNED");
         appointmentMapper.updateById(appointment);
@@ -171,8 +198,18 @@ public class AppointmentServiceImpl implements AppointmentService {
 
     @Override
     public void cancelAppointment(String id, String reason) {
-        Appointment appointment = new Appointment();
-        appointment.setAppointmentId(id);
+        // 1. 查询预约详情
+        Appointment appointment = appointmentMapper.selectById(id);
+        if (appointment == null) {
+            throw new RuntimeException("预约不存在");
+        }
+
+        // 2. 状态校验：只有PENDING状态可以取消
+        if (!"PENDING".equals(appointment.getStatus())) {
+            throw new RuntimeException("只有待确认状态的预约可以取消");
+        }
+
+        // 3. 执行取消
         appointment.setCancelReason(reason);
         appointment.setStatus("CANCELLED");
         appointmentMapper.updateById(appointment);
@@ -180,8 +217,18 @@ public class AppointmentServiceImpl implements AppointmentService {
 
     @Override
     public void invalidateAppointment(String id, String reason) {
-        Appointment appointment = new Appointment();
-        appointment.setAppointmentId(id);
+        // 1. 查询预约详情
+        Appointment appointment = appointmentMapper.selectById(id);
+        if (appointment == null) {
+            throw new RuntimeException("预约不存在");
+        }
+
+        // 2. 状态校验：只有PENDING状态可以作废
+        if (!"PENDING".equals(appointment.getStatus())) {
+            throw new RuntimeException("只有待确认状态的预约可以作废");
+        }
+
+        // 3. 执行作废
         appointment.setCancelReason(reason);
         appointment.setStatus("INVALID");
         appointment.setValidity("INVALID");

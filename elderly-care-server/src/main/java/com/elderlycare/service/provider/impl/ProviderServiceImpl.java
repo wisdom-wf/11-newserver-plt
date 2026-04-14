@@ -7,9 +7,11 @@ import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
 import com.elderlycare.common.BusinessException;
 import com.elderlycare.common.PageResult;
 import com.elderlycare.dto.provider.*;
+import com.elderlycare.entity.appointment.Appointment;
 import com.elderlycare.entity.provider.Provider;
 import com.elderlycare.entity.provider.ProviderQualification;
 import com.elderlycare.entity.provider.ProviderServiceType;
+import com.elderlycare.mapper.appointment.AppointmentMapper;
 import com.elderlycare.mapper.provider.ProviderMapper;
 import com.elderlycare.service.provider.ProviderQualificationService;
 import com.elderlycare.service.provider.ProviderService;
@@ -36,6 +38,7 @@ public class ProviderServiceImpl extends ServiceImpl<ProviderMapper, Provider> i
 
     private final ProviderQualificationService qualificationService;
     private final ProviderServiceTypeService serviceTypeService;
+    private final AppointmentMapper appointmentMapper;
 
     @Override
     @Transactional(rollbackFor = Exception.class)
@@ -146,6 +149,14 @@ public class ProviderServiceImpl extends ServiceImpl<ProviderMapper, Provider> i
         if (provider == null) {
             throw BusinessException.notFound("服务商不存在");
         }
+
+        // 清除PENDING状态预约的服务商关联（这些预约尚未确认，删除服务商后应清空关联）
+        LambdaQueryWrapper<Appointment> wrapper = new LambdaQueryWrapper<>();
+        wrapper.eq(Appointment::getProviderId, providerId)
+               .eq(Appointment::getStatus, "PENDING");
+        Appointment updateAppointment = new Appointment();
+        updateAppointment.setProviderId(null);
+        appointmentMapper.update(updateAppointment, wrapper);
 
         // 逻辑删除
         baseMapper.deleteById(providerId);
