@@ -148,4 +148,16 @@ public class OrderController {
         PageResult<ServiceRecordVO> result = orderService.getServiceRecords(query);
         return Result.success(result);
     }
+
+    // ==================== 订单统计 ====================
+
+    /**
+     * 获取订单统计
+     * GET /api/orders/statistics
+     */
+    @GetMapping("/statistics")
+    public Result<OrderStatisticsVO> getStatistics() {
+        OrderStatisticsVO result = orderService.getStatistics();
+        return Result.success(result);
+    }
 }
