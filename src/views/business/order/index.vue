@@ -1,5 +1,6 @@
 <script setup lang="ts">
 import { ref, h, onMounted } from 'vue';
+import { useRoute } from 'vue-router';
 import {
   NButton,
   NCard,
@@ -17,7 +18,7 @@ import {
 import type { DataTableColumns } from 'naive-ui';
 import {
   fetchGetOrderList,
-  fetchAssignOrder,
+  fetchDispatchOrder,
   fetchAcceptOrder,
   fetchStartOrder,
   fetchCompleteOrder,
@@ -25,7 +26,8 @@ import {
   fetchGetOrderStatistics,
   fetchGetElder,
   fetchGetStaff,
-  fetchGetProviderOptions
+  fetchGetProviderOptions,
+  fetchGetStaffList
 } from '@/service/api';
 
 defineOptions({
@@ -33,19 +35,26 @@ defineOptions({
 });
 
 const message = useMessage();
+const route = useRoute();
 
 // Statistics
 const statistics = ref<Api.Order.Statistics>({
   total: 0,
   today: 0,
   month: 0,
-  pending: 0,
-  assigned: 0,
+  pendingDispatch: 0,
+  dispatched: 0,
+  received: 0,
   inService: 0,
   completed: 0,
   cancelled: 0,
   completionRate: 0,
-  avgDuration: 0
+  cancelRate: 0,
+  totalEstimatedPrice: 0,
+  totalActualPrice: 0,
+  totalSubsidy: 0,
+  totalSelfPay: 0,
+  staffRankings: []
 });
 
 // Search
@@ -60,6 +69,7 @@ const searchDateRange = ref<[number, number] | null>(null);
 const loading = ref(false);
 const tableData = ref<Api.Order.Order[]>([]);
 const pagination = ref({ page: 1, pageSize: 10, total: 0 });
+const checkedRowKeys = ref<string[]>([]);
 
 // Provider options
 const providerOptions = ref<{ label: string; value: string }[]>([]);
@@ -81,10 +91,12 @@ const serviceTypeOptions = [
 const statusOptions = [
   { label: '待派单', value: 'CREATED' },
   { label: '待分配', value: 'PENDING' },
+  { label: '待派单', value: 'PENDING_DISPATCH' },
   { label: '已派单', value: 'DISPATCHED' },
   { label: '已接单', value: 'RECEIVED' },
   { label: '服务中', value: 'SERVICE_STARTED' },
   { label: '已完成', value: 'SERVICE_COMPLETED' },
+  { label: '已完成', value: 'COMPLETED' },
   { label: '已评价', value: 'EVALUATED' },
   { label: '已结算', value: 'SETTLED' },
   { label: '已取消', value: 'CANCELLED' },
@@ -109,12 +121,14 @@ function getStatusType(status: string): 'warning' | 'success' | 'info' | 'error'
   const map: Record<string, 'warning' | 'success' | 'info' | 'error' | 'default'> = {
     CREATED: 'warning',
     PENDING: 'warning',
+    PENDING_DISPATCH: 'warning',
     DISPATCHED: 'info',
     RECEIVED: 'info',
     ASSIGNED: 'info',
     ACCEPTED: 'info',
     SERVICE_STARTED: 'info',
     SERVICE_COMPLETED: 'success',
+    COMPLETED: 'success',
     EVALUATED: 'success',
     SETTLED: 'success',
     CANCELLED: 'error',
@@ -128,6 +142,32 @@ function getStatusLabel(status: string): string {
   return option?.label || status;
 }
 
+// 格式化预约服务时间显示
+function formatServiceTime(serviceDate: string | undefined, serviceTime: string | undefined): string {
+  if (!serviceDate) return serviceTime || '-';
+  try {
+    const date = new Date(serviceDate);
+    const year = date.getFullYear();
+    const month = date.getMonth() + 1;
+    const day = date.getDate();
+    // serviceTime 格式示例: "09:00" 或 "09:00:00"
+    // 只分上午和下午
+    let timePeriod = '';
+    if (serviceTime) {
+      const hourStr = serviceTime.split(':')[0];
+      const hour = parseInt(hourStr, 10);
+      if (hour < 12) {
+        timePeriod = '上午';
+      } else {
+        timePeriod = '下午';
+      }
+    }
+    return `${year}年${month}月${day}日 ${timePeriod}`;
+  } catch (e) {
+    return serviceTime || '-';
+  }
+}
+
 const columns: DataTableColumns<Api.Order.Order> = [
   { title: '订单号', key: 'orderNo', width: 160 },
   {
@@ -138,7 +178,7 @@ const columns: DataTableColumns<Api.Order.Order> = [
   },
   { title: '老人手机', key: 'elderPhone', width: 130 },
   { title: '服务类型', key: 'serviceTypeName', width: 120 },
-  { title: '预约服务时间', key: 'serviceTime', width: 170 },
+  { title: '预约服务时间', key: 'serviceTime', width: 170, render: row => formatServiceTime(row.serviceDate, row.serviceTime) },
   { title: '服务商', key: 'providerName', width: 150 },
   {
     title: '服务人员',
@@ -184,8 +224,13 @@ const columns: DataTableColumns<Api.Order.Order> = [
 
 // Assign modal
 const assignModalVisible = ref(false);
-const assignForm = ref({ staffId: '' });
+const assignForm = ref({ staffId: '', providerId: '' });
 const currentOrderId = ref('');
+const currentOrderProviderId = ref('');
+const currentOrderProviderName = ref('');
+const staffOptions = ref<{ label: string; value: string; phone?: string; serviceTypes?: string }[]>([]);
+const selectedStaffDetail = ref<Api.Staff.Staff | null>(null);
+const loadingStaff = ref(false);
 
 // Cancel modal
 const cancelModalVisible = ref(false);
@@ -250,7 +295,7 @@ async function getTableData() {
     if (searchOrderNo.value) params.orderNo = searchOrderNo.value;
     if (searchElderName.value) params.elderName = searchElderName.value;
     if (searchProviderId.value) params.providerId = searchProviderId.value;
-    if (searchServiceType.value) params.serviceTypeCode = searchServiceType.value;
+    if (searchServiceType.value) params.serviceType = searchServiceType.value;
     if (searchStatus.value) params.status = searchStatus.value;
     if (searchDateRange.value) {
       params.startDate = new Date(searchDateRange.value[0]).toISOString().split('T')[0];
@@ -260,6 +305,39 @@ async function getTableData() {
     const { data } = await fetchGetOrderList(params);
     tableData.value = data?.records || [];
     pagination.value.total = data?.total || 0;
+
+    // Auto-select row if coming from appointment page with appointmentTime query
+    if (route.query.elderName && route.query.appointmentTime && tableData.value.length > 0) {
+      // Extract date part from appointmentTime (format: "2026-04-15 13:42:10")
+      const appointmentDate = (route.query.appointmentTime as string).split(' ')[0];
+      // Find the order that matches elderName and has the same service date
+      const targetRowIndex = tableData.value.findIndex(row => {
+        if (row.elderName !== route.query.elderName) return false;
+        if (!row.serviceDate) return false;
+        return row.serviceDate === appointmentDate;
+      });
+      if (targetRowIndex !== -1) {
+        const targetRow = tableData.value[targetRowIndex];
+        checkedRowKeys.value = [targetRow.orderId];
+        // Smooth scroll and highlight the row after data loads
+        setTimeout(() => {
+          const tbody = document.querySelector('.n-data-table-tbody');
+          if (tbody) {
+            const rows = tbody.querySelectorAll('.n-data-table-tr');
+            const targetRowEl = rows[targetRowIndex] as HTMLElement;
+            if (targetRowEl) {
+              // Apply smooth highlight animation using inline style with !important
+              targetRowEl.style.cssText = 'background-color: rgba(24, 160, 88, 0.25) !important; box-shadow: inset 0 0 0 2px rgba(24, 160, 88, 0.4) !important; transition: background-color 0.5s ease-out, box-shadow 0.5s ease-out !important;';
+              targetRowEl.scrollIntoView({ behavior: 'smooth', block: 'center' });
+              // Fade out the highlight
+              setTimeout(() => {
+                targetRowEl.style.cssText = '';
+              }, 2000);
+            }
+          }
+        }, 300);
+      }
+    }
   } catch (e) {
     console.error('Failed to get table data', e);
   } finally {
@@ -267,21 +345,65 @@ async function getTableData() {
   }
 }
 
-function handleAssign(row: Api.Order.Order) {
+async function handleAssign(row: Api.Order.Order) {
   currentOrderId.value = row.orderId;
-  assignForm.value = { staffId: '' };
+  currentOrderProviderId.value = row.providerId || '';
+  currentOrderProviderName.value = row.providerName || '';
+  assignForm.value = { staffId: '', providerId: row.providerId || '' };
+  selectedStaffDetail.value = null;
   assignModalVisible.value = true;
+
+  // Fetch staff list for this provider
+  loadingStaff.value = true;
+  try {
+    const { data } = await fetchGetStaffList({
+      providerId: currentOrderProviderId.value,
+      pageNum: 1,
+      pageSize: 100
+    } as any);
+    if (data?.records) {
+      staffOptions.value = data.records.map((staff: any) => ({
+        label: `${staff.staffName || staff.name} - ${staff.phone || '无电话'}`,
+        value: staff.staffId || staff.id,
+        phone: staff.phone,
+        serviceTypes: staff.serviceTypes || staff.serviceTypeNames || '-'
+      }));
+    }
+  } catch (e) {
+    console.error('Failed to get staff list', e);
+  } finally {
+    loadingStaff.value = false;
+  }
+}
+
+async function handleStaffSelect(staffId: string) {
+  assignForm.value.staffId = staffId;
+  // Fetch staff detail
+  try {
+    const { data } = await fetchGetStaff(staffId);
+    if (data) {
+      selectedStaffDetail.value = data;
+      // Set providerId from staff's provider
+      assignForm.value.providerId = data.providerId || currentOrderProviderId.value;
+    }
+  } catch (e) {
+    console.error('Failed to get staff detail', e);
+  }
 }
 
 async function handleAssignSubmit() {
+  if (!assignForm.value.staffId) {
+    message.warning('请选择服务人员');
+    return;
+  }
   try {
-    await fetchAssignOrder(currentOrderId.value, assignForm.value);
-    message.success('分配成功');
+    await fetchDispatchOrder(currentOrderId.value, assignForm.value);
+    message.success('派单成功');
     assignModalVisible.value = false;
     await getTableData();
     await getStatistics();
   } catch (e) {
-    console.error('Failed to assign', e);
+    console.error('Failed to dispatch', e);
   }
 }
 
@@ -309,7 +431,7 @@ async function handleStart(row: Api.Order.Order) {
 
 function handleComplete(row: Api.Order.Order) {
   currentOrderId.value = row.orderId;
-  completeForm.value = { actualFee: row.actualFee || 0, selfPayFee: row.selfPayFee || 0 };
+  completeForm.value = { actualFee: row.estimatedPrice || 0, selfPayFee: row.selfPayAmount || 0 };
   completeModalVisible.value = true;
 }
 
@@ -355,6 +477,11 @@ function handlePageSizeChange(pageSize: number) {
 }
 
 onMounted(() => {
+  // Handle query parameters from appointment page
+  if (route.query.elderName) {
+    searchElderName.value = route.query.elderName as string;
+  }
+
   getStatistics();
   getTableData();
   getProviderOptions();
@@ -364,43 +491,92 @@ onMounted(() => {
 <template>
   <div>
     <!-- Statistics Cards -->
-    <NCard title="订单统计" :bordered="false" style="margin-bottom: 16px">
-      <div class="statistics-grid">
+    <NCard :bordered="false" style="margin-bottom: 16px">
+      <template #header>
+        <div style="display: flex; align-items: center; gap: 12px;">
+          <div style="width: 4px; height: 20px; background: linear-gradient(180deg, #667eea 0%, #764ba2 100%); border-radius: 2px;"></div>
+          <span style="font-size: 16px; font-weight: 600;">订单概览</span>
+        </div>
+      </template>
+      <!-- 第一行：核心数量 -->
+      <div style="display: grid; grid-template-columns: repeat(4, 1fr); gap: 16px; margin-bottom: 20px;">
         <div class="stat-card stat-primary">
           <div class="stat-label">总订单数</div>
           <div class="stat-value">{{ statistics.total }}</div>
+          <div class="stat-sub">本月新增 {{ statistics.month }}</div>
         </div>
         <div class="stat-card stat-info">
-          <div class="stat-label">今日订单</div>
+          <div class="stat-label">今日新增</div>
           <div class="stat-value">{{ statistics.today }}</div>
-        </div>
-        <div class="stat-card stat-info">
-          <div class="stat-label">本月订单</div>
-          <div class="stat-value">{{ statistics.month }}</div>
-        </div>
-        <div class="stat-card stat-success">
-          <div class="stat-label">完成率</div>
-          <div class="stat-value">{{ statistics.completionRate }}%</div>
-        </div>
-        <div class="stat-card stat-warning">
-          <div class="stat-label">待分配</div>
-          <div class="stat-value">{{ statistics.pending }}</div>
-        </div>
-        <div class="stat-card stat-info">
-          <div class="stat-label">已分配</div>
-          <div class="stat-value">{{ statistics.assigned }}</div>
-        </div>
-        <div class="stat-card stat-warning">
-          <div class="stat-label">服务中</div>
-          <div class="stat-value">{{ statistics.inService }}</div>
+          <div class="stat-sub">服务中 {{ statistics.inService }}</div>
         </div>
         <div class="stat-card stat-success">
           <div class="stat-label">已完成</div>
           <div class="stat-value">{{ statistics.completed }}</div>
+          <div class="stat-sub">完成率 {{ Number(statistics.completionRate || 0).toFixed(1) }}%</div>
         </div>
         <div class="stat-card stat-error">
           <div class="stat-label">已取消</div>
           <div class="stat-value">{{ statistics.cancelled }}</div>
+          <div class="stat-sub">取消率 {{ Number(statistics.cancelRate || 0).toFixed(1) }}%</div>
+        </div>
+      </div>
+      <!-- 第二行：状态分布 -->
+      <div style="display: grid; grid-template-columns: repeat(4, 1fr); gap: 16px; margin-bottom: 20px;">
+        <div class="stat-card-mini">
+          <div class="stat-mini-icon" style="background: linear-gradient(135deg, #f093fb 0%, #f5576c 100%);">
+            <span style="font-size: 20px;">📋</span>
+          </div>
+          <div class="stat-mini-content">
+            <div class="stat-mini-value">{{ statistics.pendingDispatch }}</div>
+            <div class="stat-mini-label">待派单</div>
+          </div>
+        </div>
+        <div class="stat-card-mini">
+          <div class="stat-mini-icon" style="background: linear-gradient(135deg, #4facfe 0%, #00f2fe 100%);">
+            <span style="font-size: 20px;">🚀</span>
+          </div>
+          <div class="stat-mini-content">
+            <div class="stat-mini-value">{{ statistics.dispatched }}</div>
+            <div class="stat-mini-label">已派单</div>
+          </div>
+        </div>
+        <div class="stat-card-mini">
+          <div class="stat-mini-icon" style="background: linear-gradient(135deg, #11998e 0%, #38ef7d 100%);">
+            <span style="font-size: 20px;">✅</span>
+          </div>
+          <div class="stat-mini-content">
+            <div class="stat-mini-value">{{ statistics.received }}</div>
+            <div class="stat-mini-label">已接单</div>
+          </div>
+        </div>
+        <div class="stat-card-mini">
+          <div class="stat-mini-icon" style="background: linear-gradient(135deg, #fa709a 0%, #fee140 100%);">
+            <span style="font-size: 20px;">💰</span>
+          </div>
+          <div class="stat-mini-content">
+            <div class="stat-mini-value">{{ Number(statistics.totalSelfPay || 0).toFixed(0) }}</div>
+            <div class="stat-mini-label">总自付金额</div>
+          </div>
+        </div>
+      </div>
+      <!-- 第三行：服务人员排名 -->
+      <div v-if="statistics.staffRankings && statistics.staffRankings.length > 0" style="background: #f8f9fa; border-radius: 12px; padding: 16px;">
+        <div style="display: flex; align-items: center; gap: 8px; margin-bottom: 12px;">
+          <span style="font-size: 14px; font-weight: 600; color: #667eea;">🏆 服务标兵排行榜</span>
+        </div>
+        <div style="display: grid; grid-template-columns: repeat(5, 1fr); gap: 12px;">
+          <div v-for="(rank, index) in statistics.staffRankings.slice(0, 5)" :key="rank.staffId"
+               style="background: white; border-radius: 8px; padding: 12px; text-align: center; box-shadow: 0 2px 8px rgba(0,0,0,0.06);">
+            <div :style="'width: 28px; height: 28px; border-radius: 50%; margin: 0 auto 8px; display: flex; align-items: center; justify-content: center; font-size: 12px; font-weight: 600; color: white; background: ' + (index === 0 ? '#ffd700' : index === 1 ? '#c0c0c0' : index === 2 ? '#cd7f32' : '#667eea') + ';'">
+              {{ index + 1 }}
+            </div>
+            <div style="font-weight: 600; font-size: 13px; color: #333; margin-bottom: 4px;">{{ rank.staffName || '未知' }}</div>
+            <div style="font-size: 11px; color: #999; margin-bottom: 6px;">{{ rank.providerName || '-' }}</div>
+            <div style="display: flex; justify-content: center; gap: 8px; font-size: 11px;">
+              <span style="color: #18a058;">完成 {{ rank.completedCount }}</span>
+            </div>
+          </div>
         </div>
       </div>
     </NCard>
@@ -449,6 +625,8 @@ onMounted(() => {
         :loading="loading"
         :scroll-x="1600"
         :row-key="(row: Api.Order.Order) => row.orderId"
+        v-model:checked-row-keys="checkedRowKeys"
+        :row-class-name="() => 'clickable-row'"
       />
       <div style="padding: 12px 0">
         <NSpace justify="end">
@@ -468,16 +646,53 @@ onMounted(() => {
     </NCard>
 
     <!-- Assign Modal -->
-    <NModal v-model:show="assignModalVisible" title="分配订单" preset="card" style="width: 500px">
-      <NForm :model="assignForm" label-placement="left" label-width="100">
-        <NFormItem label="服务人员ID">
-          <NInput v-model:value="assignForm.staffId" placeholder="请输入服务人员ID" />
+    <NModal v-model:show="assignModalVisible" title="派单" preset="card" style="width: 600px">
+      <div style="margin-bottom: 16px;">
+        <div style="color: #666; font-size: 13px; margin-bottom: 4px;">服务商</div>
+        <div style="font-size: 15px; font-weight: 500;">{{ currentOrderProviderName || '未指定' }}</div>
+      </div>
+      <NForm :model="assignForm" label-placement="left" label-width="80">
+        <NFormItem label="选择人员">
+          <NSelect
+            v-model:value="assignForm.staffId"
+            :options="staffOptions"
+            placeholder="请选择服务人员"
+            filterable
+            :loading="loadingStaff"
+            @update:value="handleStaffSelect"
+          />
         </NFormItem>
       </NForm>
+      <!-- Selected staff detail card -->
+      <div v-if="selectedStaffDetail" style="background: #f5f5f5; border-radius: 8px; padding: 16px; margin-top: 12px;">
+        <div style="font-weight: 600; margin-bottom: 12px; color: #333;">服务人员信息</div>
+        <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 12px;">
+          <div>
+            <div style="color: #999; font-size: 12px;">姓名</div>
+            <div>{{ selectedStaffDetail.staffName }}</div>
+          </div>
+          <div>
+            <div style="color: #999; font-size: 12px;">性别</div>
+            <div>{{ selectedStaffDetail.gender === 1 ? '男' : '女' }}</div>
+          </div>
+          <div>
+            <div style="color: #999; font-size: 12px;">联系电话</div>
+            <div>{{ selectedStaffDetail.phone || '-' }}</div>
+          </div>
+          <div>
+            <div style="color: #999; font-size: 12px;">服务类型</div>
+            <div>{{ selectedStaffDetail.serviceTypes || selectedStaffDetail.serviceTypesText || '-' }}</div>
+          </div>
+          <div style="grid-column: span 2;">
+            <div style="color: #999; font-size: 12px;">简介</div>
+            <div>{{ selectedStaffDetail.remark || '暂无简介' }}</div>
+          </div>
+        </div>
+      </div>
       <template #footer>
         <NSpace justify="end">
           <NButton @click="assignModalVisible = false">取消</NButton>
-          <NButton type="primary" @click="handleAssignSubmit">确认</NButton>
+          <NButton type="primary" @click="handleAssignSubmit">确认派单</NButton>
         </NSpace>
       </template>
     </NModal>
@@ -623,5 +838,13 @@ onMounted(() => {
 
 .stat-error .stat-label {
   color: rgba(255, 255, 255, 0.85);
+}
+
+:deep(.n-data-table-tr--checked) {
+  background-color: rgba(24, 160, 88, 0.12) !important;
+}
+
+:deep(.n-data-table-tr--checked:hover) {
+  background-color: rgba(24, 160, 88, 0.18) !important;
 }
 </style>

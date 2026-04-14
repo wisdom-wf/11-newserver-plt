@@ -55,12 +55,12 @@ export function fetchUpdateOrder(id: string, data: Api.Order.OrderForm) {
 }
 
 /**
- * 分配订单
+ * 派单
  */
-export function fetchAssignOrder(orderId: string, data: { staffId: string }) {
+export function fetchDispatchOrder(orderId: string, data: { staffId: string }) {
   return request({
-    url: `/api/orders/${orderId}/assign`,
-    method: 'put',
+    url: `/api/orders/${orderId}/dispatch`,
+    method: 'post',
     data
   });
 }
@@ -120,15 +120,9 @@ export function fetchDeleteOrder(orderId: string) {
 /**
  * 获取订单统计
  */
-export function fetchGetOrderStatistics(params?: {
-  areaId?: string;
-  providerId?: string;
-  startDate?: string;
-  endDate?: string;
-}) {
+export function fetchGetOrderStatistics() {
   return request<Api.Order.Statistics>({
-    url: '/api/statistics/order',
-    method: 'get',
-    params
+    url: '/api/orders/statistics',
+    method: 'get'
   });
 }

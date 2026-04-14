@@ -142,26 +142,56 @@ declare namespace Api {
 
     /** 订单统计 */
     interface Statistics {
-      /** 总数 */
+      // 核心数量
+      /** 总订单数 */
       total: number;
-      /** 今日订单 */
+      /** 今日新增 */
       today: number;
-      /** 本月订单 */
+      /** 本月新增 */
       month: number;
-      /** 待分配 */
-      pending: number;
-      /** 已分配 */
-      assigned: number;
-      /** 服务中 */
+
+      // 状态分布
+      /** 待派单数 */
+      pendingDispatch: number;
+      /** 已派单数 */
+      dispatched: number;
+      /** 已接单数 */
+      received: number;
+      /** 服务中数 */
       inService: number;
-      /** 已完成 */
+      /** 已完成数 */
       completed: number;
-      /** 已取消 */
+      /** 已取消数 */
       cancelled: number;
-      /** 完成率 */
+
+      // 比率
+      /** 完成率(%) */
       completionRate: number;
-      /** 平均服务时长 */
-      avgDuration: number;
+      /** 取消率(%) */
+      cancelRate: number;
+
+      // 金额统计
+      /** 总预估金额 */
+      totalEstimatedPrice: number;
+      /** 总实际金额 */
+      totalActualPrice: number;
+      /** 总补贴金额 */
+      totalSubsidy: number;
+      /** 总自付金额 */
+      totalSelfPay: number;
+
+      // 服务人员排名
+      /** 服务人员排名列表 */
+      staffRankings?: StaffRanking[];
+    }
+
+    /** 服务人员排名 */
+    interface StaffRanking {
+      staffId: string;
+      staffName: string;
+      providerName: string;
+      orderCount: number;
+      completedCount: number;
     }
   }
 }
