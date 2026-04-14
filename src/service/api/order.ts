@@ -70,8 +70,9 @@ export function fetchDispatchOrder(orderId: string, data: { staffId: string }) {
  */
 export function fetchAcceptOrder(orderId: string) {
   return request({
-    url: `/api/orders/${orderId}/accept`,
-    method: 'put'
+    url: `/api/orders/${orderId}/receive`,
+    method: 'put',
+    data: {}
   });
 }
 
