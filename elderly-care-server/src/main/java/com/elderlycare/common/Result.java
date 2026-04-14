@@ -33,20 +33,27 @@ public class Result<T> implements Serializable {
         this.timestamp = System.currentTimeMillis();
     }
 
+    public Result(Integer code, String successCode, String message, T data) {
+        this.code = code;
+        this.message = message;
+        this.data = data;
+        this.timestamp = System.currentTimeMillis();
+    }
+
     public static <T> Result<T> success() {
-        return new Result<>(200, "操作成功");
+        return new Result<>(200, "0000", "操作成功", null);
     }
 
     public static <T> Result<T> success(T data) {
-        return new Result<>(200, "操作成功", data);
+        return new Result<>(200, "0000", "操作成功", data);
     }
 
     public static <T> Result<T> success(String message, T data) {
-        return new Result<>(200, message, data);
+        return new Result<>(200, "0000", message, data);
     }
 
     public static <T> Result<T> success(String message) {
-        return new Result<>(200, message);
+        return new Result<>(200, "0000", message, null);
     }
 
     public static <T> Result<T> error() {
