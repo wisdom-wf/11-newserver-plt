@@ -742,9 +742,9 @@ public class ElderServiceImpl implements ElderService {
     private String getCareLevelNameString(String level) {
         if (level == null) return "";
         return switch (level) {
-            case "NORMAL" -> "正常";
-            case "SUBSIDIZED" -> "补贴";
-            case "FULL" -> "全护理";
+            case "HIGH" -> "一级护理";
+            case "MEDIUM" -> "二级护理";
+            case "NORMAL" -> "三级护理";
             default -> "未知";
         };
     }

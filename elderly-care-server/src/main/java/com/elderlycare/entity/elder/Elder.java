@@ -93,7 +93,17 @@ public class Elder implements Serializable {
     private String address;
 
     /**
-     * 护理等级：NORMAL/SUBSIDIZED/FULL
+     * 区域ID
+     */
+    private String areaId;
+
+    /**
+     * 区域名称（查询时填充）
+     */
+    private String areaName;
+
+    /**
+     * 护理等级：HIGH/MEDIUM/NORMAL（一级/二级/三级护理）
      */
     private String careLevel;
 

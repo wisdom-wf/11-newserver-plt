@@ -79,7 +79,7 @@ public class ElderVO implements Serializable {
     private String photoUrl;
 
     /**
-     * 护理等级：NORMAL/SUBSIDIZED/FULL
+     * 护理等级：HIGH/MEDIUM/NORMAL（一级/二级/三级护理）
      */
     private String careLevel;
 
@@ -117,6 +117,16 @@ public class ElderVO implements Serializable {
      * 居住地址
      */
     private String address;
+
+    /**
+     * 区域ID
+     */
+    private String areaId;
+
+    /**
+     * 区域名称（用于显示）
+     */
+    private String areaName;
 
     /**
      * 创建时间

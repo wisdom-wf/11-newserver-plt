@@ -89,25 +89,8 @@ public class CockpitServiceImpl implements CockpitService {
         }
         overview.setServiceTypeDistribution(serviceDistList);
 
-        // 区域分布（从老人统计获取）
-        List<CockpitOverviewVO.AreaDistribution> areaDistList = new ArrayList<>();
-        if (elderStats.getAgeDistribution() != null) {
-            // 使用年龄段作为区域分布的替代
-            areaDistList = elderStats.getAgeDistribution().stream()
-                    .limit(5)
-                    .map(a -> {
-                        CockpitOverviewVO.AreaDistribution dist = new CockpitOverviewVO.AreaDistribution();
-                        dist.setAreaId(a.getAgeRange());
-                        dist.setAreaName(a.getAgeRange());
-                        dist.setOrderCount(a.getCount());
-                        dist.setServiceCount(a.getCount());
-                        dist.setAmount(BigDecimal.ZERO);
-                        dist.setProportion(a.getPercentage());
-                        return dist;
-                    })
-                    .collect(Collectors.toList());
-        }
-        overview.setAreaDistribution(areaDistList);
+        // 区域分布（使用真实地理区域数据）
+        overview.setAreaDistribution(getAreaDistribution());
 
         // 服务商排行
         List<CockpitOverviewVO.ProviderRanking> providerRankingList = new ArrayList<>();
