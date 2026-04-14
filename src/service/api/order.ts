@@ -82,7 +82,8 @@ export function fetchAcceptOrder(orderId: string) {
 export function fetchStartOrder(orderId: string) {
   return request({
     url: `/api/orders/${orderId}/start`,
-    method: 'put'
+    method: 'put',
+    data: {}
   });
 }
 
