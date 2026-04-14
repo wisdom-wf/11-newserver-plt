@@ -153,6 +153,10 @@ declare namespace Api {
       homeCareExtend?: HomeCareExtend;
       /** 状态 */
       status: LogStatus;
+      /** 审核备注 */
+      reviewRemarks?: string;
+      /** 审核状态 */
+      auditStatus?: AuditStatus;
       /** 提交时间 */
       submitTime?: string;
       /** 创建时间 */
@@ -164,18 +168,59 @@ declare namespace Api {
     /** 服务日志状态 */
     type LogStatus = 'DRAFT' | 'SUBMITTED' | 'VERIFIED';
 
+    /** 审核状态 */
+    type AuditStatus = 'PENDING' | 'APPROVED' | 'REJECTED';
+
     /** 服务日志统计 */
     interface Statistics {
-      /** 总数 */
+      // 核心数量
+      /** 总服务日志数 */
       total: number;
-      /** 今日服务 */
+      /** 今日新增 */
       today: number;
-      /** 本月服务 */
+      /** 本月新增 */
       month: number;
-      /** 平均服务时长 */
+
+      // 审核状态
+      /** 待审核数 */
+      pendingCount: number;
+      /** 已通过数 */
+      approvedCount: number;
+      /** 已驳回数 */
+      rejectedCount: number;
+      /** 审核通过率(%) */
+      approvalRate: number;
+      /** 待审核率(%) */
+      pendingRate: number;
+
+      // 服务质量
+      /** 平均服务时长(分钟) */
       avgDuration: number;
-      /** 异常数 */
+      /** 平均服务评分 */
+      avgScore: number;
+      /** 异常服务次数 */
       anomalyCount: number;
+      /** 异常率(%) */
+      anomalyRate: number;
+
+      // 审核效率
+      /** 平均审核耗时(小时) */
+      avgReviewTime: number;
+
+      // 服务人员排名
+      /** 服务人员排名列表 */
+      staffRankings?: StaffRanking[];
+    }
+
+    /** 服务人员排名 */
+    interface StaffRanking {
+      staffId: string;
+      staffName: string;
+      providerName: string;
+      logCount: number;
+      approvedCount: number;
+      rejectedCount: number;
+      approvalRate: number;
     }
   }
 }

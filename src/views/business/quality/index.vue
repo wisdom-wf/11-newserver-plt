@@ -68,6 +68,21 @@ const resultOptions = [
   { label: '需整改', value: 'NEED_RECTIFY' }
 ];
 
+// Check type options
+const checkTypeOptions = [
+  { label: '随机抽检', value: 'RANDOM' },
+  { label: '计划抽检', value: 'SCHEDULED' },
+  { label: '投诉抽检', value: 'COMPLAINT' },
+  { label: '完工抽检', value: 'COMPLETION' }
+];
+
+// Check method options
+const checkMethodOptions = [
+  { label: '照片审核', value: 'PHOTO_REVIEW' },
+  { label: '电话回访', value: 'PHONE_REVIEW' },
+  { label: '现场检查', value: 'ON_SITE' }
+];
+
 function getResultType(result: Api.Quality.CheckResult): 'success' | 'error' | 'warning' | 'default' {
   const map: Record<string, 'success' | 'error' | 'warning' | 'default'> = {
     QUALIFIED: 'success',
@@ -82,6 +97,16 @@ function getResultLabel(result: string): string {
   return option?.label || result;
 }
 
+function getCheckTypeLabel(checkType: string): string {
+  const option = checkTypeOptions.find(o => o.value === checkType);
+  return option?.label || checkType;
+}
+
+function getCheckMethodLabel(checkMethod: string): string {
+  const option = checkMethodOptions.find(o => o.value === checkMethod);
+  return option?.label || checkMethod;
+}
+
 const columns: DataTableColumns<Api.Quality.QualityCheck> = [
   { title: '质检编号', key: 'checkNo', width: 160 },
   { title: '订单号', key: 'orderNo', width: 160 },
@@ -92,8 +117,8 @@ const columns: DataTableColumns<Api.Quality.QualityCheck> = [
     width: 100,
     render: row => row.staffName ? h('a', { style: { color: '#18a058', cursor: 'pointer' }, onClick: () => showStaffDetail(row) }, row.staffName) : '-'
   },
-  { title: '质检类型', key: 'checkType', width: 100 },
-  { title: '质检方式', key: 'checkMethod', width: 100 },
+  { title: '质检类型', key: 'checkType', width: 100, render: row => getCheckTypeLabel(row.checkType) },
+  { title: '质检方式', key: 'checkMethod', width: 100, render: row => getCheckMethodLabel(row.checkMethod) },
   { title: '综合评分', key: 'checkScore', width: 100 },
   {
     title: '质检结果',
@@ -193,9 +218,14 @@ onMounted(() => {
     </NCard>
 
     <!-- Table -->
-    <NCard title="质检管理" :bordered="false">
+    <NCard :bordered="false" style="margin-bottom: 16px">
       <template #header>
-        <NSpace :wrap="true">
+        <div style="display: flex; justify-content: space-between; align-items: center;">
+          <span>质检管理</span>
+        </div>
+      </template>
+      <div style="background: #f5f5f5; padding: 12px; margin-bottom: 12px; border-radius: 4px;">
+        <NSpace :wrap="true" align="center">
           <NInput v-model:value="searchOrderNo" placeholder="订单号" clearable style="width: 150px" />
           <NInput v-model:value="searchProviderName" placeholder="服务商名称" clearable style="width: 150px" />
           <NInput v-model:value="searchStaffName" placeholder="服务人员" clearable style="width: 100px" />
@@ -208,8 +238,9 @@ onMounted(() => {
           />
           <NDatePicker v-model:value="searchDateRange" type="daterange" clearable style="width: 260px" />
           <NButton type="primary" @click="getTableData">搜索</NButton>
+          <NButton @click="() => { searchOrderNo = ''; searchProviderName = ''; searchStaffName = ''; searchCheckResult = ''; searchDateRange = null; pagination.page = 1; getTableData(); }">重置</NButton>
         </NSpace>
-      </template>
+      </div>
       <NDataTable
         :columns="columns"
         :data="tableData"

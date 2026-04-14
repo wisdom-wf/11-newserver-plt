@@ -13,22 +13,45 @@ import {
   NSelect,
   NDatePicker,
   NPagination,
-  NStatistic
+  NStatistic,
+  NUpload,
+  NInputNumber,
+  NText,
+  useMessage,
+  NImage,
+  NImageGroup,
+  NPopconfirm,
+  NImagePreview
 } from 'naive-ui';
 import type { DataTableColumns } from 'naive-ui';
-import { fetchGetServiceLogList, fetchGetServiceLogStatistics, fetchGetElder, fetchGetStaff } from '@/service/api';
+import { fetchGetServiceLogList, fetchGetServiceLogStatistics, fetchGetElder, fetchGetStaff, fetchSubmitServiceLog, fetchUpdateServiceLog, fetchSubmitServiceLogForReview, fetchDeleteServiceLog } from '@/service/api';
 
 defineOptions({
   name: 'BusinessServiceLog'
 });
+
+const message = useMessage();
+
+// Constants
+const MAX_IMAGE_COUNT = 6;
+const MAX_IMAGE_SIZE = 3 * 1024 * 1024; // 3M
 
 // Statistics
 const statistics = ref<Api.ServiceLog.Statistics>({
   total: 0,
   today: 0,
   month: 0,
+  pendingCount: 0,
+  approvedCount: 0,
+  rejectedCount: 0,
+  approvalRate: 0,
+  pendingRate: 0,
   avgDuration: 0,
-  anomalyCount: 0
+  avgScore: 0,
+  anomalyCount: 0,
+  anomalyRate: 0,
+  avgReviewTime: 0,
+  staffRankings: []
 });
 
 // Search
@@ -37,6 +60,31 @@ const searchElderName = ref('');
 const searchStaffName = ref('');
 const searchServiceCategory = ref('');
 const searchDateRange = ref<[number, number] | null>(null);
+
+// Add/Edit Modal state
+const modalVisible = ref(false);
+const modalLoading = ref(false);
+const isEdit = ref(false);
+const currentLogId = ref('');
+const formData = ref({
+  orderId: '',
+  serviceStartTime: '' as string | null,
+  serviceEndTime: '' as string | null,
+  serviceDuration: 0,
+  serviceContent: '',
+  servicePhotos: [] as string[]
+});
+
+// Submit for review dialog state
+const reviewDialogVisible = ref(false);
+const reviewRemarks = ref('');
+const reviewLogId = ref('');
+
+// Detail modal state
+const detailVisible = ref(false);
+const detailData = ref<Api.ServiceLog.ServiceLog | null>(null);
+const previewVisible = ref(false);
+const previewImages = ref<string[]>([]);
 
 // Table data
 const loading = ref(false);
@@ -53,7 +101,9 @@ const categoryOptions = [
 const statusOptions = [
   { label: '草稿', value: 'DRAFT' },
   { label: '已提交', value: 'SUBMITTED' },
-  { label: '已审核', value: 'VERIFIED' }
+  { label: '已审核', value: 'VERIFIED' },
+  { label: '已完成', value: 'COMPLETED' },
+  { label: '待处理', value: 'PENDING' }
 ];
 
 function getCategoryLabel(category?: string): string {
@@ -64,8 +114,10 @@ function getCategoryLabel(category?: string): string {
 function getStatusType(status: Api.ServiceLog.LogStatus): 'warning' | 'success' | 'info' | 'default' {
   const map: Record<string, 'warning' | 'success' | 'info' | 'default'> = {
     DRAFT: 'warning',
+    PENDING: 'warning',
     SUBMITTED: 'info',
-    VERIFIED: 'success'
+    VERIFIED: 'success',
+    COMPLETED: 'success'
   };
   return map[status] || 'default';
 }
@@ -99,6 +151,20 @@ const columns: DataTableColumns<Api.ServiceLog.ServiceLog> = [
     render: row => (row.serviceDuration ? `${row.serviceDuration}分钟` : '-')
   },
   {
+    title: '照片',
+    key: 'servicePhotos',
+    width: 80,
+    render: (row: Api.ServiceLog.ServiceLog) => {
+      const photos = row.servicePhotos || [];
+      const count = photos.length;
+      if (count === 0) return '-';
+      return h('span', {
+        style: 'color: #18a058; cursor: pointer;',
+        onClick: () => showDetail(row)
+      }, `[${count}张]`);
+    }
+  },
+  {
     title: '异常',
     key: 'hasAnomaly',
     width: 80,
@@ -112,7 +178,30 @@ const columns: DataTableColumns<Api.ServiceLog.ServiceLog> = [
     render: row => h(NTag, { type: getStatusType(row.status), size: 'small' }, () => getStatusLabel(row.status))
   },
   { title: '提交时间', key: 'submitTime', width: 170 },
-  { title: '创建时间', key: 'createTime', width: 170 }
+  { title: '创建时间', key: 'createTime', width: 170 },
+  {
+    title: '操作',
+    key: 'actions',
+    width: 280,
+    fixed: 'right',
+    render: (row: Api.ServiceLog.ServiceLog) => {
+      const buttons = [];
+      buttons.push(h(NButton, { size: 'small', onClick: () => showDetail(row) }, { default: () => '详情' }));
+      if (!row.status || row.status === 'DRAFT') {
+        buttons.push(
+          h(NButton, { size: 'small', type: 'default', onClick: () => handleUpdate(row) }, { default: () => '更新' }),
+          h(NPopconfirm, {
+            onPositiveClick: () => handleDelete(row)
+          }, {
+            trigger: () => h(NButton, { size: 'small', type: 'error' }, { default: () => '删除' }),
+            default: () => '确认删除?'
+          }),
+          h(NButton, { size: 'small', type: 'primary', onClick: () => handleSubmitReview(row) }, { default: () => '提交审核' })
+        );
+      }
+      return h(NSpace, { size: 'small' }, buttons);
+    }
+  }
 ];
 
 // Elder detail modal
@@ -146,6 +235,38 @@ async function showStaffDetail(row: Api.ServiceLog.ServiceLog) {
     }
   } catch (e) {
     console.error('Failed to get staff detail', e);
+  }
+}
+
+function showDetail(row: Api.ServiceLog.ServiceLog) {
+  detailData.value = row;
+  detailVisible.value = true;
+}
+
+function handleUpdateFromDetail() {
+  if (!detailData.value) return;
+  detailVisible.value = false;
+  handleUpdate(detailData.value);
+}
+
+function handleSubmitReviewFromDetail() {
+  if (!detailData.value) return;
+  detailVisible.value = false;
+  handleSubmitReview(detailData.value);
+}
+
+function openPreview(photos: string[]) {
+  previewImages.value = photos;
+  previewVisible.value = true;
+}
+
+async function handleDelete(row: Api.ServiceLog.ServiceLog) {
+  try {
+    await fetchDeleteServiceLog(row.id);
+    message.success('删除成功');
+    getTableData();
+  } catch (e: any) {
+    message.error(e.message || '删除失败');
   }
 }
 
@@ -197,6 +318,143 @@ function handlePageSizeChange(pageSize: number) {
   getTableData();
 }
 
+// Image upload handlers
+const uploadingFiles = new Set<string>();
+
+function handleUploadRequest({ file }: { file: UploadFile }) {
+  if (!file.file) return;
+
+  // Prevent duplicate uploads
+  const fileKey = `${file.name}-${file.size}`;
+  if (uploadingFiles.has(fileKey)) {
+    return;
+  }
+
+  if (file.file.size > MAX_IMAGE_SIZE) {
+    message.error(`图片大小不能超过3M`);
+    return;
+  }
+  if (formData.value.servicePhotos.length >= MAX_IMAGE_COUNT) {
+    message.error(`最多只能上传${MAX_IMAGE_COUNT}张图片`);
+    return;
+  }
+
+  uploadingFiles.add(fileKey);
+
+  const reader = new FileReader();
+  reader.onload = (e) => {
+    uploadingFiles.delete(fileKey);
+    if (e.target?.result && !formData.value.servicePhotos.includes(e.target.result as string)) {
+      formData.value.servicePhotos.push(e.target.result as string);
+    }
+  };
+  reader.onerror = () => {
+    uploadingFiles.delete(fileKey);
+  };
+  reader.readAsDataURL(file.file);
+}
+
+function removePhoto(index: number) {
+  formData.value.servicePhotos.splice(index, 1);
+}
+
+// Modal functions
+function showAddModal() {
+  isEdit.value = false;
+  currentLogId.value = '';
+  formData.value = {
+    orderId: '',
+    serviceStartTime: null,
+    serviceEndTime: null,
+    serviceDuration: 0,
+    serviceContent: '',
+    servicePhotos: []
+  };
+  modalVisible.value = true;
+}
+
+function handleUpdate(row: Api.ServiceLog.ServiceLog) {
+  isEdit.value = true;
+  currentLogId.value = row.id;
+  formData.value = {
+    orderId: row.orderId || '',
+    serviceStartTime: row.serviceStartTime || null,
+    serviceEndTime: row.serviceEndTime || null,
+    serviceDuration: row.serviceDuration || 0,
+    serviceContent: row.serviceContent || '',
+    servicePhotos: row.servicePhotos || []
+  };
+  modalVisible.value = true;
+}
+
+function handleSubmitReview(row: Api.ServiceLog.ServiceLog) {
+  reviewLogId.value = row.id;
+  reviewRemarks.value = '';
+  reviewDialogVisible.value = true;
+}
+
+async function submitReview() {
+  try {
+    await fetchSubmitServiceLogForReview(reviewLogId.value, reviewRemarks.value);
+    message.success('提交审核成功');
+    reviewDialogVisible.value = false;
+    getTableData();
+  } catch (e: any) {
+    message.error(e.message || '提交审核失败');
+  }
+}
+
+async function handleSubmitForm() {
+  if (!formData.value.orderId) {
+    message.error('请选择关联订单');
+    return;
+  }
+  modalLoading.value = true;
+  try {
+    // Use currentLogId to determine if it's update or create
+    const logId = currentLogId.value;
+    if (logId) {
+      // Update existing log
+      await fetchUpdateServiceLog(logId, {
+        id: logId,
+        orderId: formData.value.orderId,
+        serviceStartTime: formData.value.serviceStartTime,
+        serviceEndTime: formData.value.serviceEndTime,
+        serviceDuration: formData.value.serviceDuration,
+        serviceContent: formData.value.serviceContent,
+        servicePhotos: formData.value.servicePhotos,
+        status: 'DRAFT'
+      } as any);
+      message.success('更新成功');
+    } else {
+      // Create new log
+      await fetchSubmitServiceLog({
+        orderId: formData.value.orderId,
+        serviceStartTime: formData.value.serviceStartTime,
+        serviceEndTime: formData.value.serviceEndTime,
+        serviceDuration: formData.value.serviceDuration,
+        serviceContent: formData.value.serviceContent,
+        servicePhotos: formData.value.servicePhotos
+      } as any);
+      message.success('添加成功');
+    }
+    modalVisible.value = false;
+    getTableData();
+  } catch (e: any) {
+    message.error(e.message || '操作失败');
+  } finally {
+    modalLoading.value = false;
+  }
+}
+
+function closeModal() {
+  modalVisible.value = false;
+}
+
+function closeReviewDialog() {
+  reviewDialogVisible.value = false;
+}
+
 onMounted(() => {
   getStatistics();
   getTableData();
@@ -206,35 +464,110 @@ onMounted(() => {
 <template>
   <div>
     <!-- Statistics Cards -->
-    <NCard title="服务日志统计" :bordered="false" style="margin-bottom: 16px">
-      <div class="statistics-grid">
+    <NCard :bordered="false" style="margin-bottom: 16px">
+      <template #header>
+        <div style="display: flex; align-items: center; gap: 12px;">
+          <div style="width: 4px; height: 20px; background: linear-gradient(180deg, #667eea 0%, #764ba2 100%); border-radius: 2px;"></div>
+          <span style="font-size: 16px; font-weight: 600;">服务日志概览</span>
+        </div>
+      </template>
+      <!-- 第一行：核心数量 -->
+      <div style="display: grid; grid-template-columns: repeat(4, 1fr); gap: 16px; margin-bottom: 20px;">
         <div class="stat-card stat-primary">
           <div class="stat-label">总日志数</div>
           <div class="stat-value">{{ statistics.total }}</div>
+          <div class="stat-sub">本月新增 {{ statistics.month }}</div>
         </div>
         <div class="stat-card stat-info">
-          <div class="stat-label">今日服务</div>
+          <div class="stat-label">今日新增</div>
           <div class="stat-value">{{ statistics.today }}</div>
+          <div class="stat-sub">待审核 {{ statistics.pendingCount }}</div>
         </div>
         <div class="stat-card stat-success">
-          <div class="stat-label">本月服务</div>
-          <div class="stat-value">{{ statistics.month }}</div>
+          <div class="stat-label">审核通过</div>
+          <div class="stat-value">{{ statistics.approvedCount }}</div>
+          <div class="stat-sub">通过率 {{ Number(statistics.approvalRate || 0).toFixed(1) }}%</div>
         </div>
-        <div class="stat-card stat-info">
-          <div class="stat-label">平均服务时长</div>
-          <div class="stat-value">{{ Number(statistics.avgDuration || 0).toFixed(0) }}分钟</div>
+        <div class="stat-card stat-warning">
+          <div class="stat-label">已驳回</div>
+          <div class="stat-value">{{ statistics.rejectedCount }}</div>
+          <div class="stat-sub">异常 {{ statistics.anomalyCount }} (异常率 {{ Number(statistics.anomalyRate || 0).toFixed(1) }}%)</div>
         </div>
-        <div class="stat-card stat-error">
-          <div class="stat-label">异常数</div>
-          <div class="stat-value">{{ statistics.anomalyCount }}</div>
+      </div>
+      <!-- 第二行：质量指标 -->
+      <div style="display: grid; grid-template-columns: repeat(4, 1fr); gap: 16px; margin-bottom: 20px;">
+        <div class="stat-card-mini">
+          <div class="stat-mini-icon" style="background: linear-gradient(135deg, #11998e 0%, #38ef7d 100%);">
+            <span style="font-size: 20px;">⏱</span>
+          </div>
+          <div class="stat-mini-content">
+            <div class="stat-mini-value">{{ Number(statistics.avgDuration || 0).toFixed(0) }}分钟</div>
+            <div class="stat-mini-label">平均服务时长</div>
+          </div>
+        </div>
+        <div class="stat-card-mini">
+          <div class="stat-mini-icon" style="background: linear-gradient(135deg, #f093fb 0%, #f5576c 100%);">
+            <span style="font-size: 20px;">⭐</span>
+          </div>
+          <div class="stat-mini-content">
+            <div class="stat-mini-value">{{ Number(statistics.avgScore || 0).toFixed(1) }}分</div>
+            <div class="stat-mini-label">平均服务评分</div>
+          </div>
+        </div>
+        <div class="stat-card-mini">
+          <div class="stat-mini-icon" style="background: linear-gradient(135deg, #4facfe 0%, #00f2fe 100%);">
+            <span style="font-size: 20px;">⏱</span>
+          </div>
+          <div class="stat-mini-content">
+            <div class="stat-mini-value">{{ Number(statistics.avgReviewTime || 0).toFixed(1) }}h</div>
+            <div class="stat-mini-label">平均审核耗时</div>
+          </div>
+        </div>
+        <div class="stat-card-mini">
+          <div class="stat-mini-icon" style="background: linear-gradient(135deg, #fa709a 0%, #fee140 100%);">
+            <span style="font-size: 20px;">📊</span>
+          </div>
+          <div class="stat-mini-content">
+            <div class="stat-mini-value">{{ Number(statistics.pendingRate || 0).toFixed(1) }}%</div>
+            <div class="stat-mini-label">待审核率</div>
+          </div>
+        </div>
+      </div>
+      <!-- 第三行：服务人员排名 -->
+      <div v-if="statistics.staffRankings && statistics.staffRankings.length > 0" style="background: #f8f9fa; border-radius: 12px; padding: 16px;">
+        <div style="display: flex; align-items: center; gap: 8px; margin-bottom: 12px;">
+          <span style="font-size: 14px; font-weight: 600; color: #667eea;">🏆 服务标兵排行榜</span>
+        </div>
+        <div style="display: grid; grid-template-columns: repeat(5, 1fr); gap: 12px;">
+          <div v-for="(rank, index) in statistics.staffRankings.slice(0, 5)" :key="rank.staffId"
+               style="background: white; border-radius: 8px; padding: 12px; text-align: center; box-shadow: 0 2px 8px rgba(0,0,0,0.06);">
+            <div :style="'width: 28px; height: 28px; border-radius: 50%; margin: 0 auto 8px; display: flex; align-items: center; justify-content: center; font-size: 12px; font-weight: 600; color: white; background: ' + (index === 0 ? '#ffd700' : index === 1 ? '#c0c0c0' : index === 2 ? '#cd7f32' : '#667eea') + ';'">
+              {{ index + 1 }}
+            </div>
+            <div style="font-weight: 600; font-size: 13px; color: #333; margin-bottom: 4px;">{{ rank.staffName || '未知' }}</div>
+            <div style="font-size: 11px; color: #999; margin-bottom: 6px;">{{ rank.providerName || '-' }}</div>
+            <div style="display: flex; justify-content: center; gap: 8px; font-size: 11px;">
+              <span style="color: #18a058;">通过 {{ rank.approvedCount }}</span>
+              <span style="color: #ff4d4f;">驳回 {{ rank.rejectedCount }}</span>
+            </div>
+            <div style="margin-top: 6px; padding: 4px 8px; background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); border-radius: 12px; color: white; font-size: 12px; font-weight: 600;">
+              {{ Number(rank.approvalRate || 0).toFixed(1) }}% 通过率
+            </div>
+          </div>
         </div>
       </div>
     </NCard>
 
     <!-- Table -->
-    <NCard title="服务日志管理" :bordered="false">
+    <NCard :bordered="false" style="margin-bottom: 16px">
       <template #header>
-        <NSpace :wrap="true">
+        <div style="display: flex; justify-content: space-between; align-items: center;">
+          <span>服务日志管理</span>
+          <NButton type="primary" @click={showAddModal}>添加</NButton>
+        </div>
+      </template>
+      <div style="background: #f5f5f5; padding: 12px; margin-bottom: 12px; border-radius: 4px;">
+        <NSpace :wrap="true" align="center">
           <NInput v-model:value="searchOrderNo" placeholder="订单号" clearable style="width: 150px" />
           <NInput v-model:value="searchElderName" placeholder="老人姓名" clearable style="width: 100px" />
           <NInput v-model:value="searchStaffName" placeholder="服务人员" clearable style="width: 100px" />
@@ -247,14 +580,15 @@ onMounted(() => {
           />
           <NDatePicker v-model:value="searchDateRange" type="daterange" clearable style="width: 260px" />
           <NButton type="primary" @click="getTableData">搜索</NButton>
+          <NButton @click="() => { searchOrderNo = ''; searchElderName = ''; searchStaffName = ''; searchServiceCategory = ''; searchDateRange = null; pagination.page = 1; getTableData(); }">重置</NButton>
         </NSpace>
-      </template>
+      </div>
       <NDataTable
         :columns="columns"
         :data="tableData"
         :loading="loading"
         :scroll-x="1400"
-        :row-key="(row: Api.ServiceLog.ServiceLog) => row.serviceLogId"
+        :row-key="(row: Api.ServiceLog.ServiceLog) => row.id"
       />
       <div style="padding: 12px 0">
         <NSpace justify="end">
@@ -302,6 +636,240 @@ onMounted(() => {
         <NFormItem label="紧急联系人">{{ staffDetailData.emergencyContact || '-' }}</NFormItem>
         <NFormItem label="紧急联系电话">{{ staffDetailData.emergencyPhone || '-' }}</NFormItem>
       </NForm>
+    </NModal>
+
+    <!-- Add/Edit Modal -->
+    <NModal v-model:show="modalVisible" preset="card" style="width: 700px;">
+      <template #header>
+        <div style="display: flex; align-items: center; gap: 12px;">
+          <div :style="'width: 4px; height: 24px; background: linear-gradient(180deg, ' + (isEdit ? '#667eea 0%, #764ba2' : '#11998e 0%, #38ef7d') + ' 100%); border-radius: 2px;'"></div>
+          <span style="font-size: 18px; font-weight: 600;">{{ isEdit ? '编辑服务日志' : '添加服务日志' }}</span>
+        </div>
+      </template>
+      <div style="padding: 16px 0;">
+        <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 16px;">
+          <div>
+            <div style="margin-bottom: 8px; color: #333; font-weight: 500;">关联订单 *</div>
+            <NInput v-model:value="formData.orderId" placeholder="请输入订单ID" />
+          </div>
+          <div>
+            <div style="margin-bottom: 8px; color: #333; font-weight: 500;">服务时长(分钟)</div>
+            <NInputNumber v-model:value="formData.serviceDuration" :min="0" style="width: 100%;" />
+          </div>
+        </div>
+        <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 16px; margin-top: 16px;">
+          <div>
+            <div style="margin-bottom: 8px; color: #333; font-weight: 500;">服务开始时间</div>
+            <NDatePicker v-model:value="formData.serviceStartTime" type="datetime" style="width: 100%;" />
+          </div>
+          <div>
+            <div style="margin-bottom: 8px; color: #333; font-weight: 500;">服务结束时间</div>
+            <NDatePicker v-model:value="formData.serviceEndTime" type="datetime" style="width: 100%;" />
+          </div>
+        </div>
+        <div style="margin-top: 16px;">
+          <div style="margin-bottom: 8px; color: #333; font-weight: 500;">服务内容</div>
+          <NInput v-model:value="formData.serviceContent" type="textarea" placeholder="请输入服务内容" :rows="3" />
+        </div>
+        <div style="margin-top: 16px;">
+          <div style="margin-bottom: 8px; color: #333; font-weight: 500;">
+            服务照片 <span style="color: #999; font-weight: normal;">({{ formData.servicePhotos.length }}/{{ MAX_IMAGE_COUNT }})</span>
+          </div>
+          <div style="display: flex; flex-wrap: wrap; gap: 12px; margin-bottom: 12px;">
+            <div v-for="(photo, index) in formData.servicePhotos" :key="index" style="position: relative; width: 80px; height: 80px;">
+              <img :src="photo" style="width: 80px; height: 80px; object-fit: cover; border-radius: 8px; border: 2px solid #e6e6e6;" />
+              <div
+                style="position: absolute; top: -8px; right: -8px; width: 22px; height: 22px; background: #ff4d4f; border-radius: 50%; color: white; text-align: center; line-height: 22px; font-size: 14px; cursor: pointer; box-shadow: 0 2px 4px rgba(0,0,0,0.2);"
+                @click="removePhoto(index)"
+              >×</div>
+            </div>
+          </div>
+          <NUpload
+            :show-file-list="false"
+            :max="MAX_IMAGE_COUNT - formData.servicePhotos.length"
+            multiple
+            accept="image/*"
+            :custom-request="handleUploadRequest"
+          >
+            <NButton :disabled="formData.servicePhotos.length >= MAX_IMAGE_COUNT">
+              <template #icon>
+                <span style="margin-right: 4px;">+</span>
+              </template>
+              选择图片
+            </NButton>
+          </NUpload>
+          <div style="font-size: 12px; color: #999; margin-top: 8px;">每张图片不超过3M</div>
+        </div>
+      </div>
+      <template #footer>
+        <div style="display: flex; justify-content: flex-end; gap: 12px;">
+          <NButton @click="closeModal">取消</NButton>
+          <NButton type="primary" :loading="modalLoading" @click="handleSubmitForm">{{ isEdit ? '保存修改' : '确认添加' }}</NButton>
+        </div>
+      </template>
+    </NModal>
+
+    <!-- Detail Modal -->
+    <NModal v-model:show="detailVisible" preset="card" style="width: 800px;">
+      <template #header>
+        <div style="display: flex; align-items: center; gap: 12px;">
+          <div style="width: 4px; height: 24px; background: linear-gradient(180deg, #667eea 0%, #764ba2 100%); border-radius: 2px;"></div>
+          <span style="font-size: 18px; font-weight: 600;">服务日志详情</span>
+          <NTag v-if="detailData" :type="getStatusType(detailData.status)" size="large">{{ getStatusLabel(detailData.status) }}</NTag>
+        </div>
+      </template>
+      <div v-if="detailData" style="padding: 8px 0;">
+        <!-- Info Section -->
+        <div style="background: #f8f9fa; border-radius: 12px; padding: 20px; margin-bottom: 16px;">
+          <div style="display: grid; grid-template-columns: repeat(2, 1fr); gap: 16px;">
+            <div>
+              <div style="color: #999; font-size: 12px; margin-bottom: 4px;">日志编号</div>
+              <div style="font-weight: 500; color: #333;">{{ detailData.logNo }}</div>
+            </div>
+            <div>
+              <div style="color: #999; font-size: 12px; margin-bottom: 4px;">订单号</div>
+              <div style="font-weight: 500; color: #333;">{{ detailData.orderNo || '-' }}</div>
+            </div>
+          </div>
+        </div>
+
+        <!-- People Info -->
+        <div style="background: #f8f9fa; border-radius: 12px; padding: 20px; margin-bottom: 16px;">
+          <div style="color: #667eea; font-size: 13px; font-weight: 600; margin-bottom: 12px;">服务对象</div>
+          <div style="display: grid; grid-template-columns: repeat(3, 1fr); gap: 16px;">
+            <div>
+              <div style="color: #999; font-size: 12px; margin-bottom: 4px;">老人姓名</div>
+              <div style="font-weight: 500;">{{ detailData.elderName || '-' }}</div>
+            </div>
+            <div>
+              <div style="color: #999; font-size: 12px; margin-bottom: 4px;">服务人员</div>
+              <div style="font-weight: 500;">{{ detailData.staffName || '-' }}</div>
+            </div>
+            <div>
+              <div style="color: #999; font-size: 12px; margin-bottom: 4px;">服务商</div>
+              <div style="font-weight: 500;">{{ detailData.providerName || '-' }}</div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Service Info -->
+        <div style="background: #f8f9fa; border-radius: 12px; padding: 20px; margin-bottom: 16px;">
+          <div style="color: #667eea; font-size: 13px; font-weight: 600; margin-bottom: 12px;">服务信息</div>
+          <div style="display: grid; grid-template-columns: repeat(4, 1fr); gap: 16px;">
+            <div>
+              <div style="color: #999; font-size: 12px; margin-bottom: 4px;">服务类别</div>
+              <div style="font-weight: 500;">{{ getCategoryLabel(detailData.serviceCategory) }}</div>
+            </div>
+            <div>
+              <div style="color: #999; font-size: 12px; margin-bottom: 4px;">服务类型</div>
+              <div style="font-weight: 500;">{{ detailData.serviceType || '-' }}</div>
+            </div>
+            <div>
+              <div style="color: #999; font-size: 12px; margin-bottom: 4px;">服务时长</div>
+              <div style="font-weight: 500;">{{ detailData.serviceDuration ? `${detailData.serviceDuration}分钟` : '-' }}</div>
+            </div>
+            <div>
+              <div style="color: #999; font-size: 12px; margin-bottom: 4px;">服务时间</div>
+              <div style="font-weight: 500; font-size: 12px;">{{ detailData.serviceStartTime || '-' }}</div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Content -->
+        <div v-if="detailData.serviceContent" style="background: #f8f9fa; border-radius: 12px; padding: 20px; margin-bottom: 16px;">
+          <div style="color: #667eea; font-size: 13px; font-weight: 600; margin-bottom: 12px;">服务内容</div>
+          <div style="color: #333; line-height: 1.6;">{{ detailData.serviceContent }}</div>
+        </div>
+
+        <!-- Photos -->
+        <div v-if="detailData.servicePhotos && detailData.servicePhotos.length > 0" style="background: #f8f9fa; border-radius: 12px; padding: 20px; margin-bottom: 16px;">
+          <div style="color: #667eea; font-size: 13px; font-weight: 600; margin-bottom: 12px;">
+            服务照片 ({{ detailData.servicePhotos.length }})
+          </div>
+          <div style="display: flex; flex-wrap: wrap; gap: 12px;">
+            <img
+              v-for="(photo, idx) in detailData.servicePhotos"
+              :key="idx"
+              :src="photo"
+              style="width: 100px; height: 100px; object-fit: cover; border-radius: 8px; cursor: pointer; transition: transform 0.2s;"
+              @click="openPreview(detailData.servicePhotos || [])"
+            />
+          </div>
+        </div>
+
+        <!-- Review Remarks -->
+        <div v-if="detailData.reviewRemarks" style="background: #fff7e6; border-radius: 12px; padding: 20px; margin-bottom: 16px; border: 1px solid #ffd591;">
+          <div style="color: #fa8c16; font-size: 13px; font-weight: 600; margin-bottom: 8px;">审核备注</div>
+          <div style="color: #333; line-height: 1.6;">{{ detailData.reviewRemarks }}</div>
+        </div>
+
+        <!-- Time Info -->
+        <div style="display: flex; gap: 24px; color: #999; font-size: 13px;">
+          <div>创建时间: {{ detailData.createTime || '-' }}</div>
+          <div>提交时间: {{ detailData.submitTime || '-' }}</div>
+        </div>
+      </div>
+      <template #footer>
+        <div style="display: flex; justify-content: space-between; align-items: center;">
+          <div>
+            <NButton v-if="!detailData?.status || detailData?.status === 'DRAFT'" type="default" @click="handleUpdateFromDetail" style="margin-right: 8px;">更新</NButton>
+            <NButton v-if="!detailData?.status || detailData?.status === 'DRAFT'" type="primary" @click="handleSubmitReviewFromDetail">提交审核</NButton>
+          </div>
+          <NButton @click="detailVisible = false">关闭</NButton>
+        </div>
+      </template>
+    </NModal>
+
+    <!-- Image Preview -->
+    <NModal v-model:show="previewVisible" preset="card" style="width: 900px;">
+      <template #header>
+        <div style="display: flex; align-items: center; gap: 12px;">
+          <div style="width: 4px; height: 24px; background: linear-gradient(180deg, #667eea 0%, #764ba2 100%); border-radius: 2px;"></div>
+          <span style="font-size: 18px; font-weight: 600;">图片预览 ({{ previewImages.length }})</span>
+        </div>
+      </template>
+      <div style="display: flex; flex-wrap: wrap; gap: 16px; justify-content: center; padding: 20px 0;">
+        <img
+          v-for="(photo, idx) in previewImages"
+          :key="idx"
+          :src="photo"
+          style="max-width: 400px; max-height: 400px; object-fit: contain; border-radius: 8px; box-shadow: 0 4px 12px rgba(0,0,0,0.1);"
+        />
+      </div>
+      <template #footer>
+        <div style="display: flex; justify-content: center;">
+          <NButton @click="previewVisible = false">关闭</NButton>
+        </div>
+      </template>
+    </NModal>
+
+    <!-- Submit for Review Dialog -->
+    <NModal v-model:show="reviewDialogVisible" preset="card" style="width: 500px;">
+      <template #header>
+        <div style="display: flex; align-items: center; gap: 12px;">
+          <div style="width: 4px; height: 24px; background: linear-gradient(180deg, #11998e 0%, #38ef7d 100%); border-radius: 2px;"></div>
+          <span style="font-size: 18px; font-weight: 600;">提交审核</span>
+        </div>
+      </template>
+      <div style="padding: 16px 0;">
+        <div style="background: #e6f7ff; border-radius: 8px; padding: 12px 16px; margin-bottom: 16px; color: #1890ff; font-size: 13px;">
+          提交后将进入审核流程，请确认信息无误。
+        </div>
+        <div style="margin-bottom: 8px; color: #333; font-weight: 500;">审核备注（可选）</div>
+        <NInput
+          v-model:value="reviewRemarks"
+          type="textarea"
+          placeholder="请输入审核备注，如有问题请说明..."
+          :rows="4"
+          style="border-radius: 8px;"
+        />
+      </div>
+      <template #footer>
+        <div style="display: flex; justify-content: flex-end; gap: 12px;">
+          <NButton @click="closeReviewDialog">取消</NButton>
+          <NButton type="primary" @click="submitReview">确认提交</NButton>
+        </div>
+      </template>
     </NModal>
   </div>
 </template>
@@ -379,5 +947,49 @@ onMounted(() => {
 
 .stat-error .stat-label {
   color: rgba(255, 255, 255, 0.85);
+}
+
+.stat-sub {
+  font-size: 11px;
+  margin-top: 6px;
+  opacity: 0.85;
+}
+
+.stat-card-mini {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  background: #f8f9fa;
+  border-radius: 10px;
+  padding: 12px 16px;
+}
+
+.stat-mini-icon {
+  width: 44px;
+  height: 44px;
+  border-radius: 10px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: white;
+  flex-shrink: 0;
+}
+
+.stat-mini-content {
+  flex: 1;
+  min-width: 0;
+}
+
+.stat-mini-value {
+  font-size: 18px;
+  font-weight: 700;
+  color: #333;
+  line-height: 1.3;
+}
+
+.stat-mini-label {
+  font-size: 12px;
+  color: #999;
+  margin-top: 2px;
 }
 </style>

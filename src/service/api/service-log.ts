@@ -68,6 +68,27 @@ export function fetchReportAnomaly(
 }
 
 /**
+ * 提交审核
+ */
+export function fetchSubmitServiceLogForReview(id: string, reviewRemarks?: string) {
+  return request({
+    url: `/api/service-log/${id}/submit-review`,
+    method: 'put',
+    data: { reviewRemarks }
+  });
+}
+
+/**
+ * 删除服务日志
+ */
+export function fetchDeleteServiceLog(id: string) {
+  return request({
+    url: `/api/service-log/${id}`,
+    method: 'delete'
+  });
+}
+
+/**
  * 获取服务日志统计
  */
 export function fetchGetServiceLogStatistics(params?: {

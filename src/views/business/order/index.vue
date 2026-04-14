@@ -79,11 +79,16 @@ const serviceTypeOptions = [
 
 // Status options
 const statusOptions = [
+  { label: '待派单', value: 'CREATED' },
   { label: '待分配', value: 'PENDING' },
   { label: '已派单', value: 'DISPATCHED' },
+  { label: '已接单', value: 'RECEIVED' },
   { label: '服务中', value: 'SERVICE_STARTED' },
-  { label: '已完成', value: 'COMPLETED' },
-  { label: '已取消', value: 'CANCELLED' }
+  { label: '已完成', value: 'SERVICE_COMPLETED' },
+  { label: '已评价', value: 'EVALUATED' },
+  { label: '已结算', value: 'SETTLED' },
+  { label: '已取消', value: 'CANCELLED' },
+  { label: '已拒单', value: 'REJECTED' }
 ];
 
 async function getProviderOptions() {
@@ -102,13 +107,18 @@ async function getProviderOptions() {
 
 function getStatusType(status: string): 'warning' | 'success' | 'info' | 'error' | 'default' {
   const map: Record<string, 'warning' | 'success' | 'info' | 'error' | 'default'> = {
+    CREATED: 'warning',
     PENDING: 'warning',
     DISPATCHED: 'info',
+    RECEIVED: 'info',
     ASSIGNED: 'info',
     ACCEPTED: 'info',
-    IN_SERVICE: 'info',
-    COMPLETED: 'success',
-    CANCELLED: 'error'
+    SERVICE_STARTED: 'info',
+    SERVICE_COMPLETED: 'success',
+    EVALUATED: 'success',
+    SETTLED: 'success',
+    CANCELLED: 'error',
+    REJECTED: 'error'
   };
   return map[status] || 'default';
 }
@@ -152,19 +162,19 @@ const columns: DataTableColumns<Api.Order.Order> = [
     fixed: 'right',
     render: row => {
       const buttons: ReturnType<typeof h>[] = [];
-      if (row.status === 'PENDING') {
+      if (row.status === 'CREATED' || row.status === 'PENDING') {
         buttons.push(h(NButton, { size: 'small', onClick: () => handleAssign(row) }, () => '分配'));
       }
-      if (row.status === 'ASSIGNED') {
+      if (row.status === 'DISPATCHED') {
         buttons.push(h(NButton, { size: 'small', onClick: () => handleAccept(row) }, () => '接单'));
       }
-      if (row.status === 'ACCEPTED') {
+      if (row.status === 'RECEIVED') {
         buttons.push(h(NButton, { size: 'small', onClick: () => handleStart(row) }, () => '开始服务'));
       }
-      if (row.status === 'IN_SERVICE') {
+      if (row.status === 'SERVICE_STARTED') {
         buttons.push(h(NButton, { size: 'small', onClick: () => handleComplete(row) }, () => '完成服务'));
       }
-      if (row.status !== 'COMPLETED' && row.status !== 'CANCELLED') {
+      if (row.status !== 'SERVICE_COMPLETED' && row.status !== 'EVALUATED' && row.status !== 'SETTLED' && row.status !== 'CANCELLED' && row.status !== 'REJECTED') {
         buttons.push(h(NButton, { size: 'small', type: 'error', onClick: () => handleCancel(row) }, () => '取消'));
       }
       return h(NSpace, { size: 'small' }, () => buttons);
@@ -396,9 +406,14 @@ onMounted(() => {
     </NCard>
 
     <!-- Table -->
-    <NCard title="订单管理" :bordered="false">
+    <NCard :bordered="false" style="margin-bottom: 16px">
       <template #header>
-        <NSpace :wrap="true">
+        <div style="display: flex; justify-content: space-between; align-items: center;">
+          <span>订单管理</span>
+        </div>
+      </template>
+      <div style="background: #f5f5f5; padding: 12px; margin-bottom: 12px; border-radius: 4px;">
+        <NSpace :wrap="true" align="center">
           <NInput v-model:value="searchOrderNo" placeholder="订单号" clearable style="width: 150px" />
           <NInput v-model:value="searchElderName" placeholder="老人姓名" clearable style="width: 100px" />
           <NSelect
@@ -427,7 +442,7 @@ onMounted(() => {
           <NButton type="primary" @click="getTableData">搜索</NButton>
           <NButton @click="() => { searchOrderNo = ''; searchElderName = ''; searchProviderId = ''; searchServiceType = ''; searchStatus = ''; searchDateRange = null; getTableData(); }">重置</NButton>
         </NSpace>
-      </template>
+      </div>
       <NDataTable
         :columns="columns"
         :data="tableData"
