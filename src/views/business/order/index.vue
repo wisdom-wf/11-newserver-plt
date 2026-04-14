@@ -433,13 +433,14 @@ async function handleStart(row: Api.Order.Order) {
   try {
     message.info('正在开始服务...');
     console.log('[DEBUG] calling fetchStartOrder...');
-    await fetchStartOrder(row.orderId);
-    console.log('[DEBUG] fetchStartOrder completed');
+    const result = await fetchStartOrder(row.orderId);
+    console.log('[DEBUG] fetchStartOrder result:', result);
     message.success('开始服务成功');
     await getTableData();
     await getStatistics();
   } catch (e: any) {
     console.error('[DEBUG] handleStart error:', e);
+    console.error('[DEBUG] error response:', e?.response);
     const errorMsg = e?.response?.data?.msg || e?.message || '开始服务失败';
     message.error(errorMsg);
   }
