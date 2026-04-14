@@ -840,6 +840,50 @@ onMounted(() => {
   color: rgba(255, 255, 255, 0.85);
 }
 
+.stat-sub {
+  font-size: 11px;
+  margin-top: 6px;
+  opacity: 0.85;
+}
+
+.stat-card-mini {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  background: #f8f9fa;
+  border-radius: 10px;
+  padding: 12px 16px;
+}
+
+.stat-mini-icon {
+  width: 44px;
+  height: 44px;
+  border-radius: 10px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: white;
+  flex-shrink: 0;
+}
+
+.stat-mini-content {
+  flex: 1;
+  min-width: 0;
+}
+
+.stat-mini-value {
+  font-size: 18px;
+  font-weight: 600;
+  color: #333;
+  line-height: 1.3;
+}
+
+.stat-mini-label {
+  font-size: 12px;
+  color: #999;
+  margin-top: 2px;
+}
+
 :deep(.n-data-table-tr--checked) {
   background-color: rgba(24, 160, 88, 0.12) !important;
 }
