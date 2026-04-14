@@ -82,6 +82,26 @@ public class ServiceLogController {
     }
 
     /**
+     * 提交审核
+     * PUT /api/service-log/{id}/submit-review
+     */
+    @PutMapping("/{id}/submit-review")
+    public Result<Void> submitForReview(@PathVariable String id, @RequestBody Map<String, String> params) {
+        serviceLogService.submitForReview(id, params.get("reviewRemarks"));
+        return Result.success("提交审核成功");
+    }
+
+    /**
+     * 删除服务日志
+     * DELETE /api/service-log/{id}
+     */
+    @DeleteMapping("/{id}")
+    public Result<Void> deleteServiceLog(@PathVariable String id) {
+        serviceLogService.deleteServiceLog(id);
+        return Result.success("删除成功");
+    }
+
+    /**
      * 获取服务日志统计
      * GET /api/service-log/statistics
      */
