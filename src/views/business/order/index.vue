@@ -414,9 +414,10 @@ async function handleAccept(row: Api.Order.Order) {
     message.success('接单成功');
     await getTableData();
     await getStatistics();
-  } catch (e) {
+  } catch (e: any) {
     console.error('Failed to accept', e);
-    message.error('接单失败');
+    const errorMsg = e?.response?.data?.msg || e?.message || '接单失败';
+    message.error(errorMsg);
   }
 }
 
@@ -427,9 +428,10 @@ async function handleStart(row: Api.Order.Order) {
     message.success('开始服务成功');
     await getTableData();
     await getStatistics();
-  } catch (e) {
+  } catch (e: any) {
     console.error('Failed to start', e);
-    message.error('开始服务失败');
+    const errorMsg = e?.response?.data?.msg || e?.message || '开始服务失败';
+    message.error(errorMsg);
   }
 }
 
@@ -447,9 +449,10 @@ async function handleCompleteSubmit() {
     completeModalVisible.value = false;
     await getTableData();
     await getStatistics();
-  } catch (e) {
+  } catch (e: any) {
     console.error('Failed to complete', e);
-    message.error('完成服务失败');
+    const errorMsg = e?.response?.data?.msg || e?.message || '完成服务失败';
+    message.error(errorMsg);
   }
 }
 
@@ -467,9 +470,10 @@ async function handleCancelSubmit() {
     cancelModalVisible.value = false;
     await getTableData();
     await getStatistics();
-  } catch (e) {
+  } catch (e: any) {
     console.error('Failed to cancel', e);
-    message.error('取消失败');
+    const errorMsg = e?.response?.data?.msg || e?.message || '取消失败';
+    message.error(errorMsg);
   }
 }
 
