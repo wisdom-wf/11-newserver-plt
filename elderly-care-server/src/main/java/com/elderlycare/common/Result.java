@@ -11,11 +11,8 @@ public class Result<T> implements Serializable {
 
     private static final long serialVersionUID = 1L;
 
-    /** 业务状态码 ("0000"表示成功) */
-    private String code;
-    /** 消息 */
+    private Integer code;
     private String message;
-    /** 数据 */
     private T data;
     private Long timestamp;
 
@@ -23,13 +20,13 @@ public class Result<T> implements Serializable {
         this.timestamp = System.currentTimeMillis();
     }
 
-    public Result(String code, String message) {
+    public Result(Integer code, String message) {
         this.code = code;
         this.message = message;
         this.timestamp = System.currentTimeMillis();
     }
 
-    public Result(String code, String message, T data) {
+    public Result(Integer code, String message, T data) {
         this.code = code;
         this.message = message;
         this.data = data;
@@ -37,81 +34,46 @@ public class Result<T> implements Serializable {
     }
 
     public static <T> Result<T> success() {
-        Result<T> result = new Result<>();
-        result.code = "0000";
-        result.message = "操作成功";
-        return result;
+        return new Result<>(200, "操作成功");
     }
 
     public static <T> Result<T> success(T data) {
-        Result<T> result = new Result<>();
-        result.code = "0000";
-        result.message = "操作成功";
-        result.data = data;
-        return result;
+        return new Result<>(200, "操作成功", data);
     }
 
     public static <T> Result<T> success(String message, T data) {
-        Result<T> result = new Result<>();
-        result.code = "0000";
-        result.message = message;
-        result.data = data;
-        return result;
+        return new Result<>(200, message, data);
     }
 
     public static <T> Result<T> success(String message) {
-        Result<T> result = new Result<>();
-        result.code = "0000";
-        result.message = message;
-        return result;
+        return new Result<>(200, message);
     }
 
     public static <T> Result<T> error() {
-        Result<T> result = new Result<>();
-        result.code = "500";
-        result.message = "服务器内部错误";
-        return result;
+        return new Result<>(500, "服务器内部错误");
     }
 
     public static <T> Result<T> error(String message) {
-        Result<T> result = new Result<>();
-        result.code = "500";
-        result.message = message;
-        return result;
+        return new Result<>(500, message);
     }
 
-    public static <T> Result<T> error(String code, String message) {
-        Result<T> result = new Result<>();
-        result.code = code;
-        result.message = message;
-        return result;
+    public static <T> Result<T> error(Integer code, String message) {
+        return new Result<>(code, message);
     }
 
     public static <T> Result<T> fail(String message) {
-        Result<T> result = new Result<>();
-        result.code = "400";
-        result.message = message;
-        return result;
+        return new Result<>(400, message);
     }
 
     public static <T> Result<T> unauthorized(String message) {
-        Result<T> result = new Result<>();
-        result.code = "401";
-        result.message = message;
-        return result;
+        return new Result<>(401, message);
     }
 
     public static <T> Result<T> forbidden(String message) {
-        Result<T> result = new Result<>();
-        result.code = "403";
-        result.message = message;
-        return result;
+        return new Result<>(403, message);
     }
 
     public static <T> Result<T> notFound(String message) {
-        Result<T> result = new Result<>();
-        result.code = "404";
-        result.message = message;
-        return result;
+        return new Result<>(404, message);
     }
 }

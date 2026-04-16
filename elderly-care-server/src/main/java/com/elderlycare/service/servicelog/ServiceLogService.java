@@ -43,16 +43,6 @@ public interface ServiceLogService {
     void reportAnomaly(String id, Map<String, Object> params);
 
     /**
-     * 提交审核
-     */
-    void submitForReview(String id, String reviewRemarks);
-
-    /**
-     * 删除服务日志
-     */
-    void deleteServiceLog(String id);
-
-    /**
      * 获取服务日志统计
      */
     ServiceLogStatisticsVO getStatistics(String areaId, String providerId, String staffId, String startDate, String endDate);

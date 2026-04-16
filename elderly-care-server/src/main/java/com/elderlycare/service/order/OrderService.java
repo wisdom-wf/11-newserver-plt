@@ -75,11 +75,4 @@ public interface OrderService {
      * 查询服务记录
      */
     PageResult<ServiceRecordVO> getServiceRecords(ServiceRecordQueryDTO query);
-
-    // ==================== 订单统计 ====================
-
-    /**
-     * 获取订单统计
-     */
-    OrderStatisticsVO getStatistics();
 }

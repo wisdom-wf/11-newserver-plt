@@ -125,4 +125,14 @@ public class AppointmentController {
         List<AppointmentVO> list = appointmentService.getAppointmentsByPhone(phone);
         return Result.success(list);
     }
+
+    /**
+     * 获取预约时间轴
+     * GET /api/appointment/{id}/timeline
+     */
+    @GetMapping("/{id}/timeline")
+    public Result<Object> getAppointmentTimeline(@PathVariable String id) {
+        Object timeline = appointmentService.getAppointmentTimeline(id);
+        return Result.success(timeline);
+    }
 }

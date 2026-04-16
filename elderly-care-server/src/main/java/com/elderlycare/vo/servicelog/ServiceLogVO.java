@@ -4,7 +4,6 @@ import lombok.Data;
 
 import java.io.Serializable;
 import java.math.BigDecimal;
-import java.util.List;
 
 /**
  * 服务日志VO
@@ -88,18 +87,6 @@ public class ServiceLogVO implements Serializable {
 
     /** 异常处理状态 */
     private String anomalyStatus;
-
-    /** 审核备注 */
-    private String reviewRemarks;
-
-    /** 审核状态: PENDING-待审核, APPROVED-已通过, REJECTED-已驳回 */
-    private String auditStatus;
-
-    /** 服务内容 */
-    private String serviceContent;
-
-    /** 服务照片 */
-    private List<String> servicePhotos;
 
     /** 创建时间 */
     private String createTime;

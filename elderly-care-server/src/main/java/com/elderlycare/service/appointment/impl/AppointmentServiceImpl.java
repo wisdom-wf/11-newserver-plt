@@ -336,4 +336,129 @@ public class AppointmentServiceImpl implements AppointmentService {
         vo.setUpdateTime(appointment.getUpdateTime() != null ? appointment.getUpdateTime().toString() : null);
         return vo;
     }
+
+    @Override
+    public Object getAppointmentTimeline(String id) {
+        Appointment appointment = appointmentMapper.selectById(id);
+        if (appointment == null) {
+            throw new RuntimeException("预约不存在");
+        }
+
+        Map<String, Object> timeline = new HashMap<>();
+        timeline.put("appointmentId", appointment.getAppointmentId());
+        timeline.put("appointmentNo", appointment.getAppointmentNo());
+        timeline.put("currentStatus", appointment.getStatus());
+        timeline.put("currentStatusName", getStatusName(appointment.getStatus()));
+
+        // 填充订单关联信息
+        if (appointment.getOrderId() != null && !appointment.getOrderId().isEmpty()) {
+            Order order = orderMapper.selectById(appointment.getOrderId());
+            if (order != null) {
+                timeline.put("orderId", order.getOrderId());
+                timeline.put("orderNo", order.getOrderNo());
+                timeline.put("orderStatus", order.getStatus());
+                timeline.put("orderStatusName", getOrderStatusName(order.getStatus()));
+            }
+        }
+
+        // 构建时间轴节点
+        List<Map<String, Object>> nodes = buildAppointmentTimelineNodes(appointment);
+        timeline.put("nodes", nodes);
+
+        return timeline;
+    }
+
+    private String getOrderStatusName(String status) {
+        if (status == null) return "";
+        OrderStatus orderStatus = OrderStatus.fromCode(status);
+        return orderStatus != null ? orderStatus.getDescription() : status;
+    }
+
+    private List<Map<String, Object>> buildAppointmentTimelineNodes(Appointment appointment) {
+        List<Map<String, Object>> nodes = new java.util.ArrayList<>();
+
+        // 创建
+        Map<String, Object> createdNode = new HashMap<>();
+        createdNode.put("status", "CREATED");
+        createdNode.put("statusName", "已创建");
+        createdNode.put("title", "预约已创建");
+        createdNode.put("time", appointment.getCreateTime() != null ? appointment.getCreateTime().toString() : null);
+        createdNode.put("completed", true);
+        createdNode.put("active", "CREATED".equals(appointment.getStatus()));
+        List<Map<String, String>> createdDetails = new java.util.ArrayList<>();
+        addDetail(createdDetails, "预约单号", appointment.getAppointmentNo());
+        addDetail(createdDetails, "老人姓名", appointment.getElderName());
+        addDetail(createdDetails, "服务类型", appointment.getServiceType());
+        addDetail(createdDetails, "预约时间", appointment.getAppointmentTime());
+        createdNode.put("details", createdDetails);
+        nodes.add(createdNode);
+
+        // 确认
+        if (appointment.getConfirmTime() != null || "CONFIRMED".equals(appointment.getStatus())) {
+            Map<String, Object> confirmedNode = new HashMap<>();
+            confirmedNode.put("status", "CONFIRMED");
+            confirmedNode.put("statusName", "已确认");
+            confirmedNode.put("title", "预约已确认");
+            confirmedNode.put("time", appointment.getConfirmTime() != null ? appointment.getConfirmTime().toString() : null);
+            confirmedNode.put("completed", true);
+            confirmedNode.put("active", "CONFIRMED".equals(appointment.getStatus()));
+            List<Map<String, String>> confirmedDetails = new java.util.ArrayList<>();
+            addDetail(confirmedDetails, "服务机构", appointment.getProviderName());
+            addDetail(confirmedDetails, "预约时间", appointment.getAppointmentTime());
+            confirmedNode.put("details", confirmedDetails);
+            nodes.add(confirmedNode);
+        }
+
+        // 完成
+        if ("COMPLETED".equals(appointment.getStatus())) {
+            Map<String, Object> completedNode = new HashMap<>();
+            completedNode.put("status", "COMPLETED");
+            completedNode.put("statusName", "已完成");
+            completedNode.put("title", "服务已完成");
+            completedNode.put("time", appointment.getUpdateTime() != null ? appointment.getUpdateTime().toString() : null);
+            completedNode.put("completed", true);
+            completedNode.put("active", false);
+            completedNode.put("details", new java.util.ArrayList<>());
+            nodes.add(completedNode);
+        }
+
+        // 取消/作废
+        if ("CANCELLED".equals(appointment.getStatus()) || "INVALID".equals(appointment.getStatus())) {
+            Map<String, Object> cancelledNode = new HashMap<>();
+            cancelledNode.put("status", appointment.getStatus());
+            cancelledNode.put("statusName", "CANCELLED".equals(appointment.getStatus()) ? "已取消" : "已作废");
+            cancelledNode.put("title", "CANCELLED".equals(appointment.getStatus()) ? "预约已取消" : "预约已作废");
+            cancelledNode.put("time", appointment.getUpdateTime() != null ? appointment.getUpdateTime().toString() : null);
+            cancelledNode.put("completed", true);
+            cancelledNode.put("active", true);
+            List<Map<String, String>> cancelledDetails = new java.util.ArrayList<>();
+            addDetail(cancelledDetails, "原因", appointment.getCancelReason());
+            cancelledNode.put("details", cancelledDetails);
+            nodes.add(cancelledNode);
+        }
+
+        return nodes;
+    }
+
+    private void addDetail(List<Map<String, String>> details, String label, String value) {
+        if (value != null && !value.isEmpty()) {
+            Map<String, String> detail = new HashMap<>();
+            detail.put("label", label);
+            detail.put("value", value);
+            details.add(detail);
+        }
+    }
+
+    private String getStatusName(String status) {
+        if (status == null) return "";
+        switch (status) {
+            case "PENDING": return "待确认";
+            case "CONFIRMED": return "已确认";
+            case "ASSIGNED": return "已分配";
+            case "COMPLETED": return "已完成";
+            case "CANCELLED": return "已取消";
+            case "INVALID": return "已作废";
+            default: return status;
+        }
+    }
 }

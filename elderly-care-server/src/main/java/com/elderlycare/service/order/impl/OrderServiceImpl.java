@@ -21,7 +21,6 @@ import org.apache.commons.lang3.StringUtils;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-import java.math.BigDecimal;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
@@ -339,7 +338,10 @@ public class OrderServiceImpl implements OrderService {
         ServiceRecord record = new ServiceRecord();
         record.setServiceRecordId(IDGenerator.generateId());
         record.setOrderId(orderId);
-        record.setStaffId(dto.getStaffId());
+        // 优先使用DTO中的staffId，否则使用订单中已分配的服务人员
+        record.setStaffId(StringUtils.isNotBlank(dto.getStaffId())
+            ? dto.getStaffId()
+            : order.getStaffId());
         record.setCheckInTime(LocalDateTime.now());
         record.setCheckInLocation(dto.getLongitude() + "," + dto.getLatitude());
         if (StringUtils.isNotBlank(dto.getCheckInPhoto())) {
@@ -582,68 +584,5 @@ public class OrderServiceImpl implements OrderService {
         if (status == null) return "";
         OrderStatus orderStatus = OrderStatus.fromCode(status);
         return orderStatus != null ? orderStatus.getDescription() : status;
-    }
-
-    // ==================== 订单统计 ====================
-
-    @Override
-    public OrderStatisticsVO getStatistics() {
-        OrderStatisticsVO stats = new OrderStatisticsVO();
-
-        // 总订单数
-        Long total = orderMapper.selectCount(null);
-        stats.setTotal(total.intValue());
-
-        // 今日新增
-        stats.setToday(orderMapper.countToday());
-
-        // 本月新增
-        stats.setMonth(orderMapper.countMonth());
-
-        // 状态分布
-        stats.setPendingDispatch(orderMapper.countPendingDispatch());
-        stats.setDispatched(orderMapper.countDispatched());
-        stats.setReceived(orderMapper.countReceived());
-        stats.setInService(orderMapper.countInService());
-        stats.setCompleted(orderMapper.countCompleted());
-        stats.setCancelled(orderMapper.countCancelled());
-
-        // 计算完成率
-        int finished = stats.getCompleted();
-        if (total > 0) {
-            stats.setCompletionRate(
-                BigDecimal.valueOf(finished)
-                    .multiply(BigDecimal.valueOf(100))
-                    .divide(BigDecimal.valueOf(total), 1, BigDecimal.ROUND_HALF_UP)
-            );
-        } else {
-            stats.setCompletionRate(BigDecimal.ZERO);
-        }
-
-        // 计算取消率
-        int cancelledCount = stats.getCancelled();
-        if (total > 0) {
-            stats.setCancelRate(
-                BigDecimal.valueOf(cancelledCount)
-                    .multiply(BigDecimal.valueOf(100))
-                    .divide(BigDecimal.valueOf(total), 1, BigDecimal.ROUND_HALF_UP)
-            );
-        } else {
-            stats.setCancelRate(BigDecimal.ZERO);
-        }
-
-        // 金额统计
-        stats.setTotalEstimatedPrice(orderMapper.sumEstimatedPrice());
-        stats.setTotalSubsidy(orderMapper.sumSubsidyAmount());
-        stats.setTotalSelfPay(orderMapper.sumSelfPayAmount());
-        stats.setTotalActualPrice(
-            stats.getTotalEstimatedPrice().subtract(stats.getTotalSubsidy())
-        );
-
-        // 服务人员排名
-        List<OrderStatisticsVO.StaffRanking> rankings = orderMapper.getStaffRankings();
-        stats.setStaffRankings(rankings);
-
-        return stats;
     }
 }

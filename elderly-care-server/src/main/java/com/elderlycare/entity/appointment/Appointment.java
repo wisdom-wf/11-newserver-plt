@@ -85,6 +85,12 @@ public class Appointment implements Serializable {
     /** 评估类型 */
     private String assessmentType;
 
+    /** 关联的订单ID */
+    private String orderId;
+
+    /** 关联的订单号 */
+    private String orderNo;
+
     /** 创建时间 */
     @TableField(fill = FieldFill.INSERT)
     private LocalDateTime createTime;

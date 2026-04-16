@@ -63,4 +63,9 @@ public interface AppointmentService {
      * 根据手机号获取预约列表
      */
     List<AppointmentVO> getAppointmentsByPhone(String phone);
+
+    /**
+     * 获取预约时间轴
+     */
+    Object getAppointmentTimeline(String id);
 }

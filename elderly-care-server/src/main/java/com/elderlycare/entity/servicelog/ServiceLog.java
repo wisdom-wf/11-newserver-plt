@@ -104,12 +104,6 @@ public class ServiceLog implements Serializable {
     /** 异常处理状态 */
     private String anomalyStatus;
 
-    /** 审核备注 */
-    private String reviewRemarks;
-
-    /** 审核状态: PENDING-待审核, APPROVED-已通过, REJECTED-已驳回 */
-    private String auditStatus;
-
     /** 创建时间 */
     @TableField(fill = FieldFill.INSERT)
     private LocalDateTime createTime;

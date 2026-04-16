@@ -4,7 +4,9 @@ import com.elderlycare.common.PageResult;
 import com.elderlycare.common.Result;
 import com.elderlycare.dto.order.*;
 import com.elderlycare.service.order.OrderService;
+import com.elderlycare.service.statistics.StatisticsService;
 import com.elderlycare.vo.order.*;
+import com.elderlycare.vo.statistics.OrderStatisticsVO;
 import lombok.RequiredArgsConstructor;
 import org.springframework.web.bind.annotation.*;
 
@@ -19,6 +21,7 @@ import java.util.List;
 public class OrderController {
 
     private final OrderService orderService;
+    private final StatisticsService statisticsService;
 
     // ==================== 订单管理 ====================
 
@@ -149,15 +152,15 @@ public class OrderController {
         return Result.success(result);
     }
 
-    // ==================== 订单统计 ====================
+    // ==================== 统计 ====================
 
     /**
      * 获取订单统计
      * GET /api/orders/statistics
      */
     @GetMapping("/statistics")
-    public Result<OrderStatisticsVO> getStatistics() {
-        OrderStatisticsVO result = orderService.getStatistics();
-        return Result.success(result);
+    public Result<OrderStatisticsVO> getOrderStatistics() {
+        OrderStatisticsVO statistics = statisticsService.getOrderStatistics(null, null, null, null);
+        return Result.success(statistics);
     }
 }
