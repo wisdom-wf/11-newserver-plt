@@ -275,6 +275,11 @@ public class AppointmentServiceImpl implements AppointmentService {
         order.setCreateTime(LocalDateTime.now());
 
         orderMapper.insert(order);
+
+        // 回写订单ID到预约记录
+        appointment.setOrderId(order.getOrderId());
+        appointment.setOrderNo(order.getOrderNo());
+        appointmentMapper.updateById(appointment);
     }
 
     /**
@@ -682,9 +687,18 @@ public class AppointmentServiceImpl implements AppointmentService {
             }
         }
 
-        // 构建时间轴节点
+        // 构建预约时间轴节点
         List<Map<String, Object>> nodes = buildAppointmentTimelineNodes(appointment);
         timeline.put("nodes", nodes);
+
+        // 追加订单时间轴节点
+        if (appointment.getOrderId() != null && !appointment.getOrderId().isEmpty()) {
+            Order order = orderMapper.selectById(appointment.getOrderId());
+            if (order != null) {
+                List<Map<String, Object>> orderNodes = buildOrderTimelineNodes(order);
+                timeline.put("orderNodes", orderNodes);
+            }
+        }
 
         return timeline;
     }
@@ -693,6 +707,129 @@ public class AppointmentServiceImpl implements AppointmentService {
         if (status == null) return "";
         OrderStatus orderStatus = OrderStatus.fromCode(status);
         return orderStatus != null ? orderStatus.getDescription() : status;
+    }
+
+    private List<Map<String, Object>> buildOrderTimelineNodes(Order order) {
+        List<Map<String, Object>> nodes = new java.util.ArrayList<>();
+        String currentStatus = order.getStatus();
+
+        // 创建（始终存在）
+        Map<String, Object> created = new HashMap<>();
+        created.put("status", "CREATED");
+        created.put("statusName", "待派单");
+        created.put("title", "订单已创建");
+        created.put("time", order.getCreateTime() != null ? order.getCreateTime().toString() : null);
+        created.put("completed", true);
+        created.put("active", "CREATED".equals(currentStatus));
+        List<Map<String, String>> createdDetails = new java.util.ArrayList<>();
+        addDetail(createdDetails, "订单号", order.getOrderNo());
+        addDetail(createdDetails, "服务类型", order.getServiceTypeName());
+        addDetail(createdDetails, "服务日期", order.getServiceDate() != null ? order.getServiceDate().toString() : null);
+        addDetail(createdDetails, "操作人", "系统");
+        created.put("details", createdDetails);
+        nodes.add(created);
+
+        // 派单
+        if (order.getDispatchTime() != null) {
+            Map<String, Object> node = new HashMap<>();
+            node.put("status", "DISPATCHED");
+            node.put("statusName", "已派单");
+            node.put("title", "订单已派单");
+            node.put("time", order.getDispatchTime().toString());
+            node.put("completed", true);
+            node.put("active", "DISPATCHED".equals(currentStatus));
+            List<Map<String, String>> details = new java.util.ArrayList<>();
+            addDetail(details, "订单号", order.getOrderNo());
+            addDetail(details, "服务商", order.getProviderName());
+            addDetail(details, "服务人员", order.getStaffName());
+            addDetail(details, "操作人", "管理员");
+            node.put("details", details);
+            nodes.add(node);
+        }
+
+        // 接单
+        if (order.getReceiveTime() != null) {
+            Map<String, Object> node = new HashMap<>();
+            node.put("status", "RECEIVED");
+            node.put("statusName", "已接单");
+            node.put("title", "服务人员已接单");
+            node.put("time", order.getReceiveTime().toString());
+            node.put("completed", true);
+            node.put("active", "RECEIVED".equals(currentStatus));
+            List<Map<String, String>> details = new java.util.ArrayList<>();
+            addDetail(details, "订单号", order.getOrderNo());
+            addDetail(details, "服务人员", order.getStaffName());
+            addDetail(details, "操作人", "服务人员");
+            node.put("details", details);
+            nodes.add(node);
+        }
+
+        // 服务开始
+        if (order.getStartTime() != null) {
+            Map<String, Object> node = new HashMap<>();
+            node.put("status", "SERVICE_STARTED");
+            node.put("statusName", "服务中");
+            node.put("title", "服务已开始");
+            node.put("time", order.getStartTime().toString());
+            node.put("completed", true);
+            node.put("active", "SERVICE_STARTED".equals(currentStatus));
+            List<Map<String, String>> details = new java.util.ArrayList<>();
+            addDetail(details, "订单号", order.getOrderNo());
+            addDetail(details, "操作人", "服务人员");
+            node.put("details", details);
+            nodes.add(node);
+        }
+
+        // 服务完成
+        if (order.getCompleteTime() != null) {
+            Map<String, Object> node = new HashMap<>();
+            node.put("status", "SERVICE_COMPLETED");
+            node.put("statusName", "已完成");
+            node.put("title", "服务已完成");
+            node.put("time", order.getCompleteTime().toString());
+            node.put("completed", true);
+            node.put("active", "SERVICE_COMPLETED".equals(currentStatus));
+            List<Map<String, String>> details = new java.util.ArrayList<>();
+            addDetail(details, "订单号", order.getOrderNo());
+            addDetail(details, "操作人", "服务人员");
+            node.put("details", details);
+            nodes.add(node);
+        }
+
+        // 取消
+        if ("CANCELLED".equals(currentStatus)) {
+            Map<String, Object> node = new HashMap<>();
+            node.put("status", "CANCELLED");
+            node.put("statusName", "已取消");
+            node.put("title", "订单已取消");
+            node.put("time", order.getUpdateTime() != null ? order.getUpdateTime().toString() : null);
+            node.put("completed", true);
+            node.put("active", true);
+            List<Map<String, String>> details = new java.util.ArrayList<>();
+            addDetail(details, "订单号", order.getOrderNo());
+            addDetail(details, "取消原因", order.getCancelReason());
+            addDetail(details, "操作人", "用户/管理员");
+            node.put("details", details);
+            nodes.add(node);
+        }
+
+        // 拒单
+        if ("REJECTED".equals(currentStatus)) {
+            Map<String, Object> node = new HashMap<>();
+            node.put("status", "REJECTED");
+            node.put("statusName", "已拒单");
+            node.put("title", "订单已被拒单");
+            node.put("time", order.getUpdateTime() != null ? order.getUpdateTime().toString() : null);
+            node.put("completed", true);
+            node.put("active", true);
+            List<Map<String, String>> details = new java.util.ArrayList<>();
+            addDetail(details, "订单号", order.getOrderNo());
+            addDetail(details, "操作人", "服务人员");
+            node.put("details", details);
+            nodes.add(node);
+        }
+
+        return nodes;
     }
 
     private List<Map<String, Object>> buildAppointmentTimelineNodes(Appointment appointment) {
