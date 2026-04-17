@@ -4,6 +4,17 @@
 
 declare namespace Api {
   namespace Elder {
+    /** 性别 */
+    type Gender = 'UNKNOWN' | 'MALE' | 'FEMALE' | '0' | '1';
+    /** 养老类型 */
+    type CareType = 'HOME' | 'COMMUNITY' | 'INSTITUTION';
+    /** 护理等级 */
+    type CareLevel = 'LEVEL_1' | 'LEVEL_2' | 'LEVEL_3' | 'LEVEL_4' | 'LEVEL_5';
+    /** 补贴类型 */
+    type SubsidyType = 'SELF_PAY' | 'SUBSIDY' | 'MIXED';
+    /** 健康状况 */
+    type HealthStatus = 'GOOD' | 'FAIR' | 'POOR' | 'UNKNOWN';
+
     /** 老人查询参数 */
     interface ElderQuery {
       /** 姓名 */

@@ -1,14 +1,6 @@
 <script setup lang="ts">
 import { ref, h, onMounted } from 'vue';
-import {
-  NButton,
-  NCard,
-  NTag,
-  NSpace,
-  NInput,
-  NSelect,
-  useMessage
-} from 'naive-ui';
+import { NButton, NCard, NTag, NSpace, NInput, NSelect, useMessage } from 'naive-ui';
 import type { DataTableColumns } from 'naive-ui';
 import { useFormRules } from '@/hooks/common/form';
 import {
@@ -235,7 +227,7 @@ function resetForm() {
     emergencyPhone: '',
     healthStatus: 'GOOD',
     remark: '',
-    status: '1'
+    status: 'ENABLED' as Api.Common.EnableStatus
   };
 }
 
@@ -249,20 +241,20 @@ async function handleOpenEdit(id: string) {
   if (row) {
     form.value = {
       name: row.name,
-      gender: row.gender || 'UNKNOWN',
+      gender: (row.gender || 'UNKNOWN') as Api.Elder.Gender,
       idCard: row.idCard,
       phone: row.phone || '',
       birthDate: row.birthDate || '',
       age: row.age || 0,
-      careType: row.careType || 'HOME',
-      subsidyType: row.subsidyType || 'SELF_PAY',
-      careLevel: row.careLevel || 'LEVEL_3',
+      careType: (row.careType || 'HOME') as Api.Elder.CareType,
+      subsidyType: (row.subsidyType || 'SELF_PAY') as Api.Elder.SubsidyType,
+      careLevel: (row.careLevel || 'LEVEL_3') as Api.Elder.CareLevel,
       address: row.address || '',
       emergencyContact: row.emergencyContact || '',
       emergencyPhone: row.emergencyPhone || '',
-      healthStatus: row.healthStatus || 'GOOD',
+      healthStatus: (row.healthStatus || 'GOOD') as Api.Elder.HealthStatus,
       remark: row.remark || '',
-      status: row.status || '1'
+      status: (row.status || 'ENABLED') as Api.Common.EnableStatus
     };
     handleEdit(id);
   }
@@ -352,11 +344,11 @@ onMounted(() => {
     <!-- Table -->
     <NCard :bordered="false" style="margin-bottom: 16px">
       <template #header>
-        <div style="display: flex; justify-content: space-between; align-items: center;">
+        <div style="display: flex; justify-content: space-between; align-items: center">
           <span>老人档案管理</span>
         </div>
       </template>
-      <div style="background: #f5f5f5; padding: 12px; margin-bottom: 12px; border-radius: 4px;">
+      <div style="background: #f5f5f5; padding: 12px; margin-bottom: 12px; border-radius: 4px">
         <NSpace :wrap="true" align="center">
           <NInput v-model:value="searchName" placeholder="姓名" clearable style="width: 100px" />
           <NInput v-model:value="searchIdCard" placeholder="身份证号" clearable style="width: 180px" />
@@ -379,7 +371,7 @@ onMounted(() => {
           <NButton @click="handleResetSearch">重置</NButton>
         </NSpace>
       </div>
-      
+
       <!-- Use framework's TableHeaderOperation component -->
       <TableHeaderOperation
         v-model:columns="columnChecks"
@@ -388,7 +380,7 @@ onMounted(() => {
         @add="handleOpenAdd"
         @refresh="getData"
       />
-      
+
       <NDataTable
         :columns="columns"
         :data="tableData"
