@@ -143,8 +143,8 @@ async function getStatistics() {
 // Use framework's table hook
 const tableHookResult = useNaivePaginatedTable<Api.Common.PaginatingQueryRecord<Api.Quality.QualityCheck>, Api.Quality.QualityCheck>({
   apiFn: async params => {
-    const queryParams: Api.Quality.QualityCheckQuery & Api.Common.PaginatingQueryParams = {
-      page: params.page,
+    const queryParams: any = {
+      current: params.page,
       pageSize: params.pageSize
     };
     if (searchOrderNo.value) queryParams.orderNo = searchOrderNo.value;

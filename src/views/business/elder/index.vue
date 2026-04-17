@@ -150,7 +150,7 @@ const {
 } = useNaivePaginatedTable<Api.Common.PaginatingQueryRecord<Api.Elder.Elder>, Api.Elder.Elder>({
   apiFn: async params => {
     const queryParams: any = {
-      page: params.page,
+      current: params.page,
       pageSize: params.pageSize
     };
     if (searchName.value) queryParams.name = searchName.value;

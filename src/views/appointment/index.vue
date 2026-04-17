@@ -172,7 +172,7 @@ const {
 } = useNaivePaginatedTable<Api.Common.PaginatingQueryRecord<Api.Appointment.Appointment>, Api.Appointment.Appointment>({
   apiFn: async params => {
     const queryParams: any = {
-      page: params.page,
+      current: params.page,
       pageSize: params.pageSize
     };
     if (searchAppointmentNo.value) queryParams.appointmentNo = searchAppointmentNo.value;

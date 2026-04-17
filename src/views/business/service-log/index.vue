@@ -234,8 +234,8 @@ const tableHookResult = useNaivePaginatedTable<
   Api.ServiceLog.ServiceLog
 >({
   apiFn: async params => {
-    const queryParams: Api.ServiceLog.ServiceLogQuery & Api.Common.PaginatingQueryParams = {
-      page: params.page,
+    const queryParams: any = {
+      current: params.page,
       pageSize: params.pageSize
     };
     if (searchOrderNo.value) queryParams.orderNo = searchOrderNo.value;
