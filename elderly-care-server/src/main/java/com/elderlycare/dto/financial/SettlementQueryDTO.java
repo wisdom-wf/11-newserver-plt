@@ -29,4 +29,10 @@ public class SettlementQueryDTO implements Serializable {
     private LocalDate endDate;
 
     private String settlementType;
+
+    private String orderNo;
+
+    private String elderName;
+
+    private String providerName;
 }

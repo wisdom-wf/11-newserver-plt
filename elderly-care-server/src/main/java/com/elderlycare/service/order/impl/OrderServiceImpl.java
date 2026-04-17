@@ -349,9 +349,33 @@ public class OrderServiceImpl implements OrderService {
 
     @Override
     public PageResult<AvailableResourceVO> getAvailableResources(String orderId, Integer page, Integer pageSize) {
-        // TODO: 实际实现需要查询服务商和服务人员表，进行匹配
-        // 目前返回空列表，后续与服务商、服务人员模块关联后完善
-        return PageResult.of(0L, page, pageSize, new ArrayList<>());
+        Order order = orderMapper.selectById(orderId);
+        if (order == null) {
+            throw new BusinessException("订单不存在");
+        }
+
+        // Query enabled providers
+        com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper<Provider> wrapper =
+                new com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper<>();
+        wrapper.eq(Provider::getStatus, "ENABLED");
+        wrapper.eq(Provider::getDeleted, 0);
+        List<Provider> providers = providerMapper.selectList(wrapper);
+
+        List<AvailableResourceVO> resources = new ArrayList<>();
+        for (Provider p : providers) {
+            AvailableResourceVO vo = new AvailableResourceVO();
+            vo.setProviderId(p.getProviderId());
+            vo.setProviderName(p.getProviderName());
+            vo.setProviderAddress(p.getAddress());
+            vo.setServiceTypeName(order.getServiceTypeName());
+            vo.setRating(p.getRating() != null ? p.getRating().doubleValue() : null);
+            resources.add(vo);
+        }
+
+        int total = resources.size();
+        int fromIndex = Math.min((page - 1) * pageSize, total);
+        int toIndex = Math.min(fromIndex + pageSize, total);
+        return PageResult.of((long) total, page, pageSize, resources.subList(fromIndex, toIndex));
     }
 
     // ==================== 服务执行 ====================

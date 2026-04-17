@@ -26,6 +26,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.multipart.MultipartFile;
 
+import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.math.BigDecimal;
 import java.time.LocalDate;
@@ -542,9 +543,33 @@ public class AppointmentServiceImpl implements AppointmentService {
     }
 
     @Override
-    public String getTemplateUrl() {
-        // TODO: 返回模板下载地址
-        return "/api/appointment/template/download";
+    public byte[] generateTemplate() {
+        try (Workbook workbook = new XSSFWorkbook()) {
+            Sheet sheet = workbook.createSheet("预约导入模板");
+            // Header row
+            String[] headers = {"老人姓名", "身份证号", "联系电话", "服务类型", "预约日期", "预约时段", "服务地址", "备注"};
+            Row headerRow = sheet.createRow(0);
+            for (int i = 0; i < headers.length; i++) {
+                Cell cell = headerRow.createCell(i);
+                cell.setCellValue(headers[i]);
+                sheet.setColumnWidth(i, 20 * 256);
+            }
+            // Example row
+            Row exampleRow = sheet.createRow(1);
+            exampleRow.createCell(0).setCellValue("张三");
+            exampleRow.createCell(1).setCellValue("612601195001010011");
+            exampleRow.createCell(2).setCellValue("13800138000");
+            exampleRow.createCell(3).setCellValue("上门服务");
+            exampleRow.createCell(4).setCellValue("2026-04-20");
+            exampleRow.createCell(5).setCellValue("上午");
+            exampleRow.createCell(6).setCellValue("陕西省延安市宝塔区XX街道XX社区");
+            exampleRow.createCell(7).setCellValue("");
+            ByteArrayOutputStream bos = new ByteArrayOutputStream();
+            workbook.write(bos);
+            return bos.toByteArray();
+        } catch (Exception e) {
+            throw new RuntimeException("生成模板失败", e);
+        }
     }
 
     @Override

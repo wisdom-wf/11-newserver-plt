@@ -39,11 +39,30 @@
         <if test="query.providerId != null and query.providerId != ''">
             AND st.provider_id = #{query.providerId}
         </if>
+        <if test="query.providerName != null and query.providerName != ''">
+            AND p.provider_name LIKE CONCAT('%', #{query.providerName}, '%')
+        </if>
         <if test="query.staffId != null and query.staffId != ''">
             AND st.staff_id = #{query.staffId}
         </if>
+        <if test="query.orderNo != null and query.orderNo != ''">
+            AND st.settlement_no LIKE CONCAT('%', #{query.orderNo}, '%')
+        </if>
+        <if test="query.elderName != null and query.elderName != ''">
+            AND EXISTS (
+                SELECT 1 FROM t_order o
+                WHERE o.provider_id = st.provider_id
+                  AND o.elder_name LIKE CONCAT('%', #{query.elderName}, '%')
+            )
+        </if>
         <if test="query.status != null and query.status != ''">
             AND st.payment_status = #{query.status}
+        </if>
+        <if test="query.startDate != null">
+            AND st.create_time &gt;= #{query.startDate}
+        </if>
+        <if test="query.endDate != null">
+            AND st.create_time &lt;= #{query.endDate}
         </if>
         ORDER BY st.create_time DESC
     </select>

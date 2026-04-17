@@ -169,7 +169,8 @@ public class QualityCheckServiceImpl implements QualityCheckService {
         }
 
         // 平均评分
-        stats.setAvgScore(BigDecimal.valueOf(85.5)); // TODO: 计算实际平均值
+        BigDecimal avgScore = qualityCheckMapper.avgCheckScore();
+        stats.setAvgScore(avgScore != null ? avgScore : BigDecimal.ZERO);
 
         return stats;
     }

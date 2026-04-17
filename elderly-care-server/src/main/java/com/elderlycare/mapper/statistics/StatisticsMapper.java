@@ -47,13 +47,13 @@ public interface StatisticsMapper {
     /**
      * 查询今日已完成订单数
      */
-    @Select("SELECT COUNT(*) FROM t_order WHERE deleted = 0 AND DATE(create_time) = CURDATE() AND status = 'COMPLETED'")
+    @Select("SELECT COUNT(*) FROM t_order WHERE deleted = 0 AND DATE(create_time) = CURDATE() AND status IN ('SERVICE_COMPLETED', 'EVALUATED', 'SETTLED')")
     Long selectTodayCompletedOrders();
 
     /**
      * 查询今日待处理订单数
      */
-    @Select("SELECT COUNT(*) FROM t_order WHERE deleted = 0 AND DATE(create_time) = CURDATE() AND status IN ('PENDING', 'DISPATCHED', 'RECEIVED')")
+    @Select("SELECT COUNT(*) FROM t_order WHERE deleted = 0 AND DATE(create_time) = CURDATE() AND status IN ('CREATED', 'DISPATCHED', 'RECEIVED')")
     Long selectTodayPendingOrders();
 
     /**
@@ -69,28 +69,40 @@ public interface StatisticsMapper {
     Long selectMonthOrders();
 
     /**
-     * 查询待分配订单数
+     * 查询待派单数 (CREATED)
      */
-    @Select("SELECT COUNT(*) FROM t_order WHERE deleted = 0 AND status IN ('PENDING', 'PENDING_DISPATCH')")
-    Long selectPendingOrders();
+    @Select("SELECT COUNT(*) FROM t_order WHERE deleted = 0 AND status = 'CREATED'")
+    Long selectCreatedOrders();
 
     /**
-     * 查询已分配订单数
+     * 查询已派单数 (DISPATCHED)
      */
-    @Select("SELECT COUNT(*) FROM t_order WHERE deleted = 0 AND status IN ('ASSIGNED', 'DISPATCHED')")
-    Long selectAssignedOrders();
+    @Select("SELECT COUNT(*) FROM t_order WHERE deleted = 0 AND status = 'DISPATCHED'")
+    Long selectDispatchedOrders();
 
     /**
-     * 查询服务中订单数
+     * 查询已接单数 (RECEIVED)
      */
-    @Select("SELECT COUNT(*) FROM t_order WHERE deleted = 0 AND status IN ('IN_SERVICE', 'ACCEPTED', 'RECEIVED')")
-    Long selectInServiceOrders();
+    @Select("SELECT COUNT(*) FROM t_order WHERE deleted = 0 AND status = 'RECEIVED'")
+    Long selectReceivedOrders();
 
     /**
-     * 查询已完成订单数
+     * 查询服务中订单数 (SERVICE_STARTED)
      */
-    @Select("SELECT COUNT(*) FROM t_order WHERE deleted = 0 AND status = 'COMPLETED'")
+    @Select("SELECT COUNT(*) FROM t_order WHERE deleted = 0 AND status = 'SERVICE_STARTED'")
+    Long selectServiceStartedOrders();
+
+    /**
+     * 查询已完成订单数 (SERVICE_COMPLETED + EVALUATED + SETTLED)
+     */
+    @Select("SELECT COUNT(*) FROM t_order WHERE deleted = 0 AND status IN ('SERVICE_COMPLETED', 'EVALUATED', 'SETTLED')")
     Long selectAllCompletedOrders();
+
+    /**
+     * 查询已拒单数 (REJECTED)
+     */
+    @Select("SELECT COUNT(*) FROM t_order WHERE deleted = 0 AND status = 'REJECTED'")
+    Long selectRejectedOrders();
 
     /**
      * 查询已取消订单数
@@ -232,7 +244,7 @@ public interface StatisticsMapper {
     @Select("""
         SELECT p.provider_id AS providerId, p.provider_name AS providerName, p.provider_type AS providerType,
                COUNT(o.order_id) AS orderCount,
-               SUM(CASE WHEN o.status = 'COMPLETED' THEN 1 ELSE 0 END) AS completedOrderCount,
+               SUM(CASE WHEN o.status IN ('SERVICE_COMPLETED', 'EVALUATED', 'SETTLED') THEN 1 ELSE 0 END) AS completedOrderCount,
                p.rating AS rating
         FROM t_provider p
         LEFT JOIN t_order o ON p.provider_id = o.provider_id AND o.deleted = 0
@@ -244,9 +256,9 @@ public interface StatisticsMapper {
     List<Map<String, Object>> selectProviderRankings();
 
     /**
-     * 查询完成订单数
+     * 查询完成订单数 (SERVICE_COMPLETED + EVALUATED + SETTLED)
      */
-    @Select("SELECT COUNT(*) FROM t_order WHERE deleted = 0 AND status = 'COMPLETED'")
+    @Select("SELECT COUNT(*) FROM t_order WHERE deleted = 0 AND status IN ('SERVICE_COMPLETED', 'EVALUATED', 'SETTLED')")
     Long selectCompletedOrders();
 
     /**
@@ -271,7 +283,7 @@ public interface StatisticsMapper {
     @Select("""
         SELECT service_type_code AS serviceTypeCode, service_type_name AS serviceTypeName,
                COUNT(*) AS orderCount,
-               SUM(CASE WHEN status = 'COMPLETED' THEN 1 ELSE 0 END) AS completedCount,
+               SUM(CASE WHEN status IN ('SERVICE_COMPLETED', 'EVALUATED', 'SETTLED') THEN 1 ELSE 0 END) AS completedCount,
                COALESCE(SUM(estimated_price), 0) AS totalAmount
         FROM t_order WHERE deleted = 0
         GROUP BY service_type_code, service_type_name
@@ -457,7 +469,7 @@ public interface StatisticsMapper {
      */
     @Select("SELECT s.staff_id AS staffId, s.staff_name AS staffName, p.provider_name AS providerName, " +
             "COUNT(o.order_id) AS orderCount, " +
-            "SUM(CASE WHEN o.status = 'COMPLETED' THEN 1 ELSE 0 END) AS serviceCount " +
+            "SUM(CASE WHEN o.status IN ('SERVICE_COMPLETED', 'EVALUATED', 'SETTLED') THEN 1 ELSE 0 END) AS serviceCount " +
             "FROM t_staff s " +
             "LEFT JOIN t_order o ON s.staff_id = o.staff_id AND o.deleted = 0 " +
             "LEFT JOIN t_provider p ON s.provider_id = p.provider_id " +
@@ -486,4 +498,37 @@ public interface StatisticsMapper {
         LIMIT 20
         """)
     List<Map<String, Object>> selectOrderGeoDistribution();
+
+    /**
+     * 查询投诉类型分布（基于差评的服务类型分布）
+     */
+    @Select("""
+        SELECT o.service_type_code AS complaintType, o.service_type_name AS typeName, COUNT(*) AS count
+        FROM t_service_evaluation e
+        INNER JOIN t_order o ON e.order_id = o.order_id
+        WHERE e.deleted = 0 AND e.overall_score IS NOT NULL AND e.overall_score < 3 AND o.deleted = 0
+        GROUP BY o.service_type_code, o.service_type_name
+        ORDER BY count DESC
+        """)
+    List<Map<String, Object>> selectComplaintTypeDistribution();
+
+    /**
+     * 查询养老类型分布
+     */
+    @Select("""
+        SELECT care_type AS careType, COUNT(*) AS count
+        FROM t_elder WHERE deleted = 0 AND care_type IS NOT NULL
+        GROUP BY care_type
+        """)
+    List<Map<String, Object>> selectCareTypeDistribution();
+
+    /**
+     * 查询护理等级分布
+     */
+    @Select("""
+        SELECT care_level AS careLevel, COUNT(*) AS count
+        FROM t_elder WHERE deleted = 0 AND care_level IS NOT NULL
+        GROUP BY care_level
+        """)
+    List<Map<String, Object>> selectCareLevelStats();
 }

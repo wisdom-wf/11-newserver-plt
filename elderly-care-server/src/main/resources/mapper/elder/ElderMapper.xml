@@ -95,6 +95,9 @@
         <if test="dto.careLevel != null">
             AND e.care_level = #{dto.careLevel}
         </if>
+        <if test="dto.careType != null and dto.careType != ''">
+            AND e.care_type = #{dto.careType}
+        </if>
         ORDER BY e.create_time DESC
     </select>
 

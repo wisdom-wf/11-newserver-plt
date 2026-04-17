@@ -22,6 +22,21 @@ public class EvaluationQueryDTO implements Serializable {
     private Integer pageSize = 10;
 
     /**
+     * 订单号（文本搜索）
+     */
+    private String orderNo;
+
+    /**
+     * 老人姓名（文本搜索）
+     */
+    private String elderName;
+
+    /**
+     * 服务商名称（文本搜索）
+     */
+    private String providerName;
+
+    /**
      * 服务商ID
      */
     private String providerId;

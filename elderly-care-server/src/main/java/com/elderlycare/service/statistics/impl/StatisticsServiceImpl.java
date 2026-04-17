@@ -62,20 +62,34 @@ public class StatisticsServiceImpl implements StatisticsService {
         vo.setRegistered(registered);
         vo.setSuspended(suspended);
 
-        // 养老类型分布（t_elder表无此字段，默认0）
+        // 养老类型分布
         Map<String, Long> careTypeStats = new java.util.HashMap<>();
-        careTypeStats.put("HOME", total != null ? total : 0L);
+        careTypeStats.put("HOME", 0L);
         careTypeStats.put("COMMUNITY", 0L);
         careTypeStats.put("INSTITUTION", 0L);
+        List<Map<String, Object>> careTypeData = statisticsMapper.selectCareTypeDistribution();
+        for (Map<String, Object> row : careTypeData) {
+            String careType = (String) row.get("careType");
+            Long count = toLong(row.get("count"));
+            if (careType != null) {
+                careTypeStats.put(careType, count);
+            }
+        }
         vo.setCareTypeStats(careTypeStats);
 
         // 护理等级分布
         Map<String, Long> careLevelStats = new java.util.HashMap<>();
-        careLevelStats.put("LEVEL_1", 0L);
-        careLevelStats.put("LEVEL_2", 0L);
-        careLevelStats.put("LEVEL_3", 0L);
-        careLevelStats.put("LEVEL_4", 0L);
-        careLevelStats.put("LEVEL_5", 0L);
+        careLevelStats.put("HIGH", 0L);
+        careLevelStats.put("MEDIUM", 0L);
+        careLevelStats.put("NORMAL", 0L);
+        List<Map<String, Object>> careLevelData = statisticsMapper.selectCareLevelStats();
+        for (Map<String, Object> row : careLevelData) {
+            String careLevel = (String) row.get("careLevel");
+            Long count = toLong(row.get("count"));
+            if (careLevel != null) {
+                careLevelStats.put(careLevel, count);
+            }
+        }
         vo.setCareLevelStats(careLevelStats);
 
         // 补贴类型分布（t_elder表无此字段，默认0）
@@ -123,31 +137,30 @@ public class StatisticsServiceImpl implements StatisticsService {
     public OrderStatisticsVO getOrderStatistics(String startDate, String endDate, String groupBy, String serviceTypeCode) {
         OrderStatisticsVO vo = new OrderStatisticsVO();
 
-        // 基础统计（匹配前端Api.Order.Statistics）
+        // 基础统计（按订单状态枚举精确统计）
         Long total = statisticsMapper.selectTotalOrders();
         Long today = statisticsMapper.selectTodayOrders();
         Long month = statisticsMapper.selectMonthOrders();
-        Long pending = statisticsMapper.selectPendingOrders();
-        Long assigned = statisticsMapper.selectAssignedOrders();
-        Long inService = statisticsMapper.selectInServiceOrders();
-        Long completed = statisticsMapper.selectAllCompletedOrders();
-        Long cancelled = statisticsMapper.selectCancelledOrders();
+        Long created = statisticsMapper.selectCreatedOrders();        // 待派单
+        Long dispatched = statisticsMapper.selectDispatchedOrders();   // 已派单
+        Long received = statisticsMapper.selectReceivedOrders();       // 已接单
+        Long serviceStarted = statisticsMapper.selectServiceStartedOrders(); // 服务中
+        Long completed = statisticsMapper.selectAllCompletedOrders();  // 已完成
+        Long cancelled = statisticsMapper.selectCancelledOrders();     // 已取消
 
         vo.setTotal(total);
         vo.setToday(today);
         vo.setMonth(month);
-        vo.setPending(pending);
-        vo.setAssigned(assigned);
-        vo.setInService(inService);
+        vo.setPendingDispatch(created);
+        vo.setDispatched(dispatched);
+        vo.setReceived(received);
+        vo.setInService(serviceStarted);
         vo.setCompleted(completed);
         vo.setCancelled(cancelled);
 
         // 额外统计
         Long totalOrders = statisticsMapper.selectTotalOrders();
         Long completedOrders = statisticsMapper.selectCompletedOrders();
-
-        vo.setTotalOrders(totalOrders);
-        vo.setCompletedOrders(completedOrders);
 
         // 计算完成率
         if (totalOrders != null && totalOrders > 0 && completedOrders != null) {
@@ -158,6 +171,17 @@ public class StatisticsServiceImpl implements StatisticsService {
             vo.setCompletionRate(completionRate);
         } else {
             vo.setCompletionRate(BigDecimal.ZERO);
+        }
+
+        // 计算取消率
+        if (totalOrders != null && totalOrders > 0 && cancelled != null) {
+            BigDecimal cancelRate = BigDecimal.valueOf(cancelled)
+                    .divide(BigDecimal.valueOf(totalOrders), 4, RoundingMode.HALF_UP)
+                    .multiply(BigDecimal.valueOf(100))
+                    .setScale(2, RoundingMode.HALF_UP);
+            vo.setCancelRate(cancelRate);
+        } else {
+            vo.setCancelRate(BigDecimal.ZERO);
         }
 
         vo.setAverageRating(statisticsMapper.selectAverageRating());
@@ -175,6 +199,28 @@ public class StatisticsServiceImpl implements StatisticsService {
 
         // 订单来源分布
         vo.setOrderSourceDistribution(convertOrderSourceDistribution(statisticsMapper.selectOrderSourceDistribution()));
+
+        // 财务汇总
+        Map<String, Object> financialSummary = statisticsMapper.selectFinancialSummary();
+        if (financialSummary != null) {
+            vo.setTotalEstimatedPrice(toBigDecimal(financialSummary.get("totalAmount")));
+            vo.setTotalSubsidy(toBigDecimal(financialSummary.get("totalSubsidyAmount")));
+            vo.setTotalSelfPay(toBigDecimal(financialSummary.get("totalSelfPayAmount")));
+        }
+
+        // 服务人员排名
+        List<Map<String, Object>> topStaff = statisticsMapper.selectTopStaffRankings(5);
+        List<OrderStatisticsVO.StaffRanking> staffRankings = new ArrayList<>();
+        for (Map<String, Object> row : topStaff) {
+            OrderStatisticsVO.StaffRanking ranking = new OrderStatisticsVO.StaffRanking();
+            ranking.setStaffId((String) row.get("staffId"));
+            ranking.setStaffName((String) row.get("staffName"));
+            ranking.setProviderName((String) row.get("providerName"));
+            ranking.setOrderCount(row.get("orderCount") != null ? ((Number) row.get("orderCount")).longValue() : 0L);
+            ranking.setCompletedCount(row.get("serviceCount") != null ? ((Number) row.get("serviceCount")).longValue() : 0L);
+            staffRankings.add(ranking);
+        }
+        vo.setStaffRankings(staffRankings);
 
         return vo;
     }
@@ -258,8 +304,20 @@ public class StatisticsServiceImpl implements StatisticsService {
         // 评分趋势
         vo.setRatingTrend(convertRatingTrend(statisticsMapper.selectRatingTrendLast7Days()));
 
-        // 常见投诉类型（暂用评分分布代替）
-        vo.setComplaintTypes(new ArrayList<>());
+        // 常见投诉类型（基于差评的服务类型分布）
+        List<Map<String, Object>> complaintTypeData = statisticsMapper.selectComplaintTypeDistribution();
+        List<QualityStatisticsVO.ComplaintType> complaintTypes = new ArrayList<>();
+        Long totalComplaints = vo.getComplaintCount();
+        for (Map<String, Object> row : complaintTypeData) {
+            QualityStatisticsVO.ComplaintType ct = new QualityStatisticsVO.ComplaintType();
+            ct.setComplaintType((String) row.get("complaintType"));
+            ct.setTypeName((String) row.get("typeName"));
+            Long count = toLong(row.get("count"));
+            ct.setCount(count);
+            ct.setPercentage(calculatePercentage(count, totalComplaints));
+            complaintTypes.add(ct);
+        }
+        vo.setComplaintTypes(complaintTypes);
 
         return vo;
     }

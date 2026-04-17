@@ -8,10 +8,15 @@ import com.elderlycare.service.appointment.AppointmentService;
 import com.elderlycare.vo.appointment.AppointmentStatisticsVO;
 import com.elderlycare.vo.appointment.AppointmentVO;
 import lombok.RequiredArgsConstructor;
+import org.springframework.http.HttpHeaders;
+import org.springframework.http.MediaType;
+import org.springframework.http.ResponseEntity;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 
+import java.net.URLEncoder;
+import java.nio.charset.StandardCharsets;
 import java.util.List;
 import java.util.Map;
 
@@ -110,9 +115,13 @@ public class AppointmentController {
      * GET /api/appointment/template
      */
     @GetMapping("/template")
-    public Result<String> downloadTemplate() {
-        String templateUrl = appointmentService.getTemplateUrl();
-        return Result.success(templateUrl);
+    public ResponseEntity<byte[]> downloadTemplate() {
+        byte[] content = appointmentService.generateTemplate();
+        String filename = URLEncoder.encode("预约导入模板.xlsx", StandardCharsets.UTF_8).replace("+", "%20");
+        return ResponseEntity.ok()
+                .header(HttpHeaders.CONTENT_DISPOSITION, "attachment; filename*=UTF-8''" + filename)
+                .contentType(MediaType.parseMediaType("application/vnd.openxmlformats-officedocument.spreadsheetml.sheet"))
+                .body(content);
     }
 
     /**

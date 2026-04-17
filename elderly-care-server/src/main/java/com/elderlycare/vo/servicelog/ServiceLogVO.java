@@ -90,4 +90,10 @@ public class ServiceLogVO implements Serializable {
 
     /** 创建时间 */
     private String createTime;
+
+    /** 服务照片（逗号分隔） */
+    private String servicePhotos;
+
+    /** 审核备注 */
+    private String reviewRemarks;
 }

@@ -1,21 +1,22 @@
 package com.elderlycare.service.cockpit.impl;
 
 import com.elderlycare.entity.config.Area;
+import com.elderlycare.entity.order.Order;
+import com.elderlycare.mapper.order.OrderMapper;
 import com.elderlycare.mapper.statistics.StatisticsMapper;
 import com.elderlycare.service.config.AreaService;
 import com.elderlycare.service.cockpit.CockpitService;
 import com.elderlycare.service.statistics.StatisticsService;
 import com.elderlycare.vo.cockpit.CockpitOverviewVO;
 import com.elderlycare.vo.statistics.*;
+import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 
 import java.math.BigDecimal;
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+import java.time.LocalDateTime;
+import java.util.*;
 import java.util.stream.Collectors;
 
 /**
@@ -29,6 +30,7 @@ public class CockpitServiceImpl implements CockpitService {
     private final StatisticsService statisticsService;
     private final StatisticsMapper statisticsMapper;
     private final AreaService areaService;
+    private final OrderMapper orderMapper;
 
     @Override
     public CockpitOverviewVO getOverview() {
@@ -442,5 +444,62 @@ public class CockpitServiceImpl implements CockpitService {
             labels.add(label);
         }
         return labels;
+    }
+
+    @Override
+    public List<Map<String, Object>> getRealtimeOrders(Integer limit) {
+        List<Map<String, Object>> result = new ArrayList<>();
+        int actualLimit = limit != null ? limit : 10;
+        try {
+            // 查询未完成的订单（按创建时间倒序）
+            LambdaQueryWrapper<Order> wrapper = new LambdaQueryWrapper<>();
+            wrapper.in(Order::getStatus, "CREATED", "DISPATCHED", "RECEIVED", "SERVICE_STARTED")
+                    .orderByDesc(Order::getCreateTime)
+                    .last("LIMIT " + actualLimit);
+            List<Order> orders = orderMapper.selectList(wrapper);
+            for (Order order : orders) {
+                Map<String, Object> item = new HashMap<>();
+                item.put("orderId", order.getOrderId());
+                item.put("orderNo", order.getOrderNo());
+                item.put("elderName", order.getElderName());
+                item.put("serviceTypeName", order.getServiceTypeName());
+                item.put("status", order.getStatus());
+                item.put("createTime", order.getCreateTime() != null ? order.getCreateTime().toString() : null);
+                result.add(item);
+            }
+        } catch (Exception e) {
+            log.error("获取实时订单失败", e);
+        }
+        return result;
+    }
+
+    @Override
+    public List<Map<String, Object>> getWarnings(String level, Integer limit) {
+        List<Map<String, Object>> result = new ArrayList<>();
+        int actualLimit = limit != null ? limit : 10;
+        try {
+            // 预警1：超时未完成的订单（创建超过48小时仍未完成）
+            LocalDateTime threshold = LocalDateTime.now().minusHours(48);
+            LambdaQueryWrapper<Order> timeoutWrapper = new LambdaQueryWrapper<>();
+            timeoutWrapper.in(Order::getStatus, "CREATED", "DISPATCHED", "RECEIVED", "SERVICE_STARTED")
+                    .lt(Order::getCreateTime, threshold)
+                    .orderByAsc(Order::getCreateTime)
+                    .last("LIMIT " + actualLimit);
+            List<Order> timeoutOrders = orderMapper.selectList(timeoutWrapper);
+            for (Order order : timeoutOrders) {
+                Map<String, Object> item = new HashMap<>();
+                item.put("type", "TIMEOUT");
+                item.put("level", "HIGH");
+                item.put("title", "订单超时未完成");
+                item.put("message", "订单 " + order.getOrderNo() + " 已创建超过48小时，当前状态：" + order.getStatus());
+                item.put("orderId", order.getOrderId());
+                item.put("orderNo", order.getOrderNo());
+                item.put("createTime", order.getCreateTime() != null ? order.getCreateTime().toString() : null);
+                result.add(item);
+            }
+        } catch (Exception e) {
+            log.error("获取预警信息失败", e);
+        }
+        return result;
     }
 }

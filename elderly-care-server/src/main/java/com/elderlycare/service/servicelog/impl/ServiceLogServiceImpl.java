@@ -18,7 +18,9 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.math.BigDecimal;
+import java.time.LocalDate;
 import java.time.LocalDateTime;
+import java.time.LocalTime;
 import java.util.Map;
 import java.util.stream.Collectors;
 
@@ -155,13 +157,16 @@ public class ServiceLogServiceImpl implements ServiceLogService {
         stats.setTotal(total.intValue());
 
         // 今日服务次数
-        stats.setToday(0); // TODO: 计算今日服务次数
+        LocalDateTime todayStart = LocalDateTime.of(LocalDate.now(), LocalTime.MIN);
+        stats.setToday(serviceLogMapper.countToday(todayStart));
 
         // 本月服务次数
-        stats.setMonth(0); // TODO: 计算本月服务次数
+        LocalDateTime monthStart = LocalDateTime.of(LocalDate.now().withDayOfMonth(1), LocalTime.MIN);
+        stats.setMonth(serviceLogMapper.countMonth(monthStart));
 
         // 平均服务时长
-        stats.setAvgDuration(BigDecimal.valueOf(120)); // TODO: 计算实际平均值
+        BigDecimal avgDuration = serviceLogMapper.avgActualDuration();
+        stats.setAvgDuration(avgDuration != null ? avgDuration : BigDecimal.ZERO);
 
         // 异常服务次数
         wrapper.eq(ServiceLog::getAnomalyStatus, "REPORTED");

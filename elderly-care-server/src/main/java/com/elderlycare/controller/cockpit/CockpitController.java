@@ -161,8 +161,7 @@ public class CockpitController {
     @GetMapping("/realtimeOrders")
     public Result<Object> getRealtimeOrders(
             @RequestParam(required = false, defaultValue = "10") Integer limit) {
-        // TODO: 实现实时订单
-        return Result.success(new Object[]{});
+        return Result.success(cockpitService.getRealtimeOrders(limit));
     }
 
     /**
@@ -172,8 +171,7 @@ public class CockpitController {
     public Result<Object> getWarnings(
             @RequestParam(required = false) String level,
             @RequestParam(required = false, defaultValue = "10") Integer limit) {
-        // TODO: 实现预警信息
-        return Result.success(new Object[]{});
+        return Result.success(cockpitService.getWarnings(level, limit));
     }
 
     /**

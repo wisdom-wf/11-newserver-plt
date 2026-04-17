@@ -5,8 +5,10 @@ import com.baomidou.mybatisplus.core.metadata.IPage;
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import com.elderlycare.common.BusinessException;
 import com.elderlycare.dto.elder.*;
+import com.elderlycare.entity.config.Area;
 import com.elderlycare.entity.elder.*;
 import com.elderlycare.entity.provider.Provider;
+import com.elderlycare.mapper.config.AreaMapper;
 import com.elderlycare.mapper.elder.*;
 import com.elderlycare.mapper.provider.ProviderMapper;
 import com.elderlycare.vo.elder.*;
@@ -39,6 +41,7 @@ public class ElderServiceImpl implements ElderService {
     private final ElderDemandMapper elderDemandMapper;
     private final ElderSubsidyMapper elderSubsidyMapper;
     private final ProviderMapper providerMapper;
+    private final AreaMapper areaMapper;
 
     // ==================== 老人档案管理 ====================
 
@@ -54,7 +57,7 @@ public class ElderServiceImpl implements ElderService {
 
     @Override
     public IPage<ElderVO> getElderPage(ElderPageDTO dto) {
-        Page<Elder> page = new Page<>(dto.getCurrent(), dto.getSize());
+        Page<Elder> page = new Page<>(dto.getCurrent(), dto.getPageSize());
         IPage<Elder> elderPage = elderMapper.selectElderPage(page, dto);
 
         // 转换为VO
@@ -365,6 +368,14 @@ public class ElderServiceImpl implements ElderService {
         // 计算年龄
         if (elder.getBirthDate() != null) {
             vo.setAge(Period.between(elder.getBirthDate(), LocalDate.now()).getYears());
+        }
+
+        // 回填区域名称
+        if (elder.getAreaId() != null && !elder.getAreaId().isEmpty()) {
+            Area area = areaMapper.selectById(elder.getAreaId());
+            if (area != null) {
+                vo.setAreaName(area.getAreaName());
+            }
         }
 
         // 回填服务商名称

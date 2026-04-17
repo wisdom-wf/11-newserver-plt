@@ -41,7 +41,7 @@ public class StaffController {
             @RequestParam(required = false) String staffName,
             @RequestParam(required = false) String staffNo,
             @RequestParam(required = false) String phone,
-            @RequestParam(required = false) Integer status,
+            @RequestParam(required = false) String status,
             @RequestParam(required = false) String providerId,
             @RequestParam(defaultValue = "1") Integer page,
             @RequestParam(defaultValue = "10") Integer pageSize) {

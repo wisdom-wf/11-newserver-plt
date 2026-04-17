@@ -84,6 +84,16 @@ public class ElderVO implements Serializable {
     private String careLevel;
 
     /**
+     * 养老类型：HOME/COMMUNITY/INSTITUTION
+     */
+    private String careType;
+
+    /**
+     * 补贴类型
+     */
+    private String subsidyType;
+
+    /**
      * 居住状态
      */
     private String livingStatus;

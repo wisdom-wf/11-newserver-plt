@@ -43,9 +43,9 @@ public class StaffQueryDTO implements Serializable {
     private String idCard;
 
     /**
-     * 服务人员状态：0-待审核，1-正常，2-禁用，3-离职
+     * 服务人员状态：PENDING-待上岗, ON_JOB-在职, OFF_JOB-离职
      */
-    private Integer status;
+    private String status;
 
     /**
      * 服务商ID

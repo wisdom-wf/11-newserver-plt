@@ -19,7 +19,7 @@ public class ElderPageDTO implements Serializable {
     /**
      * 每页大小
      */
-    private Integer size = 10;
+    private Integer pageSize = 10;
 
     /**
      * 老人姓名
@@ -45,4 +45,9 @@ public class ElderPageDTO implements Serializable {
      * 护理等级：NORMAL/SUBSIDIZED/FULL
      */
     private String careLevel;
+
+    /**
+     * 养老类型：HOME/COMMUNITY/INSTITUTION
+     */
+    private String careType;
 }

@@ -74,4 +74,14 @@ public interface CockpitService {
      * 获取热力图数据（基于预约地址）
      */
     Map<String, Object> getHeatMapData();
+
+    /**
+     * 获取实时订单
+     */
+    List<Map<String, Object>> getRealtimeOrders(Integer limit);
+
+    /**
+     * 获取预警信息
+     */
+    List<Map<String, Object>> getWarnings(String level, Integer limit);
 }

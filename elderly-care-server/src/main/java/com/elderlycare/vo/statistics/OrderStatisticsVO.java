@@ -6,37 +6,47 @@ import java.math.BigDecimal;
 import java.util.List;
 
 /**
- * 订单统计视图对象
+ * 订单统计视图对象（匹配前端 Api.Order.Statistics）
  */
 @Data
 public class OrderStatisticsVO implements Serializable {
 
     private static final long serialVersionUID = 1L;
 
-    // 基础统计（匹配前端Api.Order.Statistics）
+    // 核心数量
     private Long total;
     private Long today;
     private Long month;
-    private Long pending;
-    private Long assigned;
+
+    // 状态分布（匹配前端字段名）
+    private Long pendingDispatch;
+    private Long dispatched;
+    private Long received;
     private Long inService;
     private Long completed;
     private Long cancelled;
+
+    // 比率
     private BigDecimal completionRate;
-    private Double avgDuration;
+    private BigDecimal cancelRate;
+
+    // 金额统计
+    private BigDecimal totalEstimatedPrice;
+    private BigDecimal totalActualPrice;
+    private BigDecimal totalSubsidy;
+    private BigDecimal totalSelfPay;
 
     // 额外统计
-    private Long totalOrders;
-    private Long completedOrders;
+    private Double avgDuration;
     private Double averageRating;
     private BigDecimal totalAmount;
     private List<ServiceTypeDistribution> serviceTypeDistribution;
     private List<TrendData> orderTrend;
     private List<OrderSourceDistribution> orderSourceDistribution;
 
-    /**
-     * 服务类型分布
-     */
+    // 服务人员排名
+    private List<StaffRanking> staffRankings;
+
     @Data
     public static class ServiceTypeDistribution implements Serializable {
         private String serviceTypeCode;
@@ -47,9 +57,6 @@ public class OrderStatisticsVO implements Serializable {
         private BigDecimal totalAmount;
     }
 
-    /**
-     * 趋势数据
-     */
     @Data
     public static class TrendData implements Serializable {
         private String date;
@@ -58,14 +65,20 @@ public class OrderStatisticsVO implements Serializable {
         private BigDecimal amount;
     }
 
-    /**
-     * 订单来源分布
-     */
     @Data
     public static class OrderSourceDistribution implements Serializable {
         private String orderSource;
         private String sourceName;
         private Long count;
         private BigDecimal percentage;
+    }
+
+    @Data
+    public static class StaffRanking implements Serializable {
+        private String staffId;
+        private String staffName;
+        private String providerName;
+        private Long orderCount;
+        private Long completedCount;
     }
 }

@@ -32,7 +32,7 @@ public class EvaluationVO implements Serializable {
 
     private String serviceTypeName;
 
-    private Integer rating;
+    private Integer overallScore;
 
     private Integer attitudeScore;
 

@@ -56,9 +56,9 @@ public interface AppointmentService {
     Map<String, Object> importAppointment(MultipartFile file);
 
     /**
-     * 获取模板下载地址
+     * 生成导入模板Excel
      */
-    String getTemplateUrl();
+    byte[] generateTemplate();
 
     /**
      * 获取预约统计
