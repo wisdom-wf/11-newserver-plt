@@ -103,3 +103,62 @@ Services support:
 ## Documentation
 
 Refer to the specification PDF for detailed business logic, functional requirements, and UI/UX specifications.
+
+## 前端开发通行规则（经验教训）
+
+### 1. API 错误处理模式
+
+**createFlatRequest 返回结构**：
+```typescript
+// ✅ 正确方式：检查返回的 error 属性
+const { data, error } = await fetchSomeApi(params);
+if (error) {
+  message.error(error?.message || '操作失败');
+  return;
+}
+// 成功逻辑
+
+// ❌ 错误方式：try/catch 不适用于 createFlatRequest
+try {
+  await fetchSomeApi(params);
+} catch (e) {
+  // 这里不会捕获到错误！
+}
+```
+
+**原因**: `createFlatRequest` 返回 `{ data, error }` 而不抛出异常，错误信息在 `error` 属性中。
+
+### 2. 后端 API 字段验证
+
+在调用后端 API 前，必须验证：
+- **字段名**: 确认后端实际返回的字段名（如 `message` vs `msg`）
+- **字段类型**: 确认枚举值是字符串还是数字
+- **参数名**: 确认分页参数是 `page` 还是 `pageNum`
+
+**验证方法**：
+1. 查看后端 DTO/Entity 定义
+2. 查看后端 Mapper XML 中的 SQL 字段映射
+3. 查看后端 Service 中的状态枚举（如 `ON_JOB`, `ENABLED`）
+
+### 3. 常见状态值对照
+
+| 实体 | 字段 | 可用值 | 说明 |
+|------|------|--------|------|
+| 服务人员(Staff) | status | `PENDING`(待审核), `ON_JOB`(在职), `OFF_JOB`(离职) | 字符串，不是数字 |
+| 服务商(Provider) | status | `ENABLED`(启用), `DISABLED`(禁用) | 字符串 |
+| 订单(Order) | status | `CREATED`, `DISPATCHED`, `RECEIVED` 等 | 参见 OrderStatus 枚举 |
+
+### 4. 业务校验时机
+
+- **前端过滤**: 只展示合法的选项（如只显示在职人员、只显示启用的服务商）
+- **后端校验**: 提交时后端再次校验，作为最终保障
+- **错误展示**: 无论前端过滤与否，后端校验失败时必须正确显示错误信息
+
+### 5. 代码修改检查清单
+
+修改 API 调用或 DTO 前：
+- [ ] 确认后端 Controller/Service 实际使用的参数名
+- [ ] 确认后端返回的字段名（特别关注 `message` vs `msg`）
+- [ ] 确认枚举值是字符串还是数字
+- [ ] 测试 API 调用，验证实际返回结构
+- [ ] 检查 `createFlatRequest` 调用是否正确处理 `error` 属性
