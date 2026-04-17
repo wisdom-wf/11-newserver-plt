@@ -1,14 +1,6 @@
 <script setup lang="ts">
 import { ref, h, onMounted, watch, computed } from 'vue';
-import {
-  NButton,
-  NCard,
-  NTag,
-  NSpace,
-  NInput,
-  NSelect,
-  useMessage
-} from 'naive-ui';
+import { NButton, NCard, NTag, NSpace, NInput, NSelect, useMessage } from 'naive-ui';
 import type { DataTableColumns } from 'naive-ui';
 import { useNaiveForm, useFormRules } from '@/hooks/common/form';
 import { useNaivePaginatedTable, useTableOperate, defaultTransform } from '@/hooks/common/table';
@@ -108,8 +100,7 @@ const columns: DataTableColumns<Api.Staff.Staff> = [
     title: '状态',
     key: 'status',
     width: 80,
-    render: row =>
-      h(NTag, { type: getStatusType(row.status), size: 'small' }, () => getStatusLabel(row.status))
+    render: row => h(NTag, { type: getStatusType(row.status), size: 'small' }, () => getStatusLabel(row.status))
   },
   { title: '入职日期', key: 'hireDate', width: 110 },
   {
@@ -155,11 +146,17 @@ const {
 });
 
 // Use framework's table operate hook
-const { drawerVisible, operateType, handleAdd, editingData, handleEdit, checkedRowKeys, onBatchDeleted, onDeleted, closeDrawer } = useTableOperate(
-  tableData,
-  'staffId',
-  getData
-);
+const {
+  drawerVisible,
+  operateType,
+  handleAdd,
+  editingData,
+  handleEdit,
+  checkedRowKeys,
+  onBatchDeleted,
+  onDeleted,
+  closeDrawer
+} = useTableOperate(tableData, 'staffId', getData);
 
 const form = ref({
   staffName: '',
@@ -191,7 +188,7 @@ function resetForm() {
 // Watch editingData to fill form when editing
 watch(
   () => editingData.value,
-  (data) => {
+  data => {
     if (data) {
       form.value = {
         staffName: data.staffName || '',
@@ -236,7 +233,7 @@ const displayAge = computed(() => {
 // Watch idCard changes to auto-fill gender
 watch(
   () => form.value.idCard,
-  (idCard) => {
+  idCard => {
     if (idCard && idCard.length === 18) {
       // Extract gender from digit 17 (index 16): odd=male(1), even=female(0)
       const genderDigit = parseInt(idCard.charAt(16));
@@ -349,11 +346,11 @@ onMounted(() => {
     <!-- Table -->
     <NCard :bordered="false" style="margin-bottom: 16px">
       <template #header>
-        <div style="display: flex; justify-content: space-between; align-items: center;">
+        <div style="display: flex; justify-content: space-between; align-items: center">
           <span>服务人员管理</span>
         </div>
       </template>
-      <div style="background: #f5f5f5; padding: 12px; margin-bottom: 12px; border-radius: 4px;">
+      <div style="background: #f5f5f5; padding: 12px; margin-bottom: 12px; border-radius: 4px">
         <NSpace :wrap="true" align="center">
           <NInput v-model:value="searchName" placeholder="姓名" clearable style="width: 100px" />
           <NInput v-model:value="searchPhone" placeholder="手机号" clearable style="width: 130px" />
@@ -375,7 +372,7 @@ onMounted(() => {
           <NButton @click="handleResetSearch">重置</NButton>
         </NSpace>
       </div>
-      
+
       <!-- Use framework's TableHeaderOperation component -->
       <TableHeaderOperation
         v-model:columns="columnChecks"
@@ -384,7 +381,7 @@ onMounted(() => {
         @add="handleAdd"
         @refresh="getData"
       />
-      
+
       <NDataTable
         :columns="columns"
         :data="tableData"
@@ -397,12 +394,7 @@ onMounted(() => {
     </NCard>
 
     <!-- Staff Drawer -->
-    <NDrawer
-      v-model:show="drawerVisible"
-      :width="500"
-      placement="right"
-      closable
-    >
+    <NDrawer v-model:show="drawerVisible" :width="500" placement="right" closable>
       <NDrawerContent :title="operateType === 'add' ? '新增服务人员' : '编辑服务人员'" closable>
         <NForm ref="formRef" :model="form" :rules="rules" label-placement="left" label-width="100">
           <NFormItem label="姓名" path="staffName">
@@ -421,7 +413,12 @@ onMounted(() => {
             <NInput v-model:value="form.phone" placeholder="请输入手机号" />
           </NFormItem>
           <NFormItem label="服务商" path="providerId">
-            <NSelect v-model:value="form.providerId" :options="providerOptions" placeholder="请选择服务商" style="width: 100%" />
+            <NSelect
+              v-model:value="form.providerId"
+              :options="providerOptions"
+              placeholder="请选择服务商"
+              style="width: 100%"
+            />
           </NFormItem>
           <NFormItem label="紧急联系人">
             <NInput v-model:value="form.emergencyContact" placeholder="请输入紧急联系人" />

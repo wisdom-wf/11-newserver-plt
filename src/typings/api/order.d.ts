@@ -66,15 +66,15 @@ declare namespace Api {
 
     /** 订单状态枚举 - 与后端OrderStatus对齐 */
     type OrderStatus =
-      | 'CANCELLED'      // 0 - 已取消
-      | 'CREATED'        // 2 - 待派单
-      | 'DISPATCHED'     // 3 - 已派单
-      | 'RECEIVED'       // 4 - 已接单
+      | 'CANCELLED' // 0 - 已取消
+      | 'CREATED' // 2 - 待派单
+      | 'DISPATCHED' // 3 - 已派单
+      | 'RECEIVED' // 4 - 已接单
       | 'SERVICE_STARTED' // 5 - 服务中
       | 'SERVICE_COMPLETED' // 6 - 已完成
-      | 'EVALUATED'      // 7 - 已评价
-      | 'SETTLED'        // 8 - 已结算
-      | 'REJECTED';      // 9 - 已拒单
+      | 'EVALUATED' // 7 - 已评价
+      | 'SETTLED' // 8 - 已结算
+      | 'REJECTED'; // 9 - 已拒单
 
     /** 订单详情 */
     interface Order {

@@ -1,6 +1,19 @@
 <script setup lang="ts">
 import { ref, h, onMounted } from 'vue';
-import { NButton, NCard, NDataTable, NGrid, NGi, NModal, NPopconfirm, NTree, NSpace, NTag, useMessage, NSpin } from 'naive-ui';
+import {
+  NButton,
+  NCard,
+  NDataTable,
+  NGrid,
+  NGi,
+  NModal,
+  NPopconfirm,
+  NTree,
+  NSpace,
+  NTag,
+  useMessage,
+  NSpin
+} from 'naive-ui';
 import { fetchGetMenuTree, fetchDeleteMenu, fetchCreateMenu, fetchUpdateMenu } from '@/service/api';
 import type { DataTableColumns } from 'naive-ui';
 
@@ -170,9 +183,7 @@ onMounted(() => {
                   label-field="permissionName"
                   @update:expanded-keys="keys => (expandedKeys = keys)"
                 />
-                <div v-else style="padding: 20px; text-align: center; color: #999;">
-                  暂无数据
-                </div>
+                <div v-else style="padding: 20px; text-align: center; color: #999">暂无数据</div>
               </NSpin>
             </NCard>
           </NGi>

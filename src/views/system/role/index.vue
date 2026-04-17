@@ -192,7 +192,7 @@ onMounted(() => {
     <NCard :bordered="false">
       <template #header>
         <NSpace justify="space-between" align="center">
-          <span style="font-size: 16px; font-weight: 600;">角色管理</span>
+          <span style="font-size: 16px; font-weight: 600">角色管理</span>
           <NSpace>
             <NButton type="primary" @click="handleAdd">新增</NButton>
             <NButton @click="getRoleList">刷新</NButton>

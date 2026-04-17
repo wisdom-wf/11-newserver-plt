@@ -25,7 +25,16 @@ import {
   NImagePreview
 } from 'naive-ui';
 import type { DataTableColumns } from 'naive-ui';
-import { fetchGetServiceLogList, fetchGetServiceLogStatistics, fetchGetElder, fetchGetStaff, fetchSubmitServiceLog, fetchUpdateServiceLog, fetchSubmitServiceLogForReview, fetchDeleteServiceLog } from '@/service/api';
+import {
+  fetchGetServiceLogList,
+  fetchGetServiceLogStatistics,
+  fetchGetElder,
+  fetchGetStaff,
+  fetchSubmitServiceLog,
+  fetchUpdateServiceLog,
+  fetchSubmitServiceLogForReview,
+  fetchDeleteServiceLog
+} from '@/service/api';
 
 defineOptions({
   name: 'BusinessServiceLog'
@@ -137,13 +146,17 @@ const columns: DataTableColumns<Api.ServiceLog.ServiceLog> = [
     title: '老人姓名',
     key: 'elderName',
     width: 100,
-    render: row => h('a', { style: { color: '#18a058', cursor: 'pointer' }, onClick: () => showElderDetail(row) }, row.elderName)
+    render: row =>
+      h('a', { style: { color: '#18a058', cursor: 'pointer' }, onClick: () => showElderDetail(row) }, row.elderName)
   },
   {
     title: '服务人员',
     key: 'staffName',
     width: 100,
-    render: row => row.staffName ? h('a', { style: { color: '#18a058', cursor: 'pointer' }, onClick: () => showStaffDetail(row) }, row.staffName) : '-'
+    render: row =>
+      row.staffName
+        ? h('a', { style: { color: '#18a058', cursor: 'pointer' }, onClick: () => showStaffDetail(row) }, row.staffName)
+        : '-'
   },
   { title: '服务类别', key: 'serviceCategory', width: 100, render: row => getCategoryLabel(row.serviceCategory) },
   { title: '服务类型', key: 'serviceType', width: 120 },
@@ -161,10 +174,14 @@ const columns: DataTableColumns<Api.ServiceLog.ServiceLog> = [
       const photos = row.servicePhotos || [];
       const count = photos.length;
       if (count === 0) return '-';
-      return h('span', {
-        style: 'color: #18a058; cursor: pointer;',
-        onClick: () => showDetail(row)
-      }, `[${count}张]`);
+      return h(
+        'span',
+        {
+          style: 'color: #18a058; cursor: pointer;',
+          onClick: () => showDetail(row)
+        },
+        `[${count}张]`
+      );
     }
   },
   {
@@ -193,13 +210,21 @@ const columns: DataTableColumns<Api.ServiceLog.ServiceLog> = [
       if (!row.status || row.status === 'DRAFT') {
         buttons.push(
           h(NButton, { size: 'small', type: 'default', onClick: () => handleUpdate(row) }, { default: () => '更新' }),
-          h(NPopconfirm, {
-            onPositiveClick: () => handleDelete(row)
-          }, {
-            trigger: () => h(NButton, { size: 'small', type: 'error' }, { default: () => '删除' }),
-            default: () => '确认删除?'
-          }),
-          h(NButton, { size: 'small', type: 'primary', onClick: () => handleSubmitReview(row) }, { default: () => '提交审核' })
+          h(
+            NPopconfirm,
+            {
+              onPositiveClick: () => handleDelete(row)
+            },
+            {
+              trigger: () => h(NButton, { size: 'small', type: 'error' }, { default: () => '删除' }),
+              default: () => '确认删除?'
+            }
+          ),
+          h(
+            NButton,
+            { size: 'small', type: 'primary', onClick: () => handleSubmitReview(row) },
+            { default: () => '提交审核' }
+          )
         );
       }
       return h(NSpace, { size: 'small' }, buttons);
@@ -345,7 +370,7 @@ function handleUploadRequest({ file }: { file: UploadFile }) {
   uploadingFiles.add(fileKey);
 
   const reader = new FileReader();
-  reader.onload = (e) => {
+  reader.onload = e => {
     uploadingFiles.delete(fileKey);
     if (e.target?.result && !formData.value.servicePhotos.includes(e.target.result as string)) {
       formData.value.servicePhotos.push(e.target.result as string);
@@ -461,7 +486,7 @@ function closeReviewDialog() {
 onMounted(() => {
   // Handle query parameters from order page
   if (route.query.orderId) {
-    searchOrderNo.value = route.query.orderNo as string || route.query.orderId as string;
+    searchOrderNo.value = (route.query.orderNo as string) || (route.query.orderId as string);
   }
   getStatistics();
   getTableData();
@@ -473,13 +498,20 @@ onMounted(() => {
     <!-- Statistics Cards -->
     <NCard :bordered="false" style="margin-bottom: 16px">
       <template #header>
-        <div style="display: flex; align-items: center; gap: 12px;">
-          <div style="width: 4px; height: 20px; background: linear-gradient(180deg, #667eea 0%, #764ba2 100%); border-radius: 2px;"></div>
-          <span style="font-size: 16px; font-weight: 600;">服务日志概览</span>
+        <div style="display: flex; align-items: center; gap: 12px">
+          <div
+            style="
+              width: 4px;
+              height: 20px;
+              background: linear-gradient(180deg, #667eea 0%, #764ba2 100%);
+              border-radius: 2px;
+            "
+          ></div>
+          <span style="font-size: 16px; font-weight: 600">服务日志概览</span>
         </div>
       </template>
       <!-- 第一行：核心数量 -->
-      <div style="display: grid; grid-template-columns: repeat(4, 1fr); gap: 16px; margin-bottom: 20px;">
+      <div style="display: grid; grid-template-columns: repeat(4, 1fr); gap: 16px; margin-bottom: 20px">
         <div class="stat-card stat-primary">
           <div class="stat-label">总日志数</div>
           <div class="stat-value">{{ statistics.total }}</div>
@@ -498,14 +530,16 @@ onMounted(() => {
         <div class="stat-card stat-warning">
           <div class="stat-label">已核实</div>
           <div class="stat-value">{{ statistics.verifiedCount }}</div>
-          <div class="stat-sub">异常 {{ statistics.anomalyCount }} (异常率 {{ Number(statistics.anomalyRate || 0).toFixed(1) }}%)</div>
+          <div class="stat-sub">
+            异常 {{ statistics.anomalyCount }} (异常率 {{ Number(statistics.anomalyRate || 0).toFixed(1) }}%)
+          </div>
         </div>
       </div>
       <!-- 第二行：质量指标 -->
-      <div style="display: grid; grid-template-columns: repeat(4, 1fr); gap: 16px; margin-bottom: 20px;">
+      <div style="display: grid; grid-template-columns: repeat(4, 1fr); gap: 16px; margin-bottom: 20px">
         <div class="stat-card-mini">
-          <div class="stat-mini-icon" style="background: linear-gradient(135deg, #11998e 0%, #38ef7d 100%);">
-            <span style="font-size: 20px;">⏱</span>
+          <div class="stat-mini-icon" style="background: linear-gradient(135deg, #11998e 0%, #38ef7d 100%)">
+            <span style="font-size: 20px">⏱</span>
           </div>
           <div class="stat-mini-content">
             <div class="stat-mini-value">{{ Number(statistics.avgDuration || 0).toFixed(0) }}分钟</div>
@@ -513,8 +547,8 @@ onMounted(() => {
           </div>
         </div>
         <div class="stat-card-mini">
-          <div class="stat-mini-icon" style="background: linear-gradient(135deg, #f093fb 0%, #f5576c 100%);">
-            <span style="font-size: 20px;">⭐</span>
+          <div class="stat-mini-icon" style="background: linear-gradient(135deg, #f093fb 0%, #f5576c 100%)">
+            <span style="font-size: 20px">⭐</span>
           </div>
           <div class="stat-mini-content">
             <div class="stat-mini-value">{{ Number(statistics.avgScore || 0).toFixed(1) }}分</div>
@@ -522,8 +556,8 @@ onMounted(() => {
           </div>
         </div>
         <div class="stat-card-mini">
-          <div class="stat-mini-icon" style="background: linear-gradient(135deg, #4facfe 0%, #00f2fe 100%);">
-            <span style="font-size: 20px;">⏱</span>
+          <div class="stat-mini-icon" style="background: linear-gradient(135deg, #4facfe 0%, #00f2fe 100%)">
+            <span style="font-size: 20px">⏱</span>
           </div>
           <div class="stat-mini-content">
             <div class="stat-mini-value">{{ Number(statistics.avgReviewTime || 0).toFixed(1) }}h</div>
@@ -531,8 +565,8 @@ onMounted(() => {
           </div>
         </div>
         <div class="stat-card-mini">
-          <div class="stat-mini-icon" style="background: linear-gradient(135deg, #fa709a 0%, #fee140 100%);">
-            <span style="font-size: 20px;">📊</span>
+          <div class="stat-mini-icon" style="background: linear-gradient(135deg, #fa709a 0%, #fee140 100%)">
+            <span style="font-size: 20px">📊</span>
           </div>
           <div class="stat-mini-content">
             <div class="stat-mini-value">{{ Number(statistics.pendingRate || 0).toFixed(1) }}%</div>
@@ -541,23 +575,53 @@ onMounted(() => {
         </div>
       </div>
       <!-- 第三行：服务人员排名 -->
-      <div v-if="statistics.staffRankings && statistics.staffRankings.length > 0" style="background: #f8f9fa; border-radius: 12px; padding: 16px;">
-        <div style="display: flex; align-items: center; gap: 8px; margin-bottom: 12px;">
-          <span style="font-size: 14px; font-weight: 600; color: #667eea;">🏆 服务标兵排行榜</span>
+      <div
+        v-if="statistics.staffRankings && statistics.staffRankings.length > 0"
+        style="background: #f8f9fa; border-radius: 12px; padding: 16px"
+      >
+        <div style="display: flex; align-items: center; gap: 8px; margin-bottom: 12px">
+          <span style="font-size: 14px; font-weight: 600; color: #667eea">🏆 服务标兵排行榜</span>
         </div>
-        <div style="display: grid; grid-template-columns: repeat(5, 1fr); gap: 12px;">
-          <div v-for="(rank, index) in statistics.staffRankings.slice(0, 5)" :key="rank.staffId"
-               style="background: white; border-radius: 8px; padding: 12px; text-align: center; box-shadow: 0 2px 8px rgba(0,0,0,0.06);">
-            <div :style="'width: 28px; height: 28px; border-radius: 50%; margin: 0 auto 8px; display: flex; align-items: center; justify-content: center; font-size: 12px; font-weight: 600; color: white; background: ' + (index === 0 ? '#ffd700' : index === 1 ? '#c0c0c0' : index === 2 ? '#cd7f32' : '#667eea') + ';'">
+        <div style="display: grid; grid-template-columns: repeat(5, 1fr); gap: 12px">
+          <div
+            v-for="(rank, index) in statistics.staffRankings.slice(0, 5)"
+            :key="rank.staffId"
+            style="
+              background: white;
+              border-radius: 8px;
+              padding: 12px;
+              text-align: center;
+              box-shadow: 0 2px 8px rgba(0, 0, 0, 0.06);
+            "
+          >
+            <div
+              :style="
+                'width: 28px; height: 28px; border-radius: 50%; margin: 0 auto 8px; display: flex; align-items: center; justify-content: center; font-size: 12px; font-weight: 600; color: white; background: ' +
+                (index === 0 ? '#ffd700' : index === 1 ? '#c0c0c0' : index === 2 ? '#cd7f32' : '#667eea') +
+                ';'
+              "
+            >
               {{ index + 1 }}
             </div>
-            <div style="font-weight: 600; font-size: 13px; color: #333; margin-bottom: 4px;">{{ rank.staffName || '未知' }}</div>
-            <div style="font-size: 11px; color: #999; margin-bottom: 6px;">{{ rank.providerName || '-' }}</div>
-            <div style="display: flex; justify-content: center; gap: 8px; font-size: 11px;">
-              <span style="color: #18a058;">通过 {{ rank.approvedCount }}</span>
-              <span style="color: #ff4d4f;">驳回 {{ rank.rejectedCount }}</span>
+            <div style="font-weight: 600; font-size: 13px; color: #333; margin-bottom: 4px">
+              {{ rank.staffName || '未知' }}
             </div>
-            <div style="margin-top: 6px; padding: 4px 8px; background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); border-radius: 12px; color: white; font-size: 12px; font-weight: 600;">
+            <div style="font-size: 11px; color: #999; margin-bottom: 6px">{{ rank.providerName || '-' }}</div>
+            <div style="display: flex; justify-content: center; gap: 8px; font-size: 11px">
+              <span style="color: #18a058">通过 {{ rank.approvedCount }}</span>
+              <span style="color: #ff4d4f">驳回 {{ rank.rejectedCount }}</span>
+            </div>
+            <div
+              style="
+                margin-top: 6px;
+                padding: 4px 8px;
+                background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+                border-radius: 12px;
+                color: white;
+                font-size: 12px;
+                font-weight: 600;
+              "
+            >
               {{ Number(rank.approvalRate || 0).toFixed(1) }}% 通过率
             </div>
           </div>
@@ -568,12 +632,12 @@ onMounted(() => {
     <!-- Table -->
     <NCard :bordered="false" style="margin-bottom: 16px">
       <template #header>
-        <div style="display: flex; justify-content: space-between; align-items: center;">
+        <div style="display: flex; justify-content: space-between; align-items: center">
           <span>服务日志管理</span>
-          <NButton type="primary" @click={showAddModal}>添加</NButton>
+          <NButton type="primary" @click="{ showAddModal }">添加</NButton>
         </div>
       </template>
-      <div style="background: #f5f5f5; padding: 12px; margin-bottom: 12px; border-radius: 4px;">
+      <div style="background: #f5f5f5; padding: 12px; margin-bottom: 12px; border-radius: 4px">
         <NSpace :wrap="true" align="center">
           <NInput v-model:value="searchOrderNo" placeholder="订单号" clearable style="width: 150px" />
           <NInput v-model:value="searchElderName" placeholder="老人姓名" clearable style="width: 100px" />
@@ -587,7 +651,21 @@ onMounted(() => {
           />
           <NDatePicker v-model:value="searchDateRange" type="daterange" clearable style="width: 260px" />
           <NButton type="primary" @click="getTableData">搜索</NButton>
-          <NButton @click="() => { searchOrderNo = ''; searchElderName = ''; searchStaffName = ''; searchServiceCategory = ''; searchDateRange = null; pagination.page = 1; getTableData(); }">重置</NButton>
+          <NButton
+            @click="
+              () => {
+                searchOrderNo = '';
+                searchElderName = '';
+                searchStaffName = '';
+                searchServiceCategory = '';
+                searchDateRange = null;
+                pagination.page = 1;
+                getTableData();
+              }
+            "
+          >
+            重置
+          </NButton>
         </NSpace>
       </div>
       <NDataTable
@@ -618,12 +696,24 @@ onMounted(() => {
     <NModal v-model:show="elderDetailVisible" title="老人档案详情" preset="card" style="width: 600px">
       <NForm v-if="elderDetailData" label-placement="left" label-width="100">
         <NFormItem label="姓名">{{ elderDetailData.name }}</NFormItem>
-        <NFormItem label="性别">{{ elderDetailData.gender === 'MALE' ? '男' : elderDetailData.gender === 'FEMALE' ? '女' : '未知' }}</NFormItem>
+        <NFormItem label="性别">
+          {{ elderDetailData.gender === 'MALE' ? '男' : elderDetailData.gender === 'FEMALE' ? '女' : '未知' }}
+        </NFormItem>
         <NFormItem label="年龄">{{ elderDetailData.age }}</NFormItem>
         <NFormItem label="身份证号">{{ elderDetailData.idCard }}</NFormItem>
         <NFormItem label="手机号">{{ elderDetailData.phone }}</NFormItem>
         <NFormItem label="地址">{{ elderDetailData.address }}</NFormItem>
-        <NFormItem label="养老类型">{{ elderDetailData.careType === 'HOME' ? '居家养老' : elderDetailData.careType === 'COMMUNITY' ? '社区养老' : elderDetailData.careType === 'INSTITUTION' ? '机构养老' : '-' }}</NFormItem>
+        <NFormItem label="养老类型">
+          {{
+            elderDetailData.careType === 'HOME'
+              ? '居家养老'
+              : elderDetailData.careType === 'COMMUNITY'
+                ? '社区养老'
+                : elderDetailData.careType === 'INSTITUTION'
+                  ? '机构养老'
+                  : '-'
+          }}
+        </NFormItem>
         <NFormItem label="护理等级">{{ elderDetailData.careLevel }}</NFormItem>
         <NFormItem label="紧急联系人">{{ elderDetailData.emergencyContact || '-' }}</NFormItem>
         <NFormItem label="紧急联系电话">{{ elderDetailData.emergencyPhone || '-' }}</NFormItem>
@@ -646,49 +736,81 @@ onMounted(() => {
     </NModal>
 
     <!-- Add/Edit Modal -->
-    <NModal v-model:show="modalVisible" preset="card" style="width: 700px;">
+    <NModal v-model:show="modalVisible" preset="card" style="width: 700px">
       <template #header>
-        <div style="display: flex; align-items: center; gap: 12px;">
-          <div :style="'width: 4px; height: 24px; background: linear-gradient(180deg, ' + (isEdit ? '#667eea 0%, #764ba2' : '#11998e 0%, #38ef7d') + ' 100%); border-radius: 2px;'"></div>
-          <span style="font-size: 18px; font-weight: 600;">{{ isEdit ? '编辑服务日志' : '添加服务日志' }}</span>
+        <div style="display: flex; align-items: center; gap: 12px">
+          <div
+            :style="
+              'width: 4px; height: 24px; background: linear-gradient(180deg, ' +
+              (isEdit ? '#667eea 0%, #764ba2' : '#11998e 0%, #38ef7d') +
+              ' 100%); border-radius: 2px;'
+            "
+          ></div>
+          <span style="font-size: 18px; font-weight: 600">{{ isEdit ? '编辑服务日志' : '添加服务日志' }}</span>
         </div>
       </template>
-      <div style="padding: 16px 0;">
-        <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 16px;">
+      <div style="padding: 16px 0">
+        <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 16px">
           <div>
-            <div style="margin-bottom: 8px; color: #333; font-weight: 500;">关联订单 *</div>
+            <div style="margin-bottom: 8px; color: #333; font-weight: 500">关联订单 *</div>
             <NInput v-model:value="formData.orderId" placeholder="请输入订单ID" />
           </div>
           <div>
-            <div style="margin-bottom: 8px; color: #333; font-weight: 500;">服务时长(分钟)</div>
-            <NInputNumber v-model:value="formData.serviceDuration" :min="0" style="width: 100%;" />
+            <div style="margin-bottom: 8px; color: #333; font-weight: 500">服务时长(分钟)</div>
+            <NInputNumber v-model:value="formData.serviceDuration" :min="0" style="width: 100%" />
           </div>
         </div>
-        <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 16px; margin-top: 16px;">
+        <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 16px; margin-top: 16px">
           <div>
-            <div style="margin-bottom: 8px; color: #333; font-weight: 500;">服务开始时间</div>
-            <NDatePicker v-model:value="formData.serviceStartTime" type="datetime" style="width: 100%;" />
+            <div style="margin-bottom: 8px; color: #333; font-weight: 500">服务开始时间</div>
+            <NDatePicker v-model:value="formData.serviceStartTime" type="datetime" style="width: 100%" />
           </div>
           <div>
-            <div style="margin-bottom: 8px; color: #333; font-weight: 500;">服务结束时间</div>
-            <NDatePicker v-model:value="formData.serviceEndTime" type="datetime" style="width: 100%;" />
+            <div style="margin-bottom: 8px; color: #333; font-weight: 500">服务结束时间</div>
+            <NDatePicker v-model:value="formData.serviceEndTime" type="datetime" style="width: 100%" />
           </div>
         </div>
-        <div style="margin-top: 16px;">
-          <div style="margin-bottom: 8px; color: #333; font-weight: 500;">服务内容</div>
+        <div style="margin-top: 16px">
+          <div style="margin-bottom: 8px; color: #333; font-weight: 500">服务内容</div>
           <NInput v-model:value="formData.serviceContent" type="textarea" placeholder="请输入服务内容" :rows="3" />
         </div>
-        <div style="margin-top: 16px;">
-          <div style="margin-bottom: 8px; color: #333; font-weight: 500;">
-            服务照片 <span style="color: #999; font-weight: normal;">({{ formData.servicePhotos.length }}/{{ MAX_IMAGE_COUNT }})</span>
+        <div style="margin-top: 16px">
+          <div style="margin-bottom: 8px; color: #333; font-weight: 500">
+            服务照片
+            <span style="color: #999; font-weight: normal">
+              ({{ formData.servicePhotos.length }}/{{ MAX_IMAGE_COUNT }})
+            </span>
           </div>
-          <div style="display: flex; flex-wrap: wrap; gap: 12px; margin-bottom: 12px;">
-            <div v-for="(photo, index) in formData.servicePhotos" :key="index" style="position: relative; width: 80px; height: 80px;">
-              <img :src="photo" style="width: 80px; height: 80px; object-fit: cover; border-radius: 8px; border: 2px solid #e6e6e6;" />
+          <div style="display: flex; flex-wrap: wrap; gap: 12px; margin-bottom: 12px">
+            <div
+              v-for="(photo, index) in formData.servicePhotos"
+              :key="index"
+              style="position: relative; width: 80px; height: 80px"
+            >
+              <img
+                :src="photo"
+                style="width: 80px; height: 80px; object-fit: cover; border-radius: 8px; border: 2px solid #e6e6e6"
+              />
               <div
-                style="position: absolute; top: -8px; right: -8px; width: 22px; height: 22px; background: #ff4d4f; border-radius: 50%; color: white; text-align: center; line-height: 22px; font-size: 14px; cursor: pointer; box-shadow: 0 2px 4px rgba(0,0,0,0.2);"
+                style="
+                  position: absolute;
+                  top: -8px;
+                  right: -8px;
+                  width: 22px;
+                  height: 22px;
+                  background: #ff4d4f;
+                  border-radius: 50%;
+                  color: white;
+                  text-align: center;
+                  line-height: 22px;
+                  font-size: 14px;
+                  cursor: pointer;
+                  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
+                "
                 @click="removePhoto(index)"
-              >×</div>
+              >
+                ×
+              </div>
             </div>
           </div>
           <NUpload
@@ -700,127 +822,175 @@ onMounted(() => {
           >
             <NButton :disabled="formData.servicePhotos.length >= MAX_IMAGE_COUNT">
               <template #icon>
-                <span style="margin-right: 4px;">+</span>
+                <span style="margin-right: 4px">+</span>
               </template>
               选择图片
             </NButton>
           </NUpload>
-          <div style="font-size: 12px; color: #999; margin-top: 8px;">每张图片不超过3M</div>
+          <div style="font-size: 12px; color: #999; margin-top: 8px">每张图片不超过3M</div>
         </div>
       </div>
       <template #footer>
-        <div style="display: flex; justify-content: flex-end; gap: 12px;">
+        <div style="display: flex; justify-content: flex-end; gap: 12px">
           <NButton @click="closeModal">取消</NButton>
-          <NButton type="primary" :loading="modalLoading" @click="handleSubmitForm">{{ isEdit ? '保存修改' : '确认添加' }}</NButton>
+          <NButton type="primary" :loading="modalLoading" @click="handleSubmitForm">
+            {{ isEdit ? '保存修改' : '确认添加' }}
+          </NButton>
         </div>
       </template>
     </NModal>
 
     <!-- Detail Modal -->
-    <NModal v-model:show="detailVisible" preset="card" style="width: 800px;">
+    <NModal v-model:show="detailVisible" preset="card" style="width: 800px">
       <template #header>
-        <div style="display: flex; align-items: center; gap: 12px;">
-          <div style="width: 4px; height: 24px; background: linear-gradient(180deg, #667eea 0%, #764ba2 100%); border-radius: 2px;"></div>
-          <span style="font-size: 18px; font-weight: 600;">服务日志详情</span>
-          <NTag v-if="detailData" :type="getStatusType(detailData.status)" size="large">{{ getStatusLabel(detailData.status) }}</NTag>
+        <div style="display: flex; align-items: center; gap: 12px">
+          <div
+            style="
+              width: 4px;
+              height: 24px;
+              background: linear-gradient(180deg, #667eea 0%, #764ba2 100%);
+              border-radius: 2px;
+            "
+          ></div>
+          <span style="font-size: 18px; font-weight: 600">服务日志详情</span>
+          <NTag v-if="detailData" :type="getStatusType(detailData.status)" size="large">
+            {{ getStatusLabel(detailData.status) }}
+          </NTag>
         </div>
       </template>
-      <div v-if="detailData" style="padding: 8px 0;">
+      <div v-if="detailData" style="padding: 8px 0">
         <!-- Info Section -->
-        <div style="background: #f8f9fa; border-radius: 12px; padding: 20px; margin-bottom: 16px;">
-          <div style="display: grid; grid-template-columns: repeat(2, 1fr); gap: 16px;">
+        <div style="background: #f8f9fa; border-radius: 12px; padding: 20px; margin-bottom: 16px">
+          <div style="display: grid; grid-template-columns: repeat(2, 1fr); gap: 16px">
             <div>
-              <div style="color: #999; font-size: 12px; margin-bottom: 4px;">日志编号</div>
-              <div style="font-weight: 500; color: #333;">{{ detailData.logNo }}</div>
+              <div style="color: #999; font-size: 12px; margin-bottom: 4px">日志编号</div>
+              <div style="font-weight: 500; color: #333">{{ detailData.logNo }}</div>
             </div>
             <div>
-              <div style="color: #999; font-size: 12px; margin-bottom: 4px;">订单号</div>
-              <div style="font-weight: 500; color: #333;">{{ detailData.orderNo || '-' }}</div>
+              <div style="color: #999; font-size: 12px; margin-bottom: 4px">订单号</div>
+              <div style="font-weight: 500; color: #333">{{ detailData.orderNo || '-' }}</div>
             </div>
           </div>
         </div>
 
         <!-- People Info -->
-        <div style="background: #f8f9fa; border-radius: 12px; padding: 20px; margin-bottom: 16px;">
-          <div style="color: #667eea; font-size: 13px; font-weight: 600; margin-bottom: 12px;">服务对象</div>
-          <div style="display: grid; grid-template-columns: repeat(3, 1fr); gap: 16px;">
+        <div style="background: #f8f9fa; border-radius: 12px; padding: 20px; margin-bottom: 16px">
+          <div style="color: #667eea; font-size: 13px; font-weight: 600; margin-bottom: 12px">服务对象</div>
+          <div style="display: grid; grid-template-columns: repeat(3, 1fr); gap: 16px">
             <div>
-              <div style="color: #999; font-size: 12px; margin-bottom: 4px;">老人姓名</div>
-              <div style="font-weight: 500;">{{ detailData.elderName || '-' }}</div>
+              <div style="color: #999; font-size: 12px; margin-bottom: 4px">老人姓名</div>
+              <div style="font-weight: 500">{{ detailData.elderName || '-' }}</div>
             </div>
             <div>
-              <div style="color: #999; font-size: 12px; margin-bottom: 4px;">服务人员</div>
-              <div style="font-weight: 500;">{{ detailData.staffName || '-' }}</div>
+              <div style="color: #999; font-size: 12px; margin-bottom: 4px">服务人员</div>
+              <div style="font-weight: 500">{{ detailData.staffName || '-' }}</div>
             </div>
             <div>
-              <div style="color: #999; font-size: 12px; margin-bottom: 4px;">服务商</div>
-              <div style="font-weight: 500;">{{ detailData.providerName || '-' }}</div>
+              <div style="color: #999; font-size: 12px; margin-bottom: 4px">服务商</div>
+              <div style="font-weight: 500">{{ detailData.providerName || '-' }}</div>
             </div>
           </div>
         </div>
 
         <!-- Service Info -->
-        <div style="background: #f8f9fa; border-radius: 12px; padding: 20px; margin-bottom: 16px;">
-          <div style="color: #667eea; font-size: 13px; font-weight: 600; margin-bottom: 12px;">服务信息</div>
-          <div style="display: grid; grid-template-columns: repeat(4, 1fr); gap: 16px;">
+        <div style="background: #f8f9fa; border-radius: 12px; padding: 20px; margin-bottom: 16px">
+          <div style="color: #667eea; font-size: 13px; font-weight: 600; margin-bottom: 12px">服务信息</div>
+          <div style="display: grid; grid-template-columns: repeat(4, 1fr); gap: 16px">
             <div>
-              <div style="color: #999; font-size: 12px; margin-bottom: 4px;">服务类别</div>
-              <div style="font-weight: 500;">{{ getCategoryLabel(detailData.serviceCategory) }}</div>
+              <div style="color: #999; font-size: 12px; margin-bottom: 4px">服务类别</div>
+              <div style="font-weight: 500">{{ getCategoryLabel(detailData.serviceCategory) }}</div>
             </div>
             <div>
-              <div style="color: #999; font-size: 12px; margin-bottom: 4px;">服务类型</div>
-              <div style="font-weight: 500;">{{ detailData.serviceType || '-' }}</div>
+              <div style="color: #999; font-size: 12px; margin-bottom: 4px">服务类型</div>
+              <div style="font-weight: 500">{{ detailData.serviceType || '-' }}</div>
             </div>
             <div>
-              <div style="color: #999; font-size: 12px; margin-bottom: 4px;">服务时长</div>
-              <div style="font-weight: 500;">{{ detailData.serviceDuration ? `${detailData.serviceDuration}分钟` : '-' }}</div>
+              <div style="color: #999; font-size: 12px; margin-bottom: 4px">服务时长</div>
+              <div style="font-weight: 500">
+                {{ detailData.serviceDuration ? `${detailData.serviceDuration}分钟` : '-' }}
+              </div>
             </div>
             <div>
-              <div style="color: #999; font-size: 12px; margin-bottom: 4px;">服务时间</div>
-              <div style="font-weight: 500; font-size: 12px;">{{ detailData.serviceStartTime || '-' }}</div>
+              <div style="color: #999; font-size: 12px; margin-bottom: 4px">服务时间</div>
+              <div style="font-weight: 500; font-size: 12px">{{ detailData.serviceStartTime || '-' }}</div>
             </div>
           </div>
         </div>
 
         <!-- Content -->
-        <div v-if="detailData.serviceContent" style="background: #f8f9fa; border-radius: 12px; padding: 20px; margin-bottom: 16px;">
-          <div style="color: #667eea; font-size: 13px; font-weight: 600; margin-bottom: 12px;">服务内容</div>
-          <div style="color: #333; line-height: 1.6;">{{ detailData.serviceContent }}</div>
+        <div
+          v-if="detailData.serviceContent"
+          style="background: #f8f9fa; border-radius: 12px; padding: 20px; margin-bottom: 16px"
+        >
+          <div style="color: #667eea; font-size: 13px; font-weight: 600; margin-bottom: 12px">服务内容</div>
+          <div style="color: #333; line-height: 1.6">{{ detailData.serviceContent }}</div>
         </div>
 
         <!-- Photos -->
-        <div v-if="detailData.servicePhotos && detailData.servicePhotos.length > 0" style="background: #f8f9fa; border-radius: 12px; padding: 20px; margin-bottom: 16px;">
-          <div style="color: #667eea; font-size: 13px; font-weight: 600; margin-bottom: 12px;">
+        <div
+          v-if="detailData.servicePhotos && detailData.servicePhotos.length > 0"
+          style="background: #f8f9fa; border-radius: 12px; padding: 20px; margin-bottom: 16px"
+        >
+          <div style="color: #667eea; font-size: 13px; font-weight: 600; margin-bottom: 12px">
             服务照片 ({{ detailData.servicePhotos.length }})
           </div>
-          <div style="display: flex; flex-wrap: wrap; gap: 12px;">
+          <div style="display: flex; flex-wrap: wrap; gap: 12px">
             <img
               v-for="(photo, idx) in detailData.servicePhotos"
               :key="idx"
               :src="photo"
-              style="width: 100px; height: 100px; object-fit: cover; border-radius: 8px; cursor: pointer; transition: transform 0.2s;"
+              style="
+                width: 100px;
+                height: 100px;
+                object-fit: cover;
+                border-radius: 8px;
+                cursor: pointer;
+                transition: transform 0.2s;
+              "
               @click="openPreview(detailData.servicePhotos || [])"
             />
           </div>
         </div>
 
         <!-- Review Remarks -->
-        <div v-if="detailData.reviewRemarks" style="background: #fff7e6; border-radius: 12px; padding: 20px; margin-bottom: 16px; border: 1px solid #ffd591;">
-          <div style="color: #fa8c16; font-size: 13px; font-weight: 600; margin-bottom: 8px;">审核备注</div>
-          <div style="color: #333; line-height: 1.6;">{{ detailData.reviewRemarks }}</div>
+        <div
+          v-if="detailData.reviewRemarks"
+          style="
+            background: #fff7e6;
+            border-radius: 12px;
+            padding: 20px;
+            margin-bottom: 16px;
+            border: 1px solid #ffd591;
+          "
+        >
+          <div style="color: #fa8c16; font-size: 13px; font-weight: 600; margin-bottom: 8px">审核备注</div>
+          <div style="color: #333; line-height: 1.6">{{ detailData.reviewRemarks }}</div>
         </div>
 
         <!-- Time Info -->
-        <div style="display: flex; gap: 24px; color: #999; font-size: 13px;">
+        <div style="display: flex; gap: 24px; color: #999; font-size: 13px">
           <div>创建时间: {{ detailData.createTime || '-' }}</div>
           <div>提交时间: {{ detailData.submitTime || '-' }}</div>
         </div>
       </div>
       <template #footer>
-        <div style="display: flex; justify-content: space-between; align-items: center;">
+        <div style="display: flex; justify-content: space-between; align-items: center">
           <div>
-            <NButton v-if="!detailData?.status || detailData?.status === 'DRAFT'" type="default" @click="handleUpdateFromDetail" style="margin-right: 8px;">更新</NButton>
-            <NButton v-if="!detailData?.status || detailData?.status === 'DRAFT'" type="primary" @click="handleSubmitReviewFromDetail">提交审核</NButton>
+            <NButton
+              v-if="!detailData?.status || detailData?.status === 'DRAFT'"
+              type="default"
+              @click="handleUpdateFromDetail"
+              style="margin-right: 8px"
+            >
+              更新
+            </NButton>
+            <NButton
+              v-if="!detailData?.status || detailData?.status === 'DRAFT'"
+              type="primary"
+              @click="handleSubmitReviewFromDetail"
+            >
+              提交审核
+            </NButton>
           </div>
           <NButton @click="detailVisible = false">关闭</NButton>
         </div>
@@ -828,51 +998,80 @@ onMounted(() => {
     </NModal>
 
     <!-- Image Preview -->
-    <NModal v-model:show="previewVisible" preset="card" style="width: 900px;">
+    <NModal v-model:show="previewVisible" preset="card" style="width: 900px">
       <template #header>
-        <div style="display: flex; align-items: center; gap: 12px;">
-          <div style="width: 4px; height: 24px; background: linear-gradient(180deg, #667eea 0%, #764ba2 100%); border-radius: 2px;"></div>
-          <span style="font-size: 18px; font-weight: 600;">图片预览 ({{ previewImages.length }})</span>
+        <div style="display: flex; align-items: center; gap: 12px">
+          <div
+            style="
+              width: 4px;
+              height: 24px;
+              background: linear-gradient(180deg, #667eea 0%, #764ba2 100%);
+              border-radius: 2px;
+            "
+          ></div>
+          <span style="font-size: 18px; font-weight: 600">图片预览 ({{ previewImages.length }})</span>
         </div>
       </template>
-      <div style="display: flex; flex-wrap: wrap; gap: 16px; justify-content: center; padding: 20px 0;">
+      <div style="display: flex; flex-wrap: wrap; gap: 16px; justify-content: center; padding: 20px 0">
         <img
           v-for="(photo, idx) in previewImages"
           :key="idx"
           :src="photo"
-          style="max-width: 400px; max-height: 400px; object-fit: contain; border-radius: 8px; box-shadow: 0 4px 12px rgba(0,0,0,0.1);"
+          style="
+            max-width: 400px;
+            max-height: 400px;
+            object-fit: contain;
+            border-radius: 8px;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+          "
         />
       </div>
       <template #footer>
-        <div style="display: flex; justify-content: center;">
+        <div style="display: flex; justify-content: center">
           <NButton @click="previewVisible = false">关闭</NButton>
         </div>
       </template>
     </NModal>
 
     <!-- Submit for Review Dialog -->
-    <NModal v-model:show="reviewDialogVisible" preset="card" style="width: 500px;">
+    <NModal v-model:show="reviewDialogVisible" preset="card" style="width: 500px">
       <template #header>
-        <div style="display: flex; align-items: center; gap: 12px;">
-          <div style="width: 4px; height: 24px; background: linear-gradient(180deg, #11998e 0%, #38ef7d 100%); border-radius: 2px;"></div>
-          <span style="font-size: 18px; font-weight: 600;">提交审核</span>
+        <div style="display: flex; align-items: center; gap: 12px">
+          <div
+            style="
+              width: 4px;
+              height: 24px;
+              background: linear-gradient(180deg, #11998e 0%, #38ef7d 100%);
+              border-radius: 2px;
+            "
+          ></div>
+          <span style="font-size: 18px; font-weight: 600">提交审核</span>
         </div>
       </template>
-      <div style="padding: 16px 0;">
-        <div style="background: #e6f7ff; border-radius: 8px; padding: 12px 16px; margin-bottom: 16px; color: #1890ff; font-size: 13px;">
+      <div style="padding: 16px 0">
+        <div
+          style="
+            background: #e6f7ff;
+            border-radius: 8px;
+            padding: 12px 16px;
+            margin-bottom: 16px;
+            color: #1890ff;
+            font-size: 13px;
+          "
+        >
           提交后将进入审核流程，请确认信息无误。
         </div>
-        <div style="margin-bottom: 8px; color: #333; font-weight: 500;">审核备注（可选）</div>
+        <div style="margin-bottom: 8px; color: #333; font-weight: 500">审核备注（可选）</div>
         <NInput
           v-model:value="reviewRemarks"
           type="textarea"
           placeholder="请输入审核备注，如有问题请说明..."
           :rows="4"
-          style="border-radius: 8px;"
+          style="border-radius: 8px"
         />
       </div>
       <template #footer>
-        <div style="display: flex; justify-content: flex-end; gap: 12px;">
+        <div style="display: flex; justify-content: flex-end; gap: 12px">
           <NButton @click="closeReviewDialog">取消</NButton>
           <NButton type="primary" @click="submitReview">确认提交</NButton>
         </div>

@@ -31,14 +31,11 @@ declare namespace BMap {
     enableDragging?: boolean;
   }
 
-  interface Overlay {
-  }
+  interface Overlay {}
 
-  class Overlay {
-  }
+  class Overlay {}
 
-  interface Event {
-  }
+  interface Event {}
 }
 
 declare namespace BMapLib {

@@ -1,7 +1,16 @@
 import { computed, effectScope, nextTick, onScopeDispose, shallowRef, watch } from 'vue';
 import { useElementSize } from '@vueuse/core';
 import * as echarts from 'echarts/core';
-import { BarChart, GaugeChart, LineChart, PictorialBarChart, PieChart, RadarChart, ScatterChart, FunnelChart } from 'echarts/charts';
+import {
+  BarChart,
+  GaugeChart,
+  LineChart,
+  PictorialBarChart,
+  PieChart,
+  RadarChart,
+  ScatterChart,
+  FunnelChart
+} from 'echarts/charts';
 import type {
   BarSeriesOption,
   GaugeSeriesOption,

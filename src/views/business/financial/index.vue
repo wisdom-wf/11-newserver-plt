@@ -108,7 +108,10 @@ const columns: DataTableColumns<any> = [
     title: '服务人员',
     key: 'staffName',
     width: 100,
-    render: row => row.staffName ? h('a', { style: { color: '#18a058', cursor: 'pointer' }, onClick: () => showStaffDetail(row) }, row.staffName) : '-'
+    render: row =>
+      row.staffName
+        ? h('a', { style: { color: '#18a058', cursor: 'pointer' }, onClick: () => showStaffDetail(row) }, row.staffName)
+        : '-'
   },
   { title: '订单数', key: 'totalOrderCount', width: 80 },
   { title: '总服务费', key: 'totalServiceAmount', width: 100 },
@@ -210,11 +213,11 @@ onMounted(() => {
     <!-- Table -->
     <NCard :bordered="false" style="margin-bottom: 16px">
       <template #header>
-        <div style="display: flex; justify-content: space-between; align-items: center;">
+        <div style="display: flex; justify-content: space-between; align-items: center">
           <span>财务结算管理</span>
         </div>
       </template>
-      <div style="background: #f5f5f5; padding: 12px; margin-bottom: 12px; border-radius: 4px;">
+      <div style="background: #f5f5f5; padding: 12px; margin-bottom: 12px; border-radius: 4px">
         <NSpace :wrap="true" align="center">
           <NInput v-model:value="searchOrderNo" placeholder="订单号" clearable style="width: 150px" />
           <NInput v-model:value="searchElderName" placeholder="老人姓名" clearable style="width: 100px" />
@@ -228,7 +231,21 @@ onMounted(() => {
           />
           <NDatePicker v-model:value="searchDateRange" type="daterange" clearable style="width: 260px" />
           <NButton type="primary" @click="getTableData">搜索</NButton>
-          <NButton @click="() => { searchOrderNo = ''; searchElderName = ''; searchProviderName = ''; searchStatus = ''; searchDateRange = null; pagination.page = 1; getTableData(); }">重置</NButton>
+          <NButton
+            @click="
+              () => {
+                searchOrderNo = '';
+                searchElderName = '';
+                searchProviderName = '';
+                searchStatus = '';
+                searchDateRange = null;
+                pagination.page = 1;
+                getTableData();
+              }
+            "
+          >
+            重置
+          </NButton>
         </NSpace>
       </div>
       <NDataTable
@@ -259,12 +276,24 @@ onMounted(() => {
     <NModal v-model:show="elderDetailVisible" title="老人档案详情" preset="card" style="width: 600px">
       <NForm v-if="elderDetailData" label-placement="left" label-width="100">
         <NFormItem label="姓名">{{ elderDetailData.name }}</NFormItem>
-        <NFormItem label="性别">{{ elderDetailData.gender === 'MALE' ? '男' : elderDetailData.gender === 'FEMALE' ? '女' : '未知' }}</NFormItem>
+        <NFormItem label="性别">
+          {{ elderDetailData.gender === 'MALE' ? '男' : elderDetailData.gender === 'FEMALE' ? '女' : '未知' }}
+        </NFormItem>
         <NFormItem label="年龄">{{ elderDetailData.age }}</NFormItem>
         <NFormItem label="身份证号">{{ elderDetailData.idCard }}</NFormItem>
         <NFormItem label="手机号">{{ elderDetailData.phone }}</NFormItem>
         <NFormItem label="地址">{{ elderDetailData.address }}</NFormItem>
-        <NFormItem label="养老类型">{{ elderDetailData.careType === 'HOME' ? '居家养老' : elderDetailData.careType === 'COMMUNITY' ? '社区养老' : elderDetailData.careType === 'INSTITUTION' ? '机构养老' : '-' }}</NFormItem>
+        <NFormItem label="养老类型">
+          {{
+            elderDetailData.careType === 'HOME'
+              ? '居家养老'
+              : elderDetailData.careType === 'COMMUNITY'
+                ? '社区养老'
+                : elderDetailData.careType === 'INSTITUTION'
+                  ? '机构养老'
+                  : '-'
+          }}
+        </NFormItem>
         <NFormItem label="护理等级">{{ elderDetailData.careLevel }}</NFormItem>
         <NFormItem label="紧急联系人">{{ elderDetailData.emergencyContact || '-' }}</NFormItem>
         <NFormItem label="紧急联系电话">{{ elderDetailData.emergencyPhone || '-' }}</NFormItem>

@@ -1,6 +1,19 @@
 <script setup lang="ts">
 import { ref, h, onMounted, computed } from 'vue';
-import { NButton, NCard, NDataTable, NGrid, NGi, NSpace, NTree, NModal, NPopconfirm, NTag, useMessage, NSpin } from 'naive-ui';
+import {
+  NButton,
+  NCard,
+  NDataTable,
+  NGrid,
+  NGi,
+  NSpace,
+  NTree,
+  NModal,
+  NPopconfirm,
+  NTag,
+  useMessage,
+  NSpin
+} from 'naive-ui';
 import { fetchGetAreaTree, fetchDeleteArea, fetchCreateArea, fetchUpdateArea } from '@/service/api';
 import type { DataTableColumns } from 'naive-ui';
 
@@ -163,9 +176,7 @@ onMounted(() => {
                   label-field="label"
                   @update:expanded-keys="keys => (expandedKeys = keys)"
                 />
-                <div v-else style="padding: 20px; text-align: center; color: #999;">
-                  暂无数据
-                </div>
+                <div v-else style="padding: 20px; text-align: center; color: #999">暂无数据</div>
               </NSpin>
             </NCard>
           </NGi>

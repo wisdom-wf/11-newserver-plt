@@ -254,7 +254,7 @@ onMounted(() => {
     <NCard :bordered="false">
       <template #header>
         <NSpace justify="space-between" align="center" :wrap="true">
-          <span style="font-size: 16px; font-weight: 600;">用户管理</span>
+          <span style="font-size: 16px; font-weight: 600">用户管理</span>
           <NSpace align="center" :wrap="true">
             <NInput v-model:value="searchUsername" placeholder="用户名" clearable style="width: 120px" />
             <NInput v-model:value="searchRealname" placeholder="真实姓名" clearable style="width: 120px" />

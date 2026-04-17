@@ -58,8 +58,7 @@ const bgColor = computed(() => {
         <header class="flex-y-center justify-between">
           <SystemLogo class="size-64px lt-sm:size-48px" />
           <h3 class="text-28px text-primary font-500 lt-sm:text-22px">{{ $t('system.title') }}</h3>
-          <div class="i-flex-col">
-          </div>
+          <div class="i-flex-col"></div>
         </header>
         <main class="pt-24px">
           <h3 class="text-18px text-primary font-medium">{{ $t(activeModule.label) }}</h3>

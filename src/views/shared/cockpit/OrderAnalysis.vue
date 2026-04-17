@@ -31,10 +31,17 @@ const { domRef: trendRef, updateOptions: updateTrendOptions } = useEcharts<ECOpt
       smooth: true,
       data: [] as number[],
       areaStyle: {
-        color: { type: 'linear', x: 0, y: 0, x2: 0, y2: 1, colorStops: [
-          { offset: 0, color: 'rgba(93, 168, 255, 0.5)' },
-          { offset: 1, color: 'rgba(93, 168, 255, 0.1)' }
-        ]}
+        color: {
+          type: 'linear',
+          x: 0,
+          y: 0,
+          x2: 0,
+          y2: 1,
+          colorStops: [
+            { offset: 0, color: 'rgba(93, 168, 255, 0.5)' },
+            { offset: 1, color: 'rgba(93, 168, 255, 0.1)' }
+          ]
+        }
       },
       itemStyle: { color: '#5da8ff' }
     },
@@ -44,10 +51,17 @@ const { domRef: trendRef, updateOptions: updateTrendOptions } = useEcharts<ECOpt
       smooth: true,
       data: [] as number[],
       areaStyle: {
-        color: { type: 'linear', x: 0, y: 0, x2: 0, y2: 1, colorStops: [
-          { offset: 0, color: 'rgba(38, 222, 202, 0.5)' },
-          { offset: 1, color: 'rgba(38, 222, 202, 0.1)' }
-        ]}
+        color: {
+          type: 'linear',
+          x: 0,
+          y: 0,
+          x2: 0,
+          y2: 1,
+          colorStops: [
+            { offset: 0, color: 'rgba(38, 222, 202, 0.5)' },
+            { offset: 1, color: 'rgba(38, 222, 202, 0.1)' }
+          ]
+        }
       },
       itemStyle: { color: '#26deca' }
     }
@@ -67,10 +81,17 @@ const { domRef: serviceRef, updateOptions: updateServiceOptions } = useEcharts<E
       type: 'bar',
       data: [] as number[],
       itemStyle: {
-        color: { type: 'linear', x: 0, y: 0, x2: 0, y2: 1, colorStops: [
-          { offset: 0, color: '#fedc69' },
-          { offset: 1, color: '#ff7d00' }
-        ]},
+        color: {
+          type: 'linear',
+          x: 0,
+          y: 0,
+          x2: 0,
+          y2: 1,
+          colorStops: [
+            { offset: 0, color: '#fedc69' },
+            { offset: 1, color: '#ff7d00' }
+          ]
+        },
         borderRadius: [4, 4, 0, 0]
       }
     }
@@ -239,10 +260,18 @@ function formatNumber(num: number): string {
   padding: 20px;
 }
 
-.stat-card-primary { background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); }
-.stat-card-success { background: linear-gradient(135deg, #43e97b 0%, #38f9d7 100%); }
-.stat-card-info { background: linear-gradient(135deg, #4facfe 0%, #00f2fe 100%); }
-.stat-card-warning { background: linear-gradient(135deg, #fa709a 0%, #fee140 100%); }
+.stat-card-primary {
+  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+}
+.stat-card-success {
+  background: linear-gradient(135deg, #43e97b 0%, #38f9d7 100%);
+}
+.stat-card-info {
+  background: linear-gradient(135deg, #4facfe 0%, #00f2fe 100%);
+}
+.stat-card-warning {
+  background: linear-gradient(135deg, #fa709a 0%, #fee140 100%);
+}
 
 .stat-content {
   display: flex;

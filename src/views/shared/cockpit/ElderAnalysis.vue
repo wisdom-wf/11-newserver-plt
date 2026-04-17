@@ -46,10 +46,17 @@ const { domRef: careBarRef, updateOptions: updateCareBarOptions } = useEcharts<E
       type: 'bar',
       data: [] as number[],
       itemStyle: {
-        color: { type: 'linear', x: 0, y: 0, x2: 0, y2: 1, colorStops: [
-          { offset: 0, color: '#5da8ff' },
-          { offset: 1, color: '#8e9dff' }
-        ]},
+        color: {
+          type: 'linear',
+          x: 0,
+          y: 0,
+          x2: 0,
+          y2: 1,
+          colorStops: [
+            { offset: 0, color: '#5da8ff' },
+            { offset: 1, color: '#8e9dff' }
+          ]
+        },
         borderRadius: [4, 4, 0, 0]
       }
     }
@@ -90,7 +97,9 @@ async function getData() {
       }
       if (res.data.careLevelDistribution?.length) {
         updateCareBarOptions(opts => {
-          opts.xAxis.data = res.data.careLevelDistribution.map((item: any) => item.levelName || `等级${item.careLevel}`);
+          opts.xAxis.data = res.data.careLevelDistribution.map(
+            (item: any) => item.levelName || `等级${item.careLevel}`
+          );
           opts.series[0].data = res.data.careLevelDistribution.map((item: any) => item.count || 0);
           return opts;
         });
@@ -211,9 +220,15 @@ function formatNumber(num: number): string {
   padding: 20px;
 }
 
-.stat-card-primary { background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); }
-.stat-card-success { background: linear-gradient(135deg, #43e97b 0%, #38f9d7 100%); }
-.stat-card-warning { background: linear-gradient(135deg, #fa709a 0%, #fee140 100%); }
+.stat-card-primary {
+  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+}
+.stat-card-success {
+  background: linear-gradient(135deg, #43e97b 0%, #38f9d7 100%);
+}
+.stat-card-warning {
+  background: linear-gradient(135deg, #fa709a 0%, #fee140 100%);
+}
 
 .stat-content {
   display: flex;

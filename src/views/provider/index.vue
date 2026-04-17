@@ -1,14 +1,6 @@
 <script setup lang="ts">
 import { ref, h, onMounted } from 'vue';
-import {
-  NButton,
-  NCard,
-  NTag,
-  NSpace,
-  NInput,
-  NSelect,
-  useMessage
-} from 'naive-ui';
+import { NButton, NCard, NTag, NSpace, NInput, NSelect, useMessage } from 'naive-ui';
 import type { DataTableColumns } from 'naive-ui';
 import { useFormRules } from '@/hooks/common/form';
 import {
@@ -285,11 +277,11 @@ onMounted(() => {
     <!-- Table -->
     <NCard :bordered="false" style="margin-bottom: 16px">
       <template #header>
-        <div style="display: flex; justify-content: space-between; align-items: center;">
+        <div style="display: flex; justify-content: space-between; align-items: center">
           <span>服务商管理</span>
         </div>
       </template>
-      <div style="background: #f5f5f5; padding: 12px; margin-bottom: 12px; border-radius: 4px;">
+      <div style="background: #f5f5f5; padding: 12px; margin-bottom: 12px; border-radius: 4px">
         <NSpace :wrap="true" align="center">
           <NInput v-model:value="searchName" placeholder="服务商名称" clearable style="width: 150px" />
           <NInput v-model:value="searchCreditCode" placeholder="信用代码" clearable style="width: 180px" />
@@ -311,7 +303,7 @@ onMounted(() => {
           <NButton @click="handleResetSearch">重置</NButton>
         </NSpace>
       </div>
-      
+
       <!-- Use framework's TableHeaderOperation component -->
       <TableHeaderOperation
         v-model:columns="columnChecks"
@@ -320,7 +312,7 @@ onMounted(() => {
         @add="handleOpenAdd"
         @refresh="getData"
       />
-      
+
       <NDataTable
         :columns="columns"
         :data="tableData"
@@ -344,10 +336,20 @@ onMounted(() => {
             <NInput v-model:value="form.creditCode" placeholder="请输入统一社会信用代码" />
           </NFormItem>
           <NFormItem label="服务类别">
-            <NSelect v-model:value="form.serviceCategory" :options="categoryOptions" placeholder="请选择服务类别" style="width: 200px" />
+            <NSelect
+              v-model:value="form.serviceCategory"
+              :options="categoryOptions"
+              placeholder="请选择服务类别"
+              style="width: 200px"
+            />
           </NFormItem>
           <NFormItem label="服务商类型">
-            <NSelect v-model:value="form.providerType" :options="providerTypeOptions" placeholder="请选择服务商类型" style="width: 200px" />
+            <NSelect
+              v-model:value="form.providerType"
+              :options="providerTypeOptions"
+              placeholder="请选择服务商类型"
+              style="width: 200px"
+            />
           </NFormItem>
           <NFormItem label="法人" path="legalPerson">
             <NInput v-model:value="form.legalPerson" placeholder="请输入法人姓名" />

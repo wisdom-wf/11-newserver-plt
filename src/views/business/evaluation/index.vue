@@ -85,14 +85,18 @@ const columns: DataTableColumns<any> = [
     title: '老人姓名',
     key: 'elderName',
     width: 100,
-    render: row => h('a', { style: { color: '#18a058', cursor: 'pointer' }, onClick: () => showElderDetail(row) }, row.elderName)
+    render: row =>
+      h('a', { style: { color: '#18a058', cursor: 'pointer' }, onClick: () => showElderDetail(row) }, row.elderName)
   },
   { title: '服务商', key: 'providerName', width: 150 },
   {
     title: '服务人员',
     key: 'staffName',
     width: 100,
-    render: row => row.staffName ? h('a', { style: { color: '#18a058', cursor: 'pointer' }, onClick: () => showStaffDetail(row) }, row.staffName) : '-'
+    render: row =>
+      row.staffName
+        ? h('a', { style: { color: '#18a058', cursor: 'pointer' }, onClick: () => showStaffDetail(row) }, row.staffName)
+        : '-'
   },
   { title: '综合评分', key: 'overallScore', width: 80 },
   { title: '评价内容', key: 'content', width: 200, ellipsis: { tooltip: true } },
@@ -191,18 +195,31 @@ onMounted(() => {
     <!-- Table -->
     <NCard :bordered="false" style="margin-bottom: 16px">
       <template #header>
-        <div style="display: flex; justify-content: space-between; align-items: center;">
+        <div style="display: flex; justify-content: space-between; align-items: center">
           <span>满意度评价管理</span>
         </div>
       </template>
-      <div style="background: #f5f5f5; padding: 12px; margin-bottom: 12px; border-radius: 4px;">
+      <div style="background: #f5f5f5; padding: 12px; margin-bottom: 12px; border-radius: 4px">
         <NSpace :wrap="true" align="center">
           <NInput v-model:value="searchOrderNo" placeholder="订单号" clearable style="width: 150px" />
           <NInput v-model:value="searchElderName" placeholder="老人姓名" clearable style="width: 100px" />
           <NInput v-model:value="searchProviderName" placeholder="服务商" clearable style="width: 150px" />
           <NDatePicker v-model:value="searchDateRange" type="daterange" clearable style="width: 260px" />
           <NButton type="primary" @click="getTableData">搜索</NButton>
-          <NButton @click="() => { searchOrderNo = ''; searchElderName = ''; searchProviderName = ''; searchDateRange = null; pagination.page = 1; getTableData(); }">重置</NButton>
+          <NButton
+            @click="
+              () => {
+                searchOrderNo = '';
+                searchElderName = '';
+                searchProviderName = '';
+                searchDateRange = null;
+                pagination.page = 1;
+                getTableData();
+              }
+            "
+          >
+            重置
+          </NButton>
         </NSpace>
       </div>
       <NDataTable
@@ -233,12 +250,24 @@ onMounted(() => {
     <NModal v-model:show="elderDetailVisible" title="老人档案详情" preset="card" style="width: 600px">
       <NForm v-if="elderDetailData" label-placement="left" label-width="100">
         <NFormItem label="姓名">{{ elderDetailData.name }}</NFormItem>
-        <NFormItem label="性别">{{ elderDetailData.gender === 'MALE' ? '男' : elderDetailData.gender === 'FEMALE' ? '女' : '未知' }}</NFormItem>
+        <NFormItem label="性别">
+          {{ elderDetailData.gender === 'MALE' ? '男' : elderDetailData.gender === 'FEMALE' ? '女' : '未知' }}
+        </NFormItem>
         <NFormItem label="年龄">{{ elderDetailData.age }}</NFormItem>
         <NFormItem label="身份证号">{{ elderDetailData.idCard }}</NFormItem>
         <NFormItem label="手机号">{{ elderDetailData.phone }}</NFormItem>
         <NFormItem label="地址">{{ elderDetailData.address }}</NFormItem>
-        <NFormItem label="养老类型">{{ elderDetailData.careType === 'HOME' ? '居家养老' : elderDetailData.careType === 'COMMUNITY' ? '社区养老' : elderDetailData.careType === 'INSTITUTION' ? '机构养老' : '-' }}</NFormItem>
+        <NFormItem label="养老类型">
+          {{
+            elderDetailData.careType === 'HOME'
+              ? '居家养老'
+              : elderDetailData.careType === 'COMMUNITY'
+                ? '社区养老'
+                : elderDetailData.careType === 'INSTITUTION'
+                  ? '机构养老'
+                  : '-'
+          }}
+        </NFormItem>
         <NFormItem label="护理等级">{{ elderDetailData.careLevel }}</NFormItem>
         <NFormItem label="紧急联系人">{{ elderDetailData.emergencyContact || '-' }}</NFormItem>
         <NFormItem label="紧急联系电话">{{ elderDetailData.emergencyPhone || '-' }}</NFormItem>

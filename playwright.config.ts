@@ -15,17 +15,17 @@ export default defineConfig({
     baseURL: 'http://localhost:9527',
     trace: 'on-first-retry',
     screenshot: 'only-on-failure',
-    video: 'retain-on-failure',
+    video: 'retain-on-failure'
   },
   projects: [
     {
       name: 'chromium',
-      use: { ...devices['Desktop Chrome'] },
-    },
+      use: { ...devices['Desktop Chrome'] }
+    }
   ],
   webServer: {
     command: 'pnpm dev',
     url: 'http://localhost:9527',
-    reuseExistingServer: true,
-  },
+    reuseExistingServer: true
+  }
 });

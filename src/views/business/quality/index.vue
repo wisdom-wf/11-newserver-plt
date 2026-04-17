@@ -115,7 +115,10 @@ const columns: DataTableColumns<Api.Quality.QualityCheck> = [
     title: '服务人员',
     key: 'staffName',
     width: 100,
-    render: row => row.staffName ? h('a', { style: { color: '#18a058', cursor: 'pointer' }, onClick: () => showStaffDetail(row) }, row.staffName) : '-'
+    render: row =>
+      row.staffName
+        ? h('a', { style: { color: '#18a058', cursor: 'pointer' }, onClick: () => showStaffDetail(row) }, row.staffName)
+        : '-'
   },
   { title: '质检类型', key: 'checkType', width: 100, render: row => getCheckTypeLabel(row.checkType) },
   { title: '质检方式', key: 'checkMethod', width: 100, render: row => getCheckMethodLabel(row.checkMethod) },
@@ -220,11 +223,11 @@ onMounted(() => {
     <!-- Table -->
     <NCard :bordered="false" style="margin-bottom: 16px">
       <template #header>
-        <div style="display: flex; justify-content: space-between; align-items: center;">
+        <div style="display: flex; justify-content: space-between; align-items: center">
           <span>质检管理</span>
         </div>
       </template>
-      <div style="background: #f5f5f5; padding: 12px; margin-bottom: 12px; border-radius: 4px;">
+      <div style="background: #f5f5f5; padding: 12px; margin-bottom: 12px; border-radius: 4px">
         <NSpace :wrap="true" align="center">
           <NInput v-model:value="searchOrderNo" placeholder="订单号" clearable style="width: 150px" />
           <NInput v-model:value="searchProviderName" placeholder="服务商名称" clearable style="width: 150px" />
@@ -238,7 +241,21 @@ onMounted(() => {
           />
           <NDatePicker v-model:value="searchDateRange" type="daterange" clearable style="width: 260px" />
           <NButton type="primary" @click="getTableData">搜索</NButton>
-          <NButton @click="() => { searchOrderNo = ''; searchProviderName = ''; searchStaffName = ''; searchCheckResult = ''; searchDateRange = null; pagination.page = 1; getTableData(); }">重置</NButton>
+          <NButton
+            @click="
+              () => {
+                searchOrderNo = '';
+                searchProviderName = '';
+                searchStaffName = '';
+                searchCheckResult = '';
+                searchDateRange = null;
+                pagination.page = 1;
+                getTableData();
+              }
+            "
+          >
+            重置
+          </NButton>
         </NSpace>
       </div>
       <NDataTable
