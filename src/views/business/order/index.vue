@@ -333,7 +333,7 @@ const tableHookResult = useNaivePaginatedTable<Api.Common.PaginatingQueryRecord<
     return fetchGetOrderList(queryParams);
   },
   apiParams: {
-    current: 1,
+    page: 1,
     pageSize: 10
   },
   transform: defaultTransform,

@@ -187,7 +187,7 @@ const {
     return fetchGetAppointmentList(queryParams);
   },
   apiParams: {
-    current: 1,
+    page: 1,
     pageSize: 10
   },
   transform: defaultTransform,

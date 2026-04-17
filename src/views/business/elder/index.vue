@@ -149,8 +149,8 @@ const {
   columnChecks
 } = useNaivePaginatedTable<Api.Common.PaginatingQueryRecord<Api.Elder.Elder>, Api.Elder.Elder>({
   apiFn: async params => {
-    const queryParams: Api.Elder.ElderQuery & Api.Common.PaginatingQueryParams = {
-      current: params.page,
+    const queryParams: any = {
+      page: params.page,
       pageSize: params.pageSize
     };
     if (searchName.value) queryParams.name = searchName.value;
@@ -161,7 +161,7 @@ const {
     return fetchGetElderList(queryParams);
   },
   apiParams: {
-    current: 1,
+    page: 1,
     pageSize: 10
   },
   transform: defaultTransform,
