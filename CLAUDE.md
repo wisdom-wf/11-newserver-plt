@@ -162,3 +162,63 @@ try {
 - [ ] 确认枚举值是字符串还是数字
 - [ ] 测试 API 调用，验证实际返回结构
 - [ ] 检查 `createFlatRequest` 调用是否正确处理 `error` 属性
+
+### 6. useNaivePaginatedTable 分页参数映射规则
+
+**核心原则：`params.page` 是框架内部的页码字段，前端传给后端的字段名必须与后端 DTO 一致。**
+
+后端各 DTO 的分页字段名不统一，有的用 `current`，有的用 `page`：
+
+| 后端 DTO | 分页字段名 | 对应前端页面 |
+|----------|-----------|-------------|
+| `AppointmentQueryDTO` | `current` | 预约管理 |
+| `ElderPageDTO` | `current` | 老人档案 |
+| `QualityCheckQueryDTO` | `current` | 质检管理 |
+| `ServiceLogQueryDTO` | `current` | 服务日志 |
+| `OrderQueryDTO` | `page` | 订单管理 |
+| `ProviderQueryDTO` | `page` | 服务商管理 |
+| `StaffQueryDTO` | `page` | 服务人员管理 |
+| `EvaluationQueryDTO` | `page` | 评价管理 |
+| `SettlementQueryDTO` | `page` | 财务结算 |
+
+**正确写法**：
+```typescript
+// ❌ 错误：假设所有后端都用 page
+const queryParams: any = { page: params.page, pageSize: params.pageSize };
+
+// ✅ 正确：根据后端 DTO 字段名映射
+// 后端用 current 的：
+const queryParams: any = { current: params.page, pageSize: params.pageSize };
+// 后端用 page 的：
+const queryParams: any = { page: params.page, pageSize: params.pageSize };
+```
+
+**查询命令**：
+```bash
+grep -rn "private Integer \(current\|page\)" elderly-care-server/src/main/java/com/elderlycare/dto/
+```
+
+### 7. 关联记录创建后回写外键
+
+创建子记录时，必须将子记录 ID 回写到父记录。例如：
+```java
+// ✅ 正确：创建订单后回写到预约
+orderMapper.insert(order);
+appointment.setOrderId(order.getOrderId());
+appointment.setOrderNo(order.getOrderNo());
+appointmentMapper.updateById(appointment);
+
+// ❌ 错误：只创建不关联
+orderMapper.insert(order);
+// appointment 的 orderId 永远是 null
+```
+
+### 8. 修改前后端参数对接的流程
+
+**修改任何前后端数据对接前，必须按此顺序操作**：
+1. 先查后端 DTO/Controller 确认字段名（`grep` 或读源码）
+2. 再改前端传参字段名
+3. 浏览器 Network 面板验证请求参数是否正确
+4. 确认后端返回数据是否符合预期
+
+**禁止**：不看后端代码就假设字段名一致性，盲目统一参数名。
