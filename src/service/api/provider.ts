@@ -88,12 +88,13 @@ export async function fetchGetProviderOptions(params?: { areaId?: string; servic
       pageSize: 1000 // 获取全部，用于下拉选择
     }
   });
-  
+
   // 提取为 options 格式
   if (response.data && response.data.records) {
     return response.data.records.map((item: Api.Provider.Provider) => ({
       id: item.providerId,
-      name: item.providerName
+      name: item.providerName,
+      status: item.status
     }));
   }
   return [];

@@ -49,7 +49,7 @@ export const request = createFlatRequest(
         handleLogout();
         window.removeEventListener('beforeunload', handleLogout);
 
-        request.state.errMsgStack = request.state.errMsgStack.filter(msg => msg !== response.data.msg);
+        request.state.errMsgStack = request.state.errMsgStack.filter(msg => msg !== response.data.message);
       }
 
       // when the backend response code is in `logoutCodes`, it means the user will be logged out and redirected to login page
@@ -61,15 +61,15 @@ export const request = createFlatRequest(
 
       // when the backend response code is in `modalLogoutCodes`, it means the user will be logged out by displaying a modal
       const modalLogoutCodes = import.meta.env.VITE_SERVICE_MODAL_LOGOUT_CODES?.split(',') || [];
-      if (modalLogoutCodes.includes(responseCode) && !request.state.errMsgStack?.includes(response.data.msg)) {
-        request.state.errMsgStack = [...(request.state.errMsgStack || []), response.data.msg];
+      if (modalLogoutCodes.includes(responseCode) && !request.state.errMsgStack?.includes(response.data.message)) {
+        request.state.errMsgStack = [...(request.state.errMsgStack || []), response.data.message];
 
         // prevent the user from refreshing the page
         window.addEventListener('beforeunload', handleLogout);
 
         window.$dialog?.error({
           title: $t('common.error'),
-          content: response.data.msg,
+          content: response.data.message,
           positiveText: $t('common.confirm'),
           maskClosable: false,
           closeOnEsc: false,
@@ -98,7 +98,7 @@ export const request = createFlatRequest(
       }
 
       // Throw error so calling code's try/catch works properly
-      throw new Error(response.data.msg || `Request failed with code ${responseCode}`);
+      throw new Error(response.data.message || `Request failed with code ${responseCode}`);
     },
     onError(error) {
       // when the request is fail, you can show error message
@@ -108,7 +108,7 @@ export const request = createFlatRequest(
 
       // get backend error message and code
       if (error.code === BACKEND_ERROR_CODE) {
-        message = error.response?.data?.msg || message;
+        message = error.response?.data?.message || message;
         backendErrorCode = String(error.response?.data?.code || '');
       }
 
@@ -124,7 +124,24 @@ export const request = createFlatRequest(
         return;
       }
 
+      // 如果没有获取到错误消息，尝试从其他属性获取
+      if (!message || message === 'Request failed with code undefined') {
+        message = error.response?.data?.msg || error.response?.data?.message || '操作失败';
+      }
+
+      // 打印错误用于调试
+      console.error('onError triggered:', { message, backendErrorCode, errorCode: error.code });
+
+      // 显示错误消息
       showErrorMsg(request.state, message);
+
+      // 备用：如果 showErrorMsg 没显示，直接用 Naive UI 的 message
+      if (window.$message) {
+        window.$message.error(message);
+      } else {
+        // 最后备用：alert
+        alert(message);
+      }
     }
   }
 );

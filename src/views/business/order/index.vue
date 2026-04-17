@@ -552,7 +552,7 @@ async function handleAssign(row: Api.Order.Order) {
   try {
     const { data } = await fetchGetStaffList({
       providerId: currentOrderProviderId.value,
-      pageNum: 1,
+      page: 1,
       pageSize: 100
     } as any);
     if (data?.records) {
@@ -588,17 +588,17 @@ async function handleAssignSubmit() {
     message.warning('请选择服务人员');
     return;
   }
-  try {
-    await fetchDispatchOrder(currentOrderId.value, assignForm.value);
-    message.success('派单成功');
-    assignModalVisible.value = false;
-    await getData();
-    await getStatistics();
-  } catch (e: any) {
-    console.error('Dispatch error:', e);
-    const errMsg = e?.response?.data?.msg || e?.message || '派单失败';
+  const { error } = await fetchDispatchOrder(currentOrderId.value, assignForm.value);
+  if (error) {
+    console.error('派单失败:', error);
+    const errMsg = error?.message || error?.response?.data?.message || '派单失败';
     message.error(errMsg);
+    return;
   }
+  message.success('派单成功');
+  assignModalVisible.value = false;
+  await getData();
+  await getStatistics();
 }
 
 async function handleAccept(row: Api.Order.Order) {
@@ -611,7 +611,7 @@ async function handleAccept(row: Api.Order.Order) {
     await getStatistics();
   } catch (e: any) {
     console.error('Accept error:', e);
-    const errMsg = e?.response?.data?.msg || e?.message || '接单失败';
+    const errMsg = e?.message || e?.response?.data?.message || '接单失败';
     message.error(errMsg);
   }
 }
@@ -624,7 +624,7 @@ async function handleStart(row: Api.Order.Order) {
     await getStatistics();
   } catch (e: any) {
     console.error('Start error:', e);
-    const errMsg = e?.response?.data?.msg || e?.message || '开始服务失败';
+    const errMsg = e?.message || e?.response?.data?.message || '开始服务失败';
     message.error(errMsg);
   }
 }
@@ -644,7 +644,7 @@ async function handleCompleteSubmit() {
     await getStatistics();
   } catch (e: any) {
     console.error('Complete error:', e);
-    const errMsg = e?.response?.data?.msg || e?.message || '完成服务失败';
+    const errMsg = e?.message || e?.response?.data?.message || '完成服务失败';
     message.error(errMsg);
   }
 }
@@ -664,7 +664,7 @@ async function handleCancelSubmit() {
     await getStatistics();
   } catch (e: any) {
     console.error('Cancel error:', e);
-    const errMsg = e?.response?.data?.msg || e?.message || '取消订单失败';
+    const errMsg = e?.message || e?.response?.data?.message || '取消订单失败';
     message.error(errMsg);
   }
 }

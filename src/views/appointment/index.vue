@@ -81,10 +81,12 @@ async function getProviderOptions() {
   try {
     const data = await fetchGetProviderOptions();
     if (data && data.length > 0) {
-      providerOptions.value = data.map((item: { id: string; name: string }) => ({
-        label: item.name,
-        value: item.id
-      }));
+      providerOptions.value = data
+        .filter((item: any) => item.status === 'ENABLED')
+        .map((item: { id: string; name: string }) => ({
+          label: item.name,
+          value: item.id
+        }));
     }
   } catch (e) {
     console.error('Failed to get provider options', e);
@@ -136,7 +138,9 @@ const columns: DataTableColumns<Api.Appointment.Appointment> = [
     render: row => {
       const buttons: ReturnType<typeof h>[] = [];
       // Always show timeline button
-      buttons.push(h(NButton, { size: 'small', quaternary: true, type: 'info', onClick: () => showTimeline(row) }, () => '详情'));
+      buttons.push(
+        h(NButton, { size: 'small', quaternary: true, type: 'info', onClick: () => showTimeline(row) }, () => '详情')
+      );
       if (row.status === 'PENDING') {
         buttons.push(
           h(NButton, { size: 'small', onClick: () => handleConfirm(row) }, () => '确认'),
@@ -147,7 +151,9 @@ const columns: DataTableColumns<Api.Appointment.Appointment> = [
         buttons.push(h(NButton, { size: 'small', type: 'error', onClick: () => handleInvalidate(row) }, () => '作废'));
       }
       if (row.status === 'CONFIRMED') {
-        buttons.push(h(NButton, { size: 'small', type: 'info', onClick: () => handleViewOrder(row) }, () => '查看订单'));
+        buttons.push(
+          h(NButton, { size: 'small', type: 'info', onClick: () => handleViewOrder(row) }, () => '查看订单')
+        );
       }
       return h(NSpace, { size: 'small' }, () => buttons);
     }
@@ -515,13 +521,13 @@ onMounted(() => {
     <!-- Table -->
     <NCard :bordered="false" style="margin-bottom: 16px">
       <template #header>
-        <div style="display: flex; justify-content: space-between; align-items: center;">
+        <div style="display: flex; justify-content: space-between; align-items: center">
           <span>预约信息管理</span>
         </div>
       </template>
-      <div style="background: #f5f5f5; padding: 12px; margin-bottom: 12px; border-radius: 4px;">
+      <div style="background: #f5f5f5; padding: 12px; margin-bottom: 12px; border-radius: 4px">
         <NSpace :wrap="true" align="center">
-          <span style="font-size: 13px; color: #666;">筛选条件:</span>
+          <span style="font-size: 13px; color: #666">筛选条件:</span>
           <NInput v-model:value="searchAppointmentNo" placeholder="预约单号" clearable style="width: 150px" />
           <NInput v-model:value="searchElderName" placeholder="老人姓名" clearable style="width: 120px" />
           <NInput v-model:value="searchElderPhone" placeholder="老人手机号" clearable style="width: 130px" />
@@ -539,7 +545,7 @@ onMounted(() => {
           <NButton @click="handleDownloadTemplate">下载模板</NButton>
         </NSpace>
       </div>
-      
+
       <!-- Use framework's TableHeaderOperation component -->
       <TableHeaderOperation
         v-model:columns="columnChecks"
@@ -548,7 +554,7 @@ onMounted(() => {
         @add="handleAdd"
         @refresh="getData"
       />
-      
+
       <NDataTable
         :columns="columns"
         :data="tableData"
@@ -629,11 +635,7 @@ onMounted(() => {
           <NInput v-model:value="addForm.elderAddress" placeholder="请输入地址" />
         </NFormItem>
         <NFormItem label="服务类型" required>
-          <NSelect
-            v-model:value="addForm.serviceType"
-            :options="serviceTypeOptions"
-            placeholder="请选择服务类型"
-          />
+          <NSelect v-model:value="addForm.serviceType" :options="serviceTypeOptions" placeholder="请选择服务类型" />
         </NFormItem>
         <NFormItem label="预约时间" required>
           <NInput v-model:value="addForm.appointmentTime" placeholder="请输入预约时间，如：2024-04-20 09:00" />
@@ -657,7 +659,11 @@ onMounted(() => {
           <NUpload
             :max-size="5 * 1024 * 1024"
             :file-list="importFile ? [importFile] : []"
-            @update:file-list="(list: any) => { importFile = list[0]?.file || null; }"
+            @update:file-list="
+              (list: any) => {
+                importFile = list[0]?.file || null;
+              }
+            "
             @change="handleImportFile"
             accept=".xlsx,.xls"
           >
@@ -665,15 +671,19 @@ onMounted(() => {
           </NUpload>
         </NFormItem>
         <NFormItem label="提示">
-          <span style="color: #666; font-size: 13px;">请先下载模板，按模板格式填写数据后导入</span>
+          <span style="color: #666; font-size: 13px">请先下载模板，按模板格式填写数据后导入</span>
         </NFormItem>
-        <NAlert v-if="importResult" type="info" style="margin-top: 12px;">
+        <NAlert v-if="importResult" type="info" style="margin-top: 12px">
           <template #header>导入结果</template>
           <div>成功: {{ importResult.successCount }} 条</div>
           <div v-if="importResult.failCount > 0">失败: {{ importResult.failCount }} 条</div>
-          <div v-if="importResult.errors && importResult.errors.length > 0" style="margin-top: 8px;">
-            <div v-for="(err, idx) in importResult.errors.slice(0, 5)" :key="idx" style="color: red; font-size: 12px;">{{ err }}</div>
-            <div v-if="importResult.errors.length > 5" style="color: #999; font-size: 12px;">...还有 {{ importResult.errors.length - 5 }} 条错误</div>
+          <div v-if="importResult.errors && importResult.errors.length > 0" style="margin-top: 8px">
+            <div v-for="(err, idx) in importResult.errors.slice(0, 5)" :key="idx" style="color: red; font-size: 12px">
+              {{ err }}
+            </div>
+            <div v-if="importResult.errors.length > 5" style="color: #999; font-size: 12px">
+              ...还有 {{ importResult.errors.length - 5 }} 条错误
+            </div>
           </div>
         </NAlert>
       </NForm>
@@ -687,26 +697,38 @@ onMounted(() => {
 
     <!-- Timeline Drawer -->
     <NDrawer v-model:show="timelineDrawerVisible" :width="480" placement="right" closable>
-      <NDrawerContent :title="timelineData?.appointmentNo ? `预约时间轴 - ${timelineData.appointmentNo}` : '预约时间轴'" closable>
+      <NDrawerContent
+        :title="timelineData?.appointmentNo ? `预约时间轴 - ${timelineData.appointmentNo}` : '预约时间轴'"
+        closable
+      >
         <template #header>
-          <div style="display: flex; flex-direction: column; gap: 4px;">
-            <div style="font-size: 16px; font-weight: 600;">预约时间轴</div>
-            <div v-if="timelineData" style="font-size: 13px; color: #666;">
+          <div style="display: flex; flex-direction: column; gap: 4px">
+            <div style="font-size: 16px; font-weight: 600">预约时间轴</div>
+            <div v-if="timelineData" style="font-size: 13px; color: #666">
               当前状态：
-              <NTag :type="timelineData.currentStatus === 'COMPLETED' || timelineData.currentStatus === 'CONFIRMED' ? 'success' : timelineData.currentStatus === 'CANCELLED' || timelineData.currentStatus === 'INVALID' ? 'error' : 'warning'" size="small">
+              <NTag
+                :type="
+                  timelineData.currentStatus === 'COMPLETED' || timelineData.currentStatus === 'CONFIRMED'
+                    ? 'success'
+                    : timelineData.currentStatus === 'CANCELLED' || timelineData.currentStatus === 'INVALID'
+                      ? 'error'
+                      : 'warning'
+                "
+                size="small"
+              >
                 {{ timelineData.currentStatusName }}
               </NTag>
               <template v-if="timelineData.orderId">
-                <span style="margin-left: 12px;">|</span>
-                <span style="margin-left: 12px;">关联订单：</span>
-                <NTag type="info" size="small" style="cursor: pointer;" @click="goToOrder(timelineData.orderId)">
+                <span style="margin-left: 12px">|</span>
+                <span style="margin-left: 12px">关联订单：</span>
+                <NTag type="info" size="small" style="cursor: pointer" @click="goToOrder(timelineData.orderId)">
                   {{ timelineData.orderNo }} ({{ timelineData.orderStatusName }})
                 </NTag>
               </template>
             </div>
           </div>
         </template>
-        <div v-if="timelineLoading" style="display: flex; justify-content: center; padding: 40px;">
+        <div v-if="timelineLoading" style="display: flex; justify-content: center; padding: 40px">
           <NSpin size="large" />
         </div>
         <div v-else-if="timelineData?.nodes?.length" class="timeline-container">
@@ -721,15 +743,25 @@ onMounted(() => {
                   <span v-if="node.completed" class="timeline-check">✓</span>
                   <span v-else-if="node.active" class="timeline-pulse"></span>
                 </div>
-                <div v-if="index < timelineData.nodes.length - 1" class="timeline-line" :class="{ 'timeline-line-completed': node.completed }"></div>
+                <div
+                  v-if="index < timelineData.nodes.length - 1"
+                  class="timeline-line"
+                  :class="{ 'timeline-line-completed': node.completed }"
+                ></div>
               </div>
               <div class="timeline-node-content">
                 <div class="timeline-node-title">
-                  <span class="timeline-node-status-icon" :style="{ color: getNodeColor(node) }">{{ getNodeIcon(node) }}</span>
+                  <span class="timeline-node-status-icon" :style="{ color: getNodeColor(node) }">
+                    {{ getNodeIcon(node) }}
+                  </span>
                   <span class="timeline-node-title-text">{{ node.title }}</span>
                   <span v-if="node.time" class="timeline-node-time">{{ node.time }}</span>
                 </div>
-                <div v-if="node.details && node.details.length > 0" class="timeline-node-details" :class="{ 'timeline-node-details-expanded': expandedNodes.has(node.status) }">
+                <div
+                  v-if="node.details && node.details.length > 0"
+                  class="timeline-node-details"
+                  :class="{ 'timeline-node-details-expanded': expandedNodes.has(node.status) }"
+                >
                   <div class="timeline-details-list">
                     <div v-for="detail in node.details" :key="detail.label" class="timeline-detail-item">
                       <span class="timeline-detail-label">{{ detail.label }}:</span>
@@ -744,9 +776,7 @@ onMounted(() => {
             </div>
           </div>
         </div>
-        <div v-else style="text-align: center; padding: 40px; color: #999;">
-          暂无时间轴数据
-        </div>
+        <div v-else style="text-align: center; padding: 40px; color: #999">暂无时间轴数据</div>
       </NDrawerContent>
     </NDrawer>
   </div>
@@ -949,7 +979,9 @@ onMounted(() => {
 .timeline-node-details {
   max-height: 0;
   overflow: hidden;
-  transition: max-height 0.3s ease, opacity 0.3s ease;
+  transition:
+    max-height 0.3s ease,
+    opacity 0.3s ease;
   opacity: 0;
 }
 
