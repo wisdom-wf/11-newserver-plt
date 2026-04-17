@@ -111,8 +111,8 @@ const {
   columnChecks
 } = useNaivePaginatedTable<Api.Common.PaginatingQueryRecord<Api.Provider.Provider>, Api.Provider.Provider>({
   apiFn: async params => {
-    const queryParams: Api.Provider.ProviderQuery & Api.Common.PaginatingQueryParams = {
-      current: params.page,
+    const queryParams: any = {
+      page: params.page,
       pageSize: params.pageSize
     };
     if (searchName.value) queryParams.providerName = searchName.value;
@@ -122,7 +122,7 @@ const {
     return fetchGetProviderList(queryParams as Api.Provider.ProviderQuery);
   },
   apiParams: {
-    current: 1,
+    page: 1,
     pageSize: 10
   },
   transform: defaultTransform,

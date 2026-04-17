@@ -9,7 +9,7 @@ declare namespace Api {
     /** 养老类型 */
     type CareType = 'HOME' | 'COMMUNITY' | 'INSTITUTION';
     /** 护理等级 */
-    type CareLevel = 'LEVEL_1' | 'LEVEL_2' | 'LEVEL_3' | 'LEVEL_4' | 'LEVEL_5';
+    type CareLevel = 'HIGH' | 'MEDIUM' | 'NORMAL';
     /** 补贴类型 */
     type SubsidyType = 'SELF_PAY' | 'SUBSIDY' | 'MIXED';
     /** 健康状况 */

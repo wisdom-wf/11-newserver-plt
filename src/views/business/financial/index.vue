@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { ref, h, onMounted } from 'vue';
+import { ref, h, onMounted, watch } from 'vue';
 import {
   NButton,
   NCard,
@@ -11,12 +11,12 @@ import {
   NSpace,
   NInput,
   NSelect,
-  NDatePicker,
-  NPagination,
-  NStatistic
+  NDatePicker
 } from 'naive-ui';
 import type { DataTableColumns } from 'naive-ui';
 import { fetchGetSettlementList, fetchGetSettlementStatistics, fetchGetElder, fetchGetStaff } from '@/service/api';
+import { useNaivePaginatedTable, defaultTransform } from '@/hooks/common/table';
+import TableHeaderOperation from '@/components/advanced/table-header-operation.vue';
 
 defineOptions({
   name: 'BusinessFinancial'
@@ -39,11 +39,6 @@ const searchElderName = ref('');
 const searchProviderName = ref('');
 const searchStatus = ref('');
 const searchDateRange = ref<[number, number] | null>(null);
-
-// Table data
-const loading = ref(false);
-const tableData = ref<any[]>([]);
-const pagination = ref({ page: 1, pageSize: 10, total: 0 });
 
 // Elder detail modal
 const elderDetailVisible = ref(false);
@@ -139,46 +134,67 @@ async function getStatistics() {
   }
 }
 
-async function getTableData() {
-  loading.value = true;
-  try {
-    const params: any = {
-      current: pagination.value.page,
-      pageSize: pagination.value.pageSize
+// Use framework's table hook
+const tableHookResult = useNaivePaginatedTable<any, any>({
+  apiFn: async params => {
+    const queryParams: any = {
+      page: params.page,
+      pageSize: params.pageSize
     };
-    if (searchOrderNo.value) params.orderNo = searchOrderNo.value;
-    if (searchElderName.value) params.elderName = searchElderName.value;
-    if (searchProviderName.value) params.providerName = searchProviderName.value;
-    if (searchStatus.value) params.status = searchStatus.value;
+    if (searchOrderNo.value) queryParams.orderNo = searchOrderNo.value;
+    if (searchElderName.value) queryParams.elderName = searchElderName.value;
+    if (searchProviderName.value) queryParams.providerName = searchProviderName.value;
+    if (searchStatus.value) queryParams.status = searchStatus.value;
     if (searchDateRange.value) {
-      params.startDate = new Date(searchDateRange.value[0]).toISOString().split('T')[0];
-      params.endDate = new Date(searchDateRange.value[1]).toISOString().split('T')[0];
+      queryParams.startDate = new Date(searchDateRange.value[0]).toISOString().split('T')[0];
+      queryParams.endDate = new Date(searchDateRange.value[1]).toISOString().split('T')[0];
     }
+    return fetchGetSettlementList(queryParams);
+  },
+  apiParams: {
+    page: 1,
+    pageSize: 10
+  },
+  transform: defaultTransform,
+  columns: () => columns
+});
 
-    const { data } = await fetchGetSettlementList(params);
-    tableData.value = data?.records || [];
-    pagination.value.total = data?.total || 0;
-  } catch (e) {
-    console.error('Failed to get table data', e);
-  } finally {
-    loading.value = false;
-  }
-}
+const {
+  data: tableData,
+  loading,
+  pagination,
+  mobilePagination,
+  getData,
+  getDataByPage,
+  columnChecks: rawColumnChecks
+} = tableHookResult;
 
-function handlePageChange(page: number) {
-  pagination.value.page = page;
-  getTableData();
-}
+// Ensure columnChecks is always an array (writable ref for v-model)
+const columnChecks = ref<Array<{ prop: string; label: string; checked: boolean }>>([]);
 
-function handlePageSizeChange(pageSize: number) {
-  pagination.value.pageSize = pageSize;
-  pagination.value.page = 1;
-  getTableData();
+// Watch rawColumnChecks and sync to columnChecks
+watch(
+  () => rawColumnChecks.value,
+  val => {
+    if (val && val.length > 0) {
+      columnChecks.value = val;
+    }
+  },
+  { immediate: true, deep: true }
+);
+
+function handleResetSearch() {
+  searchOrderNo.value = '';
+  searchElderName.value = '';
+  searchProviderName.value = '';
+  searchStatus.value = '';
+  searchDateRange.value = null;
+  getData();
 }
 
 onMounted(() => {
   getStatistics();
-  getTableData();
+  getData();
 });
 </script>
 
@@ -230,46 +246,26 @@ onMounted(() => {
             style="width: 120px"
           />
           <NDatePicker v-model:value="searchDateRange" type="daterange" clearable style="width: 260px" />
-          <NButton type="primary" @click="getTableData">搜索</NButton>
-          <NButton
-            @click="
-              () => {
-                searchOrderNo = '';
-                searchElderName = '';
-                searchProviderName = '';
-                searchStatus = '';
-                searchDateRange = null;
-                pagination.page = 1;
-                getTableData();
-              }
-            "
-          >
-            重置
-          </NButton>
+          <NButton type="primary" @click="getData">搜索</NButton>
+          <NButton @click="handleResetSearch">重置</NButton>
         </NSpace>
       </div>
+
+      <TableHeaderOperation
+        v-model:columns="columnChecks"
+        :loading="loading"
+        @refresh="getData"
+      />
+
       <NDataTable
         :columns="columns"
         :data="tableData"
         :loading="loading"
         :scroll-x="1500"
-        :row-key="(row: any) => row.id"
+        :row-key="(row: any) => row.settlementId || row.id"
+        remote
+        :pagination="mobilePagination"
       />
-      <div style="padding: 12px 0">
-        <NSpace justify="end">
-          <NSelect
-            v-model:value="pagination.pageSize"
-            :options="[10, 20, 50].map(s => ({ label: `${s}条/页`, value: s }))"
-            style="width: 120px"
-            @update:value="handlePageSizeChange"
-          />
-          <NPagination
-            v-model:page="pagination.page"
-            :page-count="Math.ceil(pagination.total / pagination.pageSize)"
-            @update:page="handlePageChange"
-          />
-        </NSpace>
-      </div>
     </NCard>
 
     <!-- Elder Detail Modal -->

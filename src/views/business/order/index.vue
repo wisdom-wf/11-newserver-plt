@@ -317,14 +317,14 @@ const columns: DataTableColumns<Api.Order.Order> = [
 // Use framework's table hook
 const tableHookResult = useNaivePaginatedTable<Api.Common.PaginatingQueryRecord<Api.Order.Order>, Api.Order.Order>({
   apiFn: async params => {
-    const queryParams: Api.Order.OrderQuery & Api.Common.PaginatingQueryParams = {
-      current: params.page,
+    const queryParams: any = {
+      page: params.page,
       pageSize: params.pageSize
     };
     if (searchOrderNo.value) queryParams.orderNo = searchOrderNo.value;
     if (searchElderName.value) queryParams.elderName = searchElderName.value;
     if (searchProviderId.value) queryParams.providerId = searchProviderId.value;
-    if (searchServiceType.value) queryParams.serviceType = searchServiceType.value;
+    if (searchServiceType.value) queryParams.serviceTypeCode = searchServiceType.value;
     if (searchStatus.value) queryParams.status = searchStatus.value;
     if (searchDateRange.value) {
       queryParams.startDate = new Date(searchDateRange.value[0]).toISOString().split('T')[0];

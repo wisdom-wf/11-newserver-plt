@@ -38,7 +38,7 @@ const statistics = ref<Api.Elder.Statistics>({
   registered: 0,
   suspended: 0,
   careTypeStats: { HOME: 0, COMMUNITY: 0, INSTITUTION: 0 },
-  careLevelStats: { LEVEL_1: 0, LEVEL_2: 0, LEVEL_3: 0, LEVEL_4: 0, LEVEL_5: 0 },
+  careLevelStats: { HIGH: 0, MEDIUM: 0, NORMAL: 0 },
   subsidyTypeStats: { FULL_SUBSIDY: 0, PARTIAL_SUBSIDY: 0, SELF_PAY: 0 }
 });
 
@@ -79,8 +79,8 @@ const careLevelOptions = [
 
 // Status options
 const statusOptions = [
-  { label: '启用', value: '1' },
-  { label: '禁用', value: '2' }
+  { label: '启用', value: 'ACTIVE' },
+  { label: '禁用', value: 'SUSPENDED' }
 ];
 
 function getGenderLabel(gender?: string): string {
@@ -191,7 +191,7 @@ const form = ref({
   age: 0,
   careType: 'HOME' as Api.Elder.CareType,
   subsidyType: 'SELF_PAY' as Api.Elder.SubsidyType,
-  careLevel: 'LEVEL_3' as Api.Elder.CareLevel,
+  careLevel: 'NORMAL' as Api.Elder.CareLevel,
   address: '',
   emergencyContact: '',
   emergencyPhone: '',
@@ -248,7 +248,7 @@ async function handleOpenEdit(id: string) {
       age: row.age || 0,
       careType: (row.careType || 'HOME') as Api.Elder.CareType,
       subsidyType: (row.subsidyType || 'SELF_PAY') as Api.Elder.SubsidyType,
-      careLevel: (row.careLevel || 'LEVEL_3') as Api.Elder.CareLevel,
+      careLevel: (row.careLevel || 'NORMAL') as Api.Elder.CareLevel,
       address: row.address || '',
       emergencyContact: row.emergencyContact || '',
       emergencyPhone: row.emergencyPhone || '',

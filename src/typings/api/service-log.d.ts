@@ -143,6 +143,8 @@ declare namespace Api {
       serviceDuration?: number;
       /** 实际服务时长 */
       actualDuration?: number;
+      /** 服务状态 - 与后端ServiceLogVO.status对齐 */
+      status?: string;
       /** 服务状态 - 与后端serviceStatus对齐 */
       serviceStatus?: string;
       /** 服务评分 */
@@ -163,6 +165,12 @@ declare namespace Api {
       anomalyPhotos?: string | string[];
       /** 异常处理状态 */
       anomalyStatus?: string;
+      /** 服务内容 */
+      serviceContent?: string;
+      /** 审核备注 */
+      reviewRemarks?: string;
+      /** 提交时间 */
+      submitTime?: string;
       /** 创建时间 */
       createTime: string;
       /** 更新时间 */

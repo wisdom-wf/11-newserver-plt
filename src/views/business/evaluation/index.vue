@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { ref, h, onMounted } from 'vue';
+import { ref, h, onMounted, watch } from 'vue';
 import {
   NButton,
   NCard,
@@ -17,6 +17,8 @@ import {
 } from 'naive-ui';
 import type { DataTableColumns } from 'naive-ui';
 import { fetchGetEvaluationList, fetchGetEvaluationStatistics, fetchGetElder, fetchGetStaff } from '@/service/api';
+import { useNaivePaginatedTable, defaultTransform } from '@/hooks/common/table';
+import TableHeaderOperation from '@/components/advanced/table-header-operation.vue';
 
 defineOptions({
   name: 'BusinessEvaluation'
@@ -38,11 +40,6 @@ const searchOrderNo = ref('');
 const searchElderName = ref('');
 const searchProviderName = ref('');
 const searchDateRange = ref<[number, number] | null>(null);
-
-// Table data
-const loading = ref(false);
-const tableData = ref<any[]>([]);
-const pagination = ref({ page: 1, pageSize: 10, total: 0 });
 
 // Elder detail modal
 const elderDetailVisible = ref(false);
@@ -103,6 +100,55 @@ const columns: DataTableColumns<any> = [
   { title: '评价时间', key: 'createTime', width: 170 }
 ];
 
+// Table hook
+const tableHookResult = useNaivePaginatedTable<any, any>({
+  apiFn: async params => {
+    const queryParams: any = {
+      page: params.page,
+      pageSize: params.pageSize
+    };
+    if (searchOrderNo.value) queryParams.orderNo = searchOrderNo.value;
+    if (searchElderName.value) queryParams.elderName = searchElderName.value;
+    if (searchProviderName.value) queryParams.providerName = searchProviderName.value;
+    if (searchDateRange.value) {
+      queryParams.startDate = new Date(searchDateRange.value[0]).toISOString().split('T')[0];
+      queryParams.endDate = new Date(searchDateRange.value[1]).toISOString().split('T')[0];
+    }
+    return fetchGetEvaluationList(queryParams);
+  },
+  apiParams: {
+    page: 1,
+    pageSize: 10
+  },
+  transform: defaultTransform,
+  columns: () => columns
+});
+
+const {
+  data: tableData,
+  loading,
+  pagination,
+  mobilePagination,
+  getData,
+  getDataByPage,
+  columnChecks: rawColumnChecks
+} = tableHookResult;
+
+const checkedRowKeys = ref<Array<string | number>>([]);
+
+const columnChecks = ref<Array<{ prop: string; label: string; checked: boolean }>>(
+  rawColumnChecks.value ? [...rawColumnChecks.value] : []
+);
+watch(
+  () => rawColumnChecks.value,
+  val => {
+    if (val && val.length > 0) {
+      columnChecks.value = [...val];
+    }
+  },
+  { immediate: true, deep: true }
+);
+
 async function getStatistics() {
   try {
     const { data } = await fetchGetEvaluationStatistics();
@@ -114,45 +160,17 @@ async function getStatistics() {
   }
 }
 
-async function getTableData() {
-  loading.value = true;
-  try {
-    const params: any = {
-      current: pagination.value.page,
-      pageSize: pagination.value.pageSize
-    };
-    if (searchOrderNo.value) params.orderNo = searchOrderNo.value;
-    if (searchElderName.value) params.elderName = searchElderName.value;
-    if (searchProviderName.value) params.providerName = searchProviderName.value;
-    if (searchDateRange.value) {
-      params.startDate = new Date(searchDateRange.value[0]).toISOString().split('T')[0];
-      params.endDate = new Date(searchDateRange.value[1]).toISOString().split('T')[0];
-    }
-
-    const { data } = await fetchGetEvaluationList(params);
-    tableData.value = data?.records || [];
-    pagination.value.total = data?.total || 0;
-  } catch (e) {
-    console.error('Failed to get table data', e);
-  } finally {
-    loading.value = false;
-  }
-}
-
-function handlePageChange(page: number) {
-  pagination.value.page = page;
-  getTableData();
-}
-
-function handlePageSizeChange(pageSize: number) {
-  pagination.value.pageSize = pageSize;
-  pagination.value.page = 1;
-  getTableData();
+function handleResetSearch() {
+  searchOrderNo.value = '';
+  searchElderName.value = '';
+  searchProviderName.value = '';
+  searchDateRange.value = null;
+  getDataByPage(1);
 }
 
 onMounted(() => {
   getStatistics();
-  getTableData();
+  getData();
 });
 </script>
 
@@ -205,45 +223,25 @@ onMounted(() => {
           <NInput v-model:value="searchElderName" placeholder="老人姓名" clearable style="width: 100px" />
           <NInput v-model:value="searchProviderName" placeholder="服务商" clearable style="width: 150px" />
           <NDatePicker v-model:value="searchDateRange" type="daterange" clearable style="width: 260px" />
-          <NButton type="primary" @click="getTableData">搜索</NButton>
-          <NButton
-            @click="
-              () => {
-                searchOrderNo = '';
-                searchElderName = '';
-                searchProviderName = '';
-                searchDateRange = null;
-                pagination.page = 1;
-                getTableData();
-              }
-            "
-          >
-            重置
-          </NButton>
+          <NButton type="primary" @click="getData">搜索</NButton>
+          <NButton @click="handleResetSearch">重置</NButton>
         </NSpace>
       </div>
+      <TableHeaderOperation
+        v-model:columns="columnChecks"
+        :disabled-delete="checkedRowKeys.length === 0"
+        :loading="loading"
+        @refresh="getData"
+      />
       <NDataTable
         :columns="columns"
         :data="tableData"
         :loading="loading"
         :scroll-x="1200"
         :row-key="(row: any) => row.evaluationId"
+        remote
+        :pagination="mobilePagination"
       />
-      <div style="padding: 12px 0">
-        <NSpace justify="end">
-          <NSelect
-            v-model:value="pagination.pageSize"
-            :options="[10, 20, 50].map(s => ({ label: `${s}条/页`, value: s }))"
-            style="width: 120px"
-            @update:value="handlePageSizeChange"
-          />
-          <NPagination
-            v-model:page="pagination.page"
-            :page-count="Math.ceil(pagination.total / pagination.pageSize)"
-            @update:page="handlePageChange"
-          />
-        </NSpace>
-      </div>
     </NCard>
 
     <!-- Elder Detail Modal -->

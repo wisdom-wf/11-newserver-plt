@@ -127,18 +127,18 @@ const {
   columnChecks
 } = useNaivePaginatedTable<Api.Common.PaginatingQueryRecord<Api.Staff.Staff>, Api.Staff.Staff>({
   apiFn: async params => {
-    const queryParams: Api.Staff.StaffQuery & Api.Common.PaginatingQueryParams = {
-      current: params.page,
+    const queryParams: any = {
+      page: params.page,
       pageSize: params.pageSize
     };
     if (searchName.value) queryParams.staffName = searchName.value;
     if (searchPhone.value) queryParams.phone = searchPhone.value;
-    if (searchServiceCategory.value) queryParams.serviceCategory = searchServiceCategory.value;
+    if (searchServiceCategory.value) queryParams.serviceType = searchServiceCategory.value;
     if (searchStatus.value) queryParams.status = searchStatus.value;
     return fetchGetStaffList(queryParams);
   },
   apiParams: {
-    current: 1,
+    page: 1,
     pageSize: 10
   },
   transform: defaultTransform,

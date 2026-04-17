@@ -171,8 +171,8 @@ const {
   columnChecks
 } = useNaivePaginatedTable<Api.Common.PaginatingQueryRecord<Api.Appointment.Appointment>, Api.Appointment.Appointment>({
   apiFn: async params => {
-    const queryParams: Api.Appointment.AppointmentQuery & Api.Common.PaginatingQueryParams = {
-      current: params.page,
+    const queryParams: any = {
+      page: params.page,
       pageSize: params.pageSize
     };
     if (searchAppointmentNo.value) queryParams.appointmentNo = searchAppointmentNo.value;
@@ -424,7 +424,20 @@ async function handleInvalidateSubmit() {
 
 async function handleDownloadTemplate() {
   try {
-    await fetchDownloadAppointmentTemplate();
+    const { data, error } = await fetchDownloadAppointmentTemplate();
+    if (error) {
+      message.error('模板下载失败');
+      return;
+    }
+    const blob = data as unknown as Blob;
+    const url = URL.createObjectURL(blob);
+    const link = document.createElement('a');
+    link.href = url;
+    link.download = '预约导入模板.xlsx';
+    document.body.appendChild(link);
+    link.click();
+    document.body.removeChild(link);
+    URL.revokeObjectURL(url);
     message.success('模板下载成功');
   } catch (e) {
     console.error('Failed to download template', e);

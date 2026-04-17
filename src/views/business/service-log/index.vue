@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { ref, h, onMounted } from 'vue';
+import { ref, h, onMounted, watch } from 'vue';
 import { useRoute } from 'vue-router';
 import {
   NButton,
@@ -13,7 +13,6 @@ import {
   NInput,
   NSelect,
   NDatePicker,
-  NPagination,
   NStatistic,
   NUpload,
   NInputNumber,
@@ -35,6 +34,8 @@ import {
   fetchSubmitServiceLogForReview,
   fetchDeleteServiceLog
 } from '@/service/api';
+import { useNaivePaginatedTable, defaultTransform } from '@/hooks/common/table';
+import TableHeaderOperation from '@/components/advanced/table-header-operation.vue';
 
 defineOptions({
   name: 'BusinessServiceLog'
@@ -97,11 +98,6 @@ const detailVisible = ref(false);
 const detailData = ref<Api.ServiceLog.ServiceLog | null>(null);
 const previewVisible = ref(false);
 const previewImages = ref<string[]>([]);
-
-// Table data
-const loading = ref(false);
-const tableData = ref<Api.ServiceLog.ServiceLog[]>([]);
-const pagination = ref({ page: 1, pageSize: 10, total: 0 });
 
 // Service category options
 const categoryOptions = [
@@ -232,6 +228,58 @@ const columns: DataTableColumns<Api.ServiceLog.ServiceLog> = [
   }
 ];
 
+// Use framework's table hook
+const tableHookResult = useNaivePaginatedTable<
+  Api.Common.PaginatingQueryRecord<Api.ServiceLog.ServiceLog>,
+  Api.ServiceLog.ServiceLog
+>({
+  apiFn: async params => {
+    const queryParams: Api.ServiceLog.ServiceLogQuery & Api.Common.PaginatingQueryParams = {
+      page: params.page,
+      pageSize: params.pageSize
+    };
+    if (searchOrderNo.value) queryParams.orderNo = searchOrderNo.value;
+    if (searchElderName.value) queryParams.elderName = searchElderName.value;
+    if (searchStaffName.value) queryParams.staffName = searchStaffName.value;
+    if (searchServiceCategory.value) queryParams.serviceType = searchServiceCategory.value;
+    if (searchDateRange.value) {
+      queryParams.startDate = new Date(searchDateRange.value[0]).toISOString().split('T')[0];
+      queryParams.endDate = new Date(searchDateRange.value[1]).toISOString().split('T')[0];
+    }
+    return fetchGetServiceLogList(queryParams);
+  },
+  apiParams: {
+    page: 1,
+    pageSize: 10
+  },
+  transform: defaultTransform,
+  columns: () => columns
+});
+
+const {
+  data: tableData,
+  loading,
+  pagination,
+  mobilePagination,
+  getData,
+  getDataByPage,
+  columnChecks: rawColumnChecks
+} = tableHookResult;
+
+// Ensure columnChecks is always an array (writable ref for v-model)
+const columnChecks = ref<Array<{ prop: string; label: string; checked: boolean }>>([]);
+
+// Watch rawColumnChecks and sync to columnChecks
+watch(
+  () => rawColumnChecks.value,
+  val => {
+    if (val && val.length > 0) {
+      columnChecks.value = val;
+    }
+  },
+  { immediate: true, deep: true }
+);
+
 // Elder detail modal
 const elderDetailVisible = ref(false);
 const elderDetailData = ref<Api.Elder.Elder | null>(null);
@@ -288,11 +336,20 @@ function openPreview(photos: string[]) {
   previewVisible.value = true;
 }
 
+function handleResetSearch() {
+  searchOrderNo.value = '';
+  searchElderName.value = '';
+  searchStaffName.value = '';
+  searchServiceCategory.value = '';
+  searchDateRange.value = null;
+  getDataByPage(1);
+}
+
 async function handleDelete(row: Api.ServiceLog.ServiceLog) {
   try {
     await fetchDeleteServiceLog(row.serviceLogId);
     message.success('删除成功');
-    getTableData();
+    getData();
   } catch (e: any) {
     message.error(e.message || '删除失败');
   }
@@ -307,43 +364,6 @@ async function getStatistics() {
   } catch (e) {
     console.error('Failed to get statistics', e);
   }
-}
-
-async function getTableData() {
-  loading.value = true;
-  try {
-    const params: Api.ServiceLog.ServiceLogQuery & Api.Common.PaginatingQueryParams = {
-      current: pagination.value.page,
-      pageSize: pagination.value.pageSize
-    };
-    if (searchOrderNo.value) params.orderNo = searchOrderNo.value;
-    if (searchElderName.value) params.elderName = searchElderName.value;
-    if (searchStaffName.value) params.staffName = searchStaffName.value;
-    if (searchServiceCategory.value) params.serviceCategory = searchServiceCategory.value;
-    if (searchDateRange.value) {
-      params.startDate = new Date(searchDateRange.value[0]).toISOString().split('T')[0];
-      params.endDate = new Date(searchDateRange.value[1]).toISOString().split('T')[0];
-    }
-
-    const { data } = await fetchGetServiceLogList(params);
-    tableData.value = data?.records || [];
-    pagination.value.total = data?.total || 0;
-  } catch (e) {
-    console.error('Failed to get table data', e);
-  } finally {
-    loading.value = false;
-  }
-}
-
-function handlePageChange(page: number) {
-  pagination.value.page = page;
-  getTableData();
-}
-
-function handlePageSizeChange(pageSize: number) {
-  pagination.value.pageSize = pageSize;
-  pagination.value.page = 1;
-  getTableData();
 }
 
 // Image upload handlers
@@ -426,7 +446,7 @@ async function submitReview() {
     await fetchSubmitServiceLogForReview(reviewLogId.value, reviewRemarks.value);
     message.success('提交审核成功');
     reviewDialogVisible.value = false;
-    getTableData();
+    getData();
   } catch (e: any) {
     message.error(e.message || '提交审核失败');
   }
@@ -467,7 +487,7 @@ async function handleSubmitForm() {
       message.success('添加成功');
     }
     modalVisible.value = false;
-    getTableData();
+    getData();
   } catch (e: any) {
     message.error(e.message || '操作失败');
   } finally {
@@ -489,7 +509,7 @@ onMounted(() => {
     searchOrderNo.value = (route.query.orderNo as string) || (route.query.orderId as string);
   }
   getStatistics();
-  getTableData();
+  getData();
 });
 </script>
 
@@ -632,10 +652,7 @@ onMounted(() => {
     <!-- Table -->
     <NCard :bordered="false" style="margin-bottom: 16px">
       <template #header>
-        <div style="display: flex; justify-content: space-between; align-items: center">
-          <span>服务日志管理</span>
-          <NButton type="primary" @click="{ showAddModal }">添加</NButton>
-        </div>
+        <span>服务日志管理</span>
       </template>
       <div style="background: #f5f5f5; padding: 12px; margin-bottom: 12px; border-radius: 4px">
         <NSpace :wrap="true" align="center">
@@ -650,46 +667,22 @@ onMounted(() => {
             style="width: 120px"
           />
           <NDatePicker v-model:value="searchDateRange" type="daterange" clearable style="width: 260px" />
-          <NButton type="primary" @click="getTableData">搜索</NButton>
-          <NButton
-            @click="
-              () => {
-                searchOrderNo = '';
-                searchElderName = '';
-                searchStaffName = '';
-                searchServiceCategory = '';
-                searchDateRange = null;
-                pagination.page = 1;
-                getTableData();
-              }
-            "
-          >
-            重置
-          </NButton>
+          <NButton type="primary" @click="getData">搜索</NButton>
+          <NButton @click="handleResetSearch">重置</NButton>
         </NSpace>
       </div>
+
+      <TableHeaderOperation v-model:columns="columnChecks" :loading="loading" @add="showAddModal" @refresh="getData" />
+
       <NDataTable
         :columns="columns"
         :data="tableData"
         :loading="loading"
         :scroll-x="1400"
         :row-key="(row: Api.ServiceLog.ServiceLog) => row.serviceLogId"
+        remote
+        :pagination="mobilePagination"
       />
-      <div style="padding: 12px 0">
-        <NSpace justify="end">
-          <NSelect
-            v-model:value="pagination.pageSize"
-            :options="[10, 20, 50].map(s => ({ label: `${s}条/页`, value: s }))"
-            style="width: 120px"
-            @update:value="handlePageSizeChange"
-          />
-          <NPagination
-            v-model:page="pagination.page"
-            :page-count="Math.ceil(pagination.total / pagination.pageSize)"
-            @update:page="handlePageChange"
-          />
-        </NSpace>
-      </div>
     </NCard>
 
     <!-- Elder Detail Modal -->

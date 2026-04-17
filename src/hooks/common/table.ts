@@ -155,7 +155,9 @@ export function useNaivePaginatedTable<ResponseData, ApiData>(
     getColumns,
     onFetched: data => {
       pagination.itemCount = data.total;
-      pagination.pageSize = data.pageSize;
+      if (data.pageSize && data.pageSize !== pagination.pageSize) {
+        pagination.pageSize = data.pageSize;
+      }
     }
   });
 
@@ -261,12 +263,15 @@ export function defaultTransform<ApiData>(
   const { data, error } = response;
 
   if (!error) {
-    const { records, current, size, total } = data;
+    const { records, total } = data;
+    // Support both IPage format (current/size) and PageResult format (page/pageSize)
+    const pageNum = data.current ?? (data as any).page ?? 1;
+    const pageSize = data.size ?? (data as any).pageSize ?? 10;
 
     return {
       data: records,
-      pageNum: current,
-      pageSize: size,
+      pageNum,
+      pageSize,
       total
     };
   }
