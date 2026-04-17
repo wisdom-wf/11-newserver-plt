@@ -294,6 +294,9 @@ async function showTimeline(row: Api.Appointment.Appointment) {
       data.nodes?.forEach((n: Api.Appointment.AppointmentTimelineNode) => {
         expandedNodes.value.add(n.status);
       });
+      data.orderNodes?.forEach((n: Api.Appointment.AppointmentTimelineNode) => {
+        expandedNodes.value.add(`order-${n.status}`);
+      });
     }
   } catch (e) {
     console.error('Failed to get timeline', e);
@@ -744,7 +747,8 @@ onMounted(() => {
         <div v-if="timelineLoading" style="display: flex; justify-content: center; padding: 40px">
           <NSpin size="large" />
         </div>
-        <div v-else-if="timelineData?.nodes?.length" class="timeline-container">
+        <template v-else>
+        <div v-if="timelineData?.nodes?.length" class="timeline-container">
           <div v-for="(node, index) in timelineData.nodes" :key="node.status" class="timeline-node">
             <div
               class="timeline-node-header"
@@ -789,7 +793,59 @@ onMounted(() => {
             </div>
           </div>
         </div>
-        <div v-else style="text-align: center; padding: 40px; color: #999">暂无时间轴数据</div>
+        <!-- 订单时间轴 -->
+        <template v-if="timelineData?.orderNodes?.length">
+          <div style="text-align: center; padding: 24px 0 16px; font-size: 15px; font-weight: 600; color: #333; border-top: 1px dashed #e0e0e0; margin-top: 16px">
+            订单时间轴
+          </div>
+          <div class="timeline-container" style="padding-top: 0">
+            <div v-for="(node, index) in timelineData.orderNodes" :key="`order-${node.status}`" class="timeline-node">
+              <div
+                class="timeline-node-header"
+                :class="{ 'timeline-node-active': node.active, 'timeline-node-completed': node.completed }"
+                @click="toggleNode(`order-${node.status}`)"
+              >
+                <div class="timeline-connector">
+                  <div class="timeline-dot" :style="{ background: getNodeColor(node) }">
+                    <span v-if="node.completed" class="timeline-check">✓</span>
+                    <span v-else-if="node.active" class="timeline-pulse"></span>
+                  </div>
+                  <div
+                    v-if="index < timelineData.orderNodes.length - 1"
+                    class="timeline-line"
+                    :class="{ 'timeline-line-completed': node.completed }"
+                  ></div>
+                </div>
+                <div class="timeline-node-content">
+                  <div class="timeline-node-title">
+                    <span class="timeline-node-status-icon" :style="{ color: getNodeColor(node) }">
+                      {{ getNodeIcon(node) }}
+                    </span>
+                    <span class="timeline-node-title-text">{{ node.title }}</span>
+                    <span v-if="node.time" class="timeline-node-time">{{ node.time }}</span>
+                  </div>
+                  <div
+                    v-if="node.details && node.details.length > 0"
+                    class="timeline-node-details"
+                    :class="{ 'timeline-node-details-expanded': expandedNodes.has(`order-${node.status}`) }"
+                  >
+                    <div class="timeline-details-list">
+                      <div v-for="detail in node.details" :key="detail.label" class="timeline-detail-item">
+                        <span class="timeline-detail-label">{{ detail.label }}:</span>
+                        <span class="timeline-detail-value">{{ detail.value }}</span>
+                      </div>
+                    </div>
+                  </div>
+                  <div v-if="node.details && node.details.length > 0" class="timeline-expand-hint">
+                    <span>{{ expandedNodes.has(`order-${node.status}`) ? '点击收起' : '点击展开详情' }}</span>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </template>
+        <div v-if="!timelineData?.nodes?.length && !timelineData?.orderNodes?.length" style="text-align: center; padding: 40px; color: #999">暂无时间轴数据</div>
+        </template>
       </NDrawerContent>
     </NDrawer>
   </div>

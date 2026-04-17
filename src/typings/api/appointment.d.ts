@@ -130,6 +130,8 @@ declare namespace Api {
       /** 订单状态名称 */
       orderStatusName?: string;
       nodes: AppointmentTimelineNode[];
+      /** 订单时间轴节点 */
+      orderNodes?: AppointmentTimelineNode[];
     }
 
     /** 预约时间轴节点 */
