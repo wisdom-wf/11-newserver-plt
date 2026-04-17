@@ -1,0 +1,295 @@
+- generic [active] [ref=e1]:
+  - generic [ref=e11]:
+    - banner [ref=e12]:
+      - generic [ref=e13]:
+        - button [ref=e14] [cursor=pointer]:
+          - img [ref=e17]
+        - navigation "Breadcrumb" [ref=e21]:
+          - list [ref=e22]:
+            - listitem [ref=e23]:
+              - generic [ref=e25]:
+                - img [ref=e26]
+                - text: 首页
+        - generic [ref=e28]:
+          - button [ref=e29] [cursor=pointer]:
+            - img [ref=e32]
+          - button [ref=e34] [cursor=pointer]:
+            - img [ref=e37]
+          - button [ref=e40] [cursor=pointer]:
+            - img [ref=e43]
+          - button [ref=e45] [cursor=pointer]:
+            - img [ref=e48]
+          - button [ref=e50] [cursor=pointer]:
+            - img [ref=e53]
+          - button "admin" [ref=e58] [cursor=pointer]:
+            - generic [ref=e60]:
+              - img [ref=e61]
+              - generic [ref=e63]: admin
+    - generic [ref=e66]:
+      - generic [ref=e70]:
+        - generic [ref=e71] [cursor=pointer]:
+          - generic:
+            - img:
+              - img
+              - generic:
+                - img
+          - img [ref=e72]
+          - generic [ref=e74]: 首页
+        - generic [ref=e76] [cursor=pointer]:
+          - generic:
+            - img:
+              - img
+              - generic:
+                - img
+          - img [ref=e77]
+          - generic [ref=e79]: 订单管理
+          - img [ref=e81]
+        - generic [ref=e84] [cursor=pointer]:
+          - generic:
+            - img:
+              - img
+              - generic:
+                - img
+          - img [ref=e85]
+          - generic [ref=e87]: 预约信息管理
+          - img [ref=e89]
+        - generic [ref=e92] [cursor=pointer]:
+          - generic:
+            - img:
+              - img
+              - generic:
+                - img
+          - img [ref=e93]
+          - generic [ref=e95]: 服务商管理
+          - img [ref=e97]
+        - generic [ref=e100] [cursor=pointer]:
+          - generic:
+            - img:
+              - img
+              - generic:
+                - img
+          - img [ref=e101]
+          - generic [ref=e103]: 老人档案管理
+          - img [ref=e105]
+        - generic [ref=e108] [cursor=pointer]:
+          - generic:
+            - img:
+              - img
+              - generic:
+                - img
+          - img [ref=e109]
+          - generic [ref=e111]: 服务人员管理
+          - img [ref=e113]
+        - generic [ref=e116] [cursor=pointer]:
+          - generic:
+            - img:
+              - img
+              - generic:
+                - img
+          - img [ref=e117]
+          - generic [ref=e119]: 服务日志
+          - img [ref=e121]
+        - generic [ref=e124] [cursor=pointer]:
+          - generic:
+            - img:
+              - img
+              - generic:
+                - img
+          - img [ref=e125]
+          - generic [ref=e127]: 满意度评价
+          - img [ref=e129]
+        - generic [ref=e132] [cursor=pointer]:
+          - generic:
+            - img:
+              - img
+              - generic:
+                - img
+          - img [ref=e133]
+          - generic [ref=e135]: 财务结算
+          - img [ref=e137]
+      - button [ref=e140] [cursor=pointer]:
+        - img [ref=e143]
+      - button [ref=e145] [cursor=pointer]:
+        - img [ref=e148]
+    - complementary [ref=e151]:
+      - generic [ref=e152]:
+        - link "社区服务智慧运营管理平台" [ref=e153] [cursor=pointer]:
+          - /url: /
+          - img [ref=e155]
+          - heading "社区服务智慧运营管理平台" [level=2] [ref=e164]
+        - region "scrollable content" [ref=e171]:
+          - menu [ref=e173]:
+            - menuitem "首页" [ref=e174]:
+              - img [ref=e175] [cursor=pointer]
+              - text: 首页
+            - menuitem "预约信息管理" [ref=e177]:
+              - img [ref=e178] [cursor=pointer]
+              - text: 预约信息管理
+            - menuitem "服务商管理" [ref=e180]:
+              - img [ref=e181] [cursor=pointer]
+              - text: 服务商管理
+            - menu [ref=e183] [cursor=pointer]:
+              - menuitem "业务管理" [ref=e184]:
+                - img [ref=e185]
+                - text: 业务管理
+                - img [ref=e188]
+            - menu [ref=e190] [cursor=pointer]:
+              - menuitem "系统管理" [ref=e191]:
+                - img [ref=e192]
+                - text: 系统管理
+                - img [ref=e195]
+    - main [ref=e197]:
+      - generic [ref=e198]:
+        - alert [ref=e199]:
+          - img [ref=e202]
+          - generic [ref=e206]:
+            - generic [ref=e207]: 运营驾驶舱
+            - generic [ref=e208]: 实时展示平台运营数据，包括订单统计、服务商分布、服务人员业绩等核心指标
+        - generic [ref=e209]:
+          - generic [ref=e211] [cursor=pointer]:
+            - img [ref=e213]
+            - generic [ref=e215]:
+              - generic [ref=e216]: 今日订单
+              - generic [ref=e217]: "0"
+          - generic [ref=e219] [cursor=pointer]:
+            - img [ref=e221]
+            - generic [ref=e223]:
+              - generic [ref=e224]: 本月订单
+              - generic [ref=e225]: "0"
+          - generic [ref=e227] [cursor=pointer]:
+            - img [ref=e229]
+            - generic [ref=e231]:
+              - generic [ref=e232]: 累计订单
+              - generic [ref=e233]: "0"
+          - generic [ref=e235] [cursor=pointer]:
+            - img [ref=e237]
+            - generic [ref=e239]:
+              - generic [ref=e240]: 服务老人
+              - generic [ref=e241]: "0"
+          - generic [ref=e243] [cursor=pointer]:
+            - img [ref=e245]
+            - generic [ref=e247]:
+              - generic [ref=e248]: 服务商
+              - generic [ref=e249]: "3"
+        - generic [ref=e250]:
+          - generic [ref=e252]:
+            - img [ref=e254]
+            - generic [ref=e256]:
+              - generic [ref=e257]: 服务人员
+              - generic [ref=e258]: "0"
+          - generic [ref=e260]:
+            - img [ref=e262]
+            - generic [ref=e264]:
+              - generic [ref=e265]: 本月营收
+              - generic [ref=e266]: ¥0
+          - generic [ref=e268]:
+            - img [ref=e270]
+            - generic [ref=e272]:
+              - generic [ref=e273]: 满意度
+              - generic [ref=e274]: 0.0%
+          - generic [ref=e276]:
+            - img [ref=e278]
+            - generic [ref=e280]:
+              - generic [ref=e281]: 老人总数
+              - generic [ref=e282]: "0"
+          - generic [ref=e284]:
+            - img [ref=e286]
+            - generic [ref=e288]:
+              - generic [ref=e289]: 本月新增
+              - generic [ref=e290]: "0"
+        - generic [ref=e291]:
+          - generic [ref=e294]: 服务类型分布
+          - generic [ref=e300]: 老人年龄分布
+          - generic [ref=e306]: 服务需求分布
+        - generic [ref=e310]:
+          - generic [ref=e313]: 订单来源分布
+          - generic [ref=e319]: 月度收支趋势
+          - generic [ref=e325]: 服务类型金额分布
+        - generic [ref=e329]:
+          - generic [ref=e331]:
+            - img [ref=e333]
+            - generic [ref=e335]:
+              - generic [ref=e336]: 订单总数
+              - generic [ref=e337]: "0"
+          - generic [ref=e339]:
+            - img [ref=e341]
+            - generic [ref=e343]:
+              - generic [ref=e344]: 已完成
+              - generic [ref=e345]: "0"
+          - generic [ref=e347]:
+            - img [ref=e349]
+            - generic [ref=e351]:
+              - generic [ref=e352]: 完成率
+              - generic [ref=e353]: 0.0%
+          - generic [ref=e355]:
+            - img [ref=e357]
+            - generic [ref=e359]:
+              - generic [ref=e360]: 总收入
+              - generic [ref=e361]: ¥0
+        - generic [ref=e362]:
+          - generic [ref=e364]:
+            - img [ref=e366]
+            - generic [ref=e368]:
+              - generic [ref=e369]: 政府补贴
+              - generic [ref=e370]: ¥0
+          - generic [ref=e372]:
+            - img [ref=e374]
+            - generic [ref=e376]:
+              - generic [ref=e377]: 自付金额
+              - generic [ref=e378]: ¥0
+          - generic [ref=e380]:
+            - img [ref=e382]
+            - generic [ref=e384]:
+              - generic [ref=e385]: 平均评分
+              - generic [ref=e386]: "0.0"
+          - generic [ref=e388]:
+            - img [ref=e390]
+            - generic [ref=e392]:
+              - generic [ref=e393]: 好评率
+              - generic [ref=e394]: 0.0%
+        - generic [ref=e395]:
+          - generic [ref=e398]: 服务质量雷达
+          - generic [ref=e404]: 订单转化漏斗
+          - generic [ref=e409]:
+            - generic [ref=e410]: 服务商排名TOP5
+            - generic [ref=e411]:
+              - generic [ref=e412]:
+                - generic [ref=e413]:
+                  - generic [ref=e414]: "1"
+                  - generic [ref=e415]: 延安市宝塔区丁峰家政服务有限公司
+                - generic [ref=e416]:
+                  - generic [ref=e417]: 0单
+                  - generic [ref=e418]: 5.0分
+              - generic [ref=e419]:
+                - generic [ref=e420]:
+                  - generic [ref=e421]: "2"
+                  - generic [ref=e422]: 延安家享悠网络科技有限公司
+                - generic [ref=e423]:
+                  - generic [ref=e424]: 0单
+                  - generic [ref=e425]: 5.0分
+              - generic [ref=e426]:
+                - generic [ref=e427]:
+                  - generic [ref=e428]: "3"
+                  - generic [ref=e429]: 延安丁峰窑洞养老服务有限公司
+                - generic [ref=e430]:
+                  - generic [ref=e431]: 0单
+                  - generic [ref=e432]: 5.0分
+        - generic [ref=e433]:
+          - generic [ref=e435]:
+            - generic [ref=e436]: 服务人员排名TOP3
+            - generic [ref=e437]: 暂无数据
+          - generic [ref=e440]: 订单趋势
+          - generic [ref=e446]: 服务类型分布(订单)
+        - generic [ref=e450]:
+          - generic [ref=e453]: 评分趋势
+          - generic [ref=e459]: 评价分布
+          - generic [ref=e465]: 投诉类型分析
+    - contentinfo [ref=e469]:
+      - link "Copyright MIT © 2021 Soybean" [ref=e471] [cursor=pointer]:
+        - /url: https://github.com/soybeanjs/soybean-admin/blob/main/LICENSE
+  - generic [ref=e3]:
+    - generic "Toggle devtools panel" [ref=e4] [cursor=pointer]:
+      - img [ref=e5]
+    - generic "Toggle Component Inspector" [ref=e473] [cursor=pointer]:
+      - img [ref=e474]
+  - img

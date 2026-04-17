@@ -49,17 +49,21 @@ const ProviderList: React.FC = () => {
 
   const handleEdit = (record: Provider) => {
     setEditingProvider(record);
-    form.setFieldsValue(record);
+    form.setFieldsValue({
+      ...record,
+      id: record.providerId,
+      name: record.providerName,
+    });
     setModalVisible(true);
   };
 
-  const handleDelete = (id: string) => {
+  const handleDelete = (providerId: string) => {
     Modal.confirm({
       title: '确认删除',
       content: '确定要删除该服务商吗？',
       onOk: async () => {
         try {
-          await deleteProvider(id);
+          await deleteProvider(providerId);
           message.success('删除成功');
           fetchData(pagination.current, pagination.pageSize);
         } catch {
@@ -69,9 +73,9 @@ const ProviderList: React.FC = () => {
     });
   };
 
-  const handleToggleStatus = async (id: string, currentStatus: number) => {
+  const handleToggleStatus = async (id: string, currentStatus: string) => {
     try {
-      if (currentStatus === 1) {
+      if (currentStatus === '1') {
         await disableProvider(id);
       } else {
         await enableProvider(id);
@@ -86,11 +90,17 @@ const ProviderList: React.FC = () => {
   const handleSubmit = async () => {
     try {
       const values = await form.validateFields();
+      // 转换字段名以匹配后端
+      const submitData = {
+        ...values,
+        providerName: values.name,
+        creditCode: values.businessLicense,
+      };
       if (editingProvider) {
-        await updateProvider(editingProvider.id, values);
+        await updateProvider(editingProvider.providerId, submitData);
         message.success('更新成功');
       } else {
-        await createProvider(values);
+        await createProvider(submitData);
         message.success('创建成功');
       }
       setModalVisible(false);
@@ -100,25 +110,25 @@ const ProviderList: React.FC = () => {
     }
   };
 
-  const getStatusTag = (status: number) => {
+  const getStatusTag = (status: string) => {
     switch (status) {
-      case 0: return <Tag color="red">禁用</Tag>;
-      case 1: return <Tag color="green">启用</Tag>;
-      case 2: return <Tag color="orange">待审核</Tag>;
-      case 3: return <Tag color="red">审核拒绝</Tag>;
+      case '0': return <Tag color="red">禁用</Tag>;
+      case '1': return <Tag color="green">启用</Tag>;
+      case '2': return <Tag color="orange">待审核</Tag>;
+      case '3': return <Tag color="red">审核拒绝</Tag>;
       default: return <Tag>未知</Tag>;
     }
   };
 
   const columns: ColumnsType<Provider> = [
-    { title: '服务商名称', dataIndex: 'name', key: 'name' },
+    { title: '服务商名称', dataIndex: 'providerName', key: 'providerName' },
     { title: '联系人', dataIndex: 'legalPerson', key: 'legalPerson' },
     { title: '联系电话', dataIndex: 'contactPhone', key: 'contactPhone' },
     {
-      title: '服务类型',
-      dataIndex: 'serviceScope',
-      key: 'serviceScope',
-      render: (scope: string[]) => scope?.map(s => <Tag key={s} color="blue">{s}</Tag>) || '-',
+      title: '服务区域',
+      dataIndex: 'serviceAreas',
+      key: 'serviceAreas',
+      render: (areas: string) => areas || '-',
     },
     {
       title: '状态',
@@ -139,12 +149,12 @@ const ProviderList: React.FC = () => {
           <Button
             type="link"
             size="small"
-            icon={record.status === 1 ? <CloseOutlined /> : <CheckOutlined />}
-            onClick={() => handleToggleStatus(record.id, record.status)}
+            icon={record.status === '1' ? <CloseOutlined /> : <CheckOutlined />}
+            onClick={() => handleToggleStatus(record.providerId, record.status)}
           >
-            {record.status === 1 ? '禁用' : '启用'}
+            {record.status === '1' ? '禁用' : '启用'}
           </Button>
-          <Button type="link" size="small" danger icon={<DeleteOutlined />} onClick={() => handleDelete(record.id)}>
+          <Button type="link" size="small" danger icon={<DeleteOutlined />} onClick={() => handleDelete(record.providerId)}>
             删除
           </Button>
         </Space>

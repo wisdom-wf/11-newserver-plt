@@ -1,0 +1,37 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.elderlycare.mapper.financial.ServicePriceMapper">
+
+    <resultMap id="BaseResultMap" type="com.elderlycare.entity.financial.ServicePrice">
+        <id column="price_id" property="priceId"/>
+        <result column="service_type_code" property="serviceTypeCode"/>
+        <result column="service_type_name" property="serviceTypeName"/>
+        <result column="government_price" property="governmentPrice"/>
+        <result column="effective_date" property="effectiveDate"/>
+        <result column="expiry_date" property="expiryDate"/>
+        <result column="status" property="status"/>
+        <result column="create_time" property="createTime"/>
+    </resultMap>
+
+    <select id="selectPricePage" resultMap="BaseResultMap">
+        SELECT
+            price_id,
+            service_type_code,
+            service_type_name,
+            government_price,
+            effective_date,
+            expiry_date,
+            status,
+            create_time
+        FROM t_service_price
+        WHERE deleted = 0
+        <if test="query.serviceTypeCode != null and query.serviceTypeCode != ''">
+            AND service_type_code = #{query.serviceTypeCode}
+        </if>
+        <if test="query.status != null and query.status != ''">
+            AND status = #{query.status}
+        </if>
+        ORDER BY create_time DESC
+    </select>
+
+</mapper>

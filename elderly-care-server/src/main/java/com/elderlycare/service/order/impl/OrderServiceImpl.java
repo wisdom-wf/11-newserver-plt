@@ -13,6 +13,12 @@ import com.elderlycare.entity.order.ServiceRecord;
 import com.elderlycare.mapper.order.OrderDispatchMapper;
 import com.elderlycare.mapper.order.OrderMapper;
 import com.elderlycare.mapper.order.ServiceRecordMapper;
+import com.elderlycare.mapper.provider.ProviderMapper;
+import com.elderlycare.mapper.servicelog.ServiceLogMapper;
+import com.elderlycare.mapper.staff.StaffMapper;
+import com.elderlycare.entity.provider.Provider;
+import com.elderlycare.entity.servicelog.ServiceLog;
+import com.elderlycare.entity.staff.Staff;
 import com.elderlycare.service.order.OrderService;
 import com.elderlycare.vo.order.*;
 import lombok.RequiredArgsConstructor;
@@ -36,6 +42,9 @@ public class OrderServiceImpl implements OrderService {
     private final OrderMapper orderMapper;
     private final OrderDispatchMapper orderDispatchMapper;
     private final ServiceRecordMapper serviceRecordMapper;
+    private final ServiceLogMapper serviceLogMapper;
+    private final ProviderMapper providerMapper;
+    private final StaffMapper staffMapper;
 
     // ==================== 订单管理 ====================
 
@@ -88,7 +97,7 @@ public class OrderServiceImpl implements OrderService {
 
     @Override
     public OrderDetailVO getOrderDetail(String orderId) {
-        Order order = orderMapper.selectById(orderId);
+        Order order = orderMapper.selectByIdWithNames(orderId);
         if (order == null) {
             throw new BusinessException(404, "订单不存在");
         }
@@ -113,9 +122,13 @@ public class OrderServiceImpl implements OrderService {
         vo.setSubsidyAmount(order.getSubsidyAmount());
         vo.setSelfPayAmount(order.getSelfPayAmount());
         vo.setStatus(order.getStatus());
+        vo.setStatusCode(getStatusNumericCode(order.getStatus()));
         vo.setStatusName(getStatusName(order.getStatus()));
         vo.setProviderId(order.getProviderId());
+        vo.setProviderName(order.getProviderName());
         vo.setStaffId(order.getStaffId());
+        vo.setStaffName(order.getStaffName());
+        vo.setStaffPhone(order.getStaffPhone());
         vo.setCancelReason(order.getCancelReason());
         vo.setDispatchTime(order.getDispatchTime());
         vo.setReceiveTime(order.getReceiveTime());
@@ -230,6 +243,28 @@ public class OrderServiceImpl implements OrderService {
             throw new BusinessException(400, "当前状态不允许派单");
         }
 
+        // 校验服务商状态
+        if (dto.getProviderId() != null && !dto.getProviderId().isEmpty()) {
+            Provider provider = providerMapper.selectById(dto.getProviderId());
+            if (provider == null) {
+                throw new BusinessException(400, "所选服务商不存在");
+            }
+            if (!"ENABLED".equals(provider.getStatus())) {
+                throw new BusinessException(400, "所选服务商已被禁用，无法派单");
+            }
+        }
+
+        // 校验服务人员状态（只能派给在职人员）
+        if (dto.getStaffId() != null && !dto.getStaffId().isEmpty()) {
+            Staff staff = staffMapper.selectStaffById(dto.getStaffId());
+            if (staff == null) {
+                throw new BusinessException(400, "所选服务人员不存在");
+            }
+            if (!"ON_JOB".equals(staff.getStatus())) {
+                throw new BusinessException(400, "只能派单给在职人员，当前人员状态不允许接单");
+            }
+        }
+
         // 创建派单记录
         OrderDispatch dispatch = new OrderDispatch();
         dispatch.setDispatchId(IDGenerator.generateId());
@@ -339,9 +374,8 @@ public class OrderServiceImpl implements OrderService {
         record.setServiceRecordId(IDGenerator.generateId());
         record.setOrderId(orderId);
         // 优先使用DTO中的staffId，否则使用订单中已分配的服务人员
-        record.setStaffId(StringUtils.isNotBlank(dto.getStaffId())
-            ? dto.getStaffId()
-            : order.getStaffId());
+        String staffId = StringUtils.isNotBlank(dto.getStaffId()) ? dto.getStaffId() : order.getStaffId();
+        record.setStaffId(staffId);
         record.setCheckInTime(LocalDateTime.now());
         record.setCheckInLocation(dto.getLongitude() + "," + dto.getLatitude());
         if (StringUtils.isNotBlank(dto.getCheckInPhoto())) {
@@ -350,6 +384,25 @@ public class OrderServiceImpl implements OrderService {
         record.setServiceStatus("CHECKED_IN");
         record.setCreateTime(LocalDateTime.now());
         serviceRecordMapper.insert(record);
+
+        // 自动生成服务日志（草稿状态）
+        ServiceLog serviceLog = new ServiceLog();
+        serviceLog.setServiceLogId(IDGenerator.generateId());
+        serviceLog.setLogNo("SL" + System.currentTimeMillis());
+        serviceLog.setOrderId(orderId);
+        serviceLog.setOrderNo(order.getOrderNo());
+        serviceLog.setElderId(order.getElderId());
+        serviceLog.setElderName(order.getElderName());
+        serviceLog.setElderPhone(order.getElderPhone());
+        serviceLog.setStaffId(staffId);
+        serviceLog.setProviderId(order.getProviderId());
+        serviceLog.setServiceTypeCode(order.getServiceTypeCode());
+        serviceLog.setServiceTypeName(order.getServiceTypeName());
+        serviceLog.setServiceDate(order.getServiceDate() != null ? order.getServiceDate().toString() : null);
+        serviceLog.setServiceStartTime(LocalDateTime.now());
+        serviceLog.setServiceStatus("IN_PROGRESS"); // 服务中
+        serviceLog.setCreateTime(LocalDateTime.now());
+        serviceLogMapper.insert(serviceLog);
 
         // 更新订单状态
         order.setStatus(OrderStatus.SERVICE_STARTED.getCode());
@@ -439,6 +492,7 @@ public class OrderServiceImpl implements OrderService {
         vo.setSubsidyAmount(order.getSubsidyAmount());
         vo.setSelfPayAmount(order.getSelfPayAmount());
         vo.setStatus(order.getStatus());
+        vo.setStatusCode(getStatusNumericCode(order.getStatus()));
         vo.setStatusName(getStatusName(order.getStatus()));
         vo.setProviderId(order.getProviderId());
         vo.setProviderName(order.getProviderName());
@@ -584,5 +638,11 @@ public class OrderServiceImpl implements OrderService {
         if (status == null) return "";
         OrderStatus orderStatus = OrderStatus.fromCode(status);
         return orderStatus != null ? orderStatus.getDescription() : status;
+    }
+
+    private Integer getStatusNumericCode(String status) {
+        if (status == null) return null;
+        OrderStatus orderStatus = OrderStatus.fromCode(status);
+        return orderStatus != null ? orderStatus.getNumericCode() : null;
     }
 }

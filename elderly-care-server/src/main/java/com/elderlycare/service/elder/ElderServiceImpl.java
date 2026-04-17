@@ -6,7 +6,9 @@ import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import com.elderlycare.common.BusinessException;
 import com.elderlycare.dto.elder.*;
 import com.elderlycare.entity.elder.*;
+import com.elderlycare.entity.provider.Provider;
 import com.elderlycare.mapper.elder.*;
+import com.elderlycare.mapper.provider.ProviderMapper;
 import com.elderlycare.vo.elder.*;
 import lombok.RequiredArgsConstructor;
 import org.springframework.beans.BeanUtils;
@@ -36,6 +38,7 @@ public class ElderServiceImpl implements ElderService {
     private final ElderHealthMapper elderHealthMapper;
     private final ElderDemandMapper elderDemandMapper;
     private final ElderSubsidyMapper elderSubsidyMapper;
+    private final ProviderMapper providerMapper;
 
     // ==================== 老人档案管理 ====================
 
@@ -362,6 +365,14 @@ public class ElderServiceImpl implements ElderService {
         // 计算年龄
         if (elder.getBirthDate() != null) {
             vo.setAge(Period.between(elder.getBirthDate(), LocalDate.now()).getYears());
+        }
+
+        // 回填服务商名称
+        if (elder.getProviderId() != null && !elder.getProviderId().isEmpty()) {
+            Provider provider = providerMapper.selectById(elder.getProviderId());
+            if (provider != null) {
+                vo.setProviderName(provider.getProviderName());
+            }
         }
 
         return vo;

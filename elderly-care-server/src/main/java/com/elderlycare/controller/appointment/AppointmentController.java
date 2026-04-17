@@ -2,11 +2,13 @@ package com.elderlycare.controller.appointment;
 
 import com.elderlycare.common.PageResult;
 import com.elderlycare.common.Result;
+import com.elderlycare.dto.appointment.AppointmentCreateDTO;
 import com.elderlycare.dto.appointment.AppointmentQueryDTO;
 import com.elderlycare.service.appointment.AppointmentService;
 import com.elderlycare.vo.appointment.AppointmentStatisticsVO;
 import com.elderlycare.vo.appointment.AppointmentVO;
 import lombok.RequiredArgsConstructor;
+import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 
@@ -31,6 +33,16 @@ public class AppointmentController {
     public Result<PageResult<AppointmentVO>> getAppointmentList(AppointmentQueryDTO query) {
         PageResult<AppointmentVO> result = appointmentService.getAppointmentList(query);
         return Result.success(result);
+    }
+
+    /**
+     * 创建预约
+     * POST /api/appointment
+     */
+    @PostMapping
+    public Result<String> createAppointment(@Validated @RequestBody AppointmentCreateDTO dto) {
+        String appointmentId = appointmentService.createAppointment(dto);
+        return Result.success(appointmentId);
     }
 
     /**

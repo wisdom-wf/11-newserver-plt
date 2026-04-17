@@ -33,6 +33,8 @@ CREATE TABLE `appointment` (
   `cancel_reason` VARCHAR(255) DEFAULT NULL COMMENT '取消原因',
   `reply_info` VARCHAR(255) DEFAULT NULL COMMENT '回复信息',
   `assessment_type` VARCHAR(50) DEFAULT NULL COMMENT '评估类型',
+  `order_id` VARCHAR(64) DEFAULT NULL COMMENT '关联订单ID',
+  `order_no` VARCHAR(64) DEFAULT NULL COMMENT '关联订单号',
   `create_time` DATETIME DEFAULT CURRENT_TIMESTAMP COMMENT '创建时间',
   `confirm_time` DATETIME DEFAULT NULL COMMENT '确认时间',
   `update_time` DATETIME DEFAULT NULL ON UPDATE CURRENT_TIMESTAMP COMMENT '更新时间',

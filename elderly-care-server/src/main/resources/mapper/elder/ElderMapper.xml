@@ -57,17 +57,28 @@
         <result column="update_time" property="updateTime"/>
         <result column="deleted" property="deleted"/>
         <result column="area_name" property="areaName"/>
+        <result column="provider_id" property="providerId"/>
+        <result column="provider_name" property="providerName"/>
     </resultMap>
+
+    <select id="selectByIdCard" resultMap="BaseResultMap">
+        SELECT * FROM t_elder WHERE id_card = #{idCard} AND deleted = 0 LIMIT 1
+    </select>
+
+    <select id="selectByPhone" resultMap="BaseResultMap">
+        SELECT * FROM t_elder WHERE phone = #{phone} AND deleted = 0 LIMIT 1
+    </select>
 
     <select id="selectElderPage" resultMap="ElderAreaResultMap">
         SELECT e.elder_id, e.elder_name, e.gender, e.birth_date, e.age, e.id_card, e.phone,
                e.ethnicity, e.education, e.marital_status, e.political_status, e.photo_url,
                e.status, e.register_date, e.address, e.area_id, e.care_level, e.living_status,
                e.health_status, e.care_type, e.emergency_contact, e.emergency_phone,
-               e.create_time, e.update_time, e.deleted,
-               a.area_name
+               e.create_time, e.update_time, e.deleted, e.provider_id,
+               a.area_name, p.provider_name
         FROM t_elder e
         LEFT JOIN t_area a ON e.area_id = a.area_id
+        LEFT JOIN t_provider p ON e.provider_id = p.provider_id
         WHERE e.deleted = 0
         <if test="dto.name != null and dto.name != ''">
             AND e.elder_name LIKE CONCAT('%', #{dto.name}, '%')

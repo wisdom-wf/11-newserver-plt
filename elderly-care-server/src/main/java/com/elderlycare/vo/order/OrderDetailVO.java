@@ -51,6 +51,8 @@ public class OrderDetailVO implements Serializable {
 
     private String status;
 
+    private Integer statusCode;
+
     private String statusName;
 
     private String providerId;
@@ -60,6 +62,8 @@ public class OrderDetailVO implements Serializable {
     private String staffId;
 
     private String staffName;
+
+    private String staffPhone;
 
     private String cancelReason;
 

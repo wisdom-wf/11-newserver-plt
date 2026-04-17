@@ -18,4 +18,14 @@ public interface ElderMapper extends BaseMapper<Elder> {
      * 分页查询老人档案
      */
     IPage<Elder> selectElderPage(Page<Elder> page, @Param("dto") ElderPageDTO dto);
+
+    /**
+     * 根据身份证号查询老人档案
+     */
+    Elder selectByIdCard(@Param("idCard") String idCard);
+
+    /**
+     * 根据手机号查询老人档案
+     */
+    Elder selectByPhone(@Param("phone") String phone);
 }

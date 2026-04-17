@@ -16,4 +16,13 @@ public interface ProviderMapper extends BaseMapper<Provider> {
      * 分页查询服务商
      */
     IPage<Provider> selectProviderPage(Page<?> page, @Param("query") ProviderQueryDTO query);
+
+    /**
+     * 根据ID更新服务商（绕过逻辑删除）
+     */
+    int updateProviderById(@Param("providerId") String providerId, @Param("providerName") String providerName,
+                          @Param("providerType") String providerType, @Param("serviceCategory") String serviceCategory,
+                          @Param("legalPerson") String legalPerson, @Param("contactPhone") String contactPhone,
+                          @Param("address") String address, @Param("serviceAreas") String serviceAreas,
+                          @Param("description") String description, @Param("status") String status);
 }

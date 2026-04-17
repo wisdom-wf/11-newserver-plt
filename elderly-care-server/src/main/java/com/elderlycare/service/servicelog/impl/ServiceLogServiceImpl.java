@@ -3,15 +3,19 @@ package com.elderlycare.service.servicelog.impl;
 import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
 import com.baomidou.mybatisplus.core.metadata.IPage;
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
+import com.elderlycare.common.IDGenerator;
 import com.elderlycare.common.PageResult;
 import com.elderlycare.dto.servicelog.ServiceLogQueryDTO;
+import com.elderlycare.entity.quality.QualityCheck;
 import com.elderlycare.entity.servicelog.ServiceLog;
+import com.elderlycare.mapper.quality.QualityCheckMapper;
 import com.elderlycare.mapper.servicelog.ServiceLogMapper;
 import com.elderlycare.service.servicelog.ServiceLogService;
 import com.elderlycare.vo.servicelog.ServiceLogStatisticsVO;
 import com.elderlycare.vo.servicelog.ServiceLogVO;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.math.BigDecimal;
 import java.time.LocalDateTime;
@@ -26,6 +30,7 @@ import java.util.stream.Collectors;
 public class ServiceLogServiceImpl implements ServiceLogService {
 
     private final ServiceLogMapper serviceLogMapper;
+    private final QualityCheckMapper qualityCheckMapper;
 
     @Override
     public PageResult<ServiceLogVO> getServiceLogList(ServiceLogQueryDTO query) {
@@ -81,6 +86,7 @@ public class ServiceLogServiceImpl implements ServiceLogService {
     }
 
     @Override
+    @Transactional(rollbackFor = Exception.class)
     public void submitServiceLog(ServiceLogVO vo) {
         ServiceLog serviceLog = new ServiceLog();
         serviceLog.setLogNo("SL" + System.currentTimeMillis());
@@ -98,7 +104,27 @@ public class ServiceLogServiceImpl implements ServiceLogService {
         serviceLog.setServiceEndTime(vo.getServiceEndTime() != null ? LocalDateTime.parse(vo.getServiceEndTime()) : null);
         serviceLog.setServiceDuration(vo.getServiceDuration());
         serviceLog.setServiceStatus(vo.getStatus());
+        serviceLog.setCreateTime(LocalDateTime.now());
         serviceLogMapper.insert(serviceLog);
+
+        // 自动生成质检单（待质检状态）
+        QualityCheck qualityCheck = new QualityCheck();
+        qualityCheck.setQualityCheckId(IDGenerator.generateId());
+        qualityCheck.setCheckNo("QC" + System.currentTimeMillis());
+        qualityCheck.setOrderId(vo.getOrderId());
+        qualityCheck.setOrderNo(vo.getOrderNo());
+        qualityCheck.setServiceLogId(serviceLog.getServiceLogId());
+        qualityCheck.setServiceCategory(vo.getServiceCategory());
+        qualityCheck.setProviderId(vo.getProviderId());
+        qualityCheck.setProviderName(vo.getProviderName());
+        qualityCheck.setStaffId(vo.getStaffId());
+        qualityCheck.setStaffName(vo.getStaffName());
+        qualityCheck.setCheckType("COMPLETION"); // 完工质检
+        qualityCheck.setCheckMethod("PHOTO_REVIEW"); // 默认照片审核
+        qualityCheck.setCheckResult("PENDING"); // 待质检
+        qualityCheck.setRectifyStatus("PENDING");
+        qualityCheck.setCreateTime(LocalDateTime.now());
+        qualityCheckMapper.insert(qualityCheck);
     }
 
     @Override

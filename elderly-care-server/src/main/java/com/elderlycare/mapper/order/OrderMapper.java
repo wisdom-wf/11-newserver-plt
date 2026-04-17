@@ -23,4 +23,9 @@ public interface OrderMapper extends BaseMapper<Order> {
      * 根据订单号查询
      */
     Order selectByOrderNo(@Param("orderNo") String orderNo);
+
+    /**
+     * 根据ID查询订单（带服务商和服务人员名称）
+     */
+    Order selectByIdWithNames(@Param("orderId") String orderId);
 }

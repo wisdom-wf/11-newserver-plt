@@ -101,7 +101,7 @@ const StaffList: React.FC = () => {
   };
 
   const columns: ColumnsType<Staff> = [
-    { title: '姓名', dataIndex: 'name', key: 'name' },
+    { title: '姓名', dataIndex: 'staffName', key: 'staffName' },
     {
       title: '性别',
       dataIndex: 'gender',
@@ -110,6 +110,12 @@ const StaffList: React.FC = () => {
     },
     { title: '年龄', dataIndex: 'age', key: 'age' },
     { title: '手机号', dataIndex: 'phone', key: 'phone' },
+    {
+      title: '服务商',
+      dataIndex: 'providerName',
+      key: 'providerName',
+      render: (name: string) => name || '-',
+    },
     {
       title: '服务类型',
       dataIndex: 'serviceTypes',
@@ -144,11 +150,11 @@ const StaffList: React.FC = () => {
             type="link"
             size="small"
             icon={record.status === 1 ? <CloseOutlined /> : <CheckOutlined />}
-            onClick={() => handleToggleStatus(record.id, record.status)}
+            onClick={() => handleToggleStatus(record.staffId, record.status)}
           >
             {record.status === 1 ? '禁用' : '启用'}
           </Button>
-          <Button type="link" size="small" danger icon={<DeleteOutlined />} onClick={() => handleDelete(record.id)}>
+          <Button type="link" size="small" danger icon={<DeleteOutlined />} onClick={() => handleDelete(record.staffId)}>
             删除
           </Button>
         </Space>

@@ -29,17 +29,22 @@ export interface UserInfo {
 
 // Provider Types
 export interface Provider {
-  id: string;
-  name: string;
-  code: string;
-  businessLicense: string;
+  providerId: string;
+  providerName: string;
+  providerType: string;
+  creditCode: string;
   legalPerson: string;
   contactPhone: string;
   address: string;
-  serviceScope: string[];
-  status: number;
-  level: number;
-  regionCode: string;
+  serviceAreas: string;
+  description: string;
+  auditStatus: string;
+  auditComment: string;
+  auditTime: string;
+  auditorId: number;
+  status: string;
+  rating: number;
+  ratingCount: number;
   createTime: string;
   updateTime: string;
 }
@@ -47,7 +52,7 @@ export interface Provider {
 export interface ProviderQuery {
   name?: string;
   code?: string;
-  status?: number;
+  status?: string;
   level?: number;
   regionCode?: string;
   page: number;
@@ -56,17 +61,28 @@ export interface ProviderQuery {
 
 // Staff Types
 export interface Staff {
-  id: string;
-  name: string;
-  idCard: string;
-  phone: string;
-  gender: number;
-  age: number;
+  staffId: string;
+  staffNo: string;
+  staffName: string;
   providerId: string;
   providerName: string;
+  gender: number;
+  idCard: string;
+  phone: string;
+  birthDate: string;
+  nation: string;
+  education: string;
+  politicalStatus: string;
+  maritalStatus: string;
+  domicileAddress: string;
+  residenceAddress: string;
+  emergencyContact: string;
+  emergencyPhone: string;
   serviceTypes: string[];
   serviceAreas: string[];
-  certifications: string[];
+  workStatus: string;
+  entryDate: string;
+  leaveDate: string;
   status: number;
   createTime: string;
   updateTime: string;
@@ -84,21 +100,30 @@ export interface StaffQuery {
 
 // Elder Types
 export interface Elder {
-  id: string;
+  elderId: string;
   name: string;
+  gender: string;
+  birthDate: string;
+  age: number;
   idCard: string;
   phone: string;
-  gender: number;
-  age: number;
+  ethnicity: string;
+  education: string;
+  maritalStatus: string;
+  politicalStatus: string;
+  photoUrl: string;
+  status: string;
+  registerDate: string;
   address: string;
-  careLevel: number;
-  familyPhone?: string;
-  familyContact?: string;
-  subsidyType?: number;
-  subsidyAmount?: number;
-  healthInfo?: string;
-  status: number;
-  regionCode: string;
+  areaId: string;
+  careLevel: string;
+  careType: string;
+  emergencyContact: string;
+  emergencyPhone: string;
+  subsidyType: string;
+  subsidyAmount: number;
+  providerId?: string;
+  providerName?: string;
   createTime: string;
   updateTime: string;
 }
@@ -133,7 +158,9 @@ export interface Order {
   serviceFee: number;
   subsidyFee: number;
   selfPayFee: number;
-  status: number;
+  status: string;
+  statusCode: number;
+  statusName: string;
   remark?: string;
   createTime: string;
   updateTime: string;
@@ -302,6 +329,96 @@ export interface ApiResponse<T> {
 export interface PageResponse<T> {
   list: T[];
   total: number;
+  page: number;
+  pageSize: number;
+}
+
+// ServiceLog Types
+export interface ServiceLog {
+  id: string;
+  logNo: string;
+  orderId: string;
+  orderNo: string;
+  elderId: string;
+  elderName: string;
+  elderPhone: string;
+  elderAddress: string;
+  staffId: string;
+  staffName: string;
+  staffPhone: string;
+  providerId: string;
+  providerName: string;
+  serviceTypeCode: string;
+  serviceTypeName: string;
+  serviceDate: string;
+  serviceStartTime: string;
+  serviceEndTime: string;
+  serviceDuration: number;
+  serviceStatus: string;
+  actualDuration: number;
+  serviceScore: number;
+  serviceComment: string;
+  servicePhotos: string;
+  elderSignature: string;
+  anomalyType: string;
+  anomalyDesc: string;
+  anomalyPhotos: string;
+  anomalyStatus: string;
+  auditStatus: string;
+  createTime: string;
+  updateTime: string;
+}
+
+export interface ServiceLogQuery {
+  orderNo?: string;
+  elderName?: string;
+  staffName?: string;
+  serviceStatus?: string;
+  auditStatus?: string;
+  page: number;
+  pageSize: number;
+}
+
+// QualityCheck Types
+export interface QualityCheck {
+  id: string;
+  checkNo: string;
+  orderId: string;
+  orderNo: string;
+  serviceLogId: string;
+  serviceCategory: string;
+  providerId: string;
+  providerName: string;
+  staffId: string;
+  staffName: string;
+  checkType: string;
+  checkMethod: string;
+  checkScore: number;
+  checkResult: string;
+  checkPhotos: string;
+  checkRemark: string;
+  checkTime: string;
+  checkerId: string;
+  checkerName: string;
+  needRectify: boolean;
+  rectifyNotice: string;
+  rectifyDeadline: string;
+  rectifyStatus: string;
+  rectifyPhotos: string;
+  rectifyRemark: string;
+  recheckTime: string;
+  recheckResult: string;
+  createTime: string;
+  updateTime: string;
+}
+
+export interface QualityCheckQuery {
+  checkNo?: string;
+  orderNo?: string;
+  providerName?: string;
+  staffName?: string;
+  checkResult?: string;
+  rectifyStatus?: string;
   page: number;
   pageSize: number;
 }

@@ -145,6 +145,17 @@ public class Elder implements Serializable {
     private LocalDateTime updateTime;
 
     /**
+     * 关联服务商ID（预约确认时自动填充）
+     */
+    private String providerId;
+
+    /**
+     * 服务商名称（非数据库字段）
+     */
+    @TableField(exist = false)
+    private String providerName;
+
+    /**
      * 是否删除：0-未删除，1-已删除
      */
     @TableLogic

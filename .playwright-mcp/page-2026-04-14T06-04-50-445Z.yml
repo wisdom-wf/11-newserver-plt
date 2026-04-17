@@ -1,0 +1,367 @@
+- generic [ref=e1]:
+  - generic [ref=e29]:
+    - banner [ref=e30]:
+      - generic [ref=e31]:
+        - button [ref=e32] [cursor=pointer]:
+          - img [ref=e35]
+        - navigation "Breadcrumb" [ref=e39]:
+          - list [ref=e40]:
+            - listitem [ref=e453]:
+              - generic [ref=e455]:
+                - img [ref=e456]
+                - text: 预约信息管理
+        - generic [ref=e46]:
+          - button [ref=e47] [cursor=pointer]:
+            - img [ref=e50]
+          - button [ref=e52] [cursor=pointer]:
+            - img [ref=e55]
+          - button [ref=e58] [cursor=pointer]:
+            - img [ref=e61]
+          - button [ref=e63] [cursor=pointer]:
+            - img [ref=e66]
+          - button [ref=e68] [cursor=pointer]:
+            - img [ref=e71]
+          - button "admin" [ref=e76] [cursor=pointer]:
+            - generic [ref=e78]:
+              - img [ref=e79]
+              - generic [ref=e81]: admin
+    - generic [ref=e84]:
+      - generic [ref=e88]:
+        - generic [ref=e89] [cursor=pointer]:
+          - generic:
+            - img:
+              - img
+              - generic:
+                - img
+          - img [ref=e90]
+          - generic [ref=e92]: 首页
+        - generic [ref=e458] [cursor=pointer]:
+          - generic:
+            - img:
+              - img
+              - generic:
+                - img
+          - img [ref=e459]
+          - generic [ref=e461]: 预约信息管理
+          - img [ref=e463]
+      - button [ref=e94] [cursor=pointer]:
+        - img [ref=e97]
+      - button [ref=e99] [cursor=pointer]:
+        - img [ref=e102]
+    - complementary [ref=e105]:
+      - generic [ref=e106]:
+        - link "社区服务综合运营管理平台" [ref=e107] [cursor=pointer]:
+          - /url: /
+          - img [ref=e109]
+          - heading "社区服务综合运营管理平台" [level=2] [ref=e118]
+        - region "scrollable content" [active] [ref=e125]:
+          - menu [ref=e127]:
+            - menuitem "首页" [ref=e128]:
+              - img [ref=e129] [cursor=pointer]
+              - text: 首页
+            - menuitem "预约信息管理" [ref=e131]:
+              - img [ref=e132] [cursor=pointer]
+              - text: 预约信息管理
+            - menuitem "服务商管理" [ref=e134]:
+              - img [ref=e135] [cursor=pointer]
+              - text: 服务商管理
+            - menu [ref=e137] [cursor=pointer]:
+              - menuitem "业务管理" [ref=e138]:
+                - img [ref=e139]
+                - text: 业务管理
+                - img [ref=e142]
+            - menu [ref=e144] [cursor=pointer]:
+              - menuitem "系统管理" [ref=e145]:
+                - img [ref=e146]
+                - text: 系统管理
+                - img [ref=e149]
+    - main [ref=e151]:
+      - generic [ref=e466]:
+        - generic [ref=e467]:
+          - heading "预约统计" [ref=e468]:
+            - heading "预约统计" [ref=e469]
+          - generic [ref=e470]:
+            - generic [ref=e471]:
+              - generic [ref=e472]: 总预约数
+              - generic [ref=e473]: "22"
+            - generic [ref=e474]:
+              - generic [ref=e475]: 待确认
+              - generic [ref=e476]: "12"
+            - generic [ref=e477]:
+              - generic [ref=e478]: 已确认
+              - generic [ref=e479]: "6"
+            - generic [ref=e480]:
+              - generic [ref=e481]: 已分配
+              - generic [ref=e482]: "0"
+            - generic [ref=e483]:
+              - generic [ref=e484]: 已完成
+              - generic [ref=e485]: "0"
+            - generic [ref=e486]:
+              - generic [ref=e487]: 已取消
+              - generic [ref=e488]: "2"
+            - generic [ref=e489]:
+              - generic [ref=e490]: 已作废
+              - generic [ref=e491]: "2"
+        - generic [ref=e492]:
+          - heading "预约信息管理" [ref=e493]:
+            - heading "预约信息管理" [ref=e494]:
+              - generic [ref=e496]: 预约信息管理
+          - generic [ref=e497]:
+            - text: "筛选条件:"
+            - generic [ref=e500]:
+              - textbox "预约单号" [ref=e501]
+              - generic:
+                - generic: 预约单号
+            - generic [ref=e506]:
+              - textbox "老人姓名" [ref=e507]
+              - generic:
+                - generic: 老人姓名
+            - generic [ref=e512]:
+              - textbox "老人手机号" [ref=e513]
+              - generic:
+                - generic: 老人手机号
+            - img "loading" [ref=e519] [cursor=pointer]:
+              - img [ref=e524]
+            - generic [ref=e527]:
+              - generic [ref=e529]:
+                - textbox "开始日期" [ref=e530]
+                - generic:
+                  - generic: 开始日期
+              - img [ref=e533]
+              - generic [ref=e537]:
+                - generic [ref=e538]:
+                  - textbox "结束日期" [ref=e539]
+                  - generic:
+                    - generic: 结束日期
+                - img [ref=e544]
+            - button "搜索" [ref=e548] [cursor=pointer]:
+              - generic [ref=e549]: 搜索
+            - button "重置" [ref=e550] [cursor=pointer]:
+              - generic [ref=e551]: 重置
+            - button "导入" [ref=e552] [cursor=pointer]:
+              - generic [ref=e553]: 导入
+            - button "下载模板" [ref=e554] [cursor=pointer]:
+              - generic [ref=e555]: 下载模板
+          - table [ref=e559]:
+            - rowgroup [ref=e571]:
+              - row "预约单号 老人姓名 老人手机号 服务类型 预约时间 服务商 状态 备注 创建时间 操作" [ref=e572]:
+                - columnheader "预约单号" [ref=e573]:
+                  - generic [ref=e575]: 预约单号
+                - columnheader "老人姓名" [ref=e576]:
+                  - generic [ref=e578]: 老人姓名
+                - columnheader "老人手机号" [ref=e579]:
+                  - generic [ref=e581]: 老人手机号
+                - columnheader "服务类型" [ref=e582]:
+                  - generic [ref=e584]: 服务类型
+                - columnheader "预约时间" [ref=e585]:
+                  - generic [ref=e587]: 预约时间
+                - columnheader "服务商" [ref=e588]:
+                  - generic [ref=e590]: 服务商
+                - columnheader "状态" [ref=e591]:
+                  - generic [ref=e593]: 状态
+                - columnheader "备注" [ref=e594]:
+                  - generic [ref=e597]: 备注
+                - columnheader "创建时间" [ref=e598]:
+                  - generic [ref=e600]: 创建时间
+                - columnheader "操作" [ref=e601]:
+                  - generic [ref=e603]: 操作
+            - rowgroup [ref=e604]:
+              - row "APT20260412134210090b 张秀英 13119261038 上门服务 2026-04-15 13:42:10 延安家享悠网络科技有限公司 已确认 日常养老服务预约 2026-04-12T13:42:10 查看订单" [ref=e605]:
+                - cell "APT20260412134210090b" [ref=e606]
+                - cell "张秀英" [ref=e607]
+                - cell "13119261038" [ref=e608]
+                - cell "上门服务" [ref=e609]
+                - cell "2026-04-15 13:42:10" [ref=e610]
+                - cell "延安家享悠网络科技有限公司" [ref=e611]
+                - cell "已确认" [ref=e612]:
+                  - generic [ref=e614]: 已确认
+                - cell "日常养老服务预约" [ref=e615]:
+                  - generic [ref=e616]: 日常养老服务预约
+                - cell "2026-04-12T13:42:10" [ref=e617]
+                - cell "查看订单" [ref=e618]:
+                  - button "查看订单" [ref=e619] [cursor=pointer]:
+                    - generic [ref=e620]: 查看订单
+              - row "APT202604121342100c0e 高爱峰 13892123658 上门服务 2026-04-15 13:42:10 延安丁峰窑洞养老服务有限公司 已确认 日常养老服务预约 2026-04-12T13:42:10 查看订单" [ref=e621]:
+                - cell "APT202604121342100c0e" [ref=e622]
+                - cell "高爱峰" [ref=e623]
+                - cell "13892123658" [ref=e624]
+                - cell "上门服务" [ref=e625]
+                - cell "2026-04-15 13:42:10" [ref=e626]
+                - cell "延安丁峰窑洞养老服务有限公司" [ref=e627]
+                - cell "已确认" [ref=e628]:
+                  - generic [ref=e630]: 已确认
+                - cell "日常养老服务预约" [ref=e631]:
+                  - generic [ref=e632]: 日常养老服务预约
+                - cell "2026-04-12T13:42:10" [ref=e633]
+                - cell "查看订单" [ref=e634]:
+                  - button "查看订单" [ref=e635] [cursor=pointer]:
+                    - generic [ref=e636]: 查看订单
+              - row "APT202604121342100258 王秀兰 13892175256 上门服务 2026-04-15 13:42:10 待确认 日常养老服务预约 2026-04-12T13:42:10 确认 取消 作废" [ref=e637]:
+                - cell "APT202604121342100258" [ref=e638]
+                - cell "王秀兰" [ref=e639]
+                - cell "13892175256" [ref=e640]
+                - cell "上门服务" [ref=e641]
+                - cell "2026-04-15 13:42:10" [ref=e642]
+                - cell [ref=e643]
+                - cell "待确认" [ref=e644]:
+                  - generic [ref=e646]: 待确认
+                - cell "日常养老服务预约" [ref=e647]:
+                  - generic [ref=e648]: 日常养老服务预约
+                - cell "2026-04-12T13:42:10" [ref=e649]
+                - cell "确认 取消 作废" [ref=e650]:
+                  - button "确认" [ref=e651] [cursor=pointer]:
+                    - generic [ref=e652]: 确认
+                  - button "取消" [ref=e653] [cursor=pointer]:
+                    - generic [ref=e654]: 取消
+                  - button "作废" [ref=e655] [cursor=pointer]:
+                    - generic [ref=e656]: 作废
+              - row "APT20260412134210083c 陈书成 15509112662 上门服务 2026-04-15 13:42:10 待确认 日常养老服务预约 2026-04-12T13:42:10 确认 取消 作废" [ref=e657]:
+                - cell "APT20260412134210083c" [ref=e658]
+                - cell "陈书成" [ref=e659]
+                - cell "15509112662" [ref=e660]
+                - cell "上门服务" [ref=e661]
+                - cell "2026-04-15 13:42:10" [ref=e662]
+                - cell [ref=e663]
+                - cell "待确认" [ref=e664]:
+                  - generic [ref=e666]: 待确认
+                - cell "日常养老服务预约" [ref=e667]:
+                  - generic [ref=e668]: 日常养老服务预约
+                - cell "2026-04-12T13:42:10" [ref=e669]
+                - cell "确认 取消 作废" [ref=e670]:
+                  - button "确认" [ref=e671] [cursor=pointer]:
+                    - generic [ref=e672]: 确认
+                  - button "取消" [ref=e673] [cursor=pointer]:
+                    - generic [ref=e674]: 取消
+                  - button "作废" [ref=e675] [cursor=pointer]:
+                    - generic [ref=e676]: 作废
+              - row "APT20260412134210077d 常兰芳 13891184602 上门服务 2026-04-15 13:42:10 待确认 日常养老服务预约 2026-04-12T13:42:10 确认 取消 作废" [ref=e677]:
+                - cell "APT20260412134210077d" [ref=e678]
+                - cell "常兰芳" [ref=e679]
+                - cell "13891184602" [ref=e680]
+                - cell "上门服务" [ref=e681]
+                - cell "2026-04-15 13:42:10" [ref=e682]
+                - cell [ref=e683]
+                - cell "待确认" [ref=e684]:
+                  - generic [ref=e686]: 待确认
+                - cell "日常养老服务预约" [ref=e687]:
+                  - generic [ref=e688]: 日常养老服务预约
+                - cell "2026-04-12T13:42:10" [ref=e689]
+                - cell "确认 取消 作废" [ref=e690]:
+                  - button "确认" [ref=e691] [cursor=pointer]:
+                    - generic [ref=e692]: 确认
+                  - button "取消" [ref=e693] [cursor=pointer]:
+                    - generic [ref=e694]: 取消
+                  - button "作废" [ref=e695] [cursor=pointer]:
+                    - generic [ref=e696]: 作废
+              - row "APT2026041213421005ad 白玉兰 18992114690 上门服务 2026-04-15 13:42:10 待确认 日常养老服务预约 2026-04-12T13:42:10 确认 取消 作废" [ref=e697]:
+                - cell "APT2026041213421005ad" [ref=e698]
+                - cell "白玉兰" [ref=e699]
+                - cell "18992114690" [ref=e700]
+                - cell "上门服务" [ref=e701]
+                - cell "2026-04-15 13:42:10" [ref=e702]
+                - cell [ref=e703]
+                - cell "待确认" [ref=e704]:
+                  - generic [ref=e706]: 待确认
+                - cell "日常养老服务预约" [ref=e707]:
+                  - generic [ref=e708]: 日常养老服务预约
+                - cell "2026-04-12T13:42:10" [ref=e709]
+                - cell "确认 取消 作废" [ref=e710]:
+                  - button "确认" [ref=e711] [cursor=pointer]:
+                    - generic [ref=e712]: 确认
+                  - button "取消" [ref=e713] [cursor=pointer]:
+                    - generic [ref=e714]: 取消
+                  - button "作废" [ref=e715] [cursor=pointer]:
+                    - generic [ref=e716]: 作废
+              - row "APT2026041213421008cd 姬旺英 15319534035 上门服务 2026-04-15 13:42:10 待确认 日常养老服务预约 2026-04-12T13:42:10 确认 取消 作废" [ref=e717]:
+                - cell "APT2026041213421008cd" [ref=e718]
+                - cell "姬旺英" [ref=e719]
+                - cell "15319534035" [ref=e720]
+                - cell "上门服务" [ref=e721]
+                - cell "2026-04-15 13:42:10" [ref=e722]
+                - cell [ref=e723]
+                - cell "待确认" [ref=e724]:
+                  - generic [ref=e726]: 待确认
+                - cell "日常养老服务预约" [ref=e727]:
+                  - generic [ref=e728]: 日常养老服务预约
+                - cell "2026-04-12T13:42:10" [ref=e729]
+                - cell "确认 取消 作废" [ref=e730]:
+                  - button "确认" [ref=e731] [cursor=pointer]:
+                    - generic [ref=e732]: 确认
+                  - button "取消" [ref=e733] [cursor=pointer]:
+                    - generic [ref=e734]: 取消
+                  - button "作废" [ref=e735] [cursor=pointer]:
+                    - generic [ref=e736]: 作废
+              - row "APT2026041213421007bf 李银树 13484649907 上门服务 2026-04-15 13:42:10 待确认 日常养老服务预约 2026-04-12T13:42:10 确认 取消 作废" [ref=e737]:
+                - cell "APT2026041213421007bf" [ref=e738]
+                - cell "李银树" [ref=e739]
+                - cell "13484649907" [ref=e740]
+                - cell "上门服务" [ref=e741]
+                - cell "2026-04-15 13:42:10" [ref=e742]
+                - cell [ref=e743]
+                - cell "待确认" [ref=e744]:
+                  - generic [ref=e746]: 待确认
+                - cell "日常养老服务预约" [ref=e747]:
+                  - generic [ref=e748]: 日常养老服务预约
+                - cell "2026-04-12T13:42:10" [ref=e749]
+                - cell "确认 取消 作废" [ref=e750]:
+                  - button "确认" [ref=e751] [cursor=pointer]:
+                    - generic [ref=e752]: 确认
+                  - button "取消" [ref=e753] [cursor=pointer]:
+                    - generic [ref=e754]: 取消
+                  - button "作废" [ref=e755] [cursor=pointer]:
+                    - generic [ref=e756]: 作废
+              - row "APT202604121342100e0d 米桂芳 13468866933 上门服务 2026-04-15 13:42:10 延安家享悠网络科技有限公司 已确认 日常养老服务预约 2026-04-12T13:42:10 查看订单" [ref=e757]:
+                - cell "APT202604121342100e0d" [ref=e758]
+                - cell "米桂芳" [ref=e759]
+                - cell "13468866933" [ref=e760]
+                - cell "上门服务" [ref=e761]
+                - cell "2026-04-15 13:42:10" [ref=e762]
+                - cell "延安家享悠网络科技有限公司" [ref=e763]
+                - cell "已确认" [ref=e764]:
+                  - generic [ref=e766]: 已确认
+                - cell "日常养老服务预约" [ref=e767]:
+                  - generic [ref=e768]: 日常养老服务预约
+                - cell "2026-04-12T13:42:10" [ref=e769]
+                - cell "查看订单" [ref=e770]:
+                  - button "查看订单" [ref=e771] [cursor=pointer]:
+                    - generic [ref=e772]: 查看订单
+              - row "APT202604121342100aac 高玉萍 13008598800 上门服务 2026-04-15 13:42:10 待确认 日常养老服务预约 2026-04-12T13:42:10 确认 取消 作废" [ref=e773]:
+                - cell "APT202604121342100aac" [ref=e774]
+                - cell "高玉萍" [ref=e775]
+                - cell "13008598800" [ref=e776]
+                - cell "上门服务" [ref=e777]
+                - cell "2026-04-15 13:42:10" [ref=e778]
+                - cell [ref=e779]
+                - cell "待确认" [ref=e780]:
+                  - generic [ref=e782]: 待确认
+                - cell "日常养老服务预约" [ref=e783]:
+                  - generic [ref=e784]: 日常养老服务预约
+                - cell "2026-04-12T13:42:10" [ref=e785]
+                - cell "确认 取消 作废" [ref=e786]:
+                  - button "确认" [ref=e787] [cursor=pointer]:
+                    - generic [ref=e788]: 确认
+                  - button "取消" [ref=e789] [cursor=pointer]:
+                    - generic [ref=e790]: 取消
+                  - button "作废" [ref=e791] [cursor=pointer]:
+                    - generic [ref=e792]: 作废
+          - generic [ref=e793]:
+            - generic [ref=e796] [cursor=pointer]:
+              - generic "10条/页" [ref=e797]:
+                - generic [ref=e798]: 10条/页
+              - img "loading" [ref=e799]:
+                - img [ref=e804]
+            - generic [ref=e806]:
+              - img [ref=e809]
+              - generic [ref=e811] [cursor=pointer]: "1"
+              - generic [ref=e812] [cursor=pointer]: "2"
+              - generic [ref=e813] [cursor=pointer]: "3"
+              - img [ref=e816] [cursor=pointer]
+    - contentinfo [ref=e444]:
+      - link "Copyright MIT © 2021 Soybean" [ref=e446] [cursor=pointer]:
+        - /url: https://github.com/soybeanjs/soybean-admin/blob/main/LICENSE
+  - img
+  - generic [ref=e21]:
+    - generic "Toggle devtools panel" [ref=e22] [cursor=pointer]:
+      - img [ref=e23]
+    - generic "Toggle Component Inspector" [ref=e448] [cursor=pointer]:
+      - img [ref=e449]

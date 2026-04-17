@@ -1,0 +1,28 @@
+{
+  "name": "dingfeng-code-review",
+  "leadAgentId": "1b47abde367c492188419540654ede14",
+  "workspacePath": "/Volumes/works/my-projects/11-newserver-plt",
+  "createdAt": "2026-04-16T10:29:50.557Z",
+  "options": {
+    "workspacePath": "/Volumes/works/my-projects/11-newserver-plt",
+    "isAutoTeam": false
+  },
+  "members": [
+    {
+      "memberId": "team-lead@dingfeng-code-review",
+      "name": "team-lead",
+      "role": "Team Lead - coordinates the team and interacts with the user"
+    },
+    {
+      "memberId": "vue3-frontend-reviewer@dingfeng-code-review",
+      "name": "vue3-frontend-reviewer",
+      "role": "Vue3前端数据类型审查"
+    },
+    {
+      "memberId": "backend-entity-reviewer@dingfeng-code-review",
+      "name": "backend-entity-reviewer",
+      "role": "后端Entity/DTO审查"
+    }
+  ],
+  "isAutoTeam": false
+}

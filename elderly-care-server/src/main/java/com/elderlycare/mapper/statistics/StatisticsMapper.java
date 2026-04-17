@@ -204,16 +204,16 @@ public interface StatisticsMapper {
     Long selectSuspendedElders();
 
     /**
-     * 查询待审核服务商数
+     * 查询启用状态服务商数
      */
-    @Select("SELECT COUNT(*) FROM t_provider WHERE deleted = 0 AND status = 'PENDING'")
-    Long selectPendingProviders();
+    @Select("SELECT COUNT(*) FROM t_provider WHERE deleted = 0 AND status = 'ENABLED'")
+    Long selectEnabledProviders();
 
     /**
-     * 查询已审核通过服务商数
+     * 查询禁用状态服务商数
      */
-    @Select("SELECT COUNT(*) FROM t_provider WHERE deleted = 0 AND status = 'APPROVED'")
-    Long selectApprovedProviders();
+    @Select("SELECT COUNT(*) FROM t_provider WHERE deleted = 0 AND status = 'DISABLED'")
+    Long selectDisabledProviders();
 
     /**
      * 查询服务商类型分布

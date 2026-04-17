@@ -6,31 +6,48 @@
         <id column="evaluation_id" property="evaluationId"/>
         <result column="order_id" property="orderId"/>
         <result column="staff_id" property="staffId"/>
-        <result column="staff_name" property="staffName"/>
         <result column="provider_id" property="providerId"/>
-        <result column="provider_name" property="providerName"/>
         <result column="elder_id" property="elderId"/>
-        <result column="elder_name" property="elderName"/>
-        <result column="service_type_code" property="serviceTypeCode"/>
-        <result column="service_type_name" property="serviceTypeName"/>
-        <result column="rating" property="rating"/>
         <result column="attitude_score" property="attitudeScore"/>
         <result column="quality_score" property="qualityScore"/>
         <result column="efficiency_score" property="efficiencyScore"/>
-        <result column="content" property="content"/>
-        <result column="tags" property="tags"/>
-        <result column="anonymous" property="anonymous"/>
-        <result column="status" property="status"/>
-        <result column="reply_content" property="replyContent"/>
-        <result column="reply_time" property="replyTime"/>
+        <result column="overall_score" property="overallScore"/>
+        <result column="average_score" property="averageScore"/>
+        <result column="evaluation_content" property="content"/>
+        <result column="evaluation_tags" property="tags"/>
+        <result column="is_anonymous" property="anonymous"/>
+        <result column="evaluation_time" property="evaluationTime"/>
         <result column="create_time" property="createTime"/>
-        <result column="update_time" property="updateTime"/>
-        <result column="deleted" property="deleted"/>
     </resultMap>
 
     <select id="selectEvaluationPage" resultMap="BaseResultMap">
-        SELECT * FROM t_service_evaluation
-        WHERE deleted = 0
+        SELECT
+            se.evaluation_id,
+            se.order_id,
+            se.staff_id,
+            s.staff_name,
+            se.provider_id,
+            p.provider_name,
+            se.elder_id,
+            e.elder_name,
+            o.service_type_code,
+            o.service_type_name,
+            se.attitude_score,
+            se.quality_score,
+            se.efficiency_score,
+            se.overall_score,
+            se.average_score,
+            se.evaluation_content,
+            se.evaluation_tags,
+            se.is_anonymous,
+            se.evaluation_time,
+            se.create_time
+        FROM t_service_evaluation se
+        LEFT JOIN t_staff s ON se.staff_id = s.staff_id
+        LEFT JOIN t_provider p ON se.provider_id = p.provider_id
+        LEFT JOIN t_elder e ON se.elder_id = e.elder_id
+        LEFT JOIN t_order o ON se.order_id = o.order_id
+        WHERE se.deleted = 0
         <if test="query.providerId != null and query.providerId != ''">
             AND provider_id = #{query.providerId}
         </if>
@@ -42,15 +59,6 @@
         </if>
         <if test="query.elderId != null and query.elderId != ''">
             AND elder_id = #{query.elderId}
-        </if>
-        <if test="query.serviceTypeCode != null and query.serviceTypeCode != ''">
-            AND service_type_code = #{query.serviceTypeCode}
-        </if>
-        <if test="query.minRating != null">
-            AND rating &gt;= #{query.minRating}
-        </if>
-        <if test="query.maxRating != null">
-            AND rating &lt;= #{query.maxRating}
         </if>
         <if test="query.startDate != null and query.startDate != ''">
             AND DATE(create_time) &gt;= #{query.startDate}

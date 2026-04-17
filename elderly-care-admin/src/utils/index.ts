@@ -36,8 +36,9 @@ export const getGender = (idCard: string): number => {
   return parseInt(idCard.substring(16, 17)) % 2 === 0 ? 2 : 1;
 };
 
-export const getGenderText = (gender: number): string => {
-  return gender === 1 ? '男' : gender === 2 ? '女' : '未知';
+export const getGenderText = (gender: number | string): string => {
+  const g = typeof gender === 'string' ? parseInt(gender, 10) : gender;
+  return g === 1 ? '男' : g === 2 ? '女' : '未知';
 };
 
 export const getStatusText = (status: number): string => {
@@ -50,17 +51,19 @@ export const getStatusText = (status: number): string => {
   return statusMap[status] || '未知';
 };
 
-export const getOrderStatusText = (status: number): string => {
+export const getOrderStatusText = (statusCode: number): string => {
   const statusMap: Record<number, string> = {
     0: '已取消',
-    1: '待支付',
     2: '待派单',
-    3: '待接单',
-    4: '服务中',
-    5: '待评价',
+    3: '已派单',
+    4: '已接单',
+    5: '服务中',
     6: '已完成',
+    7: '已评价',
+    8: '已结算',
+    9: '已拒单',
   };
-  return statusMap[status] || '未知';
+  return statusMap[statusCode] || '未知';
 };
 
 export const getSettlementStatusText = (status: number): string => {
@@ -73,14 +76,15 @@ export const getSettlementStatusText = (status: number): string => {
   return statusMap[status] || '未知';
 };
 
-export const getCareLevelText = (level: number): string => {
+export const getCareLevelText = (level: number | string): string => {
+  const l = typeof level === 'string' ? parseInt(level, 10) : level;
   const levelMap: Record<number, string> = {
     1: '能力完好',
     2: '轻度失能',
     3: '中度失能',
     4: '重度失能',
   };
-  return levelMap[level] || '未知';
+  return levelMap[l] || '未知';
 };
 
 export const getSubsidyTypeText = (type: number): string => {

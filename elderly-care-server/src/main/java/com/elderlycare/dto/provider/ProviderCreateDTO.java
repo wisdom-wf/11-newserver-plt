@@ -26,6 +26,11 @@ public class ProviderCreateDTO implements Serializable {
     private String providerType;
 
     /**
+     * 服务类别: HOME_CARE-家政服务, ELDER_CARE-养老服务
+     */
+    private String serviceCategory;
+
+    /**
      * 统一社会信用代码
      */
     @NotBlank(message = "统一社会信用代码不能为空")

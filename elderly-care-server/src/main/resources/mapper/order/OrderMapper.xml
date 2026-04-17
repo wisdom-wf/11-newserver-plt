@@ -26,6 +26,7 @@
         <result column="provider_name" property="providerName"/>
         <result column="staff_id" property="staffId"/>
         <result column="staff_name" property="staffName"/>
+        <result column="staff_phone" property="staffPhone"/>
         <result column="cancel_reason" property="cancelReason"/>
         <result column="dispatch_time" property="dispatchTime"/>
         <result column="receive_time" property="receiveTime"/>
@@ -70,6 +71,14 @@
 
     <select id="selectByOrderNo" resultMap="BaseResultMap">
         SELECT * FROM t_order WHERE order_no = #{orderNo} AND deleted = 0
+    </select>
+
+    <select id="selectByIdWithNames" resultMap="BaseResultMap">
+        SELECT o.*, p.provider_name, s.staff_name, s.phone as staff_phone
+        FROM t_order o
+        LEFT JOIN t_provider p ON o.provider_id = p.provider_id
+        LEFT JOIN t_staff s ON o.staff_id = s.staff_id
+        WHERE o.order_id = #{orderId} AND o.deleted = 0
     </select>
 
 </mapper>

@@ -1,0 +1,402 @@
+- generic [ref=e1]:
+  - generic [ref=e5]:
+    - banner [ref=e6]:
+      - generic [ref=e7]:
+        - button [ref=e8] [cursor=pointer]:
+          - img [ref=e11]
+        - navigation "Breadcrumb" [ref=e15]:
+          - list [ref=e16]:
+            - listitem [ref=e580]:
+              - generic [ref=e582] [cursor=pointer]:
+                - img [ref=e583]
+                - text: 业务管理
+              - generic [ref=e585]: /
+            - listitem [ref=e586]:
+              - generic [ref=e588]:
+                - img [ref=e589]
+                - text: 服务人员管理
+        - generic [ref=e22]:
+          - button [ref=e23] [cursor=pointer]:
+            - img [ref=e26]
+          - button [ref=e28] [cursor=pointer]:
+            - img [ref=e31]
+          - button [ref=e34] [cursor=pointer]:
+            - img [ref=e37]
+          - button [ref=e39] [cursor=pointer]:
+            - img [ref=e42]
+          - button [ref=e44] [cursor=pointer]:
+            - img [ref=e47]
+          - button "admin" [ref=e52] [cursor=pointer]:
+            - generic [ref=e54]:
+              - img [ref=e55]
+              - generic [ref=e57]: admin
+    - generic [ref=e60]:
+      - generic [ref=e64]:
+        - generic [ref=e65] [cursor=pointer]:
+          - generic:
+            - img:
+              - img
+              - generic:
+                - img
+          - img [ref=e66]
+          - generic [ref=e68]: 首页
+        - generic [ref=e70] [cursor=pointer]:
+          - generic:
+            - img:
+              - img
+              - generic:
+                - img
+          - img [ref=e71]
+          - generic [ref=e73]: 订单管理
+          - img [ref=e75]
+        - generic [ref=e78] [cursor=pointer]:
+          - generic:
+            - img:
+              - img
+              - generic:
+                - img
+          - img [ref=e79]
+          - generic [ref=e81]: 预约信息管理
+          - img [ref=e83]
+        - generic [ref=e86] [cursor=pointer]:
+          - generic:
+            - img:
+              - img
+              - generic:
+                - img
+          - img [ref=e87]
+          - generic [ref=e89]: 服务商管理
+          - img [ref=e91]
+        - generic [ref=e94] [cursor=pointer]:
+          - generic:
+            - img:
+              - img
+              - generic:
+                - img
+          - img [ref=e95]
+          - generic [ref=e97]: 老人档案管理
+          - img [ref=e99]
+        - generic [ref=e102] [cursor=pointer]:
+          - generic:
+            - img:
+              - img
+              - generic:
+                - img
+          - img [ref=e103]
+          - generic [ref=e105]: 服务人员管理
+          - img [ref=e107]
+        - generic [ref=e110] [cursor=pointer]:
+          - generic:
+            - img:
+              - img
+              - generic:
+                - img
+          - img [ref=e111]
+          - generic [ref=e113]: 服务日志
+          - img [ref=e115]
+        - generic [ref=e118] [cursor=pointer]:
+          - generic:
+            - img:
+              - img
+              - generic:
+                - img
+          - img [ref=e119]
+          - generic [ref=e121]: 满意度评价
+          - img [ref=e123]
+        - generic [ref=e126] [cursor=pointer]:
+          - generic:
+            - img:
+              - img
+              - generic:
+                - img
+          - img [ref=e127]
+          - generic [ref=e129]: 财务结算
+          - img [ref=e131]
+      - button [ref=e134] [cursor=pointer]:
+        - img [ref=e137]
+      - button [ref=e139] [cursor=pointer]:
+        - img [ref=e142]
+    - complementary [ref=e145]:
+      - generic [ref=e146]:
+        - link "社区服务智慧运营管理平台" [ref=e147] [cursor=pointer]:
+          - /url: /
+          - img [ref=e149]
+          - heading "社区服务智慧运营管理平台" [level=2] [ref=e158]
+        - region "scrollable content" [ref=e165]:
+          - menu [ref=e167]:
+            - menuitem "首页" [ref=e168]:
+              - img [ref=e169] [cursor=pointer]
+              - text: 首页
+            - menuitem "预约信息管理" [ref=e171]:
+              - img [ref=e172] [cursor=pointer]
+              - text: 预约信息管理
+            - menuitem "服务商管理" [ref=e174]:
+              - img [ref=e175] [cursor=pointer]
+              - text: 服务商管理
+            - menu [ref=e177] [cursor=pointer]:
+              - menuitem "业务管理" [ref=e178]:
+                - img [ref=e179]
+                - text: 业务管理
+                - img [ref=e182]
+              - menu [ref=e591]:
+                - menuitem "订单管理" [ref=e592]:
+                  - img [ref=e593]
+                  - text: 订单管理
+                - menuitem "老人档案管理" [ref=e595]:
+                  - img [ref=e596]
+                  - text: 老人档案管理
+                - menuitem "服务人员管理" [ref=e598]:
+                  - img [ref=e599]
+                  - text: 服务人员管理
+                - menuitem "服务日志" [ref=e601]:
+                  - img [ref=e602]
+                  - text: 服务日志
+                - menuitem "质检管理" [ref=e604]:
+                  - img [ref=e605]
+                  - text: 质检管理
+                - menuitem "满意度评价" [ref=e607]:
+                  - img [ref=e608]
+                  - text: 满意度评价
+                - menuitem "财务结算" [ref=e610]:
+                  - img [ref=e611]
+                  - text: 财务结算
+            - menu [ref=e184] [cursor=pointer]:
+              - menuitem "系统管理" [ref=e185]:
+                - img [ref=e186]
+                - text: 系统管理
+                - img [ref=e189]
+    - main [ref=e191]:
+      - generic [ref=e613]:
+        - generic [ref=e614]:
+          - heading "服务人员统计" [ref=e615]:
+            - heading "服务人员统计" [ref=e616]
+          - generic [ref=e617]:
+            - generic [ref=e618]:
+              - generic [ref=e619]: 总人数
+              - generic [ref=e620]: "8"
+            - generic [ref=e621]:
+              - generic [ref=e622]: 在职
+              - generic [ref=e623]: "0"
+            - generic [ref=e624]:
+              - generic [ref=e625]: 待上岗
+              - generic [ref=e626]: "8"
+            - generic [ref=e627]:
+              - generic [ref=e628]: 已离职
+              - generic [ref=e629]: "0"
+            - generic [ref=e630]:
+              - generic [ref=e631]: 平均评分
+              - generic [ref=e632]: "0.0"
+        - generic [ref=e633]:
+          - heading "服务人员管理" [ref=e634]:
+            - heading "服务人员管理" [ref=e635]:
+              - generic [ref=e637]: 服务人员管理
+          - generic [ref=e638]:
+            - generic [ref=e641]:
+              - textbox "姓名" [ref=e642]
+              - generic:
+                - generic: 姓名
+            - generic [ref=e647]:
+              - textbox "手机号" [ref=e648]
+              - generic:
+                - generic: 手机号
+            - img "loading" [ref=e654] [cursor=pointer]:
+              - img [ref=e659]
+            - img "loading" [ref=e664] [cursor=pointer]:
+              - img [ref=e669]
+            - button "搜索" [ref=e671] [cursor=pointer]:
+              - generic [ref=e672]: 搜索
+            - button "重置" [ref=e673] [cursor=pointer]:
+              - generic [ref=e674]: 重置
+            - button "新增" [active] [ref=e675] [cursor=pointer]:
+              - generic [ref=e676]: 新增
+          - table [ref=e680]:
+            - rowgroup [ref=e694]:
+              - row "工号 姓名 性别 年龄 手机号 所属服务商 身份证号 紧急联系人 紧急联系电话 状态 入职日期 操作" [ref=e695]:
+                - columnheader "工号" [ref=e696]:
+                  - generic [ref=e698]: 工号
+                - columnheader "姓名" [ref=e699]:
+                  - generic [ref=e701]: 姓名
+                - columnheader "性别" [ref=e702]:
+                  - generic [ref=e704]: 性别
+                - columnheader "年龄" [ref=e705]:
+                  - generic [ref=e707]: 年龄
+                - columnheader "手机号" [ref=e708]:
+                  - generic [ref=e710]: 手机号
+                - columnheader "所属服务商" [ref=e711]:
+                  - generic [ref=e713]: 所属服务商
+                - columnheader "身份证号" [ref=e714]:
+                  - generic [ref=e716]: 身份证号
+                - columnheader "紧急联系人" [ref=e717]:
+                  - generic [ref=e719]: 紧急联系人
+                - columnheader "紧急联系电话" [ref=e720]:
+                  - generic [ref=e722]: 紧急联系电话
+                - columnheader "状态" [ref=e723]:
+                  - generic [ref=e725]: 状态
+                - columnheader "入职日期" [ref=e726]:
+                  - generic [ref=e728]: 入职日期
+                - columnheader "操作" [ref=e729]:
+                  - generic [ref=e731]: 操作
+            - rowgroup [ref=e732]:
+              - row "S202604161046212976 张变丽 女 13509115678 延安市宝塔区丁峰家政服务有限公司 610602197506101226 张建军 13891102345 PENDING 编辑 删除" [ref=e733]:
+                - cell "S202604161046212976" [ref=e734]
+                - cell "张变丽" [ref=e735]
+                - cell "女" [ref=e736]
+                - cell [ref=e737]
+                - cell "13509115678" [ref=e738]
+                - cell "延安市宝塔区丁峰家政服务有限公司" [ref=e739]
+                - cell "610602197506101226" [ref=e740]
+                - cell "张建军" [ref=e741]
+                - cell "13891102345" [ref=e742]
+                - cell "PENDING" [ref=e743]:
+                  - generic [ref=e745]: PENDING
+                - cell [ref=e746]
+                - cell "编辑 删除" [ref=e747]:
+                  - button "编辑" [ref=e748] [cursor=pointer]:
+                    - generic [ref=e749]: 编辑
+                  - button "删除" [ref=e750] [cursor=pointer]:
+                    - generic [ref=e751]: 删除
+              - row "S202604161045273504 魏海亮 女 13891105678 延安家享悠网络科技有限公司 610602198806121215 魏建军 13909112345 PENDING 编辑 删除" [ref=e752]:
+                - cell "S202604161045273504" [ref=e753]
+                - cell "魏海亮" [ref=e754]
+                - cell "女" [ref=e755]
+                - cell [ref=e756]
+                - cell "13891105678" [ref=e757]
+                - cell "延安家享悠网络科技有限公司" [ref=e758]
+                - cell "610602198806121215" [ref=e759]
+                - cell "魏建军" [ref=e760]
+                - cell "13909112345" [ref=e761]
+                - cell "PENDING" [ref=e762]:
+                  - generic [ref=e764]: PENDING
+                - cell [ref=e765]
+                - cell "编辑 删除" [ref=e766]:
+                  - button "编辑" [ref=e767] [cursor=pointer]:
+                    - generic [ref=e768]: 编辑
+                  - button "删除" [ref=e769] [cursor=pointer]:
+                    - generic [ref=e770]: 删除
+              - row "S202604161044364064 王莉 女 13891152233 延安家享悠网络科技有限公司 610602199005101229 王芳 13991102345 PENDING 编辑 删除" [ref=e771]:
+                - cell "S202604161044364064" [ref=e772]
+                - cell "王莉" [ref=e773]
+                - cell "女" [ref=e774]
+                - cell [ref=e775]
+                - cell "13891152233" [ref=e776]
+                - cell "延安家享悠网络科技有限公司" [ref=e777]
+                - cell "610602199005101229" [ref=e778]
+                - cell "王芳" [ref=e779]
+                - cell "13991102345" [ref=e780]
+                - cell "PENDING" [ref=e781]:
+                  - generic [ref=e783]: PENDING
+                - cell [ref=e784]
+                - cell "编辑 删除" [ref=e785]:
+                  - button "编辑" [ref=e786] [cursor=pointer]:
+                    - generic [ref=e787]: 编辑
+                  - button "删除" [ref=e788] [cursor=pointer]:
+                    - generic [ref=e789]: 删除
+              - row "S202604161043502352 孙海燕 女 13909115678 延安家享悠网络科技有限公司 610602197203041227 孙建军 13991776543 PENDING 编辑 删除" [ref=e790]:
+                - cell "S202604161043502352" [ref=e791]
+                - cell "孙海燕" [ref=e792]
+                - cell "女" [ref=e793]
+                - cell [ref=e794]
+                - cell "13909115678" [ref=e795]
+                - cell "延安家享悠网络科技有限公司" [ref=e796]
+                - cell "610602197203041227" [ref=e797]
+                - cell "孙建军" [ref=e798]
+                - cell "13991776543" [ref=e799]
+                - cell "PENDING" [ref=e800]:
+                  - generic [ref=e802]: PENDING
+                - cell [ref=e803]
+                - cell "编辑 删除" [ref=e804]:
+                  - button "编辑" [ref=e805] [cursor=pointer]:
+                    - generic [ref=e806]: 编辑
+                  - button "删除" [ref=e807] [cursor=pointer]:
+                    - generic [ref=e808]: 删除
+              - row "S202604161042580832 高治军 女 13891102345 延安市宝塔区丁峰家政服务有限公司 610602197411301214 高彩霞 13991776543 PENDING 编辑 删除" [ref=e809]:
+                - cell "S202604161042580832" [ref=e810]
+                - cell "高治军" [ref=e811]
+                - cell "女" [ref=e812]
+                - cell [ref=e813]
+                - cell "13891102345" [ref=e814]
+                - cell "延安市宝塔区丁峰家政服务有限公司" [ref=e815]
+                - cell "610602197411301214" [ref=e816]
+                - cell "高彩霞" [ref=e817]
+                - cell "13991776543" [ref=e818]
+                - cell "PENDING" [ref=e819]:
+                  - generic [ref=e821]: PENDING
+                - cell [ref=e822]
+                - cell "编辑 删除" [ref=e823]:
+                  - button "编辑" [ref=e824] [cursor=pointer]:
+                    - generic [ref=e825]: 编辑
+                  - button "删除" [ref=e826] [cursor=pointer]:
+                    - generic [ref=e827]: 删除
+              - row "S202604161042145952 刘晓燕 女 13700215556 延安家享悠网络科技有限公司 610602198605101226 刘建国 13891152233 PENDING 编辑 删除" [ref=e828]:
+                - cell "S202604161042145952" [ref=e829]
+                - cell "刘晓燕" [ref=e830]
+                - cell "女" [ref=e831]
+                - cell [ref=e832]
+                - cell "13700215556" [ref=e833]
+                - cell "延安家享悠网络科技有限公司" [ref=e834]
+                - cell "610602198605101226" [ref=e835]
+                - cell "刘建国" [ref=e836]
+                - cell "13891152233" [ref=e837]
+                - cell "PENDING" [ref=e838]:
+                  - generic [ref=e840]: PENDING
+                - cell [ref=e841]
+                - cell "编辑 删除" [ref=e842]:
+                  - button "编辑" [ref=e843] [cursor=pointer]:
+                    - generic [ref=e844]: 编辑
+                  - button "删除" [ref=e845] [cursor=pointer]:
+                    - generic [ref=e846]: 删除
+              - row "S202604161041300144 郝建军 女 13509115678 延安市宝塔区丁峰家政服务有限公司 610602197601121235 高彩霞 13991779090 PENDING 编辑 删除" [ref=e847]:
+                - cell "S202604161041300144" [ref=e848]
+                - cell "郝建军" [ref=e849]
+                - cell "女" [ref=e850]
+                - cell [ref=e851]
+                - cell "13509115678" [ref=e852]
+                - cell "延安市宝塔区丁峰家政服务有限公司" [ref=e853]
+                - cell "610602197601121235" [ref=e854]
+                - cell "高彩霞" [ref=e855]
+                - cell "13991779090" [ref=e856]
+                - cell "PENDING" [ref=e857]:
+                  - generic [ref=e859]: PENDING
+                - cell [ref=e860]
+                - cell "编辑 删除" [ref=e861]:
+                  - button "编辑" [ref=e862] [cursor=pointer]:
+                    - generic [ref=e863]: 编辑
+                  - button "删除" [ref=e864] [cursor=pointer]:
+                    - generic [ref=e865]: 删除
+              - row "S202604161040313344 李桂英 女 13509112345 延安市宝塔区丁峰家政服务有限公司 610602197803121224 王建国 13991776543 PENDING 编辑 删除" [ref=e866]:
+                - cell "S202604161040313344" [ref=e867]
+                - cell "李桂英" [ref=e868]
+                - cell "女" [ref=e869]
+                - cell [ref=e870]
+                - cell "13509112345" [ref=e871]
+                - cell "延安市宝塔区丁峰家政服务有限公司" [ref=e872]
+                - cell "610602197803121224" [ref=e873]
+                - cell "王建国" [ref=e874]
+                - cell "13991776543" [ref=e875]
+                - cell "PENDING" [ref=e876]:
+                  - generic [ref=e878]: PENDING
+                - cell [ref=e879]
+                - cell "编辑 删除" [ref=e880]:
+                  - button "编辑" [ref=e881] [cursor=pointer]:
+                    - generic [ref=e882]: 编辑
+                  - button "删除" [ref=e883] [cursor=pointer]:
+                    - generic [ref=e884]: 删除
+          - generic [ref=e885]:
+            - generic [ref=e888] [cursor=pointer]:
+              - generic "10条/页" [ref=e889]:
+                - generic [ref=e890]: 10条/页
+              - img "loading" [ref=e891]:
+                - img [ref=e896]
+            - generic [ref=e898]:
+              - img [ref=e901]
+              - generic [ref=e903] [cursor=pointer]: "1"
+              - img [ref=e906]
+    - contentinfo [ref=e565]:
+      - link "Copyright MIT © 2021 Soybean" [ref=e567] [cursor=pointer]:
+        - /url: https://github.com/soybeanjs/soybean-admin/blob/main/LICENSE
+  - img
+  - generic [ref=e568]:
+    - generic "Toggle devtools panel" [ref=e569] [cursor=pointer]:
+      - img [ref=e570]
+    - generic "Toggle Component Inspector" [ref=e575] [cursor=pointer]:
+      - img [ref=e576]

@@ -19,14 +19,14 @@ public class ProviderStatisticsVO implements Serializable {
     private Long totalProviders;
 
     /**
-     * 待审核服务商数
+     * 启用状态服务商数
      */
-    private Long pendingProviders;
+    private Long enabledProviders;
 
     /**
-     * 已审核通过服务商数
+     * 禁用状态服务商数
      */
-    private Long approvedProviders;
+    private Long disabledProviders;
 
     /**
      * 按类型分布

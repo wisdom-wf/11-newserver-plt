@@ -16,7 +16,6 @@ import com.elderlycare.mapper.provider.ProviderMapper;
 import com.elderlycare.service.provider.ProviderQualificationService;
 import com.elderlycare.service.provider.ProviderService;
 import com.elderlycare.service.provider.ProviderServiceTypeService;
-import com.elderlycare.vo.provider.ProviderOptionsVO;
 import com.elderlycare.vo.provider.ProviderRatingVO;
 import com.elderlycare.vo.provider.ProviderVO;
 import lombok.RequiredArgsConstructor;
@@ -50,8 +49,10 @@ public class ProviderServiceImpl extends ServiceImpl<ProviderMapper, Provider> i
 
         Provider provider = new Provider();
         BeanUtils.copyProperties(dto, provider);
-        provider.setAuditStatus("PENDING"); // 默认待审核
-        provider.setStatus("ENABLED"); // 默认启用
+        // 如果前端未传状态，默认为 ENABLED
+        if (provider.getStatus() == null || provider.getStatus().isEmpty()) {
+            provider.setStatus("ENABLED");
+        }
 
         baseMapper.insert(provider);
         return provider.getProviderId();
@@ -89,57 +90,25 @@ public class ProviderServiceImpl extends ServiceImpl<ProviderMapper, Provider> i
 
     @Override
     @Transactional(rollbackFor = Exception.class)
-    public void auditProvider(String providerId, ProviderAuditDTO dto) {
-        Provider provider = baseMapper.selectById(providerId);
-        if (provider == null) {
-            throw BusinessException.notFound("服务商不存在");
-        }
-
-        if (!"PENDING".equals(provider.getAuditStatus())) {
-            throw BusinessException.fail("该服务商已审核过，无法重复审核");
-        }
-
-        provider.setAuditStatus(dto.getAuditStatus());
-        provider.setAuditComment(dto.getAuditComment());
-        provider.setAuditTime(LocalDateTime.now());
-
-        baseMapper.updateById(provider);
-    }
-
-    @Override
-    @Transactional(rollbackFor = Exception.class)
     public void updateProvider(String providerId, ProviderUpdateDTO dto) {
         Provider provider = baseMapper.selectById(providerId);
         if (provider == null) {
             throw BusinessException.notFound("服务商不存在");
         }
 
-        if (StringUtils.isNotBlank(dto.getProviderName())) {
-            provider.setProviderName(dto.getProviderName());
-        }
-        if (StringUtils.isNotBlank(dto.getProviderType())) {
-            provider.setProviderType(dto.getProviderType());
-        }
-        if (StringUtils.isNotBlank(dto.getLegalPerson())) {
-            provider.setLegalPerson(dto.getLegalPerson());
-        }
-        if (StringUtils.isNotBlank(dto.getContactPhone())) {
-            provider.setContactPhone(dto.getContactPhone());
-        }
-        if (StringUtils.isNotBlank(dto.getAddress())) {
-            provider.setAddress(dto.getAddress());
-        }
-        if (dto.getServiceAreas() != null) {
-            provider.setServiceAreas(dto.getServiceAreas());
-        }
-        if (dto.getDescription() != null) {
-            provider.setDescription(dto.getDescription());
-        }
-        if (dto.getStatus() != null) {
-            provider.setStatus(dto.getStatus());
-        }
-
-        baseMapper.updateById(provider);
+        // 使用自定义SQL更新，绕过逻辑删除限制
+        baseMapper.updateProviderById(
+            providerId,
+            dto.getProviderName(),
+            dto.getProviderType(),
+            dto.getServiceCategory(),
+            dto.getLegalPerson(),
+            dto.getContactPhone(),
+            dto.getAddress(),
+            dto.getServiceAreas(),
+            dto.getDescription(),
+            dto.getStatus()
+        );
     }
 
     @Override
@@ -209,20 +178,5 @@ public class ProviderServiceImpl extends ServiceImpl<ProviderMapper, Provider> i
     @Override
     public List<Provider> listByIds(List<String> providerIds) {
         return baseMapper.selectBatchIds(providerIds);
-    }
-
-    @Override
-    public List<ProviderOptionsVO> getProviderOptions() {
-        LambdaQueryWrapper<Provider> wrapper = new LambdaQueryWrapper<>();
-        wrapper.eq(Provider::getStatus, "APPROVED");
-        wrapper.select(Provider::getProviderId, Provider::getProviderName);
-        List<Provider> providers = baseMapper.selectList(wrapper);
-
-        return providers.stream().map(p -> {
-            ProviderOptionsVO vo = new ProviderOptionsVO();
-            vo.setId(p.getProviderId());
-            vo.setName(p.getProviderName());
-            return vo;
-        }).collect(Collectors.toList());
     }
 }

@@ -6,16 +6,13 @@
         <id column="provider_id" property="providerId"/>
         <result column="provider_name" property="providerName"/>
         <result column="provider_type" property="providerType"/>
+        <result column="service_category" property="serviceCategory"/>
         <result column="credit_code" property="creditCode"/>
         <result column="legal_person" property="legalPerson"/>
         <result column="contact_phone" property="contactPhone"/>
         <result column="address" property="address"/>
         <result column="service_areas" property="serviceAreas"/>
         <result column="description" property="description"/>
-        <result column="audit_status" property="auditStatus"/>
-        <result column="audit_comment" property="auditComment"/>
-        <result column="audit_time" property="auditTime"/>
-        <result column="auditor_id" property="auditorId"/>
         <result column="status" property="status"/>
         <result column="rating" property="rating"/>
         <result column="rating_count" property="ratingCount"/>
@@ -33,13 +30,29 @@
         <if test="query.providerType != null and query.providerType != ''">
             AND provider_type = #{query.providerType}
         </if>
-        <if test="query.auditStatus != null and query.auditStatus != ''">
-            AND audit_status = #{query.auditStatus}
+        <if test="query.serviceCategory != null and query.serviceCategory != ''">
+            AND service_category = #{query.serviceCategory}
         </if>
         <if test="query.status != null">
             AND status = #{query.status}
         </if>
         ORDER BY create_time DESC
     </select>
+
+    <update id="updateProviderById">
+        UPDATE t_provider
+        <set>
+            <if test="providerName != null">provider_name = #{providerName},</if>
+            <if test="providerType != null">provider_type = #{providerType},</if>
+            <if test="serviceCategory != null">service_category = #{serviceCategory},</if>
+            <if test="legalPerson != null">legal_person = #{legalPerson},</if>
+            <if test="contactPhone != null">contact_phone = #{contactPhone},</if>
+            <if test="address != null">address = #{address},</if>
+            <if test="serviceAreas != null">service_areas = #{serviceAreas},</if>
+            <if test="description != null">description = #{description},</if>
+            <if test="status != null">status = #{status},</if>
+        </set>
+        WHERE provider_id = #{providerId}
+    </update>
 
 </mapper>

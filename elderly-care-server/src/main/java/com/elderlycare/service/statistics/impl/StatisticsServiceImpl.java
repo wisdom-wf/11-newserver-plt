@@ -107,8 +107,8 @@ public class StatisticsServiceImpl implements StatisticsService {
         ProviderStatisticsVO vo = new ProviderStatisticsVO();
 
         vo.setTotalProviders(statisticsMapper.selectTotalProviders());
-        vo.setPendingProviders(statisticsMapper.selectPendingProviders());
-        vo.setApprovedProviders(statisticsMapper.selectApprovedProviders());
+        vo.setEnabledProviders(statisticsMapper.selectEnabledProviders());
+        vo.setDisabledProviders(statisticsMapper.selectDisabledProviders());
 
         // 类型分布
         vo.setTypeDistribution(convertProviderTypeDistribution(statisticsMapper.selectProviderTypeDistribution()));

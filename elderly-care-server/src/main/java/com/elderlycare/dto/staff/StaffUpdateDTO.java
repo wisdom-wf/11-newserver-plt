@@ -106,4 +106,9 @@ public class StaffUpdateDTO implements Serializable {
      * 备注
      */
     private String remark;
+
+    /**
+     * 状态：PENDING-待上岗，ON_JOB-在职，OFF_JOB-离职
+     */
+    private String status;
 }

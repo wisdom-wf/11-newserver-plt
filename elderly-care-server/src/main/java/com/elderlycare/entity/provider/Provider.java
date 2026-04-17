@@ -51,6 +51,11 @@ public class Provider implements Serializable {
     private String address;
 
     /**
+     * 服务类别: HOME_CARE-家政服务, ELDER_CARE-养老服务
+     */
+    private String serviceCategory;
+
+    /**
      * 服务区域(多个用逗号分隔)
      */
     private String serviceAreas;
@@ -61,27 +66,7 @@ public class Provider implements Serializable {
     private String description;
 
     /**
-     * 审核状态: PENDING待审核, APPROVED已通过, REJECTED已拒绝
-     */
-    private String auditStatus;
-
-    /**
-     * 审核备注
-     */
-    private String auditComment;
-
-    /**
-     * 审核时间
-     */
-    private LocalDateTime auditTime;
-
-    /**
-     * 审核人ID
-     */
-    private String auditorId;
-
-    /**
-     * 状态: 0禁用, 1启用
+     * 状态: ENABLED-启用, DISABLED-禁用
      */
     private String status;
 

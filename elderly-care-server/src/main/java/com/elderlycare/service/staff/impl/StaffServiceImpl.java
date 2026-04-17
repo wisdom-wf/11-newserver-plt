@@ -38,6 +38,31 @@ public class StaffServiceImpl implements StaffService {
     private final StaffScheduleMapper scheduleMapper;
     private final StaffWorkRecordMapper workRecordMapper;
 
+    /**
+     * 根据身份证号计算年龄（18位中国身份证）
+     * 身份证号格式：6位地区码 + 8位出生日期(YYYYMMDD) + 3位顺序码 + 1位性别码 + 1位校验码
+     */
+    private int calculateAgeFromIdCard(String idCard) {
+        if (idCard == null || idCard.length() != 18) {
+            return 0;
+        }
+        try {
+            int birthYear = Integer.parseInt(idCard.substring(6, 10));
+            int birthMonth = Integer.parseInt(idCard.substring(10, 12));
+            int birthDay = Integer.parseInt(idCard.substring(12, 14));
+            LocalDate birthDate = LocalDate.of(birthYear, birthMonth, birthDay);
+            LocalDate today = LocalDate.now();
+            int age = today.getYear() - birthYear;
+            if (today.getMonthValue() < birthMonth ||
+                (today.getMonthValue() == birthMonth && today.getDayOfMonth() < birthDay)) {
+                age--;
+            }
+            return age;
+        } catch (Exception e) {
+            return 0;
+        }
+    }
+
     // ==================== 服务人员管理 ====================
 
     @Override
@@ -65,6 +90,12 @@ public class StaffServiceImpl implements StaffService {
         staff.setServiceTypes(createDTO.getServiceTypes());
         staff.setStatus("PENDING"); // 待审核
         staff.setHireDate(createDTO.getHireDate());
+
+        // Calculate age from ID card (18-digit Chinese ID card)
+        if (createDTO.getIdCard() != null && createDTO.getIdCard().length() == 18) {
+            int age = calculateAgeFromIdCard(createDTO.getIdCard());
+            staff.setAge(age);
+        }
         staff.setAvatarUrl(createDTO.getAvatarUrl());
         staff.setRemark(createDTO.getRemark());
 
@@ -101,66 +132,39 @@ public class StaffServiceImpl implements StaffService {
             throw new BusinessException("服务人员不存在");
         }
 
-        if (updateDTO.getStaffName() != null) {
-            staff.setStaffName(updateDTO.getStaffName());
-        }
-        if (updateDTO.getGender() != null) {
-            staff.setGender(updateDTO.getGender());
-        }
-        if (updateDTO.getIdCard() != null) {
-            staff.setIdCard(updateDTO.getIdCard());
-        }
-        if (updateDTO.getPhone() != null) {
-            staff.setPhone(updateDTO.getPhone());
-        }
-        if (updateDTO.getBirthDate() != null) {
-            staff.setBirthDate(updateDTO.getBirthDate());
-        }
-        if (updateDTO.getNation() != null) {
-            staff.setNation(updateDTO.getNation());
-        }
-        if (updateDTO.getEducation() != null) {
-            staff.setEducation(updateDTO.getEducation());
-        }
-        if (updateDTO.getPoliticalStatus() != null) {
-            staff.setPoliticalStatus(updateDTO.getPoliticalStatus());
-        }
-        if (updateDTO.getMaritalStatus() != null) {
-            staff.setMaritalStatus(updateDTO.getMaritalStatus());
-        }
-        if (updateDTO.getDomicileAddress() != null) {
-            staff.setDomicileAddress(updateDTO.getDomicileAddress());
-        }
-        if (updateDTO.getResidenceAddress() != null) {
-            staff.setResidenceAddress(updateDTO.getResidenceAddress());
-        }
-        if (updateDTO.getEmergencyContact() != null) {
-            staff.setEmergencyContact(updateDTO.getEmergencyContact());
-        }
-        if (updateDTO.getEmergencyPhone() != null) {
-            staff.setEmergencyPhone(updateDTO.getEmergencyPhone());
-        }
-        if (updateDTO.getServiceTypes() != null) {
-            staff.setServiceTypes(updateDTO.getServiceTypes());
-        }
-        if (updateDTO.getHireDate() != null) {
-            staff.setHireDate(updateDTO.getHireDate());
-        }
-        if (updateDTO.getLeaveDate() != null) {
-            staff.setLeaveDate(updateDTO.getLeaveDate());
-        }
-        if (updateDTO.getLeaveReason() != null) {
-            staff.setLeaveReason(updateDTO.getLeaveReason());
-        }
-        if (updateDTO.getAvatarUrl() != null) {
-            staff.setAvatarUrl(updateDTO.getAvatarUrl());
-        }
-        if (updateDTO.getRemark() != null) {
-            staff.setRemark(updateDTO.getRemark());
+        // 计算年龄
+        Integer age = null;
+        if (updateDTO.getIdCard() != null && updateDTO.getIdCard().length() == 18) {
+            age = calculateAgeFromIdCard(updateDTO.getIdCard());
         }
 
-        staffMapper.updateById(staff);
-        return convertToStaffVO(staff);
+        // 使用自定义SQL更新，绕过逻辑删除限制
+        staffMapper.updateStaffById(
+            staffId,
+            updateDTO.getStaffName(),
+            updateDTO.getGender(),
+            updateDTO.getIdCard(),
+            age,
+            updateDTO.getPhone(),
+            updateDTO.getBirthDate(),
+            updateDTO.getNation(),
+            updateDTO.getEducation(),
+            updateDTO.getPoliticalStatus(),
+            updateDTO.getMaritalStatus(),
+            updateDTO.getDomicileAddress(),
+            updateDTO.getResidenceAddress(),
+            updateDTO.getEmergencyContact(),
+            updateDTO.getEmergencyPhone(),
+            updateDTO.getServiceTypes(),
+            updateDTO.getHireDate(),
+            updateDTO.getLeaveDate(),
+            updateDTO.getLeaveReason(),
+            updateDTO.getAvatarUrl(),
+            updateDTO.getRemark(),
+            updateDTO.getStatus()
+        );
+
+        return convertToStaffVO(staffMapper.selectStaffById(staffId));
     }
 
     @Override

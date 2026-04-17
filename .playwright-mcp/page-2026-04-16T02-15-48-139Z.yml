@@ -1,0 +1,342 @@
+- generic [ref=e1]:
+  - generic [ref=e5]:
+    - banner [ref=e6]:
+      - generic [ref=e7]:
+        - button [ref=e8] [cursor=pointer]:
+          - img [ref=e11]
+        - navigation "Breadcrumb" [ref=e13]:
+          - list [ref=e14]:
+            - listitem [ref=e509]:
+              - generic [ref=e511]:
+                - img [ref=e512]
+                - text: 服务商管理
+        - generic [ref=e19]:
+          - button [ref=e20] [cursor=pointer]:
+            - img [ref=e23]
+          - button [ref=e25] [cursor=pointer]:
+            - img [ref=e28]
+          - button [ref=e31] [cursor=pointer]:
+            - img [ref=e34]
+          - button [ref=e35] [cursor=pointer]:
+            - img [ref=e38]
+          - button [ref=e39] [cursor=pointer]:
+            - img [ref=e42]
+          - button "admin" [ref=e44] [cursor=pointer]:
+            - generic [ref=e46]:
+              - img [ref=e47]
+              - generic [ref=e48]: admin
+    - generic [ref=e51]:
+      - generic [ref=e55]:
+        - generic [ref=e56] [cursor=pointer]:
+          - generic:
+            - img:
+              - img
+              - generic:
+                - img
+          - img [ref=e57]
+          - generic [ref=e58]: 首页
+        - generic [ref=e60] [cursor=pointer]:
+          - generic:
+            - img:
+              - img
+              - generic:
+                - img
+          - img [ref=e61]
+          - generic [ref=e62]: 订单管理
+          - img [ref=e64]
+        - generic [ref=e67] [cursor=pointer]:
+          - generic:
+            - img:
+              - img
+              - generic:
+                - img
+          - img [ref=e68]
+          - generic [ref=e69]: 预约信息管理
+          - img [ref=e71]
+        - generic [ref=e74] [cursor=pointer]:
+          - generic:
+            - img:
+              - img
+              - generic:
+                - img
+          - img [ref=e75]
+          - generic [ref=e76]: 服务商管理
+          - img [ref=e78]
+        - generic [ref=e81] [cursor=pointer]:
+          - generic:
+            - img:
+              - img
+              - generic:
+                - img
+          - img [ref=e82]
+          - generic [ref=e83]: 老人档案管理
+          - img [ref=e85]
+        - generic [ref=e88] [cursor=pointer]:
+          - generic:
+            - img:
+              - img
+              - generic:
+                - img
+          - img [ref=e89]
+          - generic [ref=e90]: 服务人员管理
+          - img [ref=e92]
+        - generic [ref=e95] [cursor=pointer]:
+          - generic:
+            - img:
+              - img
+              - generic:
+                - img
+          - img [ref=e96]
+          - generic [ref=e97]: 服务日志
+          - img [ref=e99]
+        - generic [ref=e102] [cursor=pointer]:
+          - generic:
+            - img:
+              - img
+              - generic:
+                - img
+          - img [ref=e103]
+          - generic [ref=e104]: 质检管理
+          - img [ref=e106]
+        - generic [ref=e109] [cursor=pointer]:
+          - generic:
+            - img:
+              - img
+              - generic:
+                - img
+          - img [ref=e110]
+          - generic [ref=e111]: 满意度评价
+          - img [ref=e113]
+        - generic [ref=e116] [cursor=pointer]:
+          - generic:
+            - img:
+              - img
+              - generic:
+                - img
+          - img [ref=e117]
+          - generic [ref=e118]: 财务结算
+          - img [ref=e120]
+      - button [ref=e123] [cursor=pointer]:
+        - img [ref=e126]
+      - button [ref=e128] [cursor=pointer]:
+        - img [ref=e131]
+    - complementary [ref=e134]:
+      - generic [ref=e135]:
+        - link "社区服务智慧运营管理平台" [ref=e136] [cursor=pointer]:
+          - /url: /
+          - img [ref=e138]
+          - heading "社区服务智慧运营管理平台" [level=2] [ref=e147]
+        - region "scrollable content" [ref=e439]:
+          - menu [ref=e441]:
+            - menuitem "首页" [ref=e442]:
+              - img [ref=e443] [cursor=pointer]
+              - text: 首页
+            - menuitem "预约信息管理" [ref=e445]:
+              - img [ref=e446] [cursor=pointer]
+              - text: 预约信息管理
+            - menuitem "服务商管理" [ref=e448]:
+              - img [ref=e449] [cursor=pointer]
+              - text: 服务商管理
+            - menu [ref=e451] [cursor=pointer]:
+              - menuitem "业务管理" [ref=e452]:
+                - img [ref=e453]
+                - text: 业务管理
+                - img [ref=e456]
+            - menu [ref=e458] [cursor=pointer]:
+              - menuitem "系统管理" [ref=e459]:
+                - img [ref=e460]
+                - text: 系统管理
+                - img [ref=e463]
+    - main [ref=e149]:
+      - generic [ref=e514]:
+        - generic [ref=e515]:
+          - heading "服务商统计" [ref=e516]:
+            - heading "服务商统计" [ref=e517]
+          - generic [ref=e518]:
+            - generic [ref=e519]:
+              - generic [ref=e520]: 总数
+              - generic [ref=e521]: "3"
+            - generic [ref=e522]:
+              - generic [ref=e523]: 待审核
+              - generic [ref=e524]: "0"
+            - generic [ref=e525]:
+              - generic [ref=e526]: 已通过
+              - generic [ref=e527]: "3"
+        - generic [ref=e528]:
+          - heading "服务商管理" [ref=e529]:
+            - heading "服务商管理" [ref=e530]:
+              - generic [ref=e532]: 服务商管理
+          - generic [ref=e533]:
+            - generic [ref=e536]:
+              - textbox "服务商名称" [ref=e537]
+              - generic:
+                - generic: 服务商名称
+            - generic [ref=e542]:
+              - textbox "信用代码" [ref=e543]
+              - generic:
+                - generic: 信用代码
+            - img "loading" [ref=e549] [cursor=pointer]:
+              - img [ref=e554]
+            - img "loading" [ref=e559] [cursor=pointer]:
+              - img [ref=e564]
+            - button "搜索" [ref=e566] [cursor=pointer]:
+              - generic [ref=e567]: 搜索
+            - button "重置" [ref=e568] [cursor=pointer]:
+              - generic [ref=e569]: 重置
+            - button "新增" [ref=e570] [cursor=pointer]:
+              - generic [ref=e571]: 新增
+          - table [ref=e575]:
+            - rowgroup [ref=e586]:
+              - row "服务商名称 信用代码 法人 联系电话 服务类型 审核状态 状态 创建时间 操作" [ref=e587]:
+                - columnheader "服务商名称" [ref=e588]:
+                  - generic [ref=e590]: 服务商名称
+                - columnheader "信用代码" [ref=e591]:
+                  - generic [ref=e593]: 信用代码
+                - columnheader "法人" [ref=e594]:
+                  - generic [ref=e596]: 法人
+                - columnheader "联系电话" [ref=e597]:
+                  - generic [ref=e599]: 联系电话
+                - columnheader "服务类型" [ref=e600]:
+                  - generic [ref=e602]: 服务类型
+                - columnheader "审核状态" [ref=e603]:
+                  - generic [ref=e605]: 审核状态
+                - columnheader "状态" [ref=e606]:
+                  - generic [ref=e608]: 状态
+                - columnheader "创建时间" [ref=e609]:
+                  - generic [ref=e611]: 创建时间
+                - columnheader "操作" [ref=e612]:
+                  - generic [ref=e614]: 操作
+            - rowgroup [ref=e615]:
+              - row "延安市宝塔区丁峰家政服务有限公司 91610602562217252K 吴贵莲 13800000001 家政服务 已通过 禁用 2026-04-16T02:06:10 编辑 审核 删除" [ref=e616]:
+                - cell "延安市宝塔区丁峰家政服务有限公司" [ref=e617]
+                - cell "91610602562217252K" [ref=e618]
+                - cell "吴贵莲" [ref=e619]
+                - cell "13800000001" [ref=e620]
+                - cell "家政服务" [ref=e621]
+                - cell "已通过" [ref=e622]:
+                  - generic [ref=e624]: 已通过
+                - cell "禁用" [ref=e625]:
+                  - generic [ref=e627]: 禁用
+                - cell "2026-04-16T02:06:10" [ref=e628]
+                - cell "编辑 审核 删除" [ref=e629]:
+                  - button "编辑" [ref=e630] [cursor=pointer]:
+                    - generic [ref=e631]: 编辑
+                  - button "审核" [ref=e632] [cursor=pointer]:
+                    - generic [ref=e633]: 审核
+                  - button "删除" [ref=e634] [cursor=pointer]:
+                    - generic [ref=e635]: 删除
+              - row "延安家享悠网络科技有限公司 91610602MA6YMD282U 谷彦蓉 13800000002 家政服务 已通过 禁用 2026-04-16T02:06:10 编辑 审核 删除" [ref=e636]:
+                - cell "延安家享悠网络科技有限公司" [ref=e637]
+                - cell "91610602MA6YMD282U" [ref=e638]
+                - cell "谷彦蓉" [ref=e639]
+                - cell "13800000002" [ref=e640]
+                - cell "家政服务" [ref=e641]
+                - cell "已通过" [ref=e642]:
+                  - generic [ref=e644]: 已通过
+                - cell "禁用" [ref=e645]:
+                  - generic [ref=e647]: 禁用
+                - cell "2026-04-16T02:06:10" [ref=e648]
+                - cell "编辑 审核 删除" [ref=e649]:
+                  - button "编辑" [ref=e650] [cursor=pointer]:
+                    - generic [ref=e651]: 编辑
+                  - button "审核" [ref=e652] [cursor=pointer]:
+                    - generic [ref=e653]: 审核
+                  - button "删除" [ref=e654] [cursor=pointer]:
+                    - generic [ref=e655]: 删除
+              - row "延安丁峰窑洞养老服务有限公司 91610600MAB3CXJJ18 吴贵莲 13800000003 家政服务 已通过 禁用 2026-04-16T02:06:10 编辑 审核 删除" [ref=e656]:
+                - cell "延安丁峰窑洞养老服务有限公司" [ref=e657]
+                - cell "91610600MAB3CXJJ18" [ref=e658]
+                - cell "吴贵莲" [ref=e659]
+                - cell "13800000003" [ref=e660]
+                - cell "家政服务" [ref=e661]
+                - cell "已通过" [ref=e662]:
+                  - generic [ref=e664]: 已通过
+                - cell "禁用" [ref=e665]:
+                  - generic [ref=e667]: 禁用
+                - cell "2026-04-16T02:06:10" [ref=e668]
+                - cell "编辑 审核 删除" [ref=e669]:
+                  - button "编辑" [ref=e670] [cursor=pointer]:
+                    - generic [ref=e671]: 编辑
+                  - button "审核" [ref=e672] [cursor=pointer]:
+                    - generic [ref=e673]: 审核
+                  - button "删除" [ref=e674] [cursor=pointer]:
+                    - generic [ref=e675]: 删除
+          - generic [ref=e676]:
+            - generic [ref=e679] [cursor=pointer]:
+              - generic "10条/页" [ref=e680]:
+                - generic [ref=e681]: 10条/页
+              - img "loading" [ref=e682]:
+                - img [ref=e687]
+            - generic [ref=e689]:
+              - img [ref=e692]
+              - generic [ref=e694] [cursor=pointer]: "1"
+              - img [ref=e697]
+    - contentinfo [ref=e400]:
+      - link "Copyright MIT © 2021 Soybean" [ref=e402] [cursor=pointer]:
+        - /url: https://github.com/soybeanjs/soybean-admin/blob/main/LICENSE
+  - img
+  - generic [ref=e403]:
+    - generic "Toggle devtools panel" [ref=e404] [cursor=pointer]:
+      - img [ref=e405]
+    - generic "Toggle Component Inspector" [ref=e410] [cursor=pointer]:
+      - img [ref=e411]
+  - dialog [ref=e700]:
+    - heading "新增服务商 close" [ref=e701]:
+      - heading "新增服务商" [ref=e702]
+      - button "close" [ref=e703] [cursor=pointer]:
+        - img [ref=e705]
+    - generic [ref=e709]:
+      - generic [ref=e710]:
+        - generic [ref=e711]:
+          - generic [ref=e712]: 服务商名称
+          - generic [ref=e713]: "*"
+        - generic [ref=e717]:
+          - textbox "请输入服务商名称" [active] [ref=e718]
+          - generic:
+            - generic: 请输入服务商名称
+      - generic [ref=e720]:
+        - generic [ref=e721]:
+          - generic [ref=e722]: 信用代码
+          - generic [ref=e723]: "*"
+        - generic [ref=e727]:
+          - textbox "请输入统一社会信用代码" [ref=e728]
+          - generic:
+            - generic: 请输入统一社会信用代码
+      - generic [ref=e730]:
+        - generic [ref=e731]:
+          - generic [ref=e732]: 法人
+          - generic [ref=e733]: "*"
+        - generic [ref=e737]:
+          - textbox "请输入法人姓名" [ref=e738]
+          - generic:
+            - generic: 请输入法人姓名
+      - generic [ref=e740]:
+        - generic [ref=e741]:
+          - generic [ref=e742]: 联系电话
+          - generic [ref=e743]: "*"
+        - generic [ref=e747]:
+          - textbox "请输入联系电话" [ref=e748]
+          - generic:
+            - generic: 请输入联系电话
+      - generic [ref=e750]:
+        - generic [ref=e752]: 地址
+        - generic [ref=e756]:
+          - textbox "请输入地址" [ref=e757]
+          - generic:
+            - generic: 请输入地址
+      - generic [ref=e759]:
+        - generic [ref=e761]: 服务类别
+        - generic [ref=e765] [cursor=pointer]:
+          - generic "养老服务" [ref=e766]:
+            - generic [ref=e767]: 养老服务
+          - img "loading" [ref=e768]:
+            - img [ref=e773]
+      - generic [ref=e776]:
+        - generic [ref=e778]: 简介
+        - generic [ref=e781]:
+          - textbox "请输入简介" [ref=e782]
+          - generic: 请输入简介
+      - button "取消" [ref=e784] [cursor=pointer]:
+        - generic [ref=e785]: 取消
+      - button "确认" [ref=e786] [cursor=pointer]:
+        - generic [ref=e787]: 确认

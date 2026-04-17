@@ -122,17 +122,19 @@ const OrderList: React.FC = () => {
     }
   };
 
-  const getStatusColor = (status: number): string => {
+  const getStatusColor = (statusCode: number): string => {
     const colorMap: Record<number, string> = {
-      0: 'default',
-      1: 'orange',
-      2: 'blue',
-      3: 'cyan',
-      4: 'purple',
-      5: 'gold',
-      6: 'green',
+      0: 'default',  // 已取消
+      2: 'blue',     // 待派单
+      3: 'cyan',     // 已派单
+      4: 'purple',   // 已接单
+      5: 'gold',     // 服务中
+      6: 'green',    // 已完成
+      7: 'green',    // 已评价
+      8: 'success',  // 已结算
+      9: 'error',    // 已拒单
     };
-    return colorMap[status] || 'default';
+    return colorMap[statusCode] || 'default';
   };
 
   const columns: ColumnsType<Order> = [
@@ -144,10 +146,10 @@ const OrderList: React.FC = () => {
     { title: '服务商', dataIndex: 'providerName', key: 'providerName' },
     {
       title: '订单状态',
-      dataIndex: 'status',
-      key: 'status',
-      render: (status: number) => (
-        <Tag color={getStatusColor(status)}>{getOrderStatusText(status)}</Tag>
+      dataIndex: 'statusCode',
+      key: 'statusCode',
+      render: (statusCode: number, record: Order) => (
+        <Tag color={getStatusColor(statusCode)}>{record.statusName || getOrderStatusText(statusCode)}</Tag>
       ),
     },
     {
@@ -165,17 +167,17 @@ const OrderList: React.FC = () => {
           <Button type="link" size="small" icon={<EditOutlined />} onClick={() => handleEdit(record)}>
             编辑
           </Button>
-          {record.status === 2 && (
+          {record.statusCode === 2 && (
             <Button type="link" size="small" icon={<PlayCircleOutlined />} onClick={() => handleStart(record.id)}>
               开始服务
             </Button>
           )}
-          {record.status === 4 && (
+          {record.statusCode === 5 && (
             <Button type="link" size="small" icon={<CheckCircleOutlined />} onClick={() => handleComplete(record.id)}>
               完成服务
             </Button>
           )}
-          {record.status < 4 && (
+          {(record.statusCode === 2 || record.statusCode === 3 || record.statusCode === 4) && (
             <Button type="link" size="small" danger icon={<StopOutlined />} onClick={() => handleCancel(record.id)}>
               取消
             </Button>

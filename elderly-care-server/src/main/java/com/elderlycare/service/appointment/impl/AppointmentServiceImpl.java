@@ -5,25 +5,33 @@ import com.baomidou.mybatisplus.core.metadata.IPage;
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import com.elderlycare.common.IDGenerator;
 import com.elderlycare.common.PageResult;
+import com.elderlycare.dto.appointment.AppointmentCreateDTO;
 import com.elderlycare.dto.appointment.AppointmentQueryDTO;
 import com.elderlycare.entity.appointment.Appointment;
+import com.elderlycare.entity.elder.Elder;
 import com.elderlycare.entity.order.Order;
 import com.elderlycare.entity.order.OrderStatus;
+import com.elderlycare.entity.provider.Provider;
 import com.elderlycare.mapper.appointment.AppointmentMapper;
+import com.elderlycare.mapper.elder.ElderMapper;
 import com.elderlycare.mapper.order.OrderMapper;
+import com.elderlycare.mapper.provider.ProviderMapper;
 import com.elderlycare.service.appointment.AppointmentService;
 import com.elderlycare.vo.appointment.AppointmentStatisticsVO;
 import com.elderlycare.vo.appointment.AppointmentVO;
 import lombok.RequiredArgsConstructor;
+import org.apache.poi.ss.usermodel.*;
+import org.apache.poi.xssf.usermodel.XSSFWorkbook;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.multipart.MultipartFile;
 
+import java.io.IOException;
+import java.math.BigDecimal;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+import java.time.format.DateTimeFormatter;
+import java.util.*;
 import java.util.stream.Collectors;
 
 /**
@@ -35,6 +43,38 @@ public class AppointmentServiceImpl implements AppointmentService {
 
     private final AppointmentMapper appointmentMapper;
     private final OrderMapper orderMapper;
+    private final ElderMapper elderMapper;
+    private final ProviderMapper providerMapper;
+
+    @Override
+    @Transactional(rollbackFor = Exception.class)
+    public String createAppointment(AppointmentCreateDTO dto) {
+        Appointment appointment = new Appointment();
+        appointment.setAppointmentId(IDGenerator.generateId());
+        appointment.setAppointmentNo(generateAppointmentNo());
+        appointment.setElderName(dto.getElderName());
+        appointment.setElderIdCard(dto.getElderIdCard());
+        appointment.setElderPhone(dto.getElderPhone());
+        appointment.setElderAddress(dto.getElderAddress());
+        appointment.setElderAreaId(dto.getElderAreaId());
+        appointment.setElderAreaName(dto.getElderAreaName());
+        appointment.setServiceType(dto.getServiceType());
+        appointment.setServiceTypeCode(dto.getServiceTypeCode());
+        appointment.setServiceContent(dto.getServiceContent());
+        appointment.setAppointmentTime(dto.getAppointmentTime());
+        appointment.setServiceDuration(dto.getServiceDuration());
+        appointment.setProviderId(dto.getProviderId());
+        appointment.setProviderName(dto.getProviderName());
+        appointment.setVisitorCount(dto.getVisitorCount());
+        appointment.setRemark(dto.getRemark());
+        appointment.setAssessmentType(dto.getAssessmentType());
+        appointment.setStatus("PENDING");
+        appointment.setValidity("VALID");
+        appointment.setCreateTime(LocalDateTime.now());
+
+        appointmentMapper.insert(appointment);
+        return appointment.getAppointmentId();
+    }
 
     @Override
     public PageResult<AppointmentVO> getAppointmentList(AppointmentQueryDTO query) {
@@ -99,20 +139,93 @@ public class AppointmentServiceImpl implements AppointmentService {
             throw new RuntimeException("请填写预约时间");
         }
 
-        // 4. 更新预约状态
+        // 4. 查询服务商信息并校验状态
+        Provider provider = providerMapper.selectById(providerId);
+        if (provider == null) {
+            throw new RuntimeException("所选服务商不存在");
+        }
+        if (!"ENABLED".equals(provider.getStatus())) {
+            throw new RuntimeException("所选服务商已被禁用，无法确认预约");
+        }
         appointment.setProviderId(providerId);
+        appointment.setProviderName(provider.getProviderName());
+        appointment.setProviderAddress(provider.getAddress());
         appointment.setAppointmentTime(appointmentTime);
         appointment.setStatus("CONFIRMED");
         appointment.setConfirmTime(LocalDateTime.now());
         appointmentMapper.updateById(appointment);
 
-        // 5. 注意：订单创建在分配服务人员时进行，此处仅确认预约
+        // 5. 自动创建老人档案（如果不存在）
+        Elder elder = createOrUpdateElderFromAppointment(appointment, providerId);
+
+        // 6. 自动生成订单
+        createOrderFromAppointment(appointment, elder);
+    }
+
+    /**
+     * 根据预约创建或更新老人档案
+     */
+    private Elder createOrUpdateElderFromAppointment(Appointment appointment, String providerId) {
+        // 根据身份证号查询是否已存在老人档案
+        Elder elder = null;
+        if (appointment.getElderIdCard() != null && !appointment.getElderIdCard().isEmpty()) {
+            elder = elderMapper.selectByIdCard(appointment.getElderIdCard());
+        }
+
+        if (elder == null && appointment.getElderPhone() != null && !appointment.getElderPhone().isEmpty()) {
+            // 根据手机号查询
+            elder = elderMapper.selectByPhone(appointment.getElderPhone());
+        }
+
+        if (elder == null) {
+            // 创建新档案
+            elder = new Elder();
+            elder.setElderId(IDGenerator.generateId());
+            elder.setName(appointment.getElderName());
+            elder.setIdCard(appointment.getElderIdCard());
+            elder.setPhone(appointment.getElderPhone());
+            elder.setAddress(appointment.getElderAddress());
+            elder.setStatus("ACTIVE");
+            elder.setRegisterDate(LocalDate.now());
+            elder.setProviderId(providerId); // 关联服务商
+            elder.setCreateTime(LocalDateTime.now());
+
+            // 根据身份证号自动计算性别、年龄和出生日期
+            if (appointment.getElderIdCard() != null && appointment.getElderIdCard().length() == 18) {
+                String idCard = appointment.getElderIdCard();
+                try {
+                    // 计算性别：第17位奇数为男，偶数为女
+                    int genderCode = Character.getNumericValue(idCard.charAt(16));
+                    elder.setGender(genderCode % 2 == 1 ? "MALE" : "FEMALE");
+
+                    // 计算出生日期和年龄
+                    String birthYearStr = idCard.substring(6, 10);
+                    String birthMonthStr = idCard.substring(10, 12);
+                    String birthDayStr = idCard.substring(12, 14);
+                    int birthYear = Integer.parseInt(birthYearStr);
+                    int currentYear = LocalDate.now().getYear();
+                    elder.setAge(currentYear - birthYear);
+                    elder.setBirthDate(LocalDate.of(birthYear, Integer.parseInt(birthMonthStr), Integer.parseInt(birthDayStr)));
+                } catch (Exception e) {
+                    // 身份证号解析失败，不设置这些字段
+                }
+            }
+
+            elderMapper.insert(elder);
+        } else {
+            // 更新现有档案，关联服务商
+            elder.setProviderId(providerId);
+            elder.setUpdateTime(LocalDateTime.now());
+            elderMapper.updateById(elder);
+        }
+
+        return elder;
     }
 
     /**
      * 根据预约创建订单
      */
-    private void createOrderFromAppointment(Appointment appointment) {
+    private void createOrderFromAppointment(Appointment appointment, Elder elder) {
         // 生成订单编号
         String orderNo = generateOrderNo();
 
@@ -144,6 +257,7 @@ public class AppointmentServiceImpl implements AppointmentService {
         Order order = new Order();
         order.setOrderId(IDGenerator.generateId());
         order.setOrderNo(orderNo);
+        order.setElderId(elder.getElderId()); // 关联老人档案ID
         order.setElderName(appointment.getElderName());
         order.setElderPhone(appointment.getElderPhone());
         order.setServiceTypeCode(appointment.getServiceTypeCode());
@@ -190,7 +304,16 @@ public class AppointmentServiceImpl implements AppointmentService {
             throw new RuntimeException("请选择服务商");
         }
 
-        // 4. 执行分配
+        // 4. 校验服务商状态
+        Provider provider = providerMapper.selectById(providerId);
+        if (provider == null) {
+            throw new RuntimeException("所选服务商不存在");
+        }
+        if (!"ENABLED".equals(provider.getStatus())) {
+            throw new RuntimeException("所选服务商已被禁用，无法分配");
+        }
+
+        // 5. 执行分配
         appointment.setProviderId(providerId);
         appointment.setStatus("ASSIGNED");
         appointmentMapper.updateById(appointment);
@@ -236,13 +359,186 @@ public class AppointmentServiceImpl implements AppointmentService {
     }
 
     @Override
+    @Transactional(rollbackFor = Exception.class)
     public Map<String, Object> importAppointment(MultipartFile file) {
-        // TODO: 实现Excel导入逻辑
         Map<String, Object> result = new HashMap<>();
-        result.put("successCount", 0);
-        result.put("failCount", 0);
-        result.put("errors", List.of());
+        List<String> errors = new ArrayList<>();
+        int successCount = 0;
+        int failCount = 0;
+
+        try (Workbook workbook = new XSSFWorkbook(file.getInputStream())) {
+            Sheet sheet = workbook.getSheetAt(0);
+            // 跳过表头，从第二行开始
+            for (int i = 1; i <= sheet.getLastRowNum(); i++) {
+                Row row = sheet.getRow(i);
+                if (row == null) continue;
+
+                try {
+                    Appointment appointment = parseAppointmentRow(row);
+                    appointmentMapper.insert(appointment);
+                    successCount++;
+                } catch (Exception e) {
+                    failCount++;
+                    errors.add("第" + (i + 1) + "行解析失败: " + e.getMessage());
+                }
+            }
+        } catch (IOException e) {
+            throw new RuntimeException("Excel文件读取失败", e);
+        }
+
+        result.put("successCount", successCount);
+        result.put("failCount", failCount);
+        result.put("errors", errors);
         return result;
+    }
+
+    private Appointment parseAppointmentRow(Row row) {
+        Appointment appointment = new Appointment();
+        appointment.setAppointmentId(IDGenerator.generateId());
+        appointment.setAppointmentNo(generateAppointmentNo());
+        appointment.setStatus("PENDING");
+        appointment.setValidity("VALID");
+
+        // 姓名
+        appointment.setElderName(getCellStringValue(row.getCell(0)));
+        // 身份证号
+        appointment.setElderIdCard(getCellStringValue(row.getCell(1)));
+        // 手机号
+        String phone = getCellStringValue(row.getCell(2));
+        if (phone != null && phone.length() == 11) {
+            appointment.setElderPhone(phone);
+        }
+        // 预约服务类型
+        String serviceType = getCellStringValue(row.getCell(3));
+        appointment.setServiceType(serviceType);
+        appointment.setServiceTypeCode(getServiceTypeCode(serviceType));
+        // 服务内容类型
+        appointment.setServiceContent(getCellStringValue(row.getCell(4)));
+        // 预约时间
+        appointment.setAppointmentTime(getCellStringValue(row.getCell(5)));
+        // 服务地址
+        String address = getCellStringValue(row.getCell(6));
+        appointment.setElderAddress(address);
+        // 解析地址获取区域
+        parseAddressArea(address, appointment);
+        // 创建时间
+        Cell createTimeCell = row.getCell(7);
+        if (createTimeCell != null) {
+            LocalDateTime createTime = getCellDateValue(createTimeCell);
+            if (createTime != null) {
+                appointment.setCreateTime(createTime);
+            }
+        }
+        if (appointment.getCreateTime() == null) {
+            appointment.setCreateTime(LocalDateTime.now());
+        }
+
+        return appointment;
+    }
+
+    private String getCellStringValue(Cell cell) {
+        if (cell == null) return null;
+        switch (cell.getCellType()) {
+            case STRING:
+                return cell.getStringCellValue().trim();
+            case NUMERIC:
+                if (DateUtil.isCellDateFormatted(cell)) {
+                    return cell.getLocalDateTimeCellValue().toString();
+                }
+                double numVal = cell.getNumericCellValue();
+                if (numVal == Math.floor(numVal)) {
+                    return String.valueOf((long) numVal);
+                }
+                return String.valueOf(numVal);
+            case BOOLEAN:
+                return String.valueOf(cell.getBooleanCellValue());
+            case FORMULA:
+                try {
+                    return cell.getStringCellValue();
+                } catch (Exception e) {
+                    return String.valueOf(cell.getNumericCellValue());
+                }
+            default:
+                return null;
+        }
+    }
+
+    private LocalDateTime getCellDateValue(Cell cell) {
+        if (cell == null) return null;
+        try {
+            if (cell.getCellType() == CellType.NUMERIC && DateUtil.isCellDateFormatted(cell)) {
+                return cell.getLocalDateTimeCellValue();
+            }
+        } catch (Exception e) {
+            // ignore
+        }
+        return null;
+    }
+
+    private String generateAppointmentNo() {
+        return "APT" + System.currentTimeMillis();
+    }
+
+    private String getServiceTypeCode(String serviceType) {
+        if (serviceType == null) return null;
+        switch (serviceType) {
+            case "上门服务": return "DOOR_TO_DOOR";
+            case "日间照料": return "DAY_CARE";
+            case "助餐服务": return "MEAL";
+            case "助洁服务": return "CLEANING";
+            case "助浴服务": return "BATHING";
+            case "健康监测": return "HEALTH";
+            case "康复护理": return "REHAB";
+            case "精神慰藉": return "COMFORT";
+            case "信息咨询": return "INFO";
+            case "紧急救援": return "EMERGENCY";
+            default: return "OTHER";
+        }
+    }
+
+    private void parseAddressArea(String address, Appointment appointment) {
+        if (address == null) return;
+        // 地址格式: 陕西省延安市宝塔区xxx
+        if (address.contains("宝塔区")) {
+            appointment.setElderAreaName("宝塔区");
+            appointment.setElderAreaId("610602");
+        } else if (address.contains("安塞区")) {
+            appointment.setElderAreaName("安塞区");
+            appointment.setElderAreaId("610603");
+        } else if (address.contains("子长市")) {
+            appointment.setElderAreaName("子长市");
+            appointment.setElderAreaId("610681");
+        } else if (address.contains("延长县")) {
+            appointment.setElderAreaName("延长县");
+            appointment.setElderAreaId("610621");
+        } else if (address.contains("延川县")) {
+            appointment.setElderAreaName("延川县");
+            appointment.setElderAreaId("610622");
+        } else if (address.contains("志丹县")) {
+            appointment.setElderAreaName("志丹县");
+            appointment.setElderAreaId("610625");
+        } else if (address.contains("吴起县")) {
+            appointment.setElderAreaName("吴起县");
+            appointment.setElderAreaId("610626");
+        } else if (address.contains("甘泉县")) {
+            appointment.setElderAreaName("甘泉县");
+            appointment.setElderAreaId("610627");
+        } else if (address.contains("富县")) {
+            appointment.setElderAreaName("富县");
+            appointment.setElderAreaId("610628");
+        } else if (address.contains("洛川县")) {
+            appointment.setElderAreaName("洛川县");
+            appointment.setElderAreaId("610629");
+        } else if (address.contains("黄陵县")) {
+            appointment.setElderAreaName("黄陵县");
+            appointment.setElderAreaId("610630");
+        } else if (address.contains("黄龙县")) {
+            appointment.setElderAreaName("黄龙县");
+            appointment.setElderAreaId("610631");
+        } else {
+            appointment.setElderAreaName("延安市");
+            appointment.setElderAreaId("610600");
+        }
     }
 
     @Override

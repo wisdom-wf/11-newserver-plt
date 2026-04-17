@@ -1,0 +1,388 @@
+- generic [active] [ref=e1]:
+  - generic [ref=e29]:
+    - banner [ref=e30]:
+      - generic [ref=e31]:
+        - button [ref=e32] [cursor=pointer]:
+          - img [ref=e35]
+        - navigation "Breadcrumb" [ref=e39]:
+          - list [ref=e40]:
+            - listitem [ref=e41]:
+              - generic [ref=e43] [cursor=pointer]:
+                - img [ref=e44]
+                - text: 业务管理
+              - generic [ref=e46]: /
+            - listitem [ref=e47]:
+              - generic [ref=e49]:
+                - img [ref=e50]
+                - text: 订单管理
+        - generic [ref=e52]:
+          - button [ref=e53] [cursor=pointer]:
+            - img [ref=e56]
+          - button [ref=e58] [cursor=pointer]:
+            - img [ref=e61]
+          - button [ref=e64] [cursor=pointer]:
+            - img [ref=e67]
+          - button [ref=e69] [cursor=pointer]:
+            - img [ref=e72]
+          - button [ref=e74] [cursor=pointer]:
+            - img [ref=e77]
+          - button "admin" [ref=e82] [cursor=pointer]:
+            - generic [ref=e84]:
+              - img [ref=e85]
+              - generic [ref=e87]: admin
+    - generic [ref=e90]:
+      - generic [ref=e94]:
+        - generic [ref=e95] [cursor=pointer]:
+          - generic:
+            - img:
+              - img
+              - generic:
+                - img
+          - img [ref=e96]
+          - generic [ref=e98]: 首页
+        - generic [ref=e100] [cursor=pointer]:
+          - generic:
+            - img:
+              - img
+              - generic:
+                - img
+          - img [ref=e101]
+          - generic [ref=e103]: 订单管理
+          - img [ref=e105]
+      - button [ref=e108] [cursor=pointer]:
+        - img [ref=e111]
+      - button [ref=e113] [cursor=pointer]:
+        - img [ref=e116]
+    - complementary [ref=e119]:
+      - generic [ref=e120]:
+        - link "社区服务综合运营管理平台" [ref=e121] [cursor=pointer]:
+          - /url: /
+          - img [ref=e123]
+          - heading "社区服务综合运营管理平台" [level=2] [ref=e132]
+        - region "scrollable content" [ref=e139]:
+          - menu [ref=e141]:
+            - menuitem "首页" [ref=e142]:
+              - img [ref=e143] [cursor=pointer]
+              - text: 首页
+            - menuitem "预约信息管理" [ref=e145]:
+              - img [ref=e146] [cursor=pointer]
+              - text: 预约信息管理
+            - menuitem "服务商管理" [ref=e148]:
+              - img [ref=e149] [cursor=pointer]
+              - text: 服务商管理
+            - menu [ref=e151] [cursor=pointer]:
+              - menuitem "业务管理" [ref=e152]:
+                - img [ref=e153]
+                - text: 业务管理
+                - img [ref=e156]
+              - menu [ref=e158]:
+                - menuitem "订单管理" [ref=e159]:
+                  - img [ref=e160]
+                  - text: 订单管理
+                - menuitem "老人档案管理" [ref=e162]:
+                  - img [ref=e163]
+                  - text: 老人档案管理
+                - menuitem "服务人员管理" [ref=e165]:
+                  - img [ref=e166]
+                  - text: 服务人员管理
+                - menuitem "服务日志" [ref=e168]:
+                  - img [ref=e169]
+                  - text: 服务日志
+                - menuitem "质检管理" [ref=e171]:
+                  - img [ref=e172]
+                  - text: 质检管理
+                - menuitem "满意度评价" [ref=e174]:
+                  - img [ref=e175]
+                  - text: 满意度评价
+                - menuitem "财务结算" [ref=e177]:
+                  - img [ref=e178]
+                  - text: 财务结算
+            - menu [ref=e180] [cursor=pointer]:
+              - menuitem "系统管理" [ref=e181]:
+                - img [ref=e182]
+                - text: 系统管理
+                - img [ref=e185]
+    - main [ref=e187]:
+      - generic [ref=e188]:
+        - generic [ref=e189]:
+          - heading "订单概览" [ref=e190]:
+            - heading "订单概览" [ref=e191]:
+              - generic [ref=e194]: 订单概览
+          - generic [ref=e195]:
+            - generic [ref=e196]:
+              - generic [ref=e197]: 总订单数
+              - generic [ref=e198]: "0"
+              - generic [ref=e199]: 本月新增 0
+            - generic [ref=e200]:
+              - generic [ref=e201]: 今日新增
+              - generic [ref=e202]: "0"
+              - generic [ref=e203]: 服务中 0
+            - generic [ref=e204]:
+              - generic [ref=e205]: 已完成
+              - generic [ref=e206]: "0"
+              - generic [ref=e207]: 完成率 0.0%
+            - generic [ref=e208]:
+              - generic [ref=e209]: 已取消
+              - generic [ref=e210]: "0"
+              - generic [ref=e211]: 取消率 0.0%
+          - generic [ref=e212]:
+            - generic [ref=e213]:
+              - generic [ref=e215]: 📋
+              - generic [ref=e216]:
+                - generic [ref=e217]: "0"
+                - generic [ref=e218]: 待派单
+            - generic [ref=e219]:
+              - generic [ref=e221]: 🚀
+              - generic [ref=e222]:
+                - generic [ref=e223]: "0"
+                - generic [ref=e224]: 已派单
+            - generic [ref=e225]:
+              - generic [ref=e227]: ✅
+              - generic [ref=e228]:
+                - generic [ref=e229]: "0"
+                - generic [ref=e230]: 已接单
+            - generic [ref=e231]:
+              - generic [ref=e233]: 💰
+              - generic [ref=e234]:
+                - generic [ref=e235]: "0"
+                - generic [ref=e236]: 总自付金额
+        - generic [ref=e237]:
+          - heading "订单管理" [ref=e238]:
+            - heading "订单管理" [ref=e239]:
+              - generic [ref=e241]: 订单管理
+          - generic [ref=e242]:
+            - generic [ref=e245]:
+              - textbox "订单号" [ref=e246]
+              - generic:
+                - generic: 订单号
+            - generic [ref=e251]:
+              - textbox "老人姓名" [ref=e252]
+              - generic:
+                - generic: 老人姓名
+            - generic [ref=e257] [cursor=pointer]:
+              - textbox [ref=e258]
+              - img "loading" [ref=e259]:
+                - img [ref=e264]
+            - img "loading" [ref=e269] [cursor=pointer]:
+              - img [ref=e274]
+            - img "loading" [ref=e279] [cursor=pointer]:
+              - img [ref=e284]
+            - generic [ref=e287]:
+              - generic [ref=e289]:
+                - textbox "开始日期" [ref=e290]
+                - generic:
+                  - generic: 开始日期
+              - img [ref=e293]
+              - generic [ref=e297]:
+                - generic [ref=e298]:
+                  - textbox "结束日期" [ref=e299]
+                  - generic:
+                    - generic: 结束日期
+                - img [ref=e304]
+            - button "搜索" [ref=e308] [cursor=pointer]:
+              - generic [ref=e309]: 搜索
+            - button "重置" [ref=e310] [cursor=pointer]:
+              - generic [ref=e311]: 重置
+          - table [ref=e315]:
+            - rowgroup [ref=e329]:
+              - row "订单号 老人姓名 老人手机 服务类型 预约服务时间 服务商 服务人员 订单状态 服务费 实付金额 创建时间 操作" [ref=e330]:
+                - columnheader "订单号" [ref=e331]:
+                  - generic [ref=e333]: 订单号
+                - columnheader "老人姓名" [ref=e334]:
+                  - generic [ref=e336]: 老人姓名
+                - columnheader "老人手机" [ref=e337]:
+                  - generic [ref=e339]: 老人手机
+                - columnheader "服务类型" [ref=e340]:
+                  - generic [ref=e342]: 服务类型
+                - columnheader "预约服务时间" [ref=e343]:
+                  - generic [ref=e345]: 预约服务时间
+                - columnheader "服务商" [ref=e346]:
+                  - generic [ref=e348]: 服务商
+                - columnheader "服务人员" [ref=e349]:
+                  - generic [ref=e351]: 服务人员
+                - columnheader "订单状态" [ref=e352]:
+                  - generic [ref=e354]: 订单状态
+                - columnheader "服务费" [ref=e355]:
+                  - generic [ref=e357]: 服务费
+                - columnheader "实付金额" [ref=e358]:
+                  - generic [ref=e360]: 实付金额
+                - columnheader "创建时间" [ref=e361]:
+                  - generic [ref=e363]: 创建时间
+                - columnheader "操作" [ref=e364]:
+                  - generic [ref=e366]: 操作
+            - rowgroup [ref=e367]:
+              - row "ORD202604151204 陈书成 15509112662 上门服务 2026年4月15日 下午 延安家享悠网络科技有限公司 陈伟强 已取消 2026-04-15T23:40:54" [ref=e368]:
+                - cell "ORD202604151204" [ref=e369]
+                - cell "陈书成" [ref=e370]
+                - cell "15509112662" [ref=e371]
+                - cell "上门服务" [ref=e372]
+                - cell "2026年4月15日 下午" [ref=e373]
+                - cell "延安家享悠网络科技有限公司" [ref=e374]
+                - cell "陈伟强" [ref=e375]
+                - cell "已取消" [ref=e376]:
+                  - generic [ref=e378]: 已取消
+                - cell [ref=e379]
+                - cell [ref=e380]
+                - cell "2026-04-15T23:40:54" [ref=e381]
+                - cell [ref=e382]
+              - row "ORD202604159073 赵德芳 13992160845 上门服务 2026年4月15日 下午 延安家享悠网络科技有限公司 陈伟强 已完成 2026-04-15T22:08:59" [ref=e383]:
+                - cell "ORD202604159073" [ref=e384]
+                - cell "赵德芳" [ref=e385]
+                - cell "13992160845" [ref=e386]
+                - cell "上门服务" [ref=e387]
+                - cell "2026年4月15日 下午" [ref=e388]
+                - cell "延安家享悠网络科技有限公司" [ref=e389]
+                - cell "陈伟强" [ref=e390]
+                - cell "已完成" [ref=e391]:
+                  - generic [ref=e393]: 已完成
+                - cell [ref=e394]
+                - cell [ref=e395]
+                - cell "2026-04-15T22:08:59" [ref=e396]
+                - cell [ref=e397]
+              - row "ORD202604159481 高玉萍 13008598800 上门服务 2026年4月15日 下午 延安家享悠网络科技有限公司 陈伟强 已完成 2026-04-15T02:28:51" [ref=e398]:
+                - cell "ORD202604159481" [ref=e399]
+                - cell "高玉萍" [ref=e400]
+                - cell "13008598800" [ref=e401]
+                - cell "上门服务" [ref=e402]
+                - cell "2026年4月15日 下午" [ref=e403]
+                - cell "延安家享悠网络科技有限公司" [ref=e404]
+                - cell "陈伟强" [ref=e405]
+                - cell "已完成" [ref=e406]:
+                  - generic [ref=e408]: 已完成
+                - cell [ref=e409]
+                - cell [ref=e410]
+                - cell "2026-04-15T02:28:51" [ref=e411]
+                - cell [ref=e412]
+              - row "ORD202604158625 常兰芳 13891184602 上门服务 2026年4月15日 下午 延安丁峰窑洞养老服务有限公司 林美红 已完成 2026-04-15T01:40:23" [ref=e413]:
+                - cell "ORD202604158625" [ref=e414]
+                - cell "常兰芳" [ref=e415]
+                - cell "13891184602" [ref=e416]
+                - cell "上门服务" [ref=e417]
+                - cell "2026年4月15日 下午" [ref=e418]
+                - cell "延安丁峰窑洞养老服务有限公司" [ref=e419]
+                - cell "林美红" [ref=e420]
+                - cell "已完成" [ref=e421]:
+                  - generic [ref=e423]: 已完成
+                - cell [ref=e424]
+                - cell [ref=e425]
+                - cell "2026-04-15T01:40:23" [ref=e426]
+                - cell [ref=e427]
+              - row "ORD202604155686 姬旺英 15319534035 上门服务 2026年4月15日 下午 延安家享悠网络科技有限公司 陈伟强 已取消 2026-04-15T01:40:17" [ref=e428]:
+                - cell "ORD202604155686" [ref=e429]
+                - cell "姬旺英" [ref=e430]
+                - cell "15319534035" [ref=e431]
+                - cell "上门服务" [ref=e432]
+                - cell "2026年4月15日 下午" [ref=e433]
+                - cell "延安家享悠网络科技有限公司" [ref=e434]
+                - cell "陈伟强" [ref=e435]
+                - cell "已取消" [ref=e436]:
+                  - generic [ref=e438]: 已取消
+                - cell [ref=e439]
+                - cell [ref=e440]
+                - cell "2026-04-15T01:40:17" [ref=e441]
+                - cell [ref=e442]
+              - row "ORD202604142390 王秀兰 13892175256 上门服务 2026年4月15日 下午 延安市宝塔区丁峰家政服务有限公司 张小梅 已完成 2026-04-14T14:06:32" [ref=e443]:
+                - cell "ORD202604142390" [ref=e444]
+                - cell "王秀兰" [ref=e445]
+                - cell "13892175256" [ref=e446]
+                - cell "上门服务" [ref=e447]
+                - cell "2026年4月15日 下午" [ref=e448]
+                - cell "延安市宝塔区丁峰家政服务有限公司" [ref=e449]
+                - cell "张小梅" [ref=e450]
+                - cell "已完成" [ref=e451]:
+                  - generic [ref=e453]: 已完成
+                - cell [ref=e454]
+                - cell [ref=e455]
+                - cell "2026-04-14T14:06:32" [ref=e456]
+                - cell [ref=e457]
+              - row "ORD202604142810 高爱峰 13892123658 上门服务 2026年4月15日 下午 延安丁峰窑洞养老服务有限公司 林美红 已完成 2026-04-14T12:11:17" [ref=e458]:
+                - cell "ORD202604142810" [ref=e459]
+                - cell "高爱峰" [ref=e460]
+                - cell "13892123658" [ref=e461]
+                - cell "上门服务" [ref=e462]
+                - cell "2026年4月15日 下午" [ref=e463]
+                - cell "延安丁峰窑洞养老服务有限公司" [ref=e464]
+                - cell "林美红" [ref=e465]
+                - cell "已完成" [ref=e466]:
+                  - generic [ref=e468]: 已完成
+                - cell [ref=e469]
+                - cell [ref=e470]
+                - cell "2026-04-14T12:11:17" [ref=e471]
+                - cell [ref=e472]
+              - row "ORD202604149160 张秀英 13119261038 上门服务 2026年4月15日 下午 延安家享悠网络科技有限公司 陈伟强 已取消 2026-04-14T12:04:37" [ref=e473]:
+                - cell "ORD202604149160" [ref=e474]
+                - cell "张秀英" [ref=e475]
+                - cell "13119261038" [ref=e476]
+                - cell "上门服务" [ref=e477]
+                - cell "2026年4月15日 下午" [ref=e478]
+                - cell "延安家享悠网络科技有限公司" [ref=e479]
+                - cell "陈伟强" [ref=e480]
+                - cell "已取消" [ref=e481]:
+                  - generic [ref=e483]: 已取消
+                - cell [ref=e484]
+                - cell [ref=e485]
+                - cell "2026-04-14T12:04:37" [ref=e486]
+                - cell [ref=e487]
+              - row "ORD202604142033 米桂芳 13468866933 上门服务 2026年4月15日 下午 延安家享悠网络科技有限公司 陈伟强 服务中 2026-04-14T11:23:43 完成服务 取消" [ref=e488]:
+                - cell "ORD202604142033" [ref=e489]
+                - cell "米桂芳" [ref=e490]
+                - cell "13468866933" [ref=e491]
+                - cell "上门服务" [ref=e492]
+                - cell "2026年4月15日 下午" [ref=e493]
+                - cell "延安家享悠网络科技有限公司" [ref=e494]
+                - cell "陈伟强" [ref=e495]
+                - cell "服务中" [ref=e496]:
+                  - generic [ref=e498]: 服务中
+                - cell [ref=e499]
+                - cell [ref=e500]
+                - cell "2026-04-14T11:23:43" [ref=e501]
+                - cell "完成服务 取消" [ref=e502]:
+                  - button "完成服务" [ref=e503] [cursor=pointer]:
+                    - generic [ref=e504]: 完成服务
+                  - button "取消" [ref=e505] [cursor=pointer]:
+                    - generic [ref=e506]: 取消
+              - row "ORD202604146628 童永清 13474567399 上门服务 2026年4月28日 上午 延安市宝塔区丁峰家政服务有限公司 李建国 服务中 2026-04-14T11:18:02 完成服务 取消" [ref=e507]:
+                - cell "ORD202604146628" [ref=e508]
+                - cell "童永清" [ref=e509]
+                - cell "13474567399" [ref=e510]
+                - cell "上门服务" [ref=e511]
+                - cell "2026年4月28日 上午" [ref=e512]
+                - cell "延安市宝塔区丁峰家政服务有限公司" [ref=e513]
+                - cell "李建国" [ref=e514]
+                - cell "服务中" [ref=e515]:
+                  - generic [ref=e517]: 服务中
+                - cell [ref=e518]
+                - cell [ref=e519]
+                - cell "2026-04-14T11:18:02" [ref=e520]
+                - cell "完成服务 取消" [ref=e521]:
+                  - button "完成服务" [ref=e522] [cursor=pointer]:
+                    - generic [ref=e523]: 完成服务
+                  - button "取消" [ref=e524] [cursor=pointer]:
+                    - generic [ref=e525]: 取消
+          - generic [ref=e526]:
+            - generic [ref=e529] [cursor=pointer]:
+              - generic "10条/页" [ref=e530]:
+                - generic [ref=e531]: 10条/页
+              - img "loading" [ref=e532]:
+                - img [ref=e537]
+            - generic [ref=e539]:
+              - img [ref=e542]
+              - generic [ref=e544] [cursor=pointer]: "1"
+              - generic [ref=e545] [cursor=pointer]: "2"
+              - generic [ref=e546] [cursor=pointer]: "3"
+              - generic [ref=e547] [cursor=pointer]: "4"
+              - generic [ref=e548] [cursor=pointer]: "5"
+              - generic [ref=e549] [cursor=pointer]: "6"
+              - generic [ref=e550] [cursor=pointer]: "7"
+              - img [ref=e553] [cursor=pointer]
+              - generic [ref=e557] [cursor=pointer]: "103"
+              - img [ref=e560] [cursor=pointer]
+    - contentinfo [ref=e562]:
+      - link "Copyright MIT © 2021 Soybean" [ref=e564] [cursor=pointer]:
+        - /url: https://github.com/soybeanjs/soybean-admin/blob/main/LICENSE
+  - img
+  - generic [ref=e21]:
+    - generic "Toggle devtools panel" [ref=e22] [cursor=pointer]:
+      - img [ref=e23]
+    - generic "Toggle Component Inspector" [ref=e566] [cursor=pointer]:
+      - img [ref=e567]

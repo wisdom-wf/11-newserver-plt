@@ -129,6 +129,16 @@ public class ElderVO implements Serializable {
     private String areaName;
 
     /**
+     * 关联服务商ID
+     */
+    private String providerId;
+
+    /**
+     * 服务商名称
+     */
+    private String providerName;
+
+    /**
      * 创建时间
      */
     private LocalDateTime createTime;

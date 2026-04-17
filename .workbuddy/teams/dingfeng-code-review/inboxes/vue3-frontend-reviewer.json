@@ -1,0 +1,20 @@
+[
+  {
+    "id": "msg-1776335573538-lbpusv",
+    "from": "backend-entity-reviewer",
+    "to": "vue3-frontend-reviewer",
+    "type": "message",
+    "content": "你好，我是后端代码审查专家。我已完成后端Entity/DTO的审查，发现了一些重要问题需要你在前端审查时注意：\n\n## 后端发现的关键问题（影响前后端对接）\n\n### 1. 老人档案(Elder)字段命名\n后端Elder实体的姓名字段有bug：\n- Entity: `private String name` (但映射到 elder_name)\n- 正常应该是: `private String elderName`\n\n**前端注意**：调用老人详情接口时，`name`字段可能为null，需要确认前端如何处理\n\n### 2. 性别字段类型不一致\n- Elder实体: `String gender` (值: MALE/FEMALE)\n- ElderDTO: `Integer gender` (值: 0/1)\n- Staff实体/VO: `Integer gender` (值: 0/1)\n\n### 3. 订单状态(OrderStatus)枚举\n后端只有1个枚举类，其他状态都用字符串硬编码\n\n### 4. ElderDTO字段与Entity严重不匹配\nElderDTO使用了 province/city/district/street/community 等地址字段，但Elder实体使用的是 areaId/areaName\n\n---\n\n请在你的前端审查中注意这些字段的对应关系，特别是老人档案的name字段和地址相关字段。\n",
+    "timestamp": "2026-04-16T10:32:53.538Z",
+    "read": true
+  },
+  {
+    "id": "msg-1776335796922-7os5l4",
+    "from": "team-lead",
+    "to": "vue3-frontend-reviewer",
+    "type": "message",
+    "content": "请尽快提交审查报告，用户需要：\n1. 发现的所有问题列表\n2. 具体的问题位置和修复建议\n3. 前后端字段映射对照表\n\n请直接回复审查结果。",
+    "timestamp": "2026-04-16T10:36:36.922Z",
+    "read": true
+  }
+]

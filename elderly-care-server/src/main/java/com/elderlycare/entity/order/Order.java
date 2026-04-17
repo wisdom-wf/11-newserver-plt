@@ -65,6 +65,9 @@ public class Order implements Serializable {
     @TableField(exist = false)
     private String providerName;
 
+    @TableField(exist = false)
+    private String staffPhone;
+
     private String cancelReason;
 
     private LocalDateTime dispatchTime;

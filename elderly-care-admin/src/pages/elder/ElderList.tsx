@@ -69,9 +69,9 @@ const ElderList: React.FC = () => {
     });
   };
 
-  const handleToggleStatus = async (id: string, currentStatus: number) => {
+  const handleToggleStatus = async (id: string, currentStatus: string) => {
     try {
-      if (currentStatus === 1) {
+      if (currentStatus === 'ENABLED') {
         await disableElder(id);
       } else {
         await enableElder(id);
@@ -103,7 +103,7 @@ const ElderList: React.FC = () => {
     try {
       const values = await form.validateFields();
       if (editingElder) {
-        await updateElder(editingElder.id, values);
+        await updateElder(editingElder.elderId, values);
         message.success('更新成功');
       } else {
         await createElder(values);
@@ -122,7 +122,7 @@ const ElderList: React.FC = () => {
       title: '性别',
       dataIndex: 'gender',
       key: 'gender',
-      render: (gender: number) => getGenderText(gender),
+      render: (gender: string) => getGenderText(gender),
     },
     { title: '年龄', dataIndex: 'age', key: 'age' },
     { title: '联系电话', dataIndex: 'phone', key: 'phone' },
@@ -131,15 +131,21 @@ const ElderList: React.FC = () => {
       title: '护理级别',
       dataIndex: 'careLevel',
       key: 'careLevel',
-      render: (level: number) => getCareLevelText(level),
+      render: (level: string) => getCareLevelText(level),
+    },
+    {
+      title: '服务商',
+      dataIndex: 'providerName',
+      key: 'providerName',
+      render: (name: string) => name || '-',
     },
     {
       title: '状态',
       dataIndex: 'status',
       key: 'status',
-      render: (status: number) => (
-        <Tag color={status === 1 ? 'green' : 'red'}>
-          {status === 1 ? '启用' : '禁用'}
+      render: (status: string) => (
+        <Tag color={status === 'ENABLED' ? 'green' : 'red'}>
+          {status === 'ENABLED' ? '启用' : '禁用'}
         </Tag>
       ),
     },
@@ -154,12 +160,12 @@ const ElderList: React.FC = () => {
           <Button
             type="link"
             size="small"
-            icon={record.status === 1 ? <CloseOutlined /> : <CheckOutlined />}
-            onClick={() => handleToggleStatus(record.id, record.status)}
+            icon={record.status === 'ENABLED' ? <CloseOutlined /> : <CheckOutlined />}
+            onClick={() => handleToggleStatus(record.elderId, record.status)}
           >
-            {record.status === 1 ? '禁用' : '启用'}
+            {record.status === 'ENABLED' ? '禁用' : '启用'}
           </Button>
-          <Button type="link" size="small" danger icon={<DeleteOutlined />} onClick={() => handleDelete(record.id)}>
+          <Button type="link" size="small" danger icon={<DeleteOutlined />} onClick={() => handleDelete(record.elderId)}>
             删除
           </Button>
         </Space>

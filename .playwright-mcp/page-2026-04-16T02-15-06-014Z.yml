@@ -1,0 +1,261 @@
+- generic [active] [ref=e1]:
+  - generic [ref=e5]:
+    - banner [ref=e6]:
+      - generic [ref=e7]:
+        - button [ref=e8] [cursor=pointer]:
+          - img [ref=e11]
+        - navigation "Breadcrumb" [ref=e13]:
+          - list [ref=e14]:
+            - listitem [ref=e15]:
+              - generic [ref=e17]:
+                - img [ref=e18]
+                - text: 首页
+        - generic [ref=e19]:
+          - button [ref=e20] [cursor=pointer]:
+            - img [ref=e23]
+          - button [ref=e25] [cursor=pointer]:
+            - img [ref=e28]
+          - button [ref=e31] [cursor=pointer]:
+            - img [ref=e34]
+          - button [ref=e35] [cursor=pointer]:
+            - img [ref=e38]
+          - button [ref=e39] [cursor=pointer]:
+            - img [ref=e42]
+          - button "admin" [ref=e44] [cursor=pointer]:
+            - generic [ref=e46]:
+              - img [ref=e47]
+              - generic [ref=e48]: admin
+    - generic [ref=e51]:
+      - generic [ref=e55]:
+        - generic [ref=e56] [cursor=pointer]:
+          - generic:
+            - img:
+              - img
+              - generic:
+                - img
+          - img [ref=e57]
+          - generic [ref=e58]: 首页
+        - generic [ref=e60] [cursor=pointer]:
+          - generic:
+            - img:
+              - img
+              - generic:
+                - img
+          - img [ref=e61]
+          - generic [ref=e62]: 订单管理
+          - img [ref=e64]
+        - generic [ref=e67] [cursor=pointer]:
+          - generic:
+            - img:
+              - img
+              - generic:
+                - img
+          - img [ref=e68]
+          - generic [ref=e69]: 预约信息管理
+          - img [ref=e71]
+        - generic [ref=e74] [cursor=pointer]:
+          - generic:
+            - img:
+              - img
+              - generic:
+                - img
+          - img [ref=e75]
+          - generic [ref=e76]: 服务商管理
+          - img [ref=e78]
+        - generic [ref=e81] [cursor=pointer]:
+          - generic:
+            - img:
+              - img
+              - generic:
+                - img
+          - img [ref=e82]
+          - generic [ref=e83]: 老人档案管理
+          - img [ref=e85]
+        - generic [ref=e88] [cursor=pointer]:
+          - generic:
+            - img:
+              - img
+              - generic:
+                - img
+          - img [ref=e89]
+          - generic [ref=e90]: 服务人员管理
+          - img [ref=e92]
+        - generic [ref=e95] [cursor=pointer]:
+          - generic:
+            - img:
+              - img
+              - generic:
+                - img
+          - img [ref=e96]
+          - generic [ref=e97]: 服务日志
+          - img [ref=e99]
+        - generic [ref=e102] [cursor=pointer]:
+          - generic:
+            - img:
+              - img
+              - generic:
+                - img
+          - img [ref=e103]
+          - generic [ref=e104]: 质检管理
+          - img [ref=e106]
+        - generic [ref=e109] [cursor=pointer]:
+          - generic:
+            - img:
+              - img
+              - generic:
+                - img
+          - img [ref=e110]
+          - generic [ref=e111]: 满意度评价
+          - img [ref=e113]
+        - generic [ref=e116] [cursor=pointer]:
+          - generic:
+            - img:
+              - img
+              - generic:
+                - img
+          - img [ref=e117]
+          - generic [ref=e118]: 财务结算
+          - img [ref=e120]
+      - button [ref=e123] [cursor=pointer]:
+        - img [ref=e126]
+      - button [ref=e128] [cursor=pointer]:
+        - img [ref=e131]
+    - complementary [ref=e134]:
+      - link "社区服务智慧运营管理平台" [ref=e136] [cursor=pointer]:
+        - /url: /
+        - img [ref=e138]
+        - heading "社区服务智慧运营管理平台" [level=2] [ref=e147]
+    - main [ref=e149]:
+      - generic [ref=e150]:
+        - alert [ref=e151]:
+          - img [ref=e154]
+          - generic [ref=e158]:
+            - generic [ref=e159]: 运营驾驶舱
+            - generic [ref=e160]: 实时展示平台运营数据，包括订单统计、服务商分布、服务人员业绩等核心指标
+        - generic [ref=e161]:
+          - generic [ref=e163] [cursor=pointer]:
+            - img [ref=e165]
+            - generic [ref=e167]:
+              - generic [ref=e168]: 今日订单
+              - generic [ref=e169]: "0"
+          - generic [ref=e171] [cursor=pointer]:
+            - img [ref=e173]
+            - generic [ref=e175]:
+              - generic [ref=e176]: 本月订单
+              - generic [ref=e177]: "0"
+          - generic [ref=e179] [cursor=pointer]:
+            - img [ref=e181]
+            - generic [ref=e183]:
+              - generic [ref=e184]: 累计订单
+              - generic [ref=e185]: "0"
+          - generic [ref=e187] [cursor=pointer]:
+            - img [ref=e189]
+            - generic [ref=e191]:
+              - generic [ref=e192]: 服务老人
+              - generic [ref=e193]: "0"
+          - generic [ref=e195] [cursor=pointer]:
+            - img [ref=e197]
+            - generic [ref=e199]:
+              - generic [ref=e200]: 服务商
+              - generic [ref=e201]: "0"
+        - generic [ref=e202]:
+          - generic [ref=e204]:
+            - img [ref=e206]
+            - generic [ref=e208]:
+              - generic [ref=e209]: 服务人员
+              - generic [ref=e210]: "0"
+          - generic [ref=e212]:
+            - img [ref=e214]
+            - generic [ref=e216]:
+              - generic [ref=e217]: 本月营收
+              - generic [ref=e218]: ¥0
+          - generic [ref=e220]:
+            - img [ref=e222]
+            - generic [ref=e224]:
+              - generic [ref=e225]: 满意度
+              - generic [ref=e226]: 0.0%
+          - generic [ref=e228]:
+            - img [ref=e230]
+            - generic [ref=e232]:
+              - generic [ref=e233]: 老人总数
+              - generic [ref=e234]: "0"
+          - generic [ref=e236]:
+            - img [ref=e238]
+            - generic [ref=e240]:
+              - generic [ref=e241]: 本月新增
+              - generic [ref=e242]: "0"
+        - generic [ref=e243]:
+          - generic [ref=e246]: 服务类型分布
+          - generic [ref=e252]: 老人年龄分布
+          - generic [ref=e258]: 服务需求分布
+        - generic [ref=e262]:
+          - generic [ref=e265]: 订单来源分布
+          - generic [ref=e271]: 月度收支趋势
+          - generic [ref=e277]: 服务类型金额分布
+        - generic [ref=e281]:
+          - generic [ref=e283]:
+            - img [ref=e285]
+            - generic [ref=e287]:
+              - generic [ref=e288]: 订单总数
+              - generic [ref=e289]: "0"
+          - generic [ref=e291]:
+            - img [ref=e293]
+            - generic [ref=e295]:
+              - generic [ref=e296]: 已完成
+              - generic [ref=e297]: "0"
+          - generic [ref=e299]:
+            - img [ref=e301]
+            - generic [ref=e303]:
+              - generic [ref=e304]: 完成率
+              - generic [ref=e305]: 0.0%
+          - generic [ref=e307]:
+            - img [ref=e309]
+            - generic [ref=e311]:
+              - generic [ref=e312]: 总收入
+              - generic [ref=e313]: ¥0
+        - generic [ref=e314]:
+          - generic [ref=e316]:
+            - img [ref=e318]
+            - generic [ref=e320]:
+              - generic [ref=e321]: 政府补贴
+              - generic [ref=e322]: ¥0
+          - generic [ref=e324]:
+            - img [ref=e326]
+            - generic [ref=e328]:
+              - generic [ref=e329]: 自付金额
+              - generic [ref=e330]: ¥0
+          - generic [ref=e332]:
+            - img [ref=e334]
+            - generic [ref=e336]:
+              - generic [ref=e337]: 平均评分
+              - generic [ref=e338]: "0.0"
+          - generic [ref=e340]:
+            - img [ref=e342]
+            - generic [ref=e344]:
+              - generic [ref=e345]: 好评率
+              - generic [ref=e346]: 0.0%
+        - generic [ref=e347]:
+          - generic [ref=e350]: 服务质量雷达
+          - generic [ref=e356]: 订单转化漏斗
+          - generic [ref=e361]:
+            - generic [ref=e362]: 服务商排名TOP5
+            - generic [ref=e363]: 暂无数据
+        - generic [ref=e364]:
+          - generic [ref=e366]:
+            - generic [ref=e367]: 服务人员排名TOP3
+            - generic [ref=e368]: 暂无数据
+          - generic [ref=e371]: 订单趋势
+          - generic [ref=e377]: 服务类型分布(订单)
+        - generic [ref=e381]:
+          - generic [ref=e384]: 评分趋势
+          - generic [ref=e390]: 评价分布
+          - generic [ref=e396]: 投诉类型分析
+    - contentinfo [ref=e400]:
+      - link "Copyright MIT © 2021 Soybean" [ref=e402] [cursor=pointer]:
+        - /url: https://github.com/soybeanjs/soybean-admin/blob/main/LICENSE
+  - img
+  - generic [ref=e403]:
+    - generic "Toggle devtools panel" [ref=e404] [cursor=pointer]:
+      - img [ref=e405]
+    - generic "Toggle Component Inspector" [ref=e410] [cursor=pointer]:
+      - img [ref=e411]

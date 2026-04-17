@@ -23,6 +23,11 @@ public class ProviderUpdateDTO implements Serializable {
     private String providerType;
 
     /**
+     * 服务类别: HOME_CARE-家政服务, ELDER_CARE-养老服务
+     */
+    private String serviceCategory;
+
+    /**
      * 法定代表人
      */
     private String legalPerson;

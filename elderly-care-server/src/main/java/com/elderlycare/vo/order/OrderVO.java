@@ -50,6 +50,8 @@ public class OrderVO implements Serializable {
 
     private String status;
 
+    private Integer statusCode;
+
     private String statusName;
 
     private String providerId;

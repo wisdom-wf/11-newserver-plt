@@ -32,12 +32,12 @@ public class ProviderQueryDTO implements Serializable {
     private String providerType;
 
     /**
-     * 审核状态
+     * 服务类别: HOME_CARE-家政服务, ELDER_CARE-养老服务
      */
-    private String auditStatus;
+    private String serviceCategory;
 
     /**
      * 状态
      */
-    private Integer status;
+    private String status;
 }

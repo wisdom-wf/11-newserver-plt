@@ -111,4 +111,10 @@ public class ServiceLog implements Serializable {
     /** 更新时间 */
     @TableField(fill = FieldFill.INSERT_UPDATE)
     private LocalDateTime updateTime;
+
+    /**
+     * 删除标志
+     */
+    @TableLogic
+    private Integer deleted;
 }

@@ -1,6 +1,7 @@
 package com.elderlycare.service.appointment;
 
 import com.elderlycare.common.PageResult;
+import com.elderlycare.dto.appointment.AppointmentCreateDTO;
 import com.elderlycare.dto.appointment.AppointmentQueryDTO;
 import com.elderlycare.vo.appointment.AppointmentStatisticsVO;
 import com.elderlycare.vo.appointment.AppointmentVO;
@@ -18,6 +19,11 @@ public interface AppointmentService {
      * 获取预约列表
      */
     PageResult<AppointmentVO> getAppointmentList(AppointmentQueryDTO query);
+
+    /**
+     * 创建预约
+     */
+    String createAppointment(AppointmentCreateDTO dto);
 
     /**
      * 获取预约详情
