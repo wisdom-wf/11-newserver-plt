@@ -22,6 +22,17 @@ export function fetchGetAppointment(id: string) {
 }
 
 /**
+ * 创建预约
+ */
+export function fetchCreateAppointment(data: Api.Appointment.AppointmentForm) {
+  return request<string>({
+    url: '/api/appointment',
+    method: 'post',
+    data
+  });
+}
+
+/**
  * 确认预约
  */
 export function fetchConfirmAppointment(id: string, data: { providerId: string; appointmentTime: string }) {
@@ -109,5 +120,15 @@ export function fetchGetAppointmentsByPhone(phone: string) {
     url: '/api/appointment/phone',
     method: 'get',
     params: { phone }
+  });
+}
+
+/**
+ * 获取预约时间轴
+ */
+export function fetchGetAppointmentTimeline(id: string) {
+  return request<Api.Appointment.AppointmentTimeline>({
+    url: `/api/appointment/${id}/timeline`,
+    method: 'get'
   });
 }

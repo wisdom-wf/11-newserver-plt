@@ -12,6 +12,11 @@ declare global {
     $message?: import('naive-ui').MessageProviderInst;
     /** Notification instance */
     $notification?: import('naive-ui').NotificationProviderInst;
+    /** AMap security config – set before AMap loader initializes */
+    _AMapSecurityConfig?: {
+      securityJsCode?: string;
+      serviceHost?: string;
+    };
   }
 
   /** Build time of the project */

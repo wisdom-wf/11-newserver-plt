@@ -66,7 +66,18 @@ export function useNaiveTable<ResponseData, ApiData>(options: UseNaiveTableOptio
 
 type PaginationParams = Pick<PaginationProps, 'page' | 'pageSize'>;
 
-type UseNaivePaginatedTableOptions<ResponseData, ApiData> = UseNaiveTableOptions<ResponseData, ApiData, true> & {
+type UseNaivePaginatedTableOptions<ResponseData, ApiData> = Omit<
+  UseNaiveTableOptions<ResponseData, ApiData, true>,
+  'api'
+> & {
+  /**
+   * api function to get table data with pagination params
+   */
+  apiFn?: (params: PaginationParams) => Promise<ResponseData>;
+  /**
+   * initial pagination params
+   */
+  apiParams?: PaginationParams;
   paginationProps?: Omit<PaginationProps, 'page' | 'pageSize' | 'itemCount'>;
   /**
    * whether to show the total count of the table
@@ -87,9 +98,10 @@ export function useNaivePaginatedTable<ResponseData, ApiData>(
 
   const showTotal = computed(() => options.showTotal ?? true);
 
+  // Initialize pagination from apiParams or defaults
   const pagination = reactive({
-    page: 1,
-    pageSize: 10,
+    page: options.apiParams?.page ?? 1,
+    pageSize: options.apiParams?.pageSize ?? 10,
     itemCount: 0,
     showSizePicker: true,
     pageSizes: [10, 15, 20, 25, 30],
@@ -124,8 +136,20 @@ export function useNaivePaginatedTable<ResponseData, ApiData>(
     };
   });
 
+  // Create api function from apiFn
+  const api = async () => {
+    if (options.apiFn) {
+      return options.apiFn(paginationParams.value);
+    }
+    throw new Error('apiFn is required');
+  };
+
+  // Destructure to exclude apiFn and apiParams from options passed to useTable
+  const { apiFn: _apiFn, apiParams: _apiParams, ...tableOptions } = options;
+
   const result = useTable<ResponseData, ApiData, NaiveUI.TableColumn<ApiData>, true>({
-    ...options,
+    ...tableOptions,
+    api,
     pagination: true,
     getColumnChecks: cols => getColumnChecks(cols, options.getColumnVisible),
     getColumns,
@@ -191,7 +215,8 @@ export function useTableOperate<TableData>(
 
   function handleEdit(id: TableData[keyof TableData]) {
     operateType.value = 'edit';
-    const findItem = data.value.find(item => item[idKey] === id) || null;
+    // Convert both to string for comparison to handle type mismatch
+    const findItem = data.value.find(item => String(item[idKey]) === String(id)) || null;
     editingData.value = jsonClone(findItem);
 
     openDrawer();

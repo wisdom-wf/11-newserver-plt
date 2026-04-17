@@ -99,7 +99,7 @@ declare namespace Api {
       }[];
     }
 
-    /** 服务日志详情 */
+    /** 服务日志详情 - 与后端ServiceLog实体对齐 */
     interface ServiceLog {
       /** 日志ID */
       serviceLogId: string;
@@ -110,55 +110,59 @@ declare namespace Api {
       /** 订单号 */
       orderNo?: string;
       /** 服务类别 */
-      serviceCategory: ServiceCategory;
+      serviceCategory?: ServiceCategory;
       /** 老人ID */
       elderId: string;
       /** 老人姓名 */
       elderName: string;
       /** 老人手机号 */
       elderPhone?: string;
+      /** 老人地址 */
+      elderAddress?: string;
       /** 服务人员ID */
       staffId: string;
       /** 服务人员姓名 */
       staffName: string;
       /** 服务人员手机号 */
       staffPhone?: string;
-      /** 服务类型 */
-      serviceType: string;
+      /** 服务商ID */
+      providerId?: string;
+      /** 服务商名称 */
+      providerName?: string;
+      /** 服务类型编码 */
+      serviceTypeCode?: string;
+      /** 服务类型名称 */
+      serviceTypeName?: string;
+      /** 服务日期 */
+      serviceDate?: string;
       /** 服务开始时间 */
       serviceStartTime?: string;
       /** 服务结束时间 */
       serviceEndTime?: string;
-      /** 实际服务时长（分钟） */
+      /** 服务时长（分钟） */
       serviceDuration?: number;
-      /** 服务内容描述 */
-      serviceContent?: string;
-      /** 已完成项目 */
-      completedItems?: string[];
-      /** 服务照片 */
-      servicePhotos?: string[];
+      /** 实际服务时长 */
+      actualDuration?: number;
+      /** 服务状态 - 与后端serviceStatus对齐 */
+      serviceStatus?: string;
+      /** 服务评分 */
+      serviceScore?: number;
+      /** 服务评价 */
+      serviceComment?: string;
+      /** 服务照片 - 后端为逗号分隔字符串 */
+      servicePhotos?: string | string[];
+      /** 老人签名 - 与后端elderSignature对齐 */
+      elderSignature?: string;
       /** 是否有异常 */
       hasAnomaly?: boolean;
       /** 异常类型 */
       anomalyType?: string;
       /** 异常描述 */
       anomalyDesc?: string;
-      /** 老人签字 */
-      elderSign?: string;
-      /** 服务人员签字 */
-      staffSign?: string;
-      /** 养老服务扩展 */
-      elderCareExtend?: ElderCareExtend;
-      /** 家政服务扩展 */
-      homeCareExtend?: HomeCareExtend;
-      /** 状态 */
-      status: LogStatus;
-      /** 审核备注 */
-      reviewRemarks?: string;
-      /** 审核状态 */
-      auditStatus?: AuditStatus;
-      /** 提交时间 */
-      submitTime?: string;
+      /** 异常照片 - 后端为逗号分隔字符串 */
+      anomalyPhotos?: string | string[];
+      /** 异常处理状态 */
+      anomalyStatus?: string;
       /** 创建时间 */
       createTime: string;
       /** 更新时间 */
@@ -167,9 +171,6 @@ declare namespace Api {
 
     /** 服务日志状态 */
     type LogStatus = 'DRAFT' | 'SUBMITTED' | 'VERIFIED';
-
-    /** 审核状态 */
-    type AuditStatus = 'PENDING' | 'APPROVED' | 'REJECTED';
 
     /** 服务日志统计 */
     interface Statistics {

@@ -26,10 +26,10 @@ declare namespace Api {
     /**
      * enable status
      *
-     * - "1": enabled
-     * - "2": disabled
+     * - "ENABLED": enabled (正常)
+     * - "DISABLED": disabled (禁用)
      */
-    type EnableStatus = '1' | '2';
+    type EnableStatus = 'ENABLED' | 'DISABLED';
 
     /** common query params for paginating */
     interface PaginatingQueryParams {

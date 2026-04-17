@@ -65,17 +65,6 @@ export function fetchUpdateProviderStatus(id: string, status: Api.Common.EnableS
 }
 
 /**
- * 审核服务商
- */
-export function fetchAuditProvider(id: string, data: { auditStatus: Api.Provider.AuditStatus; auditRemark?: string }) {
-  return request({
-    url: `/api/providers/${id}/audit`,
-    method: 'put',
-    data
-  });
-}
-
-/**
  * 获取服务商统计
  */
 export function fetchGetProviderStatistics(params?: { areaId?: string }) {
@@ -87,12 +76,25 @@ export function fetchGetProviderStatistics(params?: { areaId?: string }) {
 }
 
 /**
- * 获取服务商选择列表
+ * 获取服务商选择列表（用于下拉选择）
+ * 从 /api/providers 接口提取 id 和 name
  */
-export function fetchGetProviderOptions(params?: { areaId?: string; serviceCategory?: string }) {
-  return request<{ id: string; name: string }[]>({
-    url: '/api/providers/options',
+export async function fetchGetProviderOptions(params?: { areaId?: string; serviceCategory?: string }) {
+  const response = await request<Api.Common.PaginatingQueryRecord<Api.Provider.Provider>>({
+    url: '/api/providers',
     method: 'get',
-    params
+    params: {
+      ...params,
+      pageSize: 1000 // 获取全部，用于下拉选择
+    }
   });
+  
+  // 提取为 options 格式
+  if (response.data && response.data.records) {
+    return response.data.records.map((item: Api.Provider.Provider) => ({
+      id: item.providerId,
+      name: item.providerName
+    }));
+  }
+  return [];
 }

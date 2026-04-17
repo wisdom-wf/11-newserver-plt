@@ -265,7 +265,7 @@ function openPreview(photos: string[]) {
 
 async function handleDelete(row: Api.ServiceLog.ServiceLog) {
   try {
-    await fetchDeleteServiceLog(row.id);
+    await fetchDeleteServiceLog(row.serviceLogId);
     message.success('删除成功');
     getTableData();
   } catch (e: any) {
@@ -378,7 +378,7 @@ function showAddModal() {
 
 function handleUpdate(row: Api.ServiceLog.ServiceLog) {
   isEdit.value = true;
-  currentLogId.value = row.id;
+  currentLogId.value = row.serviceLogId;
   formData.value = {
     orderId: row.orderId || '',
     serviceStartTime: row.serviceStartTime || null,
@@ -391,7 +391,7 @@ function handleUpdate(row: Api.ServiceLog.ServiceLog) {
 }
 
 function handleSubmitReview(row: Api.ServiceLog.ServiceLog) {
-  reviewLogId.value = row.id;
+  reviewLogId.value = row.serviceLogId;
   reviewRemarks.value = '';
   reviewDialogVisible.value = true;
 }
@@ -488,16 +488,16 @@ onMounted(() => {
         <div class="stat-card stat-info">
           <div class="stat-label">今日新增</div>
           <div class="stat-value">{{ statistics.today }}</div>
-          <div class="stat-sub">待审核 {{ statistics.pendingCount }}</div>
+          <div class="stat-sub">草稿 {{ statistics.draftCount }}</div>
         </div>
         <div class="stat-card stat-success">
-          <div class="stat-label">审核通过</div>
-          <div class="stat-value">{{ statistics.approvedCount }}</div>
-          <div class="stat-sub">通过率 {{ Number(statistics.approvalRate || 0).toFixed(1) }}%</div>
+          <div class="stat-label">已提交</div>
+          <div class="stat-value">{{ statistics.submittedCount }}</div>
+          <div class="stat-sub">提交率 {{ Number(statistics.submissionRate || 0).toFixed(1) }}%</div>
         </div>
         <div class="stat-card stat-warning">
-          <div class="stat-label">已驳回</div>
-          <div class="stat-value">{{ statistics.rejectedCount }}</div>
+          <div class="stat-label">已核实</div>
+          <div class="stat-value">{{ statistics.verifiedCount }}</div>
           <div class="stat-sub">异常 {{ statistics.anomalyCount }} (异常率 {{ Number(statistics.anomalyRate || 0).toFixed(1) }}%)</div>
         </div>
       </div>
@@ -595,7 +595,7 @@ onMounted(() => {
         :data="tableData"
         :loading="loading"
         :scroll-x="1400"
-        :row-key="(row: Api.ServiceLog.ServiceLog) => row.id"
+        :row-key="(row: Api.ServiceLog.ServiceLog) => row.serviceLogId"
       />
       <div style="padding: 12px 0">
         <NSpace justify="end">

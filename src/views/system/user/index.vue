@@ -22,13 +22,26 @@ import {
   fetchGetAllRoles,
   fetchAssignRoles
 } from '@/service/api';
-import type { DataTableColumns } from 'naive-ui';
+import type { DataTableColumns, FormInst } from 'naive-ui';
+import { useFormRules } from '@/hooks/common/form';
 
 defineOptions({
   name: 'SystemUser'
 });
 
 const message = useMessage();
+const { patternRules, createRequiredRule } = useFormRules();
+const formRef = ref<FormInst | null>(null);
+
+// Form validation rules
+const rules = {
+  userName: [createRequiredRule('请输入用户名')],
+  realName: [createRequiredRule('请输入真实姓名')],
+  phone: [
+    createRequiredRule('请输入手机号'),
+    { pattern: patternRules.phone.pattern, message: patternRules.phone.message, trigger: 'change' }
+  ]
+};
 
 const userData = ref<Api.User.User[]>([]);
 const total = ref(0);
@@ -187,15 +200,24 @@ async function handleDelete(id: string) {
 }
 
 async function handleSubmit() {
-  if (operateType.value === 'add') {
-    await fetchCreateUser(form.value);
-    message.success('添加成功');
-  } else {
-    await fetchUpdateUser(form.value.id, form.value);
-    message.success('修改成功');
+  try {
+    await formRef.value?.validate();
+  } catch {
+    return;
   }
-  modalVisible.value = false;
-  await getUserList();
+  try {
+    if (operateType.value === 'add') {
+      await fetchCreateUser(form.value);
+      message.success('添加成功');
+    } else {
+      await fetchUpdateUser(form.value.id, form.value);
+      message.success('修改成功');
+    }
+    modalVisible.value = false;
+    await getUserList();
+  } catch (e) {
+    console.error('Failed to submit', e);
+  }
 }
 
 async function handleAssignRole(row: Api.User.User) {
@@ -263,17 +285,17 @@ onMounted(() => {
       preset="card"
       style="width: 600px"
     >
-      <NForm :model="form" label-placement="left" label-width="100">
-        <NFormItem v-if="operateType === 'add'" label="用户名">
+      <NForm ref="formRef" :model="form" :rules="rules" label-placement="left" label-width="100">
+        <NFormItem v-if="operateType === 'add'" label="用户名" path="userName">
           <NInput v-model:value="form.userName" placeholder="请输入用户名" />
         </NFormItem>
         <NFormItem v-if="operateType === 'add'" label="密码">
           <NInput v-model:value="form.password" type="password" placeholder="请输入密码" />
         </NFormItem>
-        <NFormItem label="真实姓名">
+        <NFormItem label="真实姓名" path="realName">
           <NInput v-model:value="form.realName" placeholder="请输入真实姓名" />
         </NFormItem>
-        <NFormItem label="手机号">
+        <NFormItem label="手机号" path="phone">
           <NInput v-model:value="form.phone" placeholder="请输入手机号" />
         </NFormItem>
         <NFormItem label="邮箱">

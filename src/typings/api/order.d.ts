@@ -64,6 +64,18 @@ declare namespace Api {
       remark?: string;
     }
 
+    /** 订单状态枚举 - 与后端OrderStatus对齐 */
+    type OrderStatus =
+      | 'CANCELLED'      // 0 - 已取消
+      | 'CREATED'        // 2 - 待派单
+      | 'DISPATCHED'     // 3 - 已派单
+      | 'RECEIVED'       // 4 - 已接单
+      | 'SERVICE_STARTED' // 5 - 服务中
+      | 'SERVICE_COMPLETED' // 6 - 已完成
+      | 'EVALUATED'      // 7 - 已评价
+      | 'SETTLED'        // 8 - 已结算
+      | 'REJECTED';      // 9 - 已拒单
+
     /** 订单详情 */
     interface Order {
       /** 订单ID */
@@ -120,8 +132,10 @@ declare namespace Api {
       subsidyAmount?: number;
       /** 自付金额 */
       selfPayAmount?: number;
-      /** 订单状态 */
-      status: string;
+      /** 订单状态 - 字符串枚举 */
+      status: OrderStatus;
+      /** 状态数字编码 - 与前端历史兼容 */
+      statusCode?: number;
       /** 状态名称 */
       statusName?: string;
       /** 取消原因 */

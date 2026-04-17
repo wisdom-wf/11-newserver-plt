@@ -44,6 +44,7 @@
     "update-pkg": "sa update-pkg"
   },
   "dependencies": {
+    "@amap/amap-jsapi-loader": "^1.0.1",
     "@better-scroll/core": "2.5.1",
     "@iconify/vue": "5.0.0",
     "@sa/axios": "workspace:*",
@@ -69,6 +70,7 @@
   "devDependencies": {
     "@elegant-router/vue": "0.3.8",
     "@iconify/json": "2.2.456",
+    "@playwright/test": "^1.59.1",
     "@sa/scripts": "workspace:*",
     "@sa/uno-preset": "workspace:*",
     "@soybeanjs/eslint-config-vue": "^0.0.2",
@@ -76,11 +78,13 @@
     "@types/nprogress": "0.2.3",
     "@vitejs/plugin-vue": "6.0.5",
     "@vitejs/plugin-vue-jsx": "5.1.5",
+    "amap-jsapi-v2-types": "^1.7.0",
     "consola": "3.4.2",
     "eslint": "10.1.0",
     "kolorist": "1.8.0",
     "oxfmt": "^0.42.0",
     "oxlint": "^1.57.0",
+    "playwright": "^1.59.1",
     "sass": "1.98.0",
     "simple-git-hooks": "2.13.1",
     "tsx": "4.21.0",

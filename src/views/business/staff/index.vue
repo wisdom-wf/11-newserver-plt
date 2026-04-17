@@ -1,25 +1,25 @@
 <script setup lang="ts">
-import { ref, h, onMounted } from 'vue';
+import { ref, h, onMounted, watch, computed } from 'vue';
 import {
   NButton,
   NCard,
-  NDataTable,
-  NModal,
   NTag,
   NSpace,
   NInput,
   NSelect,
-  useMessage,
-  NPagination,
-  NStatistic
+  useMessage
 } from 'naive-ui';
 import type { DataTableColumns } from 'naive-ui';
+import { useNaiveForm, useFormRules } from '@/hooks/common/form';
+import { useNaivePaginatedTable, useTableOperate, defaultTransform } from '@/hooks/common/table';
+import TableHeaderOperation from '@/components/advanced/table-header-operation.vue';
 import {
   fetchGetStaffList,
   fetchCreateStaff,
   fetchUpdateStaff,
   fetchDeleteStaff,
-  fetchGetStaffStatistics
+  fetchGetStaffStatistics,
+  fetchGetProviderOptions
 } from '@/service/api';
 
 defineOptions({
@@ -27,6 +27,15 @@ defineOptions({
 });
 
 const message = useMessage();
+const { formRef, validate, restoreValidation } = useNaiveForm();
+const { defaultRequiredRule } = useFormRules();
+
+// Form validation rules
+const rules = {
+  staffName: [defaultRequiredRule],
+  phone: [defaultRequiredRule],
+  providerId: [defaultRequiredRule]
+};
 
 // Statistics
 const statistics = ref<Api.Staff.Statistics>({
@@ -43,11 +52,6 @@ const searchPhone = ref('');
 const searchServiceCategory = ref('');
 const searchStatus = ref('');
 
-// Table data
-const loading = ref(false);
-const tableData = ref<Api.Staff.Staff[]>([]);
-const pagination = ref({ page: 1, pageSize: 10, total: 0 });
-
 // Gender options
 const genderOptions = [
   { label: '女', value: 0 },
@@ -56,8 +60,18 @@ const genderOptions = [
 
 // Status options
 const statusOptions = [
+  { label: '待上岗', value: 'PENDING' },
   { label: '在职', value: 'ON_JOB' },
   { label: '离职', value: 'OFF_JOB' }
+];
+
+// Provider options for dropdown
+const providerOptions = ref<{ label: string; value: string }[]>([]);
+
+// Service category options
+const categoryOptions = [
+  { label: '养老服务', value: 'ELDER_CARE' },
+  { label: '家政服务', value: 'HOME_CARE' }
 ];
 
 function getGenderLabel(gender?: number): string {
@@ -67,12 +81,14 @@ function getGenderLabel(gender?: number): string {
 }
 
 function getStatusType(status?: string): 'success' | 'warning' | 'error' | 'default' {
+  if (status === 'PENDING') return 'warning';
   if (status === 'ON_JOB') return 'success';
   if (status === 'OFF_JOB') return 'error';
   return 'default';
 }
 
 function getStatusLabel(status?: string): string {
+  if (status === 'PENDING') return '待上岗';
   if (status === 'ON_JOB') return '在职';
   if (status === 'OFF_JOB') return '离职';
   return status || '';
@@ -103,28 +119,131 @@ const columns: DataTableColumns<Api.Staff.Staff> = [
     fixed: 'right',
     render: row =>
       h(NSpace, { size: 'small' }, () => [
-        h(NButton, { size: 'small', onClick: () => handleEdit(row) }, () => '编辑'),
+        h(NButton, { size: 'small', onClick: () => handleEdit(row.staffId) }, () => '编辑'),
         h(NButton, { size: 'small', type: 'error', onClick: () => handleDelete(row.staffId) }, () => '删除')
       ])
   }
 ];
 
-// Modal
-const modalVisible = ref(false);
-const operateType = ref<'add' | 'edit'>('add');
-const editingData = ref<Api.Staff.Staff | null>(null);
+// Use framework's table hook
+const {
+  data: tableData,
+  loading,
+  pagination,
+  mobilePagination,
+  getData,
+  getDataByPage,
+  columnChecks
+} = useNaivePaginatedTable<Api.Common.PaginatingQueryRecord<Api.Staff.Staff>, Api.Staff.Staff>({
+  apiFn: async params => {
+    const queryParams: Api.Staff.StaffQuery & Api.Common.PaginatingQueryParams = {
+      current: params.page,
+      pageSize: params.pageSize
+    };
+    if (searchName.value) queryParams.staffName = searchName.value;
+    if (searchPhone.value) queryParams.phone = searchPhone.value;
+    if (searchServiceCategory.value) queryParams.serviceCategory = searchServiceCategory.value;
+    if (searchStatus.value) queryParams.status = searchStatus.value;
+    return fetchGetStaffList(queryParams);
+  },
+  apiParams: {
+    current: 1,
+    pageSize: 10
+  },
+  transform: defaultTransform,
+  columns: () => columns
+});
+
+// Use framework's table operate hook
+const { drawerVisible, operateType, handleAdd, editingData, handleEdit, checkedRowKeys, onBatchDeleted, onDeleted, closeDrawer } = useTableOperate(
+  tableData,
+  'staffId',
+  getData
+);
 
 const form = ref({
   staffName: '',
-  gender: 0,
+  gender: 0 as 0 | 1,
   idCard: '',
   phone: '',
   providerId: '',
   emergencyContact: '',
   emergencyPhone: '',
   remark: '',
-  status: 'ON_JOB'
+  status: 'PENDING' as 'PENDING' | 'ON_JOB' | 'OFF_JOB'
 });
+
+// Reset form to empty state
+function resetForm() {
+  form.value = {
+    staffName: '',
+    gender: 0,
+    idCard: '',
+    phone: '',
+    providerId: '',
+    emergencyContact: '',
+    emergencyPhone: '',
+    remark: '',
+    status: 'PENDING'
+  };
+}
+
+// Watch editingData to fill form when editing
+watch(
+  () => editingData.value,
+  (data) => {
+    if (data) {
+      form.value = {
+        staffName: data.staffName || '',
+        gender: data.gender ?? 0,
+        idCard: data.idCard || '',
+        phone: data.phone || '',
+        providerId: data.providerId || '',
+        emergencyContact: data.emergencyContact || '',
+        emergencyPhone: data.emergencyPhone || '',
+        remark: data.remark || '',
+        status: (data.status as 'PENDING' | 'ON_JOB' | 'OFF_JOB') || 'PENDING'
+      };
+    } else {
+      resetForm();
+    }
+  },
+  { immediate: true }
+);
+
+// Calculate age from ID card number (18-digit Chinese ID card)
+function calculateAge(idCard: string): number {
+  if (!idCard || idCard.length !== 18) return 0;
+  const birthYear = parseInt(idCard.substring(6, 10));
+  const birthMonth = parseInt(idCard.substring(10, 12));
+  const birthDay = parseInt(idCard.substring(12, 14));
+  const now = new Date();
+  const birthDate = new Date(birthYear, birthMonth - 1, birthDay);
+  let age = now.getFullYear() - birthYear;
+  const monthDiff = now.getMonth() - birthDate.getMonth();
+  if (monthDiff < 0 || (monthDiff === 0 && now.getDate() < birthDate.getDate())) {
+    age--;
+  }
+  return age;
+}
+
+// Display age computed from ID card
+const displayAge = computed(() => {
+  if (!form.value.idCard || form.value.idCard.length !== 18) return '';
+  return calculateAge(form.value.idCard);
+});
+
+// Watch idCard changes to auto-fill gender
+watch(
+  () => form.value.idCard,
+  (idCard) => {
+    if (idCard && idCard.length === 18) {
+      // Extract gender from digit 17 (index 16): odd=male(1), even=female(0)
+      const genderDigit = parseInt(idCard.charAt(16));
+      form.value.gender = genderDigit % 2 === 0 ? 0 : 1;
+    }
+  }
+);
 
 async function getStatistics() {
   try {
@@ -137,67 +256,11 @@ async function getStatistics() {
   }
 }
 
-async function getTableData() {
-  loading.value = true;
-  try {
-    const params: Api.Staff.StaffQuery & Api.Common.PaginatingQueryParams = {
-      current: pagination.value.page,
-      pageSize: pagination.value.pageSize
-    };
-    if (searchName.value) params.staffName = searchName.value;
-    if (searchPhone.value) params.phone = searchPhone.value;
-    if (searchServiceCategory.value) params.serviceCategory = searchServiceCategory.value;
-    if (searchStatus.value) params.status = searchStatus.value;
-
-    const { data } = await fetchGetStaffList(params);
-    tableData.value = data?.records || [];
-    pagination.value.total = data?.total || 0;
-  } catch (e) {
-    console.error('Failed to get table data', e);
-  } finally {
-    loading.value = false;
-  }
-}
-
-function handleAdd() {
-  operateType.value = 'add';
-  editingData.value = null;
-  form.value = {
-    staffName: '',
-    gender: 0,
-    idCard: '',
-    phone: '',
-    providerId: '',
-    emergencyContact: '',
-    emergencyPhone: '',
-    remark: '',
-    status: 'ON_JOB'
-  };
-  modalVisible.value = true;
-}
-
-function handleEdit(row: Api.Staff.Staff) {
-  operateType.value = 'edit';
-  editingData.value = row;
-  form.value = {
-    staffName: row.staffName || '',
-    gender: row.gender ?? 0,
-    idCard: row.idCard || '',
-    phone: row.phone || '',
-    providerId: row.providerId || '',
-    emergencyContact: row.emergencyContact || '',
-    emergencyPhone: row.emergencyPhone || '',
-    remark: row.remark || '',
-    status: row.status || 'ON_JOB'
-  };
-  modalVisible.value = true;
-}
-
 async function handleDelete(staffId: string) {
   try {
     await fetchDeleteStaff(staffId);
     message.success('删除成功');
-    await getTableData();
+    await getData();
     await getStatistics();
   } catch (e) {
     console.error('Failed to delete', e);
@@ -206,6 +269,11 @@ async function handleDelete(staffId: string) {
 
 async function handleSubmit() {
   try {
+    await validate();
+  } catch {
+    return;
+  }
+  try {
     if (operateType.value === 'add') {
       await fetchCreateStaff(form.value);
       message.success('添加成功');
@@ -213,28 +281,40 @@ async function handleSubmit() {
       await fetchUpdateStaff(editingData.value.staffId, form.value);
       message.success('修改成功');
     }
-    modalVisible.value = false;
-    await getTableData();
+    closeDrawer();
+    await getData();
     await getStatistics();
   } catch (e) {
     console.error('Failed to submit', e);
   }
 }
 
-function handlePageChange(page: number) {
-  pagination.value.page = page;
-  getTableData();
+function handleResetSearch() {
+  searchName.value = '';
+  searchPhone.value = '';
+  searchServiceCategory.value = '';
+  searchStatus.value = '';
+  getDataByPage(1);
 }
 
-function handlePageSizeChange(pageSize: number) {
-  pagination.value.pageSize = pageSize;
-  pagination.value.page = 1;
-  getTableData();
+async function getProviderOptions() {
+  try {
+    const data = await fetchGetProviderOptions();
+    if (data) {
+      providerOptions.value = data.map((p: { id: string; name: string }) => ({
+        label: p.name,
+        value: p.id
+      }));
+    }
+  } catch (e) {
+    console.error('Failed to get provider options', e);
+  }
 }
 
 onMounted(() => {
   getStatistics();
-  getTableData();
+  getData();
+  getProviderOptions();
 });
 </script>
 
@@ -267,9 +347,14 @@ onMounted(() => {
     </NCard>
 
     <!-- Table -->
-    <NCard title="服务人员管理" :bordered="false">
+    <NCard :bordered="false" style="margin-bottom: 16px">
       <template #header>
-        <NSpace :wrap="true">
+        <div style="display: flex; justify-content: space-between; align-items: center;">
+          <span>服务人员管理</span>
+        </div>
+      </template>
+      <div style="background: #f5f5f5; padding: 12px; margin-bottom: 12px; border-radius: 4px;">
+        <NSpace :wrap="true" align="center">
           <NInput v-model:value="searchName" placeholder="姓名" clearable style="width: 100px" />
           <NInput v-model:value="searchPhone" placeholder="手机号" clearable style="width: 130px" />
           <NSelect
@@ -286,72 +371,79 @@ onMounted(() => {
             clearable
             style="width: 100px"
           />
-          <NButton type="primary" @click="getTableData">搜索</NButton>
-          <NButton type="primary" @click="handleAdd">新增</NButton>
+          <NButton type="primary" @click="getData">搜索</NButton>
+          <NButton @click="handleResetSearch">重置</NButton>
         </NSpace>
-      </template>
+      </div>
+      
+      <!-- Use framework's TableHeaderOperation component -->
+      <TableHeaderOperation
+        v-model:columns="columnChecks"
+        :disabled-delete="checkedRowKeys.length === 0"
+        :loading="loading"
+        @add="handleAdd"
+        @refresh="getData"
+      />
+      
       <NDataTable
         :columns="columns"
         :data="tableData"
         :loading="loading"
         :scroll-x="1400"
         :row-key="(row: Api.Staff.Staff) => row.staffId"
+        remote
+        :pagination="mobilePagination"
       />
-      <div style="padding: 12px 0">
-        <NSpace justify="end">
-          <NSelect
-            v-model:value="pagination.pageSize"
-            :options="[10, 20, 50].map(s => ({ label: `${s}条/页`, value: s }))"
-            style="width: 120px"
-            @update:value="handlePageSizeChange"
-          />
-          <NPagination
-            v-model:page="pagination.page"
-            :page-count="Math.ceil(pagination.total / pagination.pageSize)"
-            @update:page="handlePageChange"
-          />
-        </NSpace>
-      </div>
     </NCard>
 
-    <!-- Staff Modal -->
-    <NModal
-      v-model:show="modalVisible"
-      :title="operateType === 'add' ? '新增服务人员' : '编辑服务人员'"
-      preset="card"
-      style="width: 500px"
+    <!-- Staff Drawer -->
+    <NDrawer
+      v-model:show="drawerVisible"
+      :width="500"
+      placement="right"
+      closable
     >
-      <NForm :model="form" label-placement="left" label-width="100">
-        <NFormItem label="姓名">
-          <NInput v-model:value="form.staffName" placeholder="请输入姓名" />
-        </NFormItem>
-        <NFormItem label="性别">
-          <NSelect v-model:value="form.gender" :options="genderOptions" style="width: 120px" />
-        </NFormItem>
-        <NFormItem label="身份证号">
-          <NInput v-model:value="form.idCard" placeholder="请输入身份证号" />
-        </NFormItem>
-        <NFormItem label="手机号">
-          <NInput v-model:value="form.phone" placeholder="请输入手机号" />
-        </NFormItem>
-        <NFormItem label="服务商ID">
-          <NInput v-model:value="form.providerId" placeholder="请输入服务商ID" />
-        </NFormItem>
-        <NFormItem label="紧急联系人">
-          <NInput v-model:value="form.emergencyContact" placeholder="请输入紧急联系人" />
-        </NFormItem>
-        <NFormItem label="紧急联系电话">
-          <NInput v-model:value="form.emergencyPhone" placeholder="请输入紧急联系电话" />
-        </NFormItem>
-        <NFormItem label="备注">
-          <NInput v-model:value="form.remark" type="textarea" placeholder="请输入备注" />
-        </NFormItem>
-        <NSpace justify="end">
-          <NButton @click="modalVisible = false">取消</NButton>
-          <NButton type="primary" @click="handleSubmit">确认</NButton>
-        </NSpace>
-      </NForm>
-    </NModal>
+      <NDrawerContent :title="operateType === 'add' ? '新增服务人员' : '编辑服务人员'" closable>
+        <NForm ref="formRef" :model="form" :rules="rules" label-placement="left" label-width="100">
+          <NFormItem label="姓名" path="staffName">
+            <NInput v-model:value="form.staffName" placeholder="请输入姓名" />
+          </NFormItem>
+          <NFormItem label="身份证号">
+            <NInput v-model:value="form.idCard" placeholder="请输入身份证号，填写后自动计算年龄和性别" />
+          </NFormItem>
+          <NFormItem label="年龄">
+            <NInput :value="displayAge ? String(displayAge) : ''" disabled placeholder="自动计算" />
+          </NFormItem>
+          <NFormItem label="性别">
+            <NSelect v-model:value="form.gender" :options="genderOptions" style="width: 120px" />
+          </NFormItem>
+          <NFormItem label="手机号" path="phone">
+            <NInput v-model:value="form.phone" placeholder="请输入手机号" />
+          </NFormItem>
+          <NFormItem label="服务商" path="providerId">
+            <NSelect v-model:value="form.providerId" :options="providerOptions" placeholder="请选择服务商" style="width: 100%" />
+          </NFormItem>
+          <NFormItem label="紧急联系人">
+            <NInput v-model:value="form.emergencyContact" placeholder="请输入紧急联系人" />
+          </NFormItem>
+          <NFormItem label="紧急联系电话">
+            <NInput v-model:value="form.emergencyPhone" placeholder="请输入紧急联系电话" />
+          </NFormItem>
+          <NFormItem label="状态">
+            <NSelect v-model:value="form.status" :options="statusOptions" style="width: 150px" />
+          </NFormItem>
+          <NFormItem label="备注">
+            <NInput v-model:value="form.remark" type="textarea" placeholder="请输入备注" />
+          </NFormItem>
+        </NForm>
+        <template #footer>
+          <NSpace justify="end">
+            <NButton @click="closeDrawer">取消</NButton>
+            <NButton type="primary" @click="handleSubmit">确认</NButton>
+          </NSpace>
+        </template>
+      </NDrawerContent>
+    </NDrawer>
   </div>
 </template>
 

@@ -68,22 +68,29 @@ export function fetchDispatchOrder(orderId: string, data: { staffId: string }) {
 /**
  * 接单
  */
-export function fetchAcceptOrder(orderId: string) {
+export function fetchAcceptOrder(orderId: string, data?: {
+  staffId?: string;
+  receiveComment?: string;
+}) {
   return request({
     url: `/api/orders/${orderId}/receive`,
     method: 'put',
-    data: {}
+    data
   });
 }
 
 /**
  * 开始服务
  */
-export function fetchStartOrder(orderId: string) {
+export function fetchStartOrder(orderId: string, data?: {
+  longitude?: string;
+  latitude?: string;
+  checkInPhoto?: string;
+}) {
   return request({
     url: `/api/orders/${orderId}/start`,
     method: 'put',
-    data: {}
+    data
   });
 }
 

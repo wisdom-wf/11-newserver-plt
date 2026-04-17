@@ -3,17 +3,14 @@ import { ref, h, onMounted } from 'vue';
 import {
   NButton,
   NCard,
-  NDataTable,
-  NModal,
   NTag,
   NSpace,
   NInput,
   NSelect,
-  useMessage,
-  NPagination,
-  NStatistic
+  useMessage
 } from 'naive-ui';
 import type { DataTableColumns } from 'naive-ui';
+import { useFormRules } from '@/hooks/common/form';
 import {
   fetchGetElderList,
   fetchCreateElder,
@@ -21,12 +18,27 @@ import {
   fetchDeleteElder,
   fetchGetElderStatistics
 } from '@/service/api';
+import { useNaivePaginatedTable, useTableOperate, defaultTransform } from '@/hooks/common/table';
+import { useNaiveForm } from '@/hooks/common/form';
+import TableHeaderOperation from '@/components/advanced/table-header-operation.vue';
 
 defineOptions({
   name: 'BusinessElder'
 });
 
 const message = useMessage();
+const { patternRules, createRequiredRule } = useFormRules();
+const { formRef, validate, restoreValidation } = useNaiveForm();
+
+// Form validation rules
+const rules = {
+  name: [createRequiredRule('请输入姓名')],
+  idCard: [createRequiredRule('请输入身份证号')],
+  phone: [
+    createRequiredRule('请输入手机号'),
+    { pattern: patternRules.phone.pattern, message: patternRules.phone.message, trigger: 'change' }
+  ]
+};
 
 // Statistics
 const statistics = ref<Api.Elder.Statistics>({
@@ -44,11 +56,6 @@ const searchIdCard = ref('');
 const searchPhone = ref('');
 const searchCareType = ref('');
 const searchStatus = ref('');
-
-// Table data
-const loading = ref(false);
-const tableData = ref<Api.Elder.Elder[]>([]);
-const pagination = ref({ page: 1, pageSize: 10, total: 0 });
 
 // Gender options
 const genderOptions = [
@@ -73,11 +80,9 @@ const subsidyTypeOptions = [
 
 // Care level options
 const careLevelOptions = [
-  { label: '一级护理', value: 'LEVEL_1' },
-  { label: '二级护理', value: 'LEVEL_2' },
-  { label: '三级护理', value: 'LEVEL_3' },
-  { label: '四级护理', value: 'LEVEL_4' },
-  { label: '五级护理', value: 'LEVEL_5' }
+  { label: '一级护理', value: 'HIGH' },
+  { label: '二级护理', value: 'MEDIUM' },
+  { label: '三级护理', value: 'NORMAL' }
 ];
 
 // Status options
@@ -106,6 +111,7 @@ function getCareLevelLabel(level?: string): string {
   return option?.label || level || '';
 }
 
+// Table columns
 const columns: DataTableColumns<Api.Elder.Elder> = [
   { title: '姓名', key: 'name', width: 100 },
   { title: '性别', key: 'gender', width: 60, render: row => getGenderLabel(row.gender) },
@@ -116,13 +122,14 @@ const columns: DataTableColumns<Api.Elder.Elder> = [
   { title: '养老类型', key: 'careType', width: 100, render: row => getCareTypeLabel(row.careType) },
   { title: '补贴类型', key: 'subsidyType', width: 100, render: row => getSubsidyTypeLabel(row.subsidyType) },
   { title: '护理等级', key: 'careLevel', width: 100, render: row => getCareLevelLabel(row.careLevel) },
+  { title: '服务商', key: 'providerName', width: 150 },
   {
     title: '状态',
     key: 'status',
     width: 80,
     render: row =>
-      h(NTag, { type: row.status === '1' ? 'success' : 'error', size: 'small' }, () =>
-        row.status === '1' ? '启用' : '禁用'
+      h(NTag, { type: row.status === 'ACTIVE' ? 'success' : 'error', size: 'small' }, () =>
+        row.status === 'ACTIVE' ? '正常' : '禁用'
       )
   },
   { title: '创建时间', key: 'createTime', width: 170 },
@@ -133,17 +140,56 @@ const columns: DataTableColumns<Api.Elder.Elder> = [
     fixed: 'right',
     render: row =>
       h(NSpace, { size: 'small' }, () => [
-        h(NButton, { size: 'small', onClick: () => handleEdit(row) }, () => '编辑'),
+        h(NButton, { size: 'small', onClick: () => handleOpenEdit(row.elderId) }, () => '编辑'),
         h(NButton, { size: 'small', type: 'error', onClick: () => handleDelete(row.elderId) }, () => '删除')
       ])
   }
 ];
 
-// Modal
-const modalVisible = ref(false);
-const operateType = ref<'add' | 'edit'>('add');
-const editingData = ref<Api.Elder.Elder | null>(null);
+// Use framework's table hook
+const {
+  data: tableData,
+  loading,
+  pagination,
+  mobilePagination,
+  getData,
+  getDataByPage,
+  columnChecks
+} = useNaivePaginatedTable<Api.Common.PaginatingQueryRecord<Api.Elder.Elder>, Api.Elder.Elder>({
+  apiFn: async params => {
+    const queryParams: Api.Elder.ElderQuery & Api.Common.PaginatingQueryParams = {
+      current: params.page,
+      pageSize: params.pageSize
+    };
+    if (searchName.value) queryParams.name = searchName.value;
+    if (searchIdCard.value) queryParams.idCard = searchIdCard.value;
+    if (searchPhone.value) queryParams.phone = searchPhone.value;
+    if (searchCareType.value) queryParams.careType = searchCareType.value;
+    if (searchStatus.value) queryParams.status = searchStatus.value;
+    return fetchGetElderList(queryParams);
+  },
+  apiParams: {
+    current: 1,
+    pageSize: 10
+  },
+  transform: defaultTransform,
+  columns: () => columns
+});
 
+// Use framework's table operate hook
+const {
+  drawerVisible,
+  operateType,
+  handleAdd,
+  editingData,
+  handleEdit,
+  checkedRowKeys,
+  onBatchDeleted,
+  onDeleted,
+  closeDrawer
+} = useTableOperate(tableData, 'elderId', getData);
+
+// Form data
 const form = ref({
   name: '',
   gender: 'UNKNOWN' as Api.Elder.Gender,
@@ -173,32 +219,7 @@ async function getStatistics() {
   }
 }
 
-async function getTableData() {
-  loading.value = true;
-  try {
-    const params: Api.Elder.ElderQuery & Api.Common.PaginatingQueryParams = {
-      current: pagination.value.page,
-      pageSize: pagination.value.pageSize
-    };
-    if (searchName.value) params.name = searchName.value;
-    if (searchIdCard.value) params.idCard = searchIdCard.value;
-    if (searchPhone.value) params.phone = searchPhone.value;
-    if (searchCareType.value) params.careType = searchCareType.value;
-    if (searchStatus.value) params.status = searchStatus.value;
-
-    const { data } = await fetchGetElderList(params);
-    tableData.value = data?.records || [];
-    pagination.value.total = data?.total || 0;
-  } catch (e) {
-    console.error('Failed to get table data', e);
-  } finally {
-    loading.value = false;
-  }
-}
-
-function handleAdd() {
-  operateType.value = 'add';
-  editingData.value = null;
+function resetForm() {
   form.value = {
     name: '',
     gender: 'UNKNOWN',
@@ -216,37 +237,42 @@ function handleAdd() {
     remark: '',
     status: '1'
   };
-  modalVisible.value = true;
 }
 
-function handleEdit(row: Api.Elder.Elder) {
-  operateType.value = 'edit';
-  editingData.value = row;
-  form.value = {
-    name: row.name,
-    gender: row.gender || 'UNKNOWN',
-    idCard: row.idCard,
-    phone: row.phone || '',
-    birthDate: row.birthDate || '',
-    age: row.age || 0,
-    careType: row.careType || 'HOME',
-    subsidyType: row.subsidyType || 'SELF_PAY',
-    careLevel: row.careLevel || 'LEVEL_3',
-    address: row.address || '',
-    emergencyContact: row.emergencyContact || '',
-    emergencyPhone: row.emergencyPhone || '',
-    healthStatus: row.healthStatus || 'GOOD',
-    remark: row.remark || '',
-    status: row.status || '1'
-  };
-  modalVisible.value = true;
+function handleOpenAdd() {
+  resetForm();
+  handleAdd();
+}
+
+async function handleOpenEdit(id: string) {
+  const row = tableData.value.find(item => String(item.elderId) === String(id));
+  if (row) {
+    form.value = {
+      name: row.name,
+      gender: row.gender || 'UNKNOWN',
+      idCard: row.idCard,
+      phone: row.phone || '',
+      birthDate: row.birthDate || '',
+      age: row.age || 0,
+      careType: row.careType || 'HOME',
+      subsidyType: row.subsidyType || 'SELF_PAY',
+      careLevel: row.careLevel || 'LEVEL_3',
+      address: row.address || '',
+      emergencyContact: row.emergencyContact || '',
+      emergencyPhone: row.emergencyPhone || '',
+      healthStatus: row.healthStatus || 'GOOD',
+      remark: row.remark || '',
+      status: row.status || '1'
+    };
+    handleEdit(id);
+  }
 }
 
 async function handleDelete(id: string) {
   try {
     await fetchDeleteElder(id);
     message.success('删除成功');
-    await getTableData();
+    await onDeleted();
     await getStatistics();
   } catch (e) {
     console.error('Failed to delete', e);
@@ -255,6 +281,11 @@ async function handleDelete(id: string) {
 
 async function handleSubmit() {
   try {
+    await validate();
+  } catch {
+    return;
+  }
+  try {
     if (operateType.value === 'add') {
       await fetchCreateElder(form.value);
       message.success('添加成功');
@@ -262,28 +293,27 @@ async function handleSubmit() {
       await fetchUpdateElder(editingData.value.elderId, form.value);
       message.success('修改成功');
     }
-    modalVisible.value = false;
-    await getTableData();
+    closeDrawer();
+    await getData();
     await getStatistics();
+    restoreValidation();
   } catch (e) {
     console.error('Failed to submit', e);
   }
 }
 
-function handlePageChange(page: number) {
-  pagination.value.page = page;
-  getTableData();
-}
-
-function handlePageSizeChange(pageSize: number) {
-  pagination.value.pageSize = pageSize;
-  pagination.value.page = 1;
-  getTableData();
+function handleResetSearch() {
+  searchName.value = '';
+  searchIdCard.value = '';
+  searchPhone.value = '';
+  searchCareType.value = '';
+  searchStatus.value = '';
+  getDataByPage(1);
 }
 
 onMounted(() => {
   getStatistics();
-  getTableData();
+  getData();
 });
 </script>
 
@@ -320,9 +350,14 @@ onMounted(() => {
     </NCard>
 
     <!-- Table -->
-    <NCard title="老人档案管理" :bordered="false">
+    <NCard :bordered="false" style="margin-bottom: 16px">
       <template #header>
-        <NSpace :wrap="true">
+        <div style="display: flex; justify-content: space-between; align-items: center;">
+          <span>老人档案管理</span>
+        </div>
+      </template>
+      <div style="background: #f5f5f5; padding: 12px; margin-bottom: 12px; border-radius: 4px;">
+        <NSpace :wrap="true" align="center">
           <NInput v-model:value="searchName" placeholder="姓名" clearable style="width: 100px" />
           <NInput v-model:value="searchIdCard" placeholder="身份证号" clearable style="width: 180px" />
           <NInput v-model:value="searchPhone" placeholder="手机号" clearable style="width: 130px" />
@@ -340,84 +375,81 @@ onMounted(() => {
             clearable
             style="width: 100px"
           />
-          <NButton type="primary" @click="getTableData">搜索</NButton>
-          <NButton type="primary" @click="handleAdd">新增</NButton>
+          <NButton type="primary" @click="getData">搜索</NButton>
+          <NButton @click="handleResetSearch">重置</NButton>
         </NSpace>
-      </template>
+      </div>
+      
+      <!-- Use framework's TableHeaderOperation component -->
+      <TableHeaderOperation
+        v-model:columns="columnChecks"
+        :disabled-delete="checkedRowKeys.length === 0"
+        :loading="loading"
+        @add="handleOpenAdd"
+        @refresh="getData"
+      />
+      
       <NDataTable
         :columns="columns"
         :data="tableData"
         :loading="loading"
         :scroll-x="1500"
         :row-key="(row: Api.Elder.Elder) => row.elderId"
+        v-model:checked-row-keys="checkedRowKeys"
+        remote
+        :pagination="mobilePagination"
       />
-      <div style="padding: 12px 0">
-        <NSpace justify="end">
-          <NSelect
-            v-model:value="pagination.pageSize"
-            :options="[10, 20, 50].map(s => ({ label: `${s}条/页`, value: s }))"
-            style="width: 120px"
-            @update:value="handlePageSizeChange"
-          />
-          <NPagination
-            v-model:page="pagination.page"
-            :page-count="Math.ceil(pagination.total / pagination.pageSize)"
-            @update:page="handlePageChange"
-          />
-        </NSpace>
-      </div>
     </NCard>
 
-    <!-- Elder Modal -->
-    <NModal
-      v-model:show="modalVisible"
-      :title="operateType === 'add' ? '新增老人' : '编辑老人'"
-      preset="card"
-      style="width: 600px"
-    >
-      <NForm :model="form" label-placement="left" label-width="100">
-        <NFormItem label="姓名">
-          <NInput v-model:value="form.name" placeholder="请输入姓名" />
-        </NFormItem>
-        <NFormItem label="性别">
-          <NSelect v-model:value="form.gender" :options="genderOptions" style="width: 120px" />
-        </NFormItem>
-        <NFormItem label="身份证号">
-          <NInput v-model:value="form.idCard" placeholder="请输入身份证号" />
-        </NFormItem>
-        <NFormItem label="手机号">
-          <NInput v-model:value="form.phone" placeholder="请输入手机号" />
-        </NFormItem>
-        <NFormItem label="养老类型">
-          <NSelect v-model:value="form.careType" :options="careTypeOptions" style="width: 150px" />
-        </NFormItem>
-        <NFormItem label="补贴类型">
-          <NSelect v-model:value="form.subsidyType" :options="subsidyTypeOptions" style="width: 150px" />
-        </NFormItem>
-        <NFormItem label="护理等级">
-          <NSelect v-model:value="form.careLevel" :options="careLevelOptions" style="width: 150px" />
-        </NFormItem>
-        <NFormItem label="地址">
-          <NInput v-model:value="form.address" placeholder="请输入地址" />
-        </NFormItem>
-        <NFormItem label="紧急联系人">
-          <NInput v-model:value="form.emergencyContact" placeholder="请输入紧急联系人" />
-        </NFormItem>
-        <NFormItem label="紧急联系电话">
-          <NInput v-model:value="form.emergencyPhone" placeholder="请输入紧急联系电话" />
-        </NFormItem>
-        <NFormItem label="状态">
-          <NSelect v-model:value="form.status" :options="statusOptions" style="width: 100px" />
-        </NFormItem>
-        <NFormItem label="备注">
-          <NInput v-model:value="form.remark" type="textarea" placeholder="请输入备注" />
-        </NFormItem>
-        <NSpace justify="end">
-          <NButton @click="modalVisible = false">取消</NButton>
-          <NButton type="primary" @click="handleSubmit">确认</NButton>
-        </NSpace>
-      </NForm>
-    </NModal>
+    <!-- Elder Drawer -->
+    <NDrawer v-model:show="drawerVisible" :width="600" placement="right" closable>
+      <NDrawerContent :title="operateType === 'add' ? '新增老人' : '编辑老人'" closable>
+        <NForm ref="formRef" :model="form" :rules="rules" label-placement="left" label-width="100">
+          <NFormItem label="姓名" path="name">
+            <NInput v-model:value="form.name" placeholder="请输入姓名" />
+          </NFormItem>
+          <NFormItem label="性别">
+            <NSelect v-model:value="form.gender" :options="genderOptions" style="width: 120px" />
+          </NFormItem>
+          <NFormItem label="身份证号" path="idCard">
+            <NInput v-model:value="form.idCard" placeholder="请输入身份证号" />
+          </NFormItem>
+          <NFormItem label="手机号" path="phone">
+            <NInput v-model:value="form.phone" placeholder="请输入手机号" />
+          </NFormItem>
+          <NFormItem label="养老类型">
+            <NSelect v-model:value="form.careType" :options="careTypeOptions" style="width: 150px" />
+          </NFormItem>
+          <NFormItem label="补贴类型">
+            <NSelect v-model:value="form.subsidyType" :options="subsidyTypeOptions" style="width: 150px" />
+          </NFormItem>
+          <NFormItem label="护理等级">
+            <NSelect v-model:value="form.careLevel" :options="careLevelOptions" style="width: 150px" />
+          </NFormItem>
+          <NFormItem label="地址">
+            <NInput v-model:value="form.address" placeholder="请输入地址" />
+          </NFormItem>
+          <NFormItem label="紧急联系人">
+            <NInput v-model:value="form.emergencyContact" placeholder="请输入紧急联系人" />
+          </NFormItem>
+          <NFormItem label="紧急联系电话">
+            <NInput v-model:value="form.emergencyPhone" placeholder="请输入紧急联系电话" />
+          </NFormItem>
+          <NFormItem label="状态">
+            <NSelect v-model:value="form.status" :options="statusOptions" style="width: 100px" />
+          </NFormItem>
+          <NFormItem label="备注">
+            <NInput v-model:value="form.remark" type="textarea" placeholder="请输入备注" />
+          </NFormItem>
+        </NForm>
+        <template #footer>
+          <NSpace justify="end">
+            <NButton @click="closeDrawer">取消</NButton>
+            <NButton type="primary" @click="handleSubmit">确认</NButton>
+          </NSpace>
+        </template>
+      </NDrawerContent>
+    </NDrawer>
   </div>
 </template>
 

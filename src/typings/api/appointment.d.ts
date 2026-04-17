@@ -114,5 +114,39 @@ declare namespace Api {
       /** 已作废数 */
       invalid: number;
     }
+
+    /** 预约时间轴 */
+    interface AppointmentTimeline {
+      appointmentId: string;
+      appointmentNo: string;
+      currentStatus: string;
+      currentStatusName: string;
+      /** 关联的订单ID */
+      orderId?: string;
+      /** 关联的订单号 */
+      orderNo?: string;
+      /** 订单状态 */
+      orderStatus?: string;
+      /** 订单状态名称 */
+      orderStatusName?: string;
+      nodes: AppointmentTimelineNode[];
+    }
+
+    /** 预约时间轴节点 */
+    interface AppointmentTimelineNode {
+      status: string;
+      statusName: string;
+      title: string;
+      time: string;
+      details: AppointmentTimelineDetail[];
+      completed: boolean;
+      active: boolean;
+    }
+
+    /** 预约时间轴详情项 */
+    interface AppointmentTimelineDetail {
+      label: string;
+      value: string;
+    }
   }
 }

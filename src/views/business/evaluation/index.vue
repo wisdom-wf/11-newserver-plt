@@ -189,16 +189,22 @@ onMounted(() => {
     </NCard>
 
     <!-- Table -->
-    <NCard title="满意度评价管理" :bordered="false">
+    <NCard :bordered="false" style="margin-bottom: 16px">
       <template #header>
-        <NSpace :wrap="true">
+        <div style="display: flex; justify-content: space-between; align-items: center;">
+          <span>满意度评价管理</span>
+        </div>
+      </template>
+      <div style="background: #f5f5f5; padding: 12px; margin-bottom: 12px; border-radius: 4px;">
+        <NSpace :wrap="true" align="center">
           <NInput v-model:value="searchOrderNo" placeholder="订单号" clearable style="width: 150px" />
           <NInput v-model:value="searchElderName" placeholder="老人姓名" clearable style="width: 100px" />
           <NInput v-model:value="searchProviderName" placeholder="服务商" clearable style="width: 150px" />
           <NDatePicker v-model:value="searchDateRange" type="daterange" clearable style="width: 260px" />
           <NButton type="primary" @click="getTableData">搜索</NButton>
+          <NButton @click="() => { searchOrderNo = ''; searchElderName = ''; searchProviderName = ''; searchDateRange = null; pagination.page = 1; getTableData(); }">重置</NButton>
         </NSpace>
-      </template>
+      </div>
       <NDataTable
         :columns="columns"
         :data="tableData"

@@ -103,18 +103,14 @@ function getStatusLabel(status: string): string {
 const columns: DataTableColumns<any> = [
   { title: '结算单号', key: 'settlementNo', width: 160 },
   { title: '服务商', key: 'providerName', width: 150 },
-  {
-    title: '老人姓名',
-    key: 'elderName',
-    width: 100,
-    render: row => row.elderName ? h('a', { style: { color: '#18a058', cursor: 'pointer' }, onClick: () => showElderDetail(row) }, row.elderName) : '-'
-  },
+  { title: '结算类型', key: 'settlementTypeName', width: 120 },
   {
     title: '服务人员',
     key: 'staffName',
     width: 100,
     render: row => row.staffName ? h('a', { style: { color: '#18a058', cursor: 'pointer' }, onClick: () => showStaffDetail(row) }, row.staffName) : '-'
   },
+  { title: '订单数', key: 'totalOrderCount', width: 80 },
   { title: '总服务费', key: 'totalServiceAmount', width: 100 },
   { title: '补贴金额', key: 'totalSubsidyAmount', width: 100 },
   { title: '自付金额', key: 'totalSelfPayAmount', width: 100 },
@@ -212,9 +208,14 @@ onMounted(() => {
     </NCard>
 
     <!-- Table -->
-    <NCard title="财务结算管理" :bordered="false">
+    <NCard :bordered="false" style="margin-bottom: 16px">
       <template #header>
-        <NSpace :wrap="true">
+        <div style="display: flex; justify-content: space-between; align-items: center;">
+          <span>财务结算管理</span>
+        </div>
+      </template>
+      <div style="background: #f5f5f5; padding: 12px; margin-bottom: 12px; border-radius: 4px;">
+        <NSpace :wrap="true" align="center">
           <NInput v-model:value="searchOrderNo" placeholder="订单号" clearable style="width: 150px" />
           <NInput v-model:value="searchElderName" placeholder="老人姓名" clearable style="width: 100px" />
           <NInput v-model:value="searchProviderName" placeholder="服务商" clearable style="width: 150px" />
@@ -227,8 +228,9 @@ onMounted(() => {
           />
           <NDatePicker v-model:value="searchDateRange" type="daterange" clearable style="width: 260px" />
           <NButton type="primary" @click="getTableData">搜索</NButton>
+          <NButton @click="() => { searchOrderNo = ''; searchElderName = ''; searchProviderName = ''; searchStatus = ''; searchDateRange = null; pagination.page = 1; getTableData(); }">重置</NButton>
         </NSpace>
-      </template>
+      </div>
       <NDataTable
         :columns="columns"
         :data="tableData"

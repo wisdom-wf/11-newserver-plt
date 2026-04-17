@@ -1,23 +1,30 @@
 <script setup lang="ts">
-import { ref, h, onMounted } from 'vue';
-import { useRoute, useRouter } from 'vue-router';
+import { ref, h, onMounted, watch } from 'vue';
+import { useRoute } from 'vue-router';
 import {
   NButton,
   NCard,
-  NDataTable,
-  NModal,
   NTag,
   NSpace,
   NInput,
   NSelect,
   NDatePicker,
+  NForm,
+  NFormItem,
   useMessage,
-  NPagination,
-  NStatistic
+  NInputNumber,
+  NTimeline,
+  NTimelineItem,
+  NDescriptions,
+  NDescriptionsItem,
+  NDrawer,
+  NDrawerContent
 } from 'naive-ui';
 import type { DataTableColumns } from 'naive-ui';
 import {
   fetchGetOrderList,
+  fetchCreateOrder,
+  fetchGetOrder,
   fetchDispatchOrder,
   fetchAcceptOrder,
   fetchStartOrder,
@@ -29,6 +36,10 @@ import {
   fetchGetProviderOptions,
   fetchGetStaffList
 } from '@/service/api';
+import { useRouterPush } from '@/hooks/common/router';
+import { useNaivePaginatedTable, defaultTransform } from '@/hooks/common/table';
+import { useNaiveForm } from '@/hooks/common/form';
+import TableHeaderOperation from '@/components/advanced/table-header-operation.vue';
 
 defineOptions({
   name: 'BusinessOrder'
@@ -36,7 +47,8 @@ defineOptions({
 
 const message = useMessage();
 const route = useRoute();
-const router = useRouter();
+const { routerPushByKey } = useRouterPush();
+const { formRef } = useNaiveForm();
 
 // Statistics
 const statistics = ref<Api.Order.Statistics>({
@@ -66,12 +78,6 @@ const searchServiceType = ref('');
 const searchStatus = ref('');
 const searchDateRange = ref<[number, number] | null>(null);
 
-// Table data
-const loading = ref(false);
-const tableData = ref<Api.Order.Order[]>([]);
-const pagination = ref({ page: 1, pageSize: 10, total: 0 });
-const checkedRowKeys = ref<string[]>([]);
-
 // Provider options
 const providerOptions = ref<{ label: string; value: string }[]>([]);
 
@@ -91,13 +97,10 @@ const serviceTypeOptions = [
 // Status options
 const statusOptions = [
   { label: '待派单', value: 'CREATED' },
-  { label: '待分配', value: 'PENDING' },
-  { label: '待派单', value: 'PENDING_DISPATCH' },
   { label: '已派单', value: 'DISPATCHED' },
   { label: '已接单', value: 'RECEIVED' },
   { label: '服务中', value: 'SERVICE_STARTED' },
   { label: '已完成', value: 'SERVICE_COMPLETED' },
-  { label: '已完成', value: 'COMPLETED' },
   { label: '已评价', value: 'EVALUATED' },
   { label: '已结算', value: 'SETTLED' },
   { label: '已取消', value: 'CANCELLED' },
@@ -106,7 +109,7 @@ const statusOptions = [
 
 async function getProviderOptions() {
   try {
-    const { data } = await fetchGetProviderOptions();
+    const data = await fetchGetProviderOptions();
     if (data) {
       providerOptions.value = data.map((item: { id: string; name: string }) => ({
         label: item.name,
@@ -121,15 +124,10 @@ async function getProviderOptions() {
 function getStatusType(status: string): 'warning' | 'success' | 'info' | 'error' | 'default' {
   const map: Record<string, 'warning' | 'success' | 'info' | 'error' | 'default'> = {
     CREATED: 'warning',
-    PENDING: 'warning',
-    PENDING_DISPATCH: 'warning',
     DISPATCHED: 'info',
     RECEIVED: 'info',
-    ASSIGNED: 'info',
-    ACCEPTED: 'info',
     SERVICE_STARTED: 'info',
     SERVICE_COMPLETED: 'success',
-    COMPLETED: 'success',
     EVALUATED: 'success',
     SETTLED: 'success',
     CANCELLED: 'error',
@@ -143,6 +141,84 @@ function getStatusLabel(status: string): string {
   return option?.label || status;
 }
 
+// 时间轴相关函数 - 参考预约单设计
+interface OrderTimelineItem {
+  status: string;
+  time: string;
+  description: string;
+  operator?: string;
+  details?: { label: string; value: string }[];
+}
+
+function getNodeIcon(node: OrderTimelineItem): string {
+  if (node.status === 'SERVICE_COMPLETED' || node.status === 'EVALUATED' || node.status === 'SETTLED') return '✓';
+  if (node.status === 'CANCELLED') return '✕';
+  if (isCurrentNode(node)) return '●';
+  return '○';
+}
+
+function getNodeColor(node: OrderTimelineItem): string {
+  if (node.status === 'SERVICE_COMPLETED' || node.status === 'EVALUATED' || node.status === 'SETTLED') return '#11998e';
+  if (node.status === 'CANCELLED') return '#f5576c';
+  if (isCurrentNode(node)) return '#4facfe';
+  return '#999';
+}
+
+function isCurrentNode(node: OrderTimelineItem): boolean {
+  if (!orderDetailData.value) return false;
+  const currentStatus = orderDetailData.value.status;
+  const timeline = orderTimelineData.value;
+  if (!timeline || timeline.length === 0) return false;
+  const nodeIndex = timeline.findIndex(n => n.status === node.status);
+  const lastIndex = timeline.length - 1;
+
+  // 当前节点是最后一个且订单未完成/未取消
+  return nodeIndex === lastIndex &&
+         !['SERVICE_COMPLETED', 'EVALUATED', 'SETTLED', 'CANCELLED'].includes(currentStatus);
+}
+
+function isCompletedNode(node: OrderTimelineItem): boolean {
+  if (!orderDetailData.value) return false;
+  const currentStatus = orderDetailData.value.status;
+  const timeline = orderTimelineData.value;
+  if (!timeline || timeline.length === 0) return false;
+  const nodeIndex = timeline.findIndex(n => n.status === node.status);
+  const lastIndex = timeline.length - 1;
+
+  // 已完成节点：不是最后一个，或者订单已完成
+  return nodeIndex < lastIndex || ['SERVICE_COMPLETED', 'EVALUATED', 'SETTLED'].includes(currentStatus);
+}
+
+function formatTimelineTime(time: string): string {
+  if (!time) return '-';
+  const date = new Date(time);
+  return `${date.getFullYear()}-${String(date.getMonth() + 1).padStart(2, '0')}-${String(date.getDate()).padStart(2, '0')} ${String(date.getHours()).padStart(2, '0')}:${String(date.getMinutes()).padStart(2, '0')}`;
+}
+
+function getRelativeTime(time: string): string {
+  if (!time) return '';
+  const date = new Date(time);
+  const now = new Date();
+  const diff = now.getTime() - date.getTime();
+  const days = Math.floor(diff / (1000 * 60 * 60 * 24));
+  
+  if (days === 0) {
+    const hours = Math.floor(diff / (1000 * 60 * 60));
+    if (hours === 0) {
+      const minutes = Math.floor(diff / (1000 * 60));
+      return minutes <= 1 ? '刚刚' : `${minutes}分钟前`;
+    }
+    return `${hours}小时前`;
+  } else if (days === 1) {
+    return '昨天';
+  } else if (days < 7) {
+    return `${days}天前`;
+  } else if (days < 30) {
+    return `${Math.floor(days / 7)}周前`;
+  }
+  return `${Math.floor(days / 30)}月前`;
+}
+
 // 格式化预约服务时间显示
 function formatServiceTime(serviceDate: string | undefined, serviceTime: string | undefined): string {
   if (!serviceDate) return serviceTime || '-';
@@ -151,8 +227,6 @@ function formatServiceTime(serviceDate: string | undefined, serviceTime: string 
     const year = date.getFullYear();
     const month = date.getMonth() + 1;
     const day = date.getDate();
-    // serviceTime 格式示例: "09:00" 或 "09:00:00"
-    // 只分上午和下午
     let timePeriod = '';
     if (serviceTime) {
       const hourStr = serviceTime.split(':')[0];
@@ -169,6 +243,7 @@ function formatServiceTime(serviceDate: string | undefined, serviceTime: string 
   }
 }
 
+// Table columns
 const columns: DataTableColumns<Api.Order.Order> = [
   { title: '订单号', key: 'orderNo', width: 160 },
   {
@@ -198,34 +273,176 @@ const columns: DataTableColumns<Api.Order.Order> = [
   { title: '创建时间', key: 'createTime', width: 170 },
   {
     title: '操作',
-    key: 'actions',
-    width: 220,
-    fixed: 'right',
-    render: row => {
-      const buttons: ReturnType<typeof h>[] = [];
-      if (row.status === 'CREATED' || row.status === 'PENDING') {
-        buttons.push(h(NButton, { size: 'small', type: 'warning', onClick: () => handleAssign(row) }, { default: () => '分配' }));
+      key: 'actions',
+      width: 260,
+      fixed: 'right',
+      render: row => {
+        const buttons: ReturnType<typeof h>[] = [];
+        // 详情按钮 - 始终显示
+        buttons.push(h(NButton, { size: 'small', onClick: () => handleDetail(row) }, () => '详情'));
+        if (row.status === 'CREATED' || row.status === 'PENDING') {
+          buttons.push(h(NButton, { size: 'small', onClick: () => handleAssign(row) }, () => '分配'));
+        }
+        if (row.status === 'DISPATCHED') {
+          buttons.push(h(NButton, { size: 'small', onClick: () => handleAccept(row) }, () => '接单'));
+        }
+        if (row.status === 'RECEIVED') {
+          buttons.push(h(NButton, { size: 'small', onClick: () => handleStart(row) }, () => '开始服务'));
+        }
+        if (row.status === 'SERVICE_STARTED') {
+          buttons.push(h(NButton, { size: 'small', onClick: () => handleComplete(row) }, () => '完成服务'));
+        }
+        if (row.status !== 'SERVICE_COMPLETED' && row.status !== 'EVALUATED' && row.status !== 'SETTLED' && row.status !== 'CANCELLED' && row.status !== 'REJECTED') {
+          buttons.push(h(NButton, { size: 'small', type: 'error', onClick: () => handleCancel(row) }, () => '取消'));
+        }
+        return h(NSpace, { size: 'small' }, () => buttons);
       }
-      if (row.status === 'DISPATCHED') {
-        buttons.push(h(NButton, { size: 'small', type: 'info', onClick: () => handleAccept(row) }, { default: () => '接单' }));
-      }
-      if (row.status === 'RECEIVED') {
-        buttons.push(h(NButton, {
-          size: 'small',
-          type: 'primary',
-          onClick: () => handleStart(row)
-        }, { default: () => '开始服务' }));
-      }
-      if (row.status === 'SERVICE_STARTED') {
-        buttons.push(h(NButton, { size: 'small', type: 'success', onClick: () => handleComplete(row) }, { default: () => '完成服务' }));
-      }
-      if (row.status !== 'SERVICE_COMPLETED' && row.status !== 'EVALUATED' && row.status !== 'SETTLED' && row.status !== 'CANCELLED' && row.status !== 'REJECTED') {
-        buttons.push(h(NButton, { size: 'small', type: 'error', onClick: () => handleCancel(row) }, { default: () => '取消' }));
-      }
-      return h(NSpace, { size: 'small' }, () => buttons);
     }
-  }
 ];
+
+// Use framework's table hook
+const tableHookResult = useNaivePaginatedTable<Api.Common.PaginatingQueryRecord<Api.Order.Order>, Api.Order.Order>({
+  apiFn: async params => {
+    const queryParams: Api.Order.OrderQuery & Api.Common.PaginatingQueryParams = {
+      current: params.page,
+      pageSize: params.pageSize
+    };
+    if (searchOrderNo.value) queryParams.orderNo = searchOrderNo.value;
+    if (searchElderName.value) queryParams.elderName = searchElderName.value;
+    if (searchProviderId.value) queryParams.providerId = searchProviderId.value;
+    if (searchServiceType.value) queryParams.serviceType = searchServiceType.value;
+    if (searchStatus.value) queryParams.status = searchStatus.value;
+    if (searchDateRange.value) {
+      queryParams.startDate = new Date(searchDateRange.value[0]).toISOString().split('T')[0];
+      queryParams.endDate = new Date(searchDateRange.value[1]).toISOString().split('T')[0];
+    }
+    return fetchGetOrderList(queryParams);
+  },
+  apiParams: {
+    current: 1,
+    pageSize: 10
+  },
+  transform: defaultTransform,
+  columns: () => columns
+});
+
+const {
+  data: tableData,
+  loading,
+  pagination,
+  mobilePagination,
+  getData,
+  getDataByPage,
+  columnChecks: rawColumnChecks
+} = tableHookResult;
+
+// Ensure columnChecks is always an array (writable ref for v-model)
+const columnChecks = ref<Array<{ prop: string; label: string; checked: boolean }>>([]);
+
+// Watch rawColumnChecks and sync to columnChecks
+watch(() => rawColumnChecks.value, (val) => {
+  if (val && val.length > 0) {
+    columnChecks.value = val;
+  }
+}, { immediate: true, deep: true });
+
+// Table checked row keys
+const checkedRowKeys = ref<string[]>([]);
+
+// Add modal
+const addModalVisible = ref(false);
+const addForm = ref({
+  elderName: '',
+  elderPhone: '',
+  serviceTypeCode: '',
+  serviceTypeName: '',
+  serviceDate: null as number | null,
+  serviceTime: '',
+  serviceDuration: 60,
+  serviceAddress: '',
+  specialRequirements: '',
+  estimatedPrice: 0,
+  subsidyAmount: 0,
+  selfPayAmount: 0
+});
+
+// Service type options for add form
+const addServiceTypeOptions = [
+  { label: '生活照料', value: '01', name: '生活照料' },
+  { label: '日间照料', value: '02', name: '日间照料' },
+  { label: '助餐服务', value: '03', name: '助餐服务' },
+  { label: '助洁服务', value: '04', name: '助洁服务' },
+  { label: '助浴服务', value: '05', name: '助浴服务' },
+  { label: '康复护理', value: '06', name: '康复护理' },
+  { label: '精神慰藉', value: '07', name: '精神慰藉' },
+  { label: '健康管理', value: '08', name: '健康管理' },
+  { label: '信息咨询', value: '09', name: '信息咨询' }
+];
+
+function handleAdd() {
+  addForm.value = {
+    elderName: '',
+    elderPhone: '',
+    serviceTypeCode: '',
+    serviceTypeName: '',
+    serviceDate: null,
+    serviceTime: '',
+    serviceDuration: 60,
+    serviceAddress: '',
+    specialRequirements: '',
+    estimatedPrice: 0,
+    subsidyAmount: 0,
+    selfPayAmount: 0
+  };
+  addModalVisible.value = true;
+}
+
+async function handleAddSubmit() {
+  if (!addForm.value.elderName) {
+    message.warning('请输入老人姓名');
+    return;
+  }
+  if (!addForm.value.elderPhone) {
+    message.warning('请输入老人手机号');
+    return;
+  }
+  if (!addForm.value.serviceTypeCode) {
+    message.warning('请选择服务类型');
+    return;
+  }
+  if (!addForm.value.serviceDate) {
+    message.warning('请选择服务日期');
+    return;
+  }
+
+  try {
+    const selectedService = addServiceTypeOptions.find(s => s.value === addForm.value.serviceTypeCode);
+    const data = {
+      elderName: addForm.value.elderName,
+      elderPhone: addForm.value.elderPhone,
+      serviceTypeCode: addForm.value.serviceTypeCode,
+      serviceTypeName: selectedService?.name || '',
+      serviceDate: new Date(addForm.value.serviceDate).toISOString().split('T')[0],
+      serviceTime: addForm.value.serviceTime,
+      serviceDuration: addForm.value.serviceDuration,
+      serviceAddress: addForm.value.serviceAddress,
+      specialRequirements: addForm.value.specialRequirements,
+      estimatedPrice: addForm.value.estimatedPrice,
+      subsidyAmount: addForm.value.subsidyAmount,
+      selfPayAmount: addForm.value.selfPayAmount,
+      orderType: 'NORMAL',
+      orderSource: 'MANUAL'
+    };
+    await fetchCreateOrder(data);
+    message.success('添加订单成功');
+    addModalVisible.value = false;
+    await getData();
+    await getStatistics();
+  } catch (e) {
+    console.error('Failed to add order', e);
+    message.error(e?.message || '添加失败');
+  }
+}
 
 // Assign modal
 const assignModalVisible = ref(false);
@@ -252,6 +469,21 @@ const elderDetailData = ref<Api.Elder.Elder | null>(null);
 // Staff detail modal
 const staffDetailVisible = ref(false);
 const staffDetailData = ref<Api.Staff.Staff | null>(null);
+
+// Order detail drawer
+const orderDetailVisible = ref(false);
+const orderDetailData = ref<Api.Order.Order | null>(null);
+const orderTimelineData = ref<OrderTimelineItem[]>([]);
+const activeDetailTab = ref<'info' | 'timeline'>('info');
+const expandedNodes = ref<Set<string>>(new Set());
+
+function toggleNode(node: OrderTimelineItem) {
+  if (expandedNodes.value.has(node.status)) {
+    expandedNodes.value.delete(node.status);
+  } else {
+    expandedNodes.value.add(node.status);
+  }
+}
 
 async function showElderDetail(row: Api.Order.Order) {
   if (!row.elderId) return;
@@ -290,66 +522,6 @@ async function getStatistics() {
   }
 }
 
-async function getTableData() {
-  loading.value = true;
-  try {
-    const params: Api.Order.OrderQuery & Api.Common.PaginatingQueryParams = {
-      current: pagination.value.page,
-      pageSize: pagination.value.pageSize
-    };
-    if (searchOrderNo.value) params.orderNo = searchOrderNo.value;
-    if (searchElderName.value) params.elderName = searchElderName.value;
-    if (searchProviderId.value) params.providerId = searchProviderId.value;
-    if (searchServiceType.value) params.serviceType = searchServiceType.value;
-    if (searchStatus.value) params.status = searchStatus.value;
-    if (searchDateRange.value) {
-      params.startDate = new Date(searchDateRange.value[0]).toISOString().split('T')[0];
-      params.endDate = new Date(searchDateRange.value[1]).toISOString().split('T')[0];
-    }
-
-    const { data } = await fetchGetOrderList(params);
-    tableData.value = data?.records || [];
-    pagination.value.total = data?.total || 0;
-
-    // Auto-select row if coming from appointment page with appointmentTime query
-    if (route.query.elderName && route.query.appointmentTime && tableData.value.length > 0) {
-      // Extract date part from appointmentTime (format: "2026-04-15 13:42:10")
-      const appointmentDate = (route.query.appointmentTime as string).split(' ')[0];
-      // Find the order that matches elderName and has the same service date
-      const targetRowIndex = tableData.value.findIndex(row => {
-        if (row.elderName !== route.query.elderName) return false;
-        if (!row.serviceDate) return false;
-        return row.serviceDate === appointmentDate;
-      });
-      if (targetRowIndex !== -1) {
-        const targetRow = tableData.value[targetRowIndex];
-        checkedRowKeys.value = [targetRow.orderId];
-        // Smooth scroll and highlight the row after data loads
-        setTimeout(() => {
-          const tbody = document.querySelector('.n-data-table-tbody');
-          if (tbody) {
-            const rows = tbody.querySelectorAll('.n-data-table-tr');
-            const targetRowEl = rows[targetRowIndex] as HTMLElement;
-            if (targetRowEl) {
-              // Apply smooth highlight animation using inline style with !important
-              targetRowEl.style.cssText = 'background-color: rgba(24, 160, 88, 0.25) !important; box-shadow: inset 0 0 0 2px rgba(24, 160, 88, 0.4) !important; transition: background-color 0.5s ease-out, box-shadow 0.5s ease-out !important;';
-              targetRowEl.scrollIntoView({ behavior: 'smooth', block: 'center' });
-              // Fade out the highlight
-              setTimeout(() => {
-                targetRowEl.style.cssText = '';
-              }, 2000);
-            }
-          }
-        }, 300);
-      }
-    }
-  } catch (e) {
-    console.error('Failed to get table data', e);
-  } finally {
-    loading.value = false;
-  }
-}
-
 async function handleAssign(row: Api.Order.Order) {
   currentOrderId.value = row.orderId;
   currentOrderProviderId.value = row.providerId || '';
@@ -358,7 +530,6 @@ async function handleAssign(row: Api.Order.Order) {
   selectedStaffDetail.value = null;
   assignModalVisible.value = true;
 
-  // Fetch staff list for this provider
   loadingStaff.value = true;
   try {
     const { data } = await fetchGetStaffList({
@@ -383,12 +554,10 @@ async function handleAssign(row: Api.Order.Order) {
 
 async function handleStaffSelect(staffId: string) {
   assignForm.value.staffId = staffId;
-  // Fetch staff detail
   try {
     const { data } = await fetchGetStaff(staffId);
     if (data) {
       selectedStaffDetail.value = data;
-      // Set providerId from staff's provider
       assignForm.value.providerId = data.providerId || currentOrderProviderId.value;
     }
   } catch (e) {
@@ -405,7 +574,7 @@ async function handleAssignSubmit() {
     await fetchDispatchOrder(currentOrderId.value, assignForm.value);
     message.success('派单成功');
     assignModalVisible.value = false;
-    await getTableData();
+    await getData();
     await getStatistics();
   } catch (e) {
     console.error('Failed to dispatch', e);
@@ -414,46 +583,25 @@ async function handleAssignSubmit() {
 
 async function handleAccept(row: Api.Order.Order) {
   try {
-    message.info('正在接单...');
-    await fetchAcceptOrder(row.orderId);
+    await fetchAcceptOrder(row.orderId, {
+      staffId: row.staffId
+    });
     message.success('接单成功');
-    await getTableData();
+    await getData();
     await getStatistics();
-  } catch (e: any) {
+  } catch (e) {
     console.error('Failed to accept', e);
-    const errorMsg = e?.response?.data?.msg || e?.message || '接单失败';
-    message.error(errorMsg);
   }
 }
 
 async function handleStart(row: Api.Order.Order) {
-  console.log('[DEBUG] handleStart called, orderId:', row.orderId);
   try {
-    message.info('正在开始服务...');
-    console.log('[DEBUG] calling fetchStartOrder...');
-    const result = await fetchStartOrder(row.orderId);
-    console.log('[DEBUG] fetchStartOrder result:', result);
-    message.success('开始服务成功');
-    await getTableData();
+    await fetchStartOrder(row.orderId, {});
+    message.success('开始服务');
+    await getData();
     await getStatistics();
-    // Show dialog to view service log
-    window.$dialog?.success({
-      title: '操作成功',
-      content: '服务已开始，是否查看服务日志？',
-      positiveText: '查看日志',
-      negativeText: '稍后查看',
-      maskClosable: false,
-      closeOnEsc: false,
-      onPositiveClick: () => {
-        // Navigate to service log page with order filter
-        router.push({ path: '/business/service-log', query: { orderId: row.orderId, orderNo: row.orderNo } });
-      }
-    });
-  } catch (e: any) {
-    console.error('[DEBUG] handleStart error:', e);
-    console.error('[DEBUG] error response:', e?.response);
-    const errorMsg = e?.response?.data?.msg || e?.message || '开始服务失败';
-    message.error(errorMsg);
+  } catch (e) {
+    console.error('Failed to start', e);
   }
 }
 
@@ -465,16 +613,13 @@ function handleComplete(row: Api.Order.Order) {
 
 async function handleCompleteSubmit() {
   try {
-    message.info('正在完成服务...');
     await fetchCompleteOrder(currentOrderId.value, completeForm.value);
-    message.success('完成服务成功');
+    message.success('完成服务');
     completeModalVisible.value = false;
-    await getTableData();
+    await getData();
     await getStatistics();
-  } catch (e: any) {
+  } catch (e) {
     console.error('Failed to complete', e);
-    const errorMsg = e?.response?.data?.msg || e?.message || '完成服务失败';
-    message.error(errorMsg);
   }
 }
 
@@ -486,38 +631,130 @@ function handleCancel(row: Api.Order.Order) {
 
 async function handleCancelSubmit() {
   try {
-    message.info('正在取消订单...');
     await fetchCancelOrder(currentOrderId.value, cancelForm.value);
     message.success('取消成功');
     cancelModalVisible.value = false;
-    await getTableData();
+    await getData();
     await getStatistics();
-  } catch (e: any) {
+  } catch (e) {
     console.error('Failed to cancel', e);
-    const errorMsg = e?.response?.data?.msg || e?.message || '取消失败';
-    message.error(errorMsg);
   }
 }
 
-function handlePageChange(page: number) {
-  pagination.value.page = page;
-  getTableData();
+function handleResetSearch() {
+  searchOrderNo.value = '';
+  searchElderName.value = '';
+  searchProviderId.value = '';
+  searchServiceType.value = '';
+  searchStatus.value = '';
+  searchDateRange.value = null;
+  getDataByPage(1);
 }
 
-function handlePageSizeChange(pageSize: number) {
-  pagination.value.pageSize = pageSize;
-  pagination.value.page = 1;
-  getTableData();
+// 生成订单时间轴数据 - 参考预约单设计，添加详情信息
+function generateOrderTimeline(order: Api.Order.Order): OrderTimelineItem[] {
+  const timeline: OrderTimelineItem[] = [];
+  
+  if (order.createTime) {
+    const details: { label: string; value: string }[] = [
+      { label: '老人姓名', value: order.elderName || '-' },
+      { label: '服务类型', value: order.serviceTypeName || '-' },
+      { label: '预估费用', value: `¥${order.estimatedPrice || 0}` }
+    ];
+    if (order.remark) {
+      details.push({ label: '备注', value: order.remark });
+    }
+    timeline.push({
+      status: 'CREATED',
+      time: order.createTime,
+      description: '订单创建成功',
+      details
+    });
+  }
+  
+  if (order.dispatchTime) {
+    timeline.push({
+      status: 'DISPATCHED',
+      time: order.dispatchTime,
+      description: `派单给服务商：${order.providerName || '-'}`,
+      operator: order.dispatcherName || '系统',
+      details: [
+        { label: '服务商', value: order.providerName || '-' },
+        { label: '服务人员', value: order.staffName || '-' },
+        { label: '派单人', value: order.dispatcherName || '系统' }
+      ]
+    });
+  }
+  
+  if (order.receiveTime) {
+    timeline.push({
+      status: 'RECEIVED',
+      time: order.receiveTime,
+      description: '服务人员已接单',
+      operator: order.staffName,
+      details: [
+        { label: '服务人员', value: order.staffName || '-' },
+        { label: '联系电话', value: order.staffPhone || '-' }
+      ]
+    });
+  }
+  
+  if (order.startTime) {
+    timeline.push({
+      status: 'SERVICE_STARTED',
+      time: order.startTime,
+      description: '服务人员开始服务',
+      operator: order.staffName
+    });
+  }
+  
+  if (order.completeTime) {
+    const details: { label: string; value: string }[] = [
+      { label: '实际费用', value: `¥${order.actualPrice || 0}` },
+      { label: '自付金额', value: `¥${order.selfPayAmount || 0}` },
+      { label: '补贴金额', value: `¥${order.subsidyAmount || 0}` }
+    ];
+    timeline.push({
+      status: 'SERVICE_COMPLETED',
+      time: order.completeTime,
+      description: '服务已完成',
+      operator: order.staffName,
+      details
+    });
+  }
+  
+  if (order.cancelTime) {
+    timeline.push({
+      status: 'CANCELLED',
+      time: order.cancelTime,
+      description: `订单已取消${order.cancelReason ? '：' + order.cancelReason : ''}`,
+      operator: order.cancellerName || '系统'
+    });
+  }
+  
+  return timeline.sort((a, b) => new Date(a.time).getTime() - new Date(b.time).getTime());
+}
+
+async function handleDetail(row: Api.Order.Order) {
+  try {
+    const { data } = await fetchGetOrder(row.orderId);
+    if (data) {
+      orderDetailData.value = data;
+      orderTimelineData.value = generateOrderTimeline(data);
+      orderDetailVisible.value = true;
+    }
+  } catch (e) {
+    console.error('Failed to get order detail', e);
+    message.error('获取订单详情失败');
+  }
 }
 
 onMounted(() => {
-  // Handle query parameters from appointment page
   if (route.query.elderName) {
     searchElderName.value = route.query.elderName as string;
   }
-
   getStatistics();
-  getTableData();
+  getData();
   getProviderOptions();
 });
 </script>
@@ -649,10 +886,20 @@ onMounted(() => {
             style="width: 120px"
           />
           <NDatePicker v-model:value="searchDateRange" type="daterange" clearable style="width: 260px" />
-          <NButton type="primary" @click="getTableData">搜索</NButton>
-          <NButton @click="() => { searchOrderNo = ''; searchElderName = ''; searchProviderId = ''; searchServiceType = ''; searchStatus = ''; searchDateRange = null; getTableData(); }">重置</NButton>
+          <NButton type="primary" @click="getData">搜索</NButton>
+          <NButton @click="handleResetSearch">重置</NButton>
         </NSpace>
       </div>
+      
+      <!-- Use framework's TableHeaderOperation component -->
+      <TableHeaderOperation
+        v-model:columns="columnChecks"
+        :disabled-delete="checkedRowKeys.length === 0"
+        :loading="loading"
+        @add="handleAdd"
+        @refresh="getData"
+      />
+      
       <NDataTable
         :columns="columns"
         :data="tableData"
@@ -661,23 +908,67 @@ onMounted(() => {
         :row-key="(row: Api.Order.Order) => row.orderId"
         v-model:checked-row-keys="checkedRowKeys"
         :row-class-name="() => 'clickable-row'"
+        remote
+        :pagination="mobilePagination"
       />
-      <div style="padding: 12px 0">
-        <NSpace justify="end">
-          <NSelect
-            v-model:value="pagination.pageSize"
-            :options="[10, 20, 50].map(s => ({ label: `${s}条/页`, value: s }))"
-            style="width: 120px"
-            @update:value="handlePageSizeChange"
-          />
-          <NPagination
-            v-model:page="pagination.page"
-            :page-count="Math.ceil(pagination.total / pagination.pageSize)"
-            @update:page="handlePageChange"
-          />
-        </NSpace>
-      </div>
     </NCard>
+
+    <!-- Add Modal -->
+    <NModal v-model:show="addModalVisible" title="添加订单" preset="card" style="width: 600px">
+      <NForm :model="addForm" label-placement="left" label-width="100">
+        <NFormItem label="老人姓名" required>
+          <NInput v-model:value="addForm.elderName" placeholder="请输入老人姓名" />
+        </NFormItem>
+        <NFormItem label="手机号" required>
+          <NInput v-model:value="addForm.elderPhone" placeholder="请输入手机号" />
+        </NFormItem>
+        <NFormItem label="服务类型" required>
+          <NSelect
+            v-model:value="addForm.serviceTypeCode"
+            :options="addServiceTypeOptions"
+            placeholder="请选择服务类型"
+          />
+        </NFormItem>
+        <NFormItem label="服务日期" required>
+          <NDatePicker v-model:value="addForm.serviceDate" type="date" placeholder="请选择服务日期" style="width: 100%" />
+        </NFormItem>
+        <NFormItem label="服务时间">
+          <NInput v-model:value="addForm.serviceTime" placeholder="如：09:00-11:00" />
+        </NFormItem>
+        <NFormItem label="服务时长">
+          <NInputNumber v-model:value="addForm.serviceDuration" :min="1" placeholder="分钟">
+            <template #suffix>分钟</template>
+          </NInputNumber>
+        </NFormItem>
+        <NFormItem label="服务地址">
+          <NInput v-model:value="addForm.serviceAddress" type="textarea" placeholder="请输入服务地址" />
+        </NFormItem>
+        <NFormItem label="预估费用">
+          <NInputNumber v-model:value="addForm.estimatedPrice" :min="0" placeholder="元">
+            <template #suffix>元</template>
+          </NInputNumber>
+        </NFormItem>
+        <NFormItem label="补贴金额">
+          <NInputNumber v-model:value="addForm.subsidyAmount" :min="0" placeholder="元">
+            <template #suffix>元</template>
+          </NInputNumber>
+        </NFormItem>
+        <NFormItem label="自付金额">
+          <NInputNumber v-model:value="addForm.selfPayAmount" :min="0" placeholder="元">
+            <template #suffix>元</template>
+          </NInputNumber>
+        </NFormItem>
+        <NFormItem label="特殊要求">
+          <NInput v-model:value="addForm.specialRequirements" type="textarea" placeholder="请输入特殊要求" />
+        </NFormItem>
+      </NForm>
+      <template #footer>
+        <NSpace justify="end">
+          <NButton @click="addModalVisible = false">取消</NButton>
+          <NButton type="primary" @click="handleAddSubmit">确认</NButton>
+        </NSpace>
+      </template>
+    </NModal>
 
     <!-- Assign Modal -->
     <NModal v-model:show="assignModalVisible" title="派单" preset="card" style="width: 600px">
@@ -796,6 +1087,106 @@ onMounted(() => {
         <NFormItem label="状态">{{ staffDetailData.status === 'ON_JOB' ? '在职' : staffDetailData.status === 'OFF_JOB' ? '离职' : '-' }}</NFormItem>
       </NForm>
     </NModal>
+
+    <!-- Order Detail Drawer -->
+    <NDrawer v-model:show="orderDetailVisible" :width="560" placement="right" closable>
+      <NDrawerContent :title="orderDetailData?.orderNo ? `订单详情 - ${orderDetailData.orderNo}` : '订单详情'" closable>
+        <!-- Tab Switch -->
+        <div style="display: flex; gap: 8px; margin-bottom: 16px; border-bottom: 1px solid #eee; padding-bottom: 12px;">
+          <NButton
+            :type="activeDetailTab === 'info' ? 'primary' : 'default'"
+            size="small"
+            @click="activeDetailTab = 'info'"
+          >
+            基本信息
+          </NButton>
+          <NButton
+            :type="activeDetailTab === 'timeline' ? 'primary' : 'default'"
+            size="small"
+            @click="activeDetailTab = 'timeline'"
+          >
+            时间轴
+          </NButton>
+        </div>
+
+        <!-- Basic Info Tab -->
+        <div v-if="activeDetailTab === 'info' && orderDetailData">
+          <NDescriptions :column="1" bordered size="small">
+            <NDescriptionsItem label="订单号">{{ orderDetailData.orderNo }}</NDescriptionsItem>
+            <NDescriptionsItem label="订单状态">
+              <NTag :type="getStatusType(orderDetailData.status)" size="small">
+                {{ getStatusLabel(orderDetailData.status) }}
+              </NTag>
+            </NDescriptionsItem>
+            <NDescriptionsItem label="老人姓名">{{ orderDetailData.elderName }}</NDescriptionsItem>
+            <NDescriptionsItem label="老人手机">{{ orderDetailData.elderPhone }}</NDescriptionsItem>
+            <NDescriptionsItem label="服务类型">{{ orderDetailData.serviceTypeName }}</NDescriptionsItem>
+            <NDescriptionsItem label="预约时间">{{ formatServiceTime(orderDetailData.serviceDate, orderDetailData.serviceTime) }}</NDescriptionsItem>
+            <NDescriptionsItem label="服务地址">{{ orderDetailData.serviceAddress || '-' }}</NDescriptionsItem>
+            <NDescriptionsItem label="服务商">{{ orderDetailData.providerName || '-' }}</NDescriptionsItem>
+            <NDescriptionsItem label="服务人员">{{ orderDetailData.staffName || '-' }}</NDescriptionsItem>
+            <NDescriptionsItem label="预估费用">¥{{ orderDetailData.estimatedPrice || 0 }}</NDescriptionsItem>
+            <NDescriptionsItem label="实际费用">¥{{ orderDetailData.actualPrice || 0 }}</NDescriptionsItem>
+            <NDescriptionsItem label="自付金额">¥{{ orderDetailData.selfPayAmount || 0 }}</NDescriptionsItem>
+            <NDescriptionsItem label="补贴金额">¥{{ orderDetailData.subsidyAmount || 0 }}</NDescriptionsItem>
+            <NDescriptionsItem label="创建时间">{{ orderDetailData.createTime }}</NDescriptionsItem>
+            <NDescriptionsItem label="备注">{{ orderDetailData.remark || '-' }}</NDescriptionsItem>
+          </NDescriptions>
+        </div>
+
+        <!-- Timeline Tab -->
+        <div v-if="activeDetailTab === 'timeline'">
+          <div v-if="orderTimelineData.length > 0" class="timeline-container">
+            <div v-for="(node, index) in orderTimelineData" :key="node.status" class="timeline-node">
+              <div
+                class="timeline-node-header"
+                :class="{ 
+                  'timeline-node-active': isCurrentNode(node), 
+                  'timeline-node-completed': isCompletedNode(node) 
+                }"
+                @click="toggleNode(node)"
+              >
+                <div class="timeline-connector">
+                  <div class="timeline-dot" :style="{ background: getNodeColor(node) }">
+                    <span v-if="isCompletedNode(node) && !isCurrentNode(node)" class="timeline-check">✓</span>
+                    <span v-else-if="isCurrentNode(node)" class="timeline-pulse"></span>
+                    <span v-else class="timeline-icon">{{ getNodeIcon(node) }}</span>
+                  </div>
+                  <div v-if="index < orderTimelineData.length - 1" class="timeline-line" :class="{ 'timeline-line-completed': isCompletedNode(node) }"></div>
+                </div>
+                <div class="timeline-node-content">
+                  <div class="timeline-node-title">
+                    <span class="timeline-node-status-icon" :style="{ color: getNodeColor(node) }">{{ getNodeIcon(node) }}</span>
+                    <span class="timeline-node-title-text">{{ getStatusLabel(node.status) }}</span>
+                    <span class="timeline-node-time">{{ formatTimelineTime(node.time) }}</span>
+                  </div>
+                  <div class="timeline-node-description">{{ node.description }}</div>
+                  <div v-if="node.operator" class="timeline-node-operator">
+                    <span class="operator-label">操作人:</span>
+                    <span class="operator-name">{{ node.operator }}</span>
+                  </div>
+                  <div v-if="node.details && node.details.length > 0" class="timeline-node-details" :class="{ 'timeline-node-details-expanded': expandedNodes.has(node.status) }">
+                    <div class="timeline-details-list">
+                      <div v-for="detail in node.details" :key="detail.label" class="timeline-detail-item">
+                        <span class="timeline-detail-label">{{ detail.label }}:</span>
+                        <span class="timeline-detail-value">{{ detail.value }}</span>
+                      </div>
+                    </div>
+                  </div>
+                  <div v-if="node.details && node.details.length > 0" class="timeline-expand-hint">
+                    <span>{{ expandedNodes.has(node.status) ? '点击收起' : '点击展开详情' }}</span>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+          <div v-else class="timeline-empty">
+            <div class="timeline-empty-icon">📋</div>
+            <div class="timeline-empty-text">暂无时间轴数据</div>
+          </div>
+        </div>
+      </NDrawerContent>
+    </NDrawer>
   </div>
 </template>
 
@@ -918,11 +1309,219 @@ onMounted(() => {
   margin-top: 2px;
 }
 
-:deep(.n-data-table-tr--checked) {
+::deep(.n-data-table-tr--checked) {
   background-color: rgba(24, 160, 88, 0.12) !important;
 }
 
-:deep(.n-data-table-tr--checked:hover) {
+::deep(.n-data-table-tr--checked:hover) {
   background-color: rgba(24, 160, 88, 0.18) !important;
+}
+/* ========== 时间轴样式 - 参考预约单设计 ========== */
+.timeline-container {
+  padding: 16px 0;
+}
+
+.timeline-node {
+  position: relative;
+}
+
+.timeline-node-header {
+  display: flex;
+  cursor: pointer;
+  padding: 12px 16px;
+  border-radius: 8px;
+  transition: background-color 0.2s ease;
+}
+
+.timeline-node-header:hover {
+  background-color: #f5f5f5;
+}
+
+.timeline-node-active {
+  background-color: rgba(79, 172, 254, 0.08);
+}
+
+.timeline-node-completed {
+  opacity: 0.85;
+}
+
+.timeline-connector {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  width: 32px;
+  flex-shrink: 0;
+}
+
+.timeline-dot {
+  width: 24px;
+  height: 24px;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: white;
+  font-size: 12px;
+  font-weight: 600;
+  z-index: 1;
+  flex-shrink: 0;
+  box-shadow: 0 2px 6px rgba(0, 0, 0, 0.15);
+}
+
+.timeline-check {
+  font-size: 14px;
+}
+
+.timeline-pulse {
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  background: white;
+  animation: timeline-pulse 1.5s infinite;
+}
+
+@keyframes timeline-pulse {
+  0% {
+    box-shadow: 0 0 0 0 rgba(79, 172, 254, 0.6);
+  }
+  70% {
+    box-shadow: 0 0 0 8px rgba(79, 172, 254, 0);
+  }
+  100% {
+    box-shadow: 0 0 0 0 rgba(79, 172, 254, 0);
+  }
+}
+
+.timeline-line {
+  width: 2px;
+  flex: 1;
+  min-height: 24px;
+  background: #e0e0e0;
+  margin: 4px 0;
+}
+
+.timeline-line-completed {
+  background: #11998e;
+}
+
+.timeline-node-content {
+  flex: 1;
+  padding-left: 16px;
+  padding-right: 8px;
+  min-width: 0;
+}
+
+.timeline-node-title {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  flex-wrap: wrap;
+}
+
+.timeline-node-status-icon {
+  font-size: 14px;
+  width: 18px;
+  text-align: center;
+}
+
+.timeline-node-title-text {
+  font-size: 14px;
+  font-weight: 600;
+  color: #333;
+}
+
+.timeline-node-time {
+  font-size: 12px;
+  color: #999;
+  margin-left: auto;
+}
+
+.timeline-node-description {
+  font-size: 13px;
+  color: #666;
+  margin-top: 4px;
+  line-height: 1.5;
+}
+
+.timeline-node-operator {
+  font-size: 12px;
+  color: #666;
+  margin-top: 4px;
+}
+
+.timeline-node-operator .operator-label {
+  color: #999;
+}
+
+.timeline-node-operator .operator-name {
+  color: #4facfe;
+  font-weight: 500;
+}
+
+.timeline-node-details {
+  max-height: 0;
+  overflow: hidden;
+  transition: max-height 0.3s ease, opacity 0.3s ease;
+  opacity: 0;
+}
+
+.timeline-node-details-expanded {
+  max-height: 500px;
+  opacity: 1;
+  margin-top: 12px;
+}
+
+.timeline-details-list {
+  background: #f8f9fa;
+  border-radius: 8px;
+  padding: 12px 16px;
+}
+
+.timeline-detail-item {
+  display: flex;
+  padding: 6px 0;
+  font-size: 13px;
+  border-bottom: 1px solid #eee;
+}
+
+.timeline-detail-item:last-child {
+  border-bottom: none;
+}
+
+.timeline-detail-label {
+  color: #666;
+  min-width: 80px;
+  flex-shrink: 0;
+}
+
+.timeline-detail-value {
+  color: #333;
+  word-break: break-all;
+}
+
+.timeline-expand-hint {
+  font-size: 11px;
+  color: #999;
+  margin-top: 8px;
+  text-align: right;
+}
+
+.timeline-empty {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  padding: 60px 20px;
+  color: #999;
+}
+
+.timeline-empty-icon {
+  font-size: 48px;
+  margin-bottom: 16px;
+  opacity: 0.5;
+}
+
+.timeline-empty-text {
+  font-size: 14px;
 }
 </style>

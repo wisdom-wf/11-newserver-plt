@@ -82,8 +82,10 @@ declare namespace Api {
       elderId: string;
       /** 档案编号 */
       fileNo?: string;
-      /** 姓名 */
+      /** 姓名 - 与后端elder_name字段映射 */
       name: string;
+      /** 老人姓名 - 兼容其他模块使用的elderName */
+      elderName?: string;
       /** 性别 */
       gender?: string;
       /** 性别名称 */
@@ -140,6 +142,10 @@ declare namespace Api {
       status?: string;
       /** 状态名称 */
       statusName?: string;
+      /** 关联服务商ID */
+      providerId?: string;
+      /** 服务商名称 */
+      providerName?: string;
       /** 创建时间 */
       createTime: string;
       /** 更新时间 */
