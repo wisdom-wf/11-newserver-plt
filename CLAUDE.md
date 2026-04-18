@@ -315,3 +315,39 @@ docker exec mysql-dev mysql -uroot -proot elderly_care --default-character-set=u
 # 应显示正确的中文
 ```
 
+### 11. 前后端字段对接规范（复盘经验）
+
+#### 字段名一致性规则
+1. **修改前必查对方代码**: 任何字段修改前，必须 `grep` 确认对方代码中的实际字段名
+2. **禁止假设一致性**: 不能假设前后端字段名一致，必须逐一验证
+3. **API 参数类型严格对应**: 前端 form 提交字段名必须与后端 DTO 字段名完全一致
+
+#### 常见字段名不一致案例
+| 问题场景 | 前端错误 | 后端正确 | 教训 |
+|----------|----------|----------|------|
+| 自付金额字段 | `selfPayFee` | `selfPayAmount` | 改前必查对方代码 |
+| ID字段泛化 | `id` | `serviceLogId` | RESTful ID必须具体化 |
+| 分页字段 | `page` | `current` | 需查具体DTO定义 |
+
+#### 数组字段边界处理
+前端赋值时注意 `|| []` 对字符串不会触发 fallback：
+```typescript
+// ❌ 错误：当 row.servicePhotos 是非空字符串时
+servicePhotos: row.servicePhotos || []
+
+// ✅ 正确：显式检查数组类型
+servicePhotos: Array.isArray(row.servicePhotos)
+  ? row.servicePhotos
+  : row.servicePhotos ? [row.servicePhotos] : []
+```
+
+#### DTO 设计规范
+1. **避免重复字段**: 不要像 `CompleteServiceDTO` 那样有 `actualFee` 和 `actualServiceFee` 重复字段
+2. **列表和详情一致**: 列表 API 也应返回完整业务字段（如 `actualPrice`）
+
+#### 测试验证规则
+每次涉及字段映射的修改后：
+1. 浏览器 Network 面板确认请求参数正确
+2. 确认返回数据字段名和类型符合预期
+3. 边界条件测试: null、0、空字符串的处理
+

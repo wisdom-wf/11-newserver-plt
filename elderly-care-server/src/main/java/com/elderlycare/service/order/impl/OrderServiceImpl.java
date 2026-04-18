@@ -1,5 +1,7 @@
 package com.elderlycare.service.order.impl;
 
+import java.math.BigDecimal;
+import java.util.Optional;
 import com.baomidou.mybatisplus.core.metadata.IPage;
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import com.elderlycare.common.BusinessException;
@@ -19,6 +21,8 @@ import com.elderlycare.mapper.staff.StaffMapper;
 import com.elderlycare.entity.provider.Provider;
 import com.elderlycare.entity.servicelog.ServiceLog;
 import com.elderlycare.entity.staff.Staff;
+import com.elderlycare.entity.quality.QualityCheck;
+import com.elderlycare.mapper.quality.QualityCheckMapper;
 import com.elderlycare.service.order.OrderService;
 import com.elderlycare.vo.order.*;
 import lombok.RequiredArgsConstructor;
@@ -27,6 +31,7 @@ import org.apache.commons.lang3.StringUtils;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.math.BigDecimal;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
@@ -45,6 +50,7 @@ public class OrderServiceImpl implements OrderService {
     private final ServiceLogMapper serviceLogMapper;
     private final ProviderMapper providerMapper;
     private final StaffMapper staffMapper;
+    private final QualityCheckMapper qualityCheckMapper;
 
     // ==================== 订单管理 ====================
 
@@ -119,6 +125,15 @@ public class OrderServiceImpl implements OrderService {
         vo.setOrderSource(order.getOrderSource());
         vo.setSubsidyType(order.getSubsidyType());
         vo.setEstimatedPrice(order.getEstimatedPrice());
+        // 实际费用 = 自付金额 + 补贴金额
+        BigDecimal actualPrice = BigDecimal.ZERO;
+        if (order.getSelfPayAmount() != null) {
+            actualPrice = actualPrice.add(order.getSelfPayAmount());
+        }
+        if (order.getSubsidyAmount() != null) {
+            actualPrice = actualPrice.add(order.getSubsidyAmount());
+        }
+        vo.setActualPrice(actualPrice);
         vo.setSubsidyAmount(order.getSubsidyAmount());
         vo.setSelfPayAmount(order.getSelfPayAmount());
         vo.setStatus(order.getStatus());
@@ -425,8 +440,26 @@ public class OrderServiceImpl implements OrderService {
         serviceLog.setServiceDate(order.getServiceDate() != null ? order.getServiceDate().toString() : null);
         serviceLog.setServiceStartTime(LocalDateTime.now());
         serviceLog.setServiceStatus("IN_PROGRESS"); // 服务中
+        serviceLog.setAuditStatus("DRAFT"); // 草稿状态
         serviceLog.setCreateTime(LocalDateTime.now());
         serviceLogMapper.insert(serviceLog);
+
+        // 自动生成质检单（待质检状态）
+        QualityCheck qualityCheck = new QualityCheck();
+        qualityCheck.setQualityCheckId(IDGenerator.generateId());
+        qualityCheck.setCheckNo("QC" + System.currentTimeMillis());
+        qualityCheck.setOrderId(orderId);
+        qualityCheck.setOrderNo(order.getOrderNo());
+        qualityCheck.setServiceLogId(serviceLog.getServiceLogId());
+        qualityCheck.setServiceCategory(order.getServiceTypeCode());
+        qualityCheck.setProviderId(order.getProviderId());
+        qualityCheck.setStaffId(staffId);
+        qualityCheck.setCheckType("COMPLETION"); // 完工质检
+        qualityCheck.setCheckMethod("PHOTO_REVIEW"); // 默认照片审核
+        qualityCheck.setCheckResult("PENDING"); // 待质检
+        qualityCheck.setRectifyStatus("PENDING");
+        qualityCheck.setCreateTime(LocalDateTime.now());
+        qualityCheckMapper.insert(qualityCheck);
 
         // 更新订单状态
         order.setStatus(OrderStatus.SERVICE_STARTED.getCode());
@@ -470,6 +503,25 @@ public class OrderServiceImpl implements OrderService {
         order.setStatus(OrderStatus.SERVICE_COMPLETED.getCode());
         order.setCompleteTime(LocalDateTime.now());
         order.setUpdateTime(LocalDateTime.now());
+        // 保存实际费用信息
+        // 实际费用 = 自付金额 + 补贴金额
+        BigDecimal actualFee = dto.getActualServiceFee() != null ? dto.getActualServiceFee() : dto.getActualFee();
+        BigDecimal selfPay = dto.getSelfPayAmount();
+        BigDecimal subsidy = dto.getSubsidyAmount();
+
+        if (actualFee != null) {
+            order.setEstimatedPrice(actualFee);
+            // 如果只传了总费用和自付金额，则补贴金额 = 总费用 - 自付金额
+            if (subsidy == null && selfPay != null) {
+                subsidy = actualFee.subtract(selfPay);
+            }
+        }
+        if (subsidy != null) {
+            order.setSubsidyAmount(subsidy);
+        }
+        if (selfPay != null) {
+            order.setSelfPayAmount(selfPay);
+        }
         orderMapper.updateById(order);
     }
 
@@ -513,6 +565,8 @@ public class OrderServiceImpl implements OrderService {
         vo.setOrderSource(order.getOrderSource());
         vo.setSubsidyType(order.getSubsidyType());
         vo.setEstimatedPrice(order.getEstimatedPrice());
+        vo.setActualPrice(Optional.ofNullable(order.getSubsidyAmount()).orElse(BigDecimal.ZERO)
+                .add(Optional.ofNullable(order.getSelfPayAmount()).orElse(BigDecimal.ZERO)));
         vo.setSubsidyAmount(order.getSubsidyAmount());
         vo.setSelfPayAmount(order.getSelfPayAmount());
         vo.setStatus(order.getStatus());

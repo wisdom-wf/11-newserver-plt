@@ -50,6 +50,13 @@ public class QualityCheckServiceImpl implements QualityCheckService {
         if (query.getProviderId() != null && !query.getProviderId().isEmpty()) {
             wrapper.eq(QualityCheck::getProviderId, query.getProviderId());
         }
+        // 日期范围过滤 - 使用 checkTime 字段
+        if (query.getStartDate() != null && !query.getStartDate().isEmpty()) {
+            wrapper.ge(QualityCheck::getCheckTime, query.getStartDate() + " 00:00:00");
+        }
+        if (query.getEndDate() != null && !query.getEndDate().isEmpty()) {
+            wrapper.le(QualityCheck::getCheckTime, query.getEndDate() + " 23:59:59");
+        }
 
         wrapper.orderByDesc(QualityCheck::getCreateTime);
 
@@ -82,6 +89,13 @@ public class QualityCheckServiceImpl implements QualityCheckService {
         QualityCheck qualityCheck = new QualityCheck();
         qualityCheck.setCheckNo("QC" + System.currentTimeMillis());
         qualityCheck.setOrderId(vo.getOrderId());
+        qualityCheck.setOrderNo(vo.getOrderNo());
+        qualityCheck.setServiceLogId(vo.getServiceLogId());
+        qualityCheck.setServiceCategory(vo.getServiceCategory());
+        qualityCheck.setProviderId(vo.getProviderId());
+        qualityCheck.setProviderName(vo.getProviderName());
+        qualityCheck.setStaffId(vo.getStaffId());
+        qualityCheck.setStaffName(vo.getStaffName());
         qualityCheck.setCheckType(vo.getCheckType());
         qualityCheck.setCheckMethod(vo.getCheckMethod());
         qualityCheck.setCheckScore(vo.getCheckScore());

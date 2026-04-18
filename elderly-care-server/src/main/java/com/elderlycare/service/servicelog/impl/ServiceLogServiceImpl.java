@@ -24,6 +24,8 @@ import java.time.LocalTime;
 import java.util.Map;
 import java.util.stream.Collectors;
 
+import com.fasterxml.jackson.databind.ObjectMapper;
+
 /**
  * 服务日志服务实现
  */
@@ -33,6 +35,7 @@ public class ServiceLogServiceImpl implements ServiceLogService {
 
     private final ServiceLogMapper serviceLogMapper;
     private final QualityCheckMapper qualityCheckMapper;
+    private final ObjectMapper objectMapper = new ObjectMapper();
 
     @Override
     public PageResult<ServiceLogVO> getServiceLogList(ServiceLogQueryDTO query) {
@@ -59,6 +62,9 @@ public class ServiceLogServiceImpl implements ServiceLogService {
         }
         if (query.getStaffId() != null && !query.getStaffId().isEmpty()) {
             wrapper.eq(ServiceLog::getStaffId, query.getStaffId());
+        }
+        if (query.getAuditStatus() != null && !query.getAuditStatus().isEmpty()) {
+            wrapper.eq(ServiceLog::getAuditStatus, query.getAuditStatus());
         }
 
         wrapper.orderByDesc(ServiceLog::getCreateTime);
@@ -105,7 +111,17 @@ public class ServiceLogServiceImpl implements ServiceLogService {
         serviceLog.setServiceStartTime(vo.getServiceStartTime() != null ? LocalDateTime.parse(vo.getServiceStartTime()) : null);
         serviceLog.setServiceEndTime(vo.getServiceEndTime() != null ? LocalDateTime.parse(vo.getServiceEndTime()) : null);
         serviceLog.setServiceDuration(vo.getServiceDuration());
+        serviceLog.setServiceComment(vo.getServiceContent() != null ? vo.getServiceContent() : vo.getServiceComment());
         serviceLog.setServiceStatus(vo.getStatus());
+        // 将照片数组序列化为JSON字符串存储
+        if (vo.getServicePhotos() != null && vo.getServicePhotos().length > 0) {
+            try {
+                serviceLog.setServicePhotos(objectMapper.writeValueAsString(vo.getServicePhotos()));
+            } catch (Exception e) {
+                serviceLog.setServicePhotos(String.join(",", vo.getServicePhotos()));
+            }
+        }
+        serviceLog.setAuditStatus("DRAFT");
         serviceLog.setCreateTime(LocalDateTime.now());
         serviceLogMapper.insert(serviceLog);
 
@@ -130,8 +146,106 @@ public class ServiceLogServiceImpl implements ServiceLogService {
     }
 
     @Override
+    @Transactional(rollbackFor = Exception.class)
     public void updateServiceLog(String id, ServiceLogVO vo) {
-        // Update not fully implemented
+        ServiceLog serviceLog = serviceLogMapper.selectById(id);
+        if (serviceLog == null) {
+            throw new RuntimeException("服务日志不存在");
+        }
+        // 只有草稿状态才能更新
+        if (!"DRAFT".equals(serviceLog.getAuditStatus())) {
+            throw new RuntimeException("只有草稿状态的服务日志才能修改");
+        }
+        serviceLog.setServiceDate(vo.getServiceDate());
+        serviceLog.setServiceStartTime(vo.getServiceStartTime() != null ? LocalDateTime.parse(vo.getServiceStartTime()) : null);
+        serviceLog.setServiceEndTime(vo.getServiceEndTime() != null ? LocalDateTime.parse(vo.getServiceEndTime()) : null);
+        serviceLog.setServiceDuration(vo.getServiceDuration());
+        serviceLog.setServiceComment(vo.getServiceContent() != null ? vo.getServiceContent() : vo.getServiceComment());
+        // 将照片数组序列化为JSON字符串存储
+        if (vo.getServicePhotos() != null && vo.getServicePhotos().length > 0) {
+            try {
+                serviceLog.setServicePhotos(objectMapper.writeValueAsString(vo.getServicePhotos()));
+            } catch (Exception e) {
+                serviceLog.setServicePhotos(String.join(",", vo.getServicePhotos()));
+            }
+        }
+        serviceLog.setActualDuration(vo.getActualDuration());
+        serviceLogMapper.updateById(serviceLog);
+    }
+
+    @Override
+    @Transactional(rollbackFor = Exception.class)
+    public void submitForReview(String id) {
+        ServiceLog serviceLog = serviceLogMapper.selectById(id);
+        if (serviceLog == null) {
+            throw new RuntimeException("服务日志不存在");
+        }
+        if (!"DRAFT".equals(serviceLog.getAuditStatus())) {
+            throw new RuntimeException("只有草稿状态才能提交审核");
+        }
+        // 校验必填字段
+        if (serviceLog.getServiceDate() == null || serviceLog.getServiceDate().isEmpty()) {
+            throw new RuntimeException("请填写服务日期");
+        }
+        if (serviceLog.getServiceStartTime() == null) {
+            throw new RuntimeException("请填写服务开始时间");
+        }
+        if (serviceLog.getServiceEndTime() == null) {
+            throw new RuntimeException("请填写服务结束时间");
+        }
+        if (serviceLog.getServicePhotos() == null || serviceLog.getServicePhotos().isEmpty()) {
+            throw new RuntimeException("请上传服务照片");
+        }
+        serviceLog.setAuditStatus("SUBMITTED");
+        serviceLogMapper.updateById(serviceLog);
+    }
+
+    @Override
+    @Transactional(rollbackFor = Exception.class)
+    public void reviewServiceLog(String id, String result, String reviewComment) {
+        ServiceLog serviceLog = serviceLogMapper.selectById(id);
+        if (serviceLog == null) {
+            throw new RuntimeException("服务日志不存在");
+        }
+        if (!"SUBMITTED".equals(serviceLog.getAuditStatus())) {
+            throw new RuntimeException("只有已提交状态才能审核");
+        }
+        if (result == null || (!"APPROVED".equals(result) && !"REJECTED".equals(result))) {
+            throw new RuntimeException("审核结果只能是APPROVED或REJECTED");
+        }
+        // 获取审核人信息（简化处理，实际应从UserContext获取）
+        serviceLog.setAuditStatus(result);
+        serviceLog.setReviewComment(reviewComment);
+        serviceLog.setReviewTime(LocalDateTime.now());
+        serviceLogMapper.updateById(serviceLog);
+
+        // 更新关联质检单状态
+        LambdaQueryWrapper<com.elderlycare.entity.quality.QualityCheck> wrapper = new LambdaQueryWrapper<>();
+        wrapper.eq(com.elderlycare.entity.quality.QualityCheck::getServiceLogId, id);
+        com.elderlycare.entity.quality.QualityCheck qualityCheck = qualityCheckMapper.selectOne(wrapper);
+        if (qualityCheck != null) {
+            qualityCheck.setCheckResult("APPROVED".equals(result) ? "QUALIFIED" : "UNQUALIFIED");
+            qualityCheck.setCheckRemark(reviewComment);
+            qualityCheck.setCheckTime(LocalDateTime.now());
+            if ("REJECTED".equals(result)) {
+                qualityCheck.setNeedRectify(true);
+                qualityCheck.setRectifyStatus("PENDING");
+            }
+            qualityCheckMapper.updateById(qualityCheck);
+        }
+    }
+
+    @Override
+    @Transactional(rollbackFor = Exception.class)
+    public void deleteServiceLog(String id) {
+        ServiceLog serviceLog = serviceLogMapper.selectById(id);
+        if (serviceLog == null) {
+            throw new RuntimeException("服务日志不存在");
+        }
+        if (!"DRAFT".equals(serviceLog.getAuditStatus())) {
+            throw new RuntimeException("只有草稿状态才能删除");
+        }
+        serviceLogMapper.deleteById(id);
     }
 
     @Override
@@ -180,7 +294,7 @@ public class ServiceLogServiceImpl implements ServiceLogService {
             return null;
         }
         ServiceLogVO vo = new ServiceLogVO();
-        vo.setId(serviceLog.getServiceLogId());
+        vo.setServiceLogId(serviceLog.getServiceLogId());
         vo.setLogNo(serviceLog.getLogNo());
         vo.setOrderId(serviceLog.getOrderId());
         vo.setOrderNo(serviceLog.getOrderNo());
@@ -199,12 +313,29 @@ public class ServiceLogServiceImpl implements ServiceLogService {
         vo.setServiceStartTime(serviceLog.getServiceStartTime() != null ? serviceLog.getServiceStartTime().toString() : null);
         vo.setServiceEndTime(serviceLog.getServiceEndTime() != null ? serviceLog.getServiceEndTime().toString() : null);
         vo.setServiceDuration(serviceLog.getServiceDuration());
+        vo.setActualDuration(serviceLog.getActualDuration());
+        vo.setServiceComment(serviceLog.getServiceComment());
+        vo.setServiceContent(serviceLog.getServiceComment()); // 前端字段名映射
         vo.setStatus(serviceLog.getServiceStatus());
         vo.setHasAnomaly(serviceLog.getAnomalyType() != null);
         vo.setAnomalyType(serviceLog.getAnomalyType());
         vo.setAnomalyDesc(serviceLog.getAnomalyDesc());
         vo.setAnomalyStatus(serviceLog.getAnomalyStatus());
         vo.setCreateTime(serviceLog.getCreateTime() != null ? serviceLog.getCreateTime().toString() : null);
+        // 审核相关字段
+        vo.setAuditStatus(serviceLog.getAuditStatus());
+        vo.setReviewComment(serviceLog.getReviewComment());
+        vo.setReviewerId(serviceLog.getReviewerId());
+        vo.setReviewerName(serviceLog.getReviewerName());
+        vo.setReviewTime(serviceLog.getReviewTime() != null ? serviceLog.getReviewTime().toString() : null);
+        // 解析服务照片JSON，设置为servicePhotos数组供前端使用
+        if (serviceLog.getServicePhotos() != null && !serviceLog.getServicePhotos().isEmpty()) {
+            try {
+                vo.setServicePhotos(objectMapper.readValue(serviceLog.getServicePhotos(), String[].class));
+            } catch (Exception e) {
+                vo.setServicePhotos(new String[]{serviceLog.getServicePhotos()});
+            }
+        }
         return vo;
     }
 }

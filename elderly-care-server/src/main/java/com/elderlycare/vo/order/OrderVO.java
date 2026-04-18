@@ -44,6 +44,8 @@ public class OrderVO implements Serializable {
 
     private BigDecimal estimatedPrice;
 
+    private BigDecimal actualPrice;
+
     private BigDecimal subsidyAmount;
 
     private BigDecimal selfPayAmount;
