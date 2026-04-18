@@ -3,7 +3,6 @@ package com.elderlycare.controller.config;
 import com.elderlycare.common.PageResult;
 import com.elderlycare.common.Result;
 import com.elderlycare.dto.config.*;
-import com.elderlycare.entity.config.Area;
 import com.elderlycare.entity.config.ConfigServiceType;
 import com.elderlycare.entity.config.DictItem;
 import com.elderlycare.entity.config.DictType;
@@ -28,7 +27,6 @@ public class ConfigController {
     private final DictTypeService dictTypeService;
     private final DictItemService dictItemService;
     private final ConfigServiceTypeService configServiceTypeService;
-    private final AreaService areaService;
     private final SystemParamService systemParamService;
     private final OperationLogService operationLogService;
 
@@ -167,64 +165,6 @@ public class ConfigController {
     @DeleteMapping("/service-types/{serviceTypeId}")
     public Result<Void> deleteServiceType(@PathVariable String serviceTypeId) {
         configServiceTypeService.deleteServiceType(serviceTypeId);
-        return Result.success();
-    }
-
-    // ==================== 区域管理接口 ====================
-
-    /**
-     * 区域树查询
-     */
-    @GetMapping("/areas/tree")
-    public Result<List<AreaTreeVO>> getAreaTree() {
-        List<AreaTreeVO> tree = areaService.getAreaTree();
-        return Result.success(tree);
-    }
-
-    /**
-     * 区域列表
-     */
-    @GetMapping("/areas")
-    public Result<List<Area>> listAreas() {
-        List<Area> list = areaService.listAreas();
-        return Result.success(list);
-    }
-
-    /**
-     * 区域详情
-     */
-    @GetMapping("/areas/{areaId}")
-    public Result<AreaVO> getAreaById(@PathVariable String areaId) {
-        AreaVO vo = areaService.getAreaById(areaId);
-        return Result.success(vo);
-    }
-
-    /**
-     * 区域新增
-     */
-    @PostMapping("/areas")
-    public Result<String> createArea(@Validated @RequestBody AreaDTO dto) {
-        String id = areaService.createArea(dto);
-        return Result.success(id);
-    }
-
-    /**
-     * 区域修改
-     */
-    @PutMapping("/areas/{areaId}")
-    public Result<Void> updateArea(
-            @PathVariable String areaId,
-            @Validated @RequestBody AreaDTO dto) {
-        areaService.updateArea(areaId, dto);
-        return Result.success();
-    }
-
-    /**
-     * 区域删除
-     */
-    @DeleteMapping("/areas/{areaId}")
-    public Result<Void> deleteArea(@PathVariable String areaId) {
-        areaService.deleteArea(areaId);
         return Result.success();
     }
 

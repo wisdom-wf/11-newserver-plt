@@ -22,15 +22,27 @@ public class PermissionInterceptor implements HandlerInterceptor {
     private static final ObjectMapper objectMapper = new ObjectMapper();
     private static final AntPathMatcher pathMatcher = new AntPathMatcher();
 
+    /** 不需要权限校验的公开路径 */
+    private static final String[] PUBLIC_PATHS = {
+            "/api/public"
+    };
+
     @Override
     public boolean preHandle(HttpServletRequest request, HttpServletResponse response, Object handler) throws Exception {
-        // 超级管理员跳过权限检查
-        List<String> roles = UserContext.getRoles();
-        if (roles != null && roles.contains("R_SUPER")) {
-            return true;
+        String requestUri = request.getRequestURI();
+
+        // 公开路径跳过权限检查
+        for (String path : PUBLIC_PATHS) {
+            if (requestUri.startsWith(path)) {
+                return true;
+            }
         }
 
-        String requestUri = request.getRequestURI();
+        // 超级管理员跳过权限检查
+        List<String> roles = UserContext.getRoles();
+        if (roles != null && roles.contains("SUPER_ADMIN")) {
+            return true;
+        }
         String requestMethod = request.getMethod();
 
         // 检查用户权限列表中是否有匹配的 URL+Method

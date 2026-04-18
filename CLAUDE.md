@@ -272,3 +272,46 @@ orderMapper.insert(order);
 #### 用户状态值
 `t_user.status` 必须是 `NORMAL` 才能登录（不是 `ACTIVE`）。
 
+### 10. 字符编码规范（重要！）
+
+**根因**：MySQL 默认 `character_set_client = latin1`，手动 SQL 操作会导致中文乱码。
+
+#### MySQL CLI 连接规范
+```bash
+# ✅ 正确：必须指定字符集
+docker exec mysql-dev mysql -uroot -proot elderly_care --default-character-set=utf8mb4
+
+# ❌ 错误：不指定字符集会导致乱码
+docker exec mysql-dev mysql -uroot -proot elderly_care
+```
+
+#### SQL 文件规范
+所有 SQL 种子文件开头必须包含：
+```sql
+USE elderly_care;
+SET NAMES utf8mb4;
+SET character_set_client = utf8mb4;
+SET character_set_connection = utf8mb4;
+```
+
+#### COLLATION 标准
+| 用途 | 推荐 | 禁止 |
+|------|------|------|
+| 默认 | `utf8mb4_0900_ai_ci` | `utf8mb4_general_ci` |
+
+当前已统一所有表为 `utf8mb4_0900_ai_ci`。
+
+#### JDBC 配置
+当前配置已正确，勿修改：
+```properties
+url: jdbc:mysql://...?characterEncoding=UTF-8&connectionCollation=utf8mb4_unicode_ci
+```
+
+#### 验证中文显示
+```bash
+# 验证数据库中文是否正常
+docker exec mysql-dev mysql -uroot -proot elderly_care --default-character-set=utf8mb4 \
+  -e "SELECT dict_type_id, dict_type_name FROM t_dict_type LIMIT 3;"
+# 应显示正确的中文
+```
+

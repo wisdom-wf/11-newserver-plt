@@ -41,6 +41,7 @@ public class JwtAuthenticationInterceptor implements HandlerInterceptor {
             "/api/auth/login",
             "/api/auth/logout",
             "/api/auth/captcha",
+            "/api/public",
             "/swagger-ui",
             "/v3/api-docs",
             "/doc.html",
