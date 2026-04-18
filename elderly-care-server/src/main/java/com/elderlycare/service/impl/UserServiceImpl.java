@@ -14,17 +14,14 @@ import com.elderlycare.mapper.UserRoleMapper;
 import com.elderlycare.service.UserService;
 import com.elderlycare.vo.RoleVO;
 import com.elderlycare.vo.UserVO;
-import cn.hutool.crypto.SecureUtil;
-import cn.hutool.crypto.symmetric.SymmetricAlgorithm;
-import cn.hutool.crypto.symmetric.SymmetricCrypto;
 import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.util.StringUtils;
 
 import java.util.ArrayList;
-import java.util.Base64;
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -39,6 +36,9 @@ public class UserServiceImpl extends ServiceImpl<UserMapper, User> implements Us
 
     @Autowired
     private UserRoleMapper userRoleMapper;
+
+    @Autowired
+    private PasswordEncoder passwordEncoder;
 
     @Override
     public Page<UserVO> pageUsers(int current, int size, String username, String status, String userType) {
@@ -234,17 +234,9 @@ public class UserServiceImpl extends ServiceImpl<UserMapper, User> implements Us
     }
 
     /**
-     * 密码加密（使用AES）
-     */
-    private static final String AES_KEY = "ElderlyCarePwdKey2026";
-
-    /**
-     * 密码加密（使用AES）
+     * 密码加密（使用BCrypt）
      */
     private String encodePassword(String password) {
-        byte[] key = AES_KEY.getBytes();
-        SymmetricCrypto aes = new SymmetricCrypto(SymmetricAlgorithm.AES, key);
-        byte[] encrypted = aes.encrypt(password);
-        return Base64.getEncoder().encodeToString(encrypted);
+        return passwordEncoder.encode(password);
     }
 }

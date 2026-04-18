@@ -13,10 +13,6 @@ import com.elderlycare.service.AuthService;
 import com.elderlycare.service.UserService;
 import com.elderlycare.vo.LoginVO;
 import com.elderlycare.vo.UserInfoVO;
-import cn.hutool.crypto.symmetric.SymmetricAlgorithm;
-import cn.hutool.crypto.SecureUtil;
-import cn.hutool.crypto.symmetric.SymmetricAlgorithm;
-import cn.hutool.crypto.symmetric.SymmetricCrypto;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.security.crypto.password.PasswordEncoder;
@@ -24,7 +20,6 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.time.LocalDateTime;
-import java.util.Base64;
 
 /**
  * 认证服务实现类
@@ -57,11 +52,6 @@ public class AuthServiceImpl implements AuthService {
     private static final int LOCK_MINUTES = 30;
 
     /** BCrypt加密因子 */
-    private static final String BCRYPT_SALT = "$2a$10$";
-
-    /** AES加密密钥 */
-    private static final String AES_KEY = "ElderlyCarePwdKey2026";
-
     @Override
     @Transactional(rollbackFor = Exception.class)
     public LoginVO login(LoginDTO loginDTO, String loginIp) {
@@ -218,14 +208,10 @@ public class AuthServiceImpl implements AuthService {
     }
 
     /**
-     * 密码加密（使用AES）
+     * 密码加密（使用BCrypt）
      */
     private String encodePassword(String password) {
-        // 使用Hutool的SymmetricCrypto进行AES加密
-        byte[] key = AES_KEY.getBytes();
-        SymmetricCrypto aes = new SymmetricCrypto(SymmetricAlgorithm.AES, key);
-        byte[] encrypted = aes.encrypt(password);
-        return Base64.getEncoder().encodeToString(encrypted);
+        return passwordEncoder.encode(password);
     }
 
     /**

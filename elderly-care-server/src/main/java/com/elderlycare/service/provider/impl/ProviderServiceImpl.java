@@ -66,7 +66,7 @@ public class ProviderServiceImpl extends ServiceImpl<ProviderMapper, Provider> i
         // 构建返回结果
         ProviderCreateResultVO.AccountInfo accountInfo = new ProviderCreateResultVO.AccountInfo(
             adminUser.getUsername(),
-            "Provider@123",
+            ProviderAccountService.DEFAULT_PASSWORD,
             "服务商管理员"
         );
 
