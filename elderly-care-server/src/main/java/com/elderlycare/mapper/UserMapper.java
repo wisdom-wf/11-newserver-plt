@@ -33,6 +33,12 @@ public interface UserMapper extends BaseMapper<User> {
     List<String> selectPermissionCodesByUserId(@Param("userId") String userId);
 
     /**
+     * 查询用户权限URL+方法列表（用于后端权限校验）
+     * 返回格式: "METHOD:url" (如 "GET:/api/orders")
+     */
+    List<String> selectPermissionUrlsByUserId(@Param("userId") String userId);
+
+    /**
      * 根据用户名模糊查询用户列表
      */
     List<User> selectByUsernameLike(@Param("username") String username);

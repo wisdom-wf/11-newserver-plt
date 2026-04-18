@@ -2,6 +2,7 @@ package com.elderlycare.controller.evaluation;
 
 import com.elderlycare.common.PageResult;
 import com.elderlycare.common.Result;
+import com.elderlycare.common.UserContext;
 import com.elderlycare.dto.evaluation.*;
 import com.elderlycare.entity.evaluation.CustomerFeedback;
 import com.elderlycare.entity.evaluation.ServiceEvaluation;
@@ -45,6 +46,11 @@ public class EvaluationController {
      */
     @GetMapping("")
     public Result<PageResult<ServiceEvaluation>> queryEvaluations(EvaluationQueryDTO dto) {
+        // 数据权限：服务商管理员自动注入 providerId
+        String autoPid = UserContext.getProviderId();
+        if (autoPid != null) {
+            dto.setProviderId(autoPid);
+        }
         PageResult<ServiceEvaluation> result = evaluationService.queryEvaluations(dto);
         return Result.success(result);
     }
@@ -81,6 +87,11 @@ public class EvaluationController {
      */
     @GetMapping("/statistics")
     public Result<EvaluationStatisticsVO> getStatistics(EvaluationStatisticsDTO dto) {
+        // 数据权限：服务商管理员自动注入 providerId
+        String autoPid = UserContext.getProviderId();
+        if (autoPid != null) {
+            dto.setProviderId(autoPid);
+        }
         EvaluationStatisticsVO vo = evaluationService.getStatistics(dto);
         return Result.success(vo);
     }
@@ -112,6 +123,11 @@ public class EvaluationController {
      */
     @GetMapping("/feedback")
     public Result<PageResult<CustomerFeedback>> queryFeedbacks(FeedbackQueryDTO dto) {
+        // 数据权限：服务商管理员自动注入 providerId
+        String autoPid = UserContext.getProviderId();
+        if (autoPid != null) {
+            dto.setProviderId(autoPid);
+        }
         PageResult<CustomerFeedback> result = feedbackService.queryFeedbacks(dto);
         return Result.success(result);
     }

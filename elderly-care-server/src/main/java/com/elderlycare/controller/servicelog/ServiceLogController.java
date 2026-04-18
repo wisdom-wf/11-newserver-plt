@@ -2,6 +2,7 @@ package com.elderlycare.controller.servicelog;
 
 import com.elderlycare.common.PageResult;
 import com.elderlycare.common.Result;
+import com.elderlycare.common.UserContext;
 import com.elderlycare.dto.servicelog.ServiceLogQueryDTO;
 import com.elderlycare.service.servicelog.ServiceLogService;
 import com.elderlycare.vo.servicelog.ServiceLogStatisticsVO;
@@ -27,6 +28,11 @@ public class ServiceLogController {
      */
     @GetMapping("/list")
     public Result<PageResult<ServiceLogVO>> getServiceLogList(ServiceLogQueryDTO query) {
+        // 数据权限：服务商管理员自动注入 providerId
+        String autoPid = UserContext.getProviderId();
+        if (autoPid != null) {
+            query.setProviderId(autoPid);
+        }
         PageResult<ServiceLogVO> result = serviceLogService.getServiceLogList(query);
         return Result.success(result);
     }

@@ -50,4 +50,9 @@ public class ElderPageDTO implements Serializable {
      * 养老类型：HOME/COMMUNITY/INSTITUTION
      */
     private String careType;
+
+    /**
+     * 服务商ID（数据权限过滤）
+     */
+    private String providerId;
 }

@@ -2,6 +2,7 @@ package com.elderlycare.controller.appointment;
 
 import com.elderlycare.common.PageResult;
 import com.elderlycare.common.Result;
+import com.elderlycare.common.UserContext;
 import com.elderlycare.dto.appointment.AppointmentCreateDTO;
 import com.elderlycare.dto.appointment.AppointmentQueryDTO;
 import com.elderlycare.service.appointment.AppointmentService;
@@ -36,6 +37,11 @@ public class AppointmentController {
      */
     @GetMapping("/list")
     public Result<PageResult<AppointmentVO>> getAppointmentList(AppointmentQueryDTO query) {
+        // 数据权限：服务商管理员自动注入 providerId
+        String autoPid = UserContext.getProviderId();
+        if (autoPid != null) {
+            query.setProviderId(autoPid);
+        }
         PageResult<AppointmentVO> result = appointmentService.getAppointmentList(query);
         return Result.success(result);
     }

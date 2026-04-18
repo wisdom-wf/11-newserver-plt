@@ -2,6 +2,7 @@ package com.elderlycare.controller.quality;
 
 import com.elderlycare.common.PageResult;
 import com.elderlycare.common.Result;
+import com.elderlycare.common.UserContext;
 import com.elderlycare.dto.quality.QualityCheckQueryDTO;
 import com.elderlycare.service.quality.QualityCheckService;
 import com.elderlycare.vo.quality.QualityCheckStatisticsVO;
@@ -27,6 +28,11 @@ public class QualityCheckController {
      */
     @GetMapping("/list")
     public Result<PageResult<QualityCheckVO>> getQualityCheckList(QualityCheckQueryDTO query) {
+        // 数据权限：服务商管理员自动注入 providerId
+        String autoPid = UserContext.getProviderId();
+        if (autoPid != null) {
+            query.setProviderId(autoPid);
+        }
         PageResult<QualityCheckVO> result = qualityCheckService.getQualityCheckList(query);
         return Result.success(result);
     }

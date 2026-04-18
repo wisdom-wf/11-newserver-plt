@@ -2,6 +2,7 @@ package com.elderlycare.controller.order;
 
 import com.elderlycare.common.PageResult;
 import com.elderlycare.common.Result;
+import com.elderlycare.common.UserContext;
 import com.elderlycare.dto.order.*;
 import com.elderlycare.service.order.OrderService;
 import com.elderlycare.service.statistics.StatisticsService;
@@ -41,6 +42,11 @@ public class OrderController {
      */
     @GetMapping("")
     public Result<PageResult<OrderVO>> getOrderList(OrderQueryDTO query) {
+        // 数据权限：服务商管理员自动注入 providerId
+        String autoPid = UserContext.getProviderId();
+        if (autoPid != null) {
+            query.setProviderId(autoPid);
+        }
         PageResult<OrderVO> result = orderService.getOrderList(query);
         return Result.success(result);
     }

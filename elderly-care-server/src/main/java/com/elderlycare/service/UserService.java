@@ -67,4 +67,10 @@ public interface UserService extends IService<User> {
      * 查询用户权限代码列表
      */
     List<String> getUserPermissionCodes(String userId);
+
+    /**
+     * 查询用户权限URL+方法列表（用于后端权限校验）
+     * 返回格式: "METHOD:url" (如 "GET:/api/orders")
+     */
+    List<String> getUserPermissionUrls(String userId);
 }

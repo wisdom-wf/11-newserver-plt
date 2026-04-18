@@ -222,3 +222,53 @@ orderMapper.insert(order);
 4. 确认后端返回数据是否符合预期
 
 **禁止**：不看后端代码就假设字段名一致性，盲目统一参数名。
+
+### 9. 权限模块开发规范
+
+#### 新增 API 权限流程
+1. **后端**：实现 Controller，URL 格式 `/api/module/resource`
+2. **数据库**：在 `t_permission` 插入按钮权限记录
+   ```sql
+   INSERT INTO t_permission (permission_id, permission_code, permission_name,
+     permission_type, parent_id, permission_url, permission_method, sort_order,
+     icon, status, create_time, deleted)
+   VALUES ('Pxxxx', 'module:resource:action', '操作名称', 'BUTTON',
+     'Pxxxxx', '/api/module/*/action', 'PUT', 1, NULL, 'NORMAL', NOW(), 0);
+   ```
+3. **角色分配**：在 `t_role_permission` 分配给对应角色
+4. **前端**：使用 `hasAuth('module:resource:action')` 保护操作按钮
+
+#### 新增数据权限流程（providerId 自动注入）
+1. **确认**：接口是否需要按 providerId 隔离数据
+2. **注入**：在 Controller 方法中添加：
+   ```java
+   String autoPid = UserContext.getProviderId();
+   if (autoPid != null) {
+       queryDTO.setProviderId(autoPid);
+   }
+   ```
+3. **Mapper**：确保 XML 中有 `AND provider_id = #{providerId}` 条件
+
+#### 权限 URL 匹配规则
+- PermissionInterceptor 使用 AntPathMatcher
+- `*` 匹配单个路径段：`/api/orders/*/cancel`
+- `**` 匹配剩余路径：`/api/users/**`
+
+#### PermissionInterceptor 排除路径（WebMvcConfig）
+登录相关接口无需认证，已在 excludePathPatterns 中配置：
+- `/api/auth/login`
+- `/api/auth/logout`
+- `/api/auth/userinfo`
+
+新增无需权限的接口时，需加入该列表。
+
+#### 用户类型与数据可见范围
+| userType | 说明 | 数据范围 |
+|----------|------|---------|
+| `SYSTEM` | 系统管理员 | 全部数据 |
+| `PROVIDER` | 服务商管理员 | 自己 providerId 下的数据 |
+| `STAFF` | 服务人员 | 自己 providerId 下的数据（受限于角色权限） |
+
+#### 用户状态值
+`t_user.status` 必须是 `NORMAL` 才能登录（不是 `ACTIVE`）。
+

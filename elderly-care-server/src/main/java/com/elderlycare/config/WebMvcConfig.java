@@ -1,6 +1,7 @@
 package com.elderlycare.config;
 
 import com.elderlycare.interceptor.JwtAuthenticationInterceptor;
+import com.elderlycare.interceptor.PermissionInterceptor;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.web.servlet.config.annotation.CorsRegistry;
@@ -16,13 +17,26 @@ public class WebMvcConfig implements WebMvcConfigurer {
     @Autowired
     private JwtAuthenticationInterceptor jwtAuthenticationInterceptor;
 
+    @Autowired
+    private PermissionInterceptor permissionInterceptor;
+
     @Override
     public void addInterceptors(InterceptorRegistry registry) {
+        // 1. JWT认证拦截器
         registry.addInterceptor(jwtAuthenticationInterceptor)
                 .addPathPatterns("/api/**")
                 .excludePathPatterns(
-                        "/api/system/auth/login",
-                        "/api/system/auth/logout"
+                        "/api/auth/login",
+                        "/api/auth/logout"
+                );
+
+        // 2. 权限校验拦截器（在认证之后执行）
+        registry.addInterceptor(permissionInterceptor)
+                .addPathPatterns("/api/**")
+                .excludePathPatterns(
+                        "/api/auth/login",
+                        "/api/auth/logout",
+                        "/api/auth/userinfo"
                 );
     }
 

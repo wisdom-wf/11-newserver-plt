@@ -1,6 +1,7 @@
 package com.elderlycare.controller.cockpit;
 
 import com.elderlycare.common.Result;
+import com.elderlycare.common.UserContext;
 import com.elderlycare.service.cockpit.CockpitService;
 import com.elderlycare.vo.cockpit.CockpitOverviewVO;
 import com.elderlycare.vo.statistics.OrderStatisticsVO;
@@ -33,6 +34,9 @@ public class CockpitController {
             @RequestParam(required = false) String providerId,
             @RequestParam(required = false) @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate startDate,
             @RequestParam(required = false) @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate endDate) {
+        // 数据权限：服务商管理员自动注入 providerId
+        String autoPid = UserContext.getProviderId();
+        String effectivePid = (autoPid != null) ? autoPid : providerId;
         CockpitOverviewVO overview = cockpitService.getOverview();
         return Result.success(overview);
     }

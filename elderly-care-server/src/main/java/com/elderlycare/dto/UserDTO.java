@@ -41,6 +41,12 @@ public class UserDTO {
     /** 用户类型 */
     private String userType;
 
+    /** 服务商ID */
+    private String providerId;
+
+    /** 区域ID */
+    private String areaId;
+
     /** 状态 */
     private String status;
 

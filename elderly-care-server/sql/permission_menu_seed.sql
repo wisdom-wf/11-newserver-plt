@@ -202,4 +202,66 @@ FROM t_permission;
 INSERT INTO t_user_role (user_role_id, user_id, role_id, create_time)
 VALUES ('UR001', 'U001', 'R001', NOW());
 
-SELECT '菜单权限数据初始化完成!' AS result;
+-- ============================================
+-- 补充：驾驶舱按钮权限
+-- ============================================
+INSERT INTO t_permission (permission_id, permission_code, permission_name, permission_type, parent_id, permission_url, permission_method, sort_order, icon, status, create_time, deleted) VALUES
+('PC00100100000', 'cockpit:overview:query', '查看总览', 'BUTTON', 'PC00100000000', '/api/cockpit/overview', 'GET', 1, NULL, 'NORMAL', NOW(), 0),
+('PC00100200000', 'cockpit:overview:orderTrend', '订单趋势', 'BUTTON', 'PC00100000000', '/api/cockpit/orderTrend', 'GET', 2, NULL, 'NORMAL', NOW(), 0),
+('PC00100300000', 'cockpit:overview:providerRanking', '服务商排行', 'BUTTON', 'PC00100000000', '/api/cockpit/providerRanking', 'GET', 3, NULL, 'NORMAL', NOW(), 0),
+('PC00100400000', 'cockpit:overview:staffRanking', '服务人员排行', 'BUTTON', 'PC00100000000', '/api/cockpit/staffRanking', 'GET', 4, NULL, 'NORMAL', NOW(), 0);
+
+-- 分配驾驶舱按钮权限给超级管理员
+INSERT INTO t_role_permission (role_permission_id, role_id, permission_id, create_time)
+SELECT CONCAT('RP', permission_id), 'R001', permission_id, NOW()
+FROM t_permission WHERE permission_code LIKE 'cockpit:%' AND permission_id NOT IN (SELECT permission_id FROM t_role_permission WHERE role_id = 'R001');
+
+-- ============================================
+-- 角色种子数据
+-- ============================================
+
+-- 创建服务商管理员角色
+INSERT INTO t_role (role_id, role_code, role_name, role_desc, role_type, data_scope, sort_order, status, create_time, deleted)
+SELECT 'R002', 'R_PROVIDER', '服务商管理员', '服务商管理员，仅看自己服务商数据', 'BUSINESS', 'PROVIDER', 2, 'NORMAL', NOW(), 0
+WHERE NOT EXISTS (SELECT 1 FROM t_role WHERE role_id = 'R002');
+
+-- 创建服务人员角色
+INSERT INTO t_role (role_id, role_code, role_name, role_desc, role_type, data_scope, sort_order, status, create_time, deleted)
+SELECT 'R003', 'R_STAFF', '服务人员', '服务人员，仅查看自己的任务', 'BUSINESS', 'SELF', 3, 'NORMAL', NOW(), 0
+WHERE NOT EXISTS (SELECT 1 FROM t_role WHERE role_id = 'R003');
+
+-- 服务商管理员权限：业务管理模块（不含系统管理、财务结算）
+INSERT IGNORE INTO t_role_permission (role_permission_id, role_id, permission_id, create_time)
+SELECT CONCAT('RP2_', permission_id), 'R002', permission_id, NOW()
+FROM t_permission
+WHERE permission_code NOT LIKE 'system%'
+  AND permission_code NOT LIKE 'financial%'
+  AND permission_type = 'MENU';
+
+INSERT IGNORE INTO t_role_permission (role_permission_id, role_id, permission_id, create_time)
+SELECT CONCAT('RP2_', permission_id), 'R002', permission_id, NOW()
+FROM t_permission
+WHERE (permission_code LIKE 'provider:%'
+    OR permission_code LIKE 'staff:%'
+    OR permission_code LIKE 'elder:%'
+    OR permission_code LIKE 'appointment:%'
+    OR permission_code LIKE 'order:%'
+    OR permission_code LIKE 'service-log:%'
+    OR permission_code LIKE 'quality:%'
+    OR permission_code LIKE 'evaluation:%'
+    OR permission_code LIKE 'cockpit:%')
+  AND permission_type = 'BUTTON';
+
+-- 服务人员权限：只读 + 服务日志操作
+INSERT IGNORE INTO t_role_permission (role_permission_id, role_id, permission_id, create_time)
+SELECT CONCAT('RP3_', permission_id), 'R003', permission_id, NOW()
+FROM t_permission
+WHERE permission_code IN (
+  'appointment', 'appointment:list', 'appointment:list:query',
+  'order', 'order:list', 'order:list:query',
+  'service-log', 'service-log:list', 'service-log:list:query', 'service-log:list:add',
+  'evaluation', 'evaluation:list', 'evaluation:list:query',
+  'cockpit', 'cockpit:overview', 'cockpit:overview:query'
+);
+
+SELECT '权限数据初始化完成(含角色)!' AS result;

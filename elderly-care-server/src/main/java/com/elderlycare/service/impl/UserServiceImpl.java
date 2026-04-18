@@ -210,6 +210,11 @@ public class UserServiceImpl extends ServiceImpl<UserMapper, User> implements Us
         return userMapper.selectPermissionCodesByUserId(userId);
     }
 
+    @Override
+    public List<String> getUserPermissionUrls(String userId) {
+        return userMapper.selectPermissionUrlsByUserId(userId);
+    }
+
     /**
      * 转换为VO
      */

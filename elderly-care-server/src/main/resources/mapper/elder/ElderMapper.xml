@@ -98,6 +98,9 @@
         <if test="dto.careType != null and dto.careType != ''">
             AND e.care_type = #{dto.careType}
         </if>
+        <if test="dto.providerId != null and dto.providerId != ''">
+            AND e.provider_id = #{dto.providerId}
+        </if>
         ORDER BY e.create_time DESC
     </select>
 

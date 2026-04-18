@@ -2,6 +2,7 @@ package com.elderlycare.controller.staff;
 
 import com.elderlycare.common.PageResult;
 import com.elderlycare.common.Result;
+import com.elderlycare.common.UserContext;
 import com.elderlycare.dto.staff.*;
 import com.elderlycare.service.staff.StaffService;
 import com.elderlycare.vo.staff.*;
@@ -50,7 +51,9 @@ public class StaffController {
         queryDTO.setStaffNo(staffNo);
         queryDTO.setPhone(phone);
         queryDTO.setStatus(status);
-        queryDTO.setProviderId(providerId);
+        // 数据权限：服务商管理员自动覆盖 providerId
+        String autoPid = UserContext.getProviderId();
+        queryDTO.setProviderId(autoPid != null ? autoPid : providerId);
         queryDTO.setPage(page);
         queryDTO.setPageSize(pageSize);
         PageResult<StaffVO> result = staffService.queryStaff(queryDTO);

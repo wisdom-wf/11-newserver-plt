@@ -3,6 +3,9 @@ package com.elderlycare.interceptor;
 import com.elderlycare.common.JwtUtil;
 import com.elderlycare.common.Result;
 import com.elderlycare.common.UserContext;
+import com.elderlycare.entity.User;
+import com.elderlycare.mapper.UserMapper;
+import com.elderlycare.service.UserService;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import io.jsonwebtoken.Claims;
 import jakarta.servlet.http.HttpServletRequest;
@@ -14,6 +17,7 @@ import org.springframework.web.servlet.HandlerInterceptor;
 
 import java.io.IOException;
 import java.io.PrintWriter;
+import java.util.List;
 
 /**
  * JWT认证拦截器
@@ -23,6 +27,12 @@ public class JwtAuthenticationInterceptor implements HandlerInterceptor {
 
     @Autowired
     private JwtUtil jwtUtil;
+
+    @Autowired
+    private UserService userService;
+
+    @Autowired
+    private UserMapper userMapper;
 
     private static final ObjectMapper objectMapper = new ObjectMapper();
 
@@ -88,7 +98,29 @@ public class JwtAuthenticationInterceptor implements HandlerInterceptor {
         UserContext.setUserId(userId);
         UserContext.setUsername(username);
 
+        // 加载用户角色、权限、providerId 到 UserContext
+        loadUserPermissionContext(userId);
+
         return true;
+    }
+
+    /**
+     * 加载用户权限上下文
+     */
+    private void loadUserPermissionContext(String userId) {
+        List<String> roles = userService.getUserRoleCodes(userId);
+        List<String> permissions = userService.getUserPermissionCodes(userId);
+        List<String> permissionUrls = userService.getUserPermissionUrls(userId);
+        UserContext.setRoles(roles);
+        UserContext.setPermissions(permissions);
+        UserContext.setPermissionUrls(permissionUrls);
+
+        // 加载用户类型和 providerId
+        User user = userMapper.selectById(userId);
+        if (user != null) {
+            UserContext.setUserType(user.getUserType());
+            UserContext.setProviderId(user.getProviderId());
+        }
     }
 
     @Override

@@ -148,8 +148,11 @@ public class AuthServiceImpl implements AuthService {
         userInfo.setAvatar(user.getAvatar());
         userInfo.setUserType(user.getUserType());
         userInfo.setTenantId(user.getTenantId());
+        userInfo.setAreaId(user.getAreaId());
+        userInfo.setProviderId(user.getProviderId());
         userInfo.setRoles(userService.getUserRoleCodes(userId));
-        userInfo.setPermissions(userService.getUserPermissionCodes(userId));
+        // buttons 用于前端 hasAuth() 按钮级权限检查
+        userInfo.setButtons(userService.getUserPermissionCodes(userId));
 
         return userInfo;
     }

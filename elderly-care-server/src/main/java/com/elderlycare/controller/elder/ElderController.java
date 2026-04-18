@@ -2,6 +2,7 @@ package com.elderlycare.controller.elder;
 
 import com.baomidou.mybatisplus.core.metadata.IPage;
 import com.elderlycare.common.Result;
+import com.elderlycare.common.UserContext;
 import com.elderlycare.dto.elder.*;
 import com.elderlycare.entity.elder.*;
 import com.elderlycare.service.elder.ElderService;
@@ -37,6 +38,11 @@ public class ElderController {
      */
     @GetMapping("")
     public Result<IPage<ElderVO>> getElderPage(ElderPageDTO dto) {
+        // 数据权限：服务商管理员自动注入 providerId
+        String providerId = UserContext.getProviderId();
+        if (providerId != null) {
+            dto.setProviderId(providerId);
+        }
         IPage<ElderVO> page = elderService.getElderPage(dto);
         return Result.success(page);
     }

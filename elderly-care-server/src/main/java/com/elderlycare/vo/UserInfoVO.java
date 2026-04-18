@@ -39,9 +39,15 @@ public class UserInfoVO implements Serializable {
     /** 租户ID */
     private String tenantId;
 
+    /** 区域ID */
+    private String areaId;
+
+    /** 服务商ID */
+    private String providerId;
+
     /** 角色列表 */
     private List<String> roles;
 
-    /** 权限列表 */
-    private List<String> permissions;
+    /** 按钮权限列表（前端 hasAuth 使用） */
+    private List<String> buttons;
 }
