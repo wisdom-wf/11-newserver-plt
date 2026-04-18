@@ -1,0 +1,57 @@
+import { test, expect, request } from '@playwright/test';
+
+const API_BASE = 'http://localhost:8080/api';
+
+test.describe('登录功能测试', () => {
+  test('admin账号登录成功', async () => {
+    const response = await request.post(`${API_BASE}/auth/login`, {
+      data: {
+        username: 'admin',
+        password: 'admin123'
+      }
+    });
+    expect(response.status()).toBe(200);
+    const body = await response.json();
+    expect(body.code).toBe(200);
+    expect(body.data.accessToken).toBeDefined();
+    expect(body.data.userInfo.userType).toBe('SYSTEM');
+  });
+
+  test('服务商账号登录成功', async () => {
+    const response = await request.post(`${API_BASE}/auth/login`, {
+      data: {
+        username: 'CS1',
+        password: 'mima123'
+      }
+    });
+    expect(response.status()).toBe(200);
+    const body = await response.json();
+    expect(body.code).toBe(200);
+    expect(body.data.accessToken).toBeDefined();
+    expect(body.data.userInfo.userType).toBe('PROVIDER');
+  });
+
+  test('错误密码登录失败', async () => {
+    const response = await request.post(`${API_BASE}/auth/login`, {
+      data: {
+        username: 'admin',
+        password: 'wrongpassword'
+      }
+    });
+    expect(response.status()).toBe(200);
+    const body = await response.json();
+    expect(body.code).toBe(401);
+  });
+
+  test('不存在的用户登录失败', async () => {
+    const response = await request.post(`${API_BASE}/auth/login`, {
+      data: {
+        username: 'nonexistent',
+        password: 'anypassword'
+      }
+    });
+    expect(response.status()).toBe(200);
+    const body = await response.json();
+    expect(body.code).toBe(401);
+  });
+});
