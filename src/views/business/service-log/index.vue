@@ -32,7 +32,8 @@ import {
   fetchSubmitServiceLog,
   fetchUpdateServiceLog,
   fetchSubmitServiceLogForReview,
-  fetchDeleteServiceLog
+  fetchDeleteServiceLog,
+  fetchReviewServiceLog
 } from '@/service/api';
 import { useNaivePaginatedTable, defaultTransform } from '@/hooks/common/table';
 import { useAuth } from '@/hooks/business/auth';
@@ -83,17 +84,31 @@ const isEdit = ref(false);
 const currentLogId = ref('');
 const formData = ref({
   orderId: '',
-  serviceStartTime: '' as string | null,
-  serviceEndTime: '' as string | null,
+  serviceStartTime: null as number | null,
+  serviceEndTime: null as number | null,
   serviceDuration: 0,
   serviceContent: '',
   servicePhotos: [] as string[]
 });
 
+// Helper: convert timestamp to LocalDateTime string format
+function formatDateTime(timestamp: number | null): string | null {
+  if (!timestamp) return null;
+  const date = new Date(timestamp);
+  const pad = (n: number) => String(n).padStart(2, '0');
+  return `${date.getFullYear()}-${pad(date.getMonth() + 1)}-${pad(date.getDate())}T${pad(date.getHours())}:${pad(date.getMinutes())}:${pad(date.getSeconds())}`;
+}
+
 // Submit for review dialog state
 const reviewDialogVisible = ref(false);
 const reviewRemarks = ref('');
 const reviewLogId = ref('');
+
+// Quality review modal state (for quality check staff)
+const qualityReviewModalVisible = ref(false);
+const qualityReviewData = ref<Api.ServiceLog.ServiceLog | null>(null);
+const qualityReviewResult = ref<'APPROVED' | 'REJECTED'>('APPROVED');
+const qualityReviewComment = ref('');
 
 // Detail modal state
 const detailVisible = ref(false);
@@ -111,9 +126,9 @@ const categoryOptions = [
 const statusOptions = [
   { label: '草稿', value: 'DRAFT' },
   { label: '已提交', value: 'SUBMITTED' },
-  { label: '已审核', value: 'VERIFIED' },
-  { label: '已完成', value: 'COMPLETED' },
-  { label: '待处理', value: 'PENDING' }
+  { label: '已通过', value: 'APPROVED' },
+  { label: '已驳回', value: 'REJECTED' },
+  { label: '已完成', value: 'COMPLETED' }
 ];
 
 function getCategoryLabel(category?: string): string {
@@ -121,12 +136,13 @@ function getCategoryLabel(category?: string): string {
   return option?.label || category || '';
 }
 
-function getStatusType(status: Api.ServiceLog.LogStatus): 'warning' | 'success' | 'info' | 'default' {
-  const map: Record<string, 'warning' | 'success' | 'info' | 'default'> = {
+function getStatusType(status: Api.ServiceLog.LogStatus): 'warning' | 'success' | 'info' | 'error' | 'default' {
+  const map: Record<string, 'warning' | 'success' | 'info' | 'error' | 'default'> = {
     DRAFT: 'warning',
     PENDING: 'warning',
     SUBMITTED: 'info',
-    VERIFIED: 'success',
+    APPROVED: 'success',
+    REJECTED: 'error',
     COMPLETED: 'success'
   };
   return map[status] || 'default';
@@ -156,6 +172,8 @@ const columns: DataTableColumns<Api.ServiceLog.ServiceLog> = [
         ? h('a', { style: { color: '#18a058', cursor: 'pointer' }, onClick: () => showStaffDetail(row) }, row.staffName)
         : '-'
   },
+  { title: '联系电话', key: 'staffPhone', width: 120 },
+  { title: '服务商', key: 'providerName', width: 120 },
   { title: '服务类别', key: 'serviceCategory', width: 100, render: row => getCategoryLabel(row.serviceCategory) },
   { title: '服务类型', key: 'serviceType', width: 120 },
   {
@@ -191,21 +209,21 @@ const columns: DataTableColumns<Api.ServiceLog.ServiceLog> = [
   },
   {
     title: '状态',
-    key: 'status',
+    key: 'auditStatus',
     width: 100,
-    render: row => h(NTag, { type: getStatusType(row.status), size: 'small' }, () => getStatusLabel(row.status))
+    render: row => h(NTag, { type: getStatusType(row.auditStatus), size: 'small' }, () => getStatusLabel(row.auditStatus))
   },
   { title: '提交时间', key: 'submitTime', width: 170 },
   { title: '创建时间', key: 'createTime', width: 170 },
   {
     title: '操作',
     key: 'actions',
-    width: 280,
+    width: 320,
     fixed: 'right',
     render: (row: Api.ServiceLog.ServiceLog) => {
       const buttons = [];
       buttons.push(h(NButton, { size: 'small', onClick: () => showDetail(row) }, { default: () => '详情' }));
-      if (!row.status || row.status === 'DRAFT') {
+      if (!row.auditStatus || row.auditStatus === 'DRAFT') {
         if (hasAuth('service-log:list:edit')) {
           buttons.push(
             h(NButton, { size: 'small', type: 'default', onClick: () => handleUpdate(row) }, { default: () => '更新' }),
@@ -226,6 +244,16 @@ const columns: DataTableColumns<Api.ServiceLog.ServiceLog> = [
             NButton,
             { size: 'small', type: 'primary', onClick: () => handleSubmitReview(row) },
             { default: () => '提交审核' }
+          )
+        );
+      }
+      // 审核按钮 - SUBMITTED状态显示（质检角色）
+      if (row.auditStatus === 'SUBMITTED' && hasAuth('service-log:list:review')) {
+        buttons.push(
+          h(
+            NButton,
+            { size: 'small', type: 'warning', onClick: () => showReviewModal(row) },
+            { default: () => '审核' }
           )
         );
       }
@@ -378,6 +406,11 @@ const uploadingFiles = new Set<string>();
 function handleUploadRequest({ file }: { file: UploadFile }) {
   if (!file.file) return;
 
+  // Ensure servicePhotos is always an array
+  if (!Array.isArray(formData.value.servicePhotos)) {
+    formData.value.servicePhotos = [];
+  }
+
   // Prevent duplicate uploads
   const fileKey = `${file.name}-${file.size}`;
   if (uploadingFiles.has(fileKey)) {
@@ -386,10 +419,12 @@ function handleUploadRequest({ file }: { file: UploadFile }) {
 
   if (file.file.size > MAX_IMAGE_SIZE) {
     message.error(`图片大小不能超过3M`);
+    file.onError?.();
     return;
   }
   if (formData.value.servicePhotos.length >= MAX_IMAGE_COUNT) {
     message.error(`最多只能上传${MAX_IMAGE_COUNT}张图片`);
+    file.onError?.();
     return;
   }
 
@@ -398,12 +433,17 @@ function handleUploadRequest({ file }: { file: UploadFile }) {
   const reader = new FileReader();
   reader.onload = e => {
     uploadingFiles.delete(fileKey);
-    if (e.target?.result && !formData.value.servicePhotos.includes(e.target.result as string)) {
-      formData.value.servicePhotos.push(e.target.result as string);
+    if (e.target?.result) {
+      const base64Data = e.target.result as string;
+      if (!formData.value.servicePhotos.includes(base64Data)) {
+        formData.value.servicePhotos.push(base64Data);
+      }
+      file.onSuccess?.();
     }
   };
   reader.onerror = () => {
     uploadingFiles.delete(fileKey);
+    file.onError?.();
   };
   reader.readAsDataURL(file.file);
 }
@@ -430,13 +470,23 @@ function showAddModal() {
 function handleUpdate(row: Api.ServiceLog.ServiceLog) {
   isEdit.value = true;
   currentLogId.value = row.serviceLogId;
+  // Convert ISO date string to timestamp for NDatePicker
+  const parseToTimestamp = (val: string | null | undefined): number | null => {
+    if (!val) return null;
+    const date = new Date(val);
+    return isNaN(date.getTime()) ? null : date.getTime();
+  };
   formData.value = {
     orderId: row.orderId || '',
-    serviceStartTime: row.serviceStartTime || null,
-    serviceEndTime: row.serviceEndTime || null,
+    serviceStartTime: parseToTimestamp(row.serviceStartTime),
+    serviceEndTime: parseToTimestamp(row.serviceEndTime),
     serviceDuration: row.serviceDuration || 0,
     serviceContent: row.serviceContent || '',
-    servicePhotos: row.servicePhotos || []
+    servicePhotos: Array.isArray(row.servicePhotos)
+      ? row.servicePhotos
+      : row.servicePhotos
+        ? [row.servicePhotos]
+        : []
   };
   modalVisible.value = true;
 }
@@ -445,6 +495,25 @@ function handleSubmitReview(row: Api.ServiceLog.ServiceLog) {
   reviewLogId.value = row.serviceLogId;
   reviewRemarks.value = '';
   reviewDialogVisible.value = true;
+}
+
+function showReviewModal(row: Api.ServiceLog.ServiceLog) {
+  qualityReviewData.value = row;
+  qualityReviewResult.value = 'APPROVED';
+  qualityReviewComment.value = '';
+  qualityReviewModalVisible.value = true;
+}
+
+async function handleQualityReview() {
+  if (!qualityReviewData.value) return;
+  try {
+    await fetchReviewServiceLog(qualityReviewData.value.serviceLogId, qualityReviewResult.value, qualityReviewComment.value);
+    message.success(qualityReviewResult.value === 'APPROVED' ? '审核通过' : '已驳回');
+    qualityReviewModalVisible.value = false;
+    getData();
+  } catch (e: any) {
+    message.error(e.message || '审核失败');
+  }
 }
 
 async function submitReview() {
@@ -472,8 +541,8 @@ async function handleSubmitForm() {
       await fetchUpdateServiceLog(logId, {
         id: logId,
         orderId: formData.value.orderId,
-        serviceStartTime: formData.value.serviceStartTime,
-        serviceEndTime: formData.value.serviceEndTime,
+        serviceStartTime: formatDateTime(formData.value.serviceStartTime),
+        serviceEndTime: formatDateTime(formData.value.serviceEndTime),
         serviceDuration: formData.value.serviceDuration,
         serviceContent: formData.value.serviceContent,
         servicePhotos: formData.value.servicePhotos,
@@ -484,8 +553,8 @@ async function handleSubmitForm() {
       // Create new log
       await fetchSubmitServiceLog({
         orderId: formData.value.orderId,
-        serviceStartTime: formData.value.serviceStartTime,
-        serviceEndTime: formData.value.serviceEndTime,
+        serviceStartTime: formatDateTime(formData.value.serviceStartTime),
+        serviceEndTime: formatDateTime(formData.value.serviceEndTime),
         serviceDuration: formData.value.serviceDuration,
         serviceContent: formData.value.serviceContent,
         servicePhotos: formData.value.servicePhotos
@@ -852,8 +921,8 @@ onMounted(() => {
             "
           ></div>
           <span style="font-size: 18px; font-weight: 600">服务日志详情</span>
-          <NTag v-if="detailData" :type="getStatusType(detailData.status)" size="large">
-            {{ getStatusLabel(detailData.status) }}
+          <NTag v-if="detailData" :type="getStatusType(detailData.auditStatus)" size="large">
+            {{ getStatusLabel(detailData.auditStatus) }}
           </NTag>
         </div>
       </template>
@@ -910,8 +979,12 @@ onMounted(() => {
               </div>
             </div>
             <div>
-              <div style="color: #999; font-size: 12px; margin-bottom: 4px">服务时间</div>
+              <div style="color: #999; font-size: 12px; margin-bottom: 4px">开始时间</div>
               <div style="font-weight: 500; font-size: 12px">{{ detailData.serviceStartTime || '-' }}</div>
+            </div>
+            <div>
+              <div style="color: #999; font-size: 12px; margin-bottom: 4px">结束时间</div>
+              <div style="font-weight: 500; font-size: 12px">{{ detailData.serviceEndTime || '-' }}</div>
             </div>
           </div>
         </div>
@@ -976,7 +1049,7 @@ onMounted(() => {
         <div style="display: flex; justify-content: space-between; align-items: center">
           <div>
             <NButton
-              v-if="!detailData?.status || detailData?.status === 'DRAFT'"
+              v-if="!detailData?.auditStatus || detailData?.auditStatus === 'DRAFT'"
               type="default"
               @click="handleUpdateFromDetail"
               style="margin-right: 8px"
@@ -984,7 +1057,7 @@ onMounted(() => {
               更新
             </NButton>
             <NButton
-              v-if="!detailData?.status || detailData?.status === 'DRAFT'"
+              v-if="!detailData?.auditStatus || detailData?.auditStatus === 'DRAFT'"
               type="primary"
               @click="handleSubmitReviewFromDetail"
             >
@@ -1073,6 +1146,112 @@ onMounted(() => {
         <div style="display: flex; justify-content: flex-end; gap: 12px">
           <NButton @click="closeReviewDialog">取消</NButton>
           <NButton type="primary" @click="submitReview">确认提交</NButton>
+        </div>
+      </template>
+    </NModal>
+
+    <!-- Quality Review Modal (for quality check staff) -->
+    <NModal v-model:show="qualityReviewModalVisible" preset="card" style="width: 700px">
+      <template #header>
+        <div style="display: flex; align-items: center; gap: 12px">
+          <div
+            style="
+              width: 4px;
+              height: 24px;
+              background: linear-gradient(180deg, #667eea 0%, #764ba2 100%);
+              border-radius: 2px;
+            "
+          ></div>
+          <span style="font-size: 18px; font-weight: 600">审核服务日志</span>
+        </div>
+      </template>
+      <div v-if="qualityReviewData" style="padding: 16px 0">
+        <!-- Service Photos Preview -->
+        <div
+          v-if="qualityReviewData.servicePhotos && qualityReviewData.servicePhotos.length > 0"
+          style="background: #f8f9fa; border-radius: 12px; padding: 20px; margin-bottom: 16px"
+        >
+          <div style="color: #667eea; font-size: 13px; font-weight: 600; margin-bottom: 12px">
+            服务照片 ({{ qualityReviewData.servicePhotos.length }})
+          </div>
+          <div style="display: flex; flex-wrap: wrap; gap: 12px">
+            <img
+              v-for="(photo, idx) in qualityReviewData.servicePhotos"
+              :key="idx"
+              :src="photo"
+              style="
+                width: 100px;
+                height: 100px;
+                object-fit: cover;
+                border-radius: 8px;
+                cursor: pointer;
+                transition: transform 0.2s;
+              "
+              @click="openPreview(qualityReviewData.servicePhotos || [])"
+            />
+          </div>
+        </div>
+
+        <!-- Service Info Summary -->
+        <div style="background: #f8f9fa; border-radius: 12px; padding: 20px; margin-bottom: 16px">
+          <div style="display: grid; grid-template-columns: repeat(3, 1fr); gap: 16px">
+            <div>
+              <div style="color: #999; font-size: 12px; margin-bottom: 4px">老人姓名</div>
+              <div style="font-weight: 500">{{ qualityReviewData.elderName || '-' }}</div>
+            </div>
+            <div>
+              <div style="color: #999; font-size: 12px; margin-bottom: 4px">服务人员</div>
+              <div style="font-weight: 500">{{ qualityReviewData.staffName || '-' }}</div>
+            </div>
+            <div>
+              <div style="color: #999; font-size: 12px; margin-bottom: 4px">服务时长</div>
+              <div style="font-weight: 500">{{ qualityReviewData.serviceDuration ? `${qualityReviewData.serviceDuration}分钟` : '-' }}</div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Review Result Selection -->
+        <div style="margin-bottom: 16px">
+          <div style="margin-bottom: 8px; color: #333; font-weight: 500">审核结果 *</div>
+          <NSpace>
+            <NButton
+              :type="qualityReviewResult === 'APPROVED' ? 'success' : 'default'"
+              @click="qualityReviewResult = 'APPROVED'"
+            >
+              通过
+            </NButton>
+            <NButton
+              :type="qualityReviewResult === 'REJECTED' ? 'error' : 'default'"
+              @click="qualityReviewResult = 'REJECTED'"
+            >
+              驳回（需返工）
+            </NButton>
+          </NSpace>
+        </div>
+
+        <!-- Review Comment -->
+        <div>
+          <div style="margin-bottom: 8px; color: #333; font-weight: 500">
+            审核意见 {{ qualityReviewResult === 'REJECTED' ? '*' : '' }}
+          </div>
+          <NInput
+            v-model:value="qualityReviewComment"
+            type="textarea"
+            :placeholder="qualityReviewResult === 'REJECTED' ? '请输入驳回原因，以便服务人员整改...' : '请输入审核意见（可选）...'"
+            :rows="4"
+            style="border-radius: 8px"
+          />
+        </div>
+      </div>
+      <template #footer>
+        <div style="display: flex; justify-content: flex-end; gap: 12px">
+          <NButton @click="qualityReviewModalVisible = false">取消</NButton>
+          <NButton
+            :type="qualityReviewResult === 'APPROVED' ? 'success' : 'error'"
+            @click="handleQualityReview"
+          >
+            {{ qualityReviewResult === 'APPROVED' ? '确认通过' : '确认驳回' }}
+          </NButton>
         </div>
       </template>
     </NModal>

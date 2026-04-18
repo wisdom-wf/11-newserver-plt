@@ -25,6 +25,7 @@ import {
   fetchGetOrderList,
   fetchCreateOrder,
   fetchGetOrder,
+  fetchDeleteOrder,
   fetchDispatchOrder,
   fetchAcceptOrder,
   fetchStartOrder,
@@ -278,8 +279,8 @@ const columns: DataTableColumns<Api.Order.Order> = [
     width: 100,
     render: row => h(NTag, { type: getStatusType(row.status), size: 'small' }, () => getStatusLabel(row.status))
   },
-  { title: '服务费', key: 'estimatedPrice', width: 100 },
-  { title: '实付金额', key: 'selfPayAmount', width: 100 },
+  { title: '补贴金额', key: 'subsidyAmount', width: 100, render: row => `¥${row.subsidyAmount || 0}` },
+  { title: '自付金额', key: 'selfPayAmount', width: 100, render: row => `¥${row.selfPayAmount || 0}` },
   { title: '创建时间', key: 'createTime', width: 170 },
   {
     title: '操作',
@@ -301,6 +302,13 @@ const columns: DataTableColumns<Api.Order.Order> = [
       }
       if (row.status === 'SERVICE_STARTED') {
         buttons.push(h(NButton, { size: 'small', onClick: () => handleComplete(row) }, () => '完成服务'));
+      }
+      // 已完成订单支持删除
+      if (
+        (row.status === 'SERVICE_COMPLETED' || row.status === 'EVALUATED' || row.status === 'SETTLED') &&
+        hasAuth('order:list:delete')
+      ) {
+        buttons.push(h(NButton, { size: 'small', type: 'error', onClick: () => handleDelete(row) }, () => '删除'));
       }
       if (
         row.status !== 'SERVICE_COMPLETED' &&
@@ -481,7 +489,17 @@ const cancelForm = ref({ reason: '' });
 
 // Complete modal
 const completeModalVisible = ref(false);
-const completeForm = ref({ actualFee: 0, selfPayFee: 0 });
+const completeForm = ref({ actualFee: 0, subsidyAmount: 0, selfPayAmount: 0 });
+
+// 实际收费变化时自动计算自付金额
+watch(
+  () => completeForm.value.actualFee,
+  val => {
+    if (completeModalVisible.value) {
+      completeForm.value.selfPayAmount = Math.max(0, val - completeForm.value.subsidyAmount);
+    }
+  }
+);
 
 // Elder detail modal
 const elderDetailVisible = ref(false);
@@ -634,11 +652,18 @@ async function handleStart(row: Api.Order.Order) {
 
 function handleComplete(row: Api.Order.Order) {
   currentOrderId.value = row.orderId;
-  completeForm.value = { actualFee: row.estimatedPrice || 0, selfPayFee: row.selfPayAmount || 0 };
+  // 补贴金额固定为800，实际收费减去补贴金额自动计算自付金额
+  completeForm.value = { actualFee: row.estimatedPrice || 0, subsidyAmount: 800, selfPayAmount: Math.max(0, (row.estimatedPrice || 0) - 800) };
   completeModalVisible.value = true;
 }
 
 async function handleCompleteSubmit() {
+  // 校验：实际收费 = 补贴金额 + 自付金额
+  const { actualFee, subsidyAmount, selfPayAmount } = completeForm.value;
+  if (actualFee !== subsidyAmount + selfPayAmount) {
+    message.error('实际收费金额必须等于补贴金额加自付金额');
+    return;
+  }
   try {
     await fetchCompleteOrder(currentOrderId.value, completeForm.value);
     message.success('完成服务');
@@ -648,6 +673,19 @@ async function handleCompleteSubmit() {
   } catch (e: any) {
     console.error('Complete error:', e);
     const errMsg = e?.message || e?.response?.data?.message || '完成服务失败';
+    message.error(errMsg);
+  }
+}
+
+async function handleDelete(row: Api.Order.Order) {
+  try {
+    await fetchDeleteOrder(row.orderId);
+    message.success('删除成功');
+    await getData();
+    await getStatistics();
+  } catch (e: any) {
+    console.error('Delete error:', e);
+    const errMsg = e?.message || e?.response?.data?.message || '删除失败';
     message.error(errMsg);
   }
 }
@@ -1091,8 +1129,12 @@ onMounted(() => {
         <NFormItem label="实际收费">
           <NInputNumber v-model:value="completeForm.actualFee" :min="0" />
         </NFormItem>
+        <NFormItem label="补贴金额">
+          <NInputNumber v-model:value="completeForm.subsidyAmount" :min="0" disabled />
+          <template #feedback><span style="color: #999; font-size: 12px;">固定金额800元</span></template>
+        </NFormItem>
         <NFormItem label="自付金额">
-          <NInputNumber v-model:value="completeForm.selfPayFee" :min="0" />
+          <NInputNumber v-model:value="completeForm.selfPayAmount" :min="0" />
         </NFormItem>
       </NForm>
       <template #footer>

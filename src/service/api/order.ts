@@ -103,7 +103,7 @@ export function fetchStartOrder(
 /**
  * 完成服务
  */
-export function fetchCompleteOrder(orderId: string, data?: { actualFee?: number; selfPayFee?: number }) {
+export function fetchCompleteOrder(orderId: string, data?: { actualFee?: number; subsidyAmount?: number; selfPayAmount?: number }) {
   return request({
     url: `/api/orders/${orderId}/complete`,
     method: 'put',

@@ -128,6 +128,8 @@ declare namespace Api {
       subsidyType?: string;
       /** 预估价格 */
       estimatedPrice?: number;
+      /** 实际价格 */
+      actualPrice?: number;
       /** 补贴金额 */
       subsidyAmount?: number;
       /** 自付金额 */
