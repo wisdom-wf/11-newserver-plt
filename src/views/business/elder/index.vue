@@ -12,6 +12,7 @@ import {
 } from '@/service/api';
 import { useNaivePaginatedTable, useTableOperate, defaultTransform } from '@/hooks/common/table';
 import { useNaiveForm } from '@/hooks/common/form';
+import { useAuth } from '@/hooks/business/auth';
 import TableHeaderOperation from '@/components/advanced/table-header-operation.vue';
 
 defineOptions({
@@ -21,6 +22,7 @@ defineOptions({
 const message = useMessage();
 const { patternRules, createRequiredRule } = useFormRules();
 const { formRef, validate, restoreValidation } = useNaiveForm();
+const { hasAuth } = useAuth();
 
 // Form validation rules
 const rules = {
@@ -130,11 +132,16 @@ const columns: DataTableColumns<Api.Elder.Elder> = [
     key: 'actions',
     width: 150,
     fixed: 'right',
-    render: row =>
-      h(NSpace, { size: 'small' }, () => [
-        h(NButton, { size: 'small', onClick: () => handleOpenEdit(row.elderId) }, () => '编辑'),
-        h(NButton, { size: 'small', type: 'error', onClick: () => handleDelete(row.elderId) }, () => '删除')
-      ])
+    render: row => {
+      const buttons = [];
+      if (hasAuth('elder:list:edit')) {
+        buttons.push(h(NButton, { size: 'small', onClick: () => handleOpenEdit(row.elderId) }, () => '编辑'));
+      }
+      if (hasAuth('elder:list:delete')) {
+        buttons.push(h(NButton, { size: 'small', type: 'error', onClick: () => handleDelete(row.elderId) }, () => '删除'));
+      }
+      return h(NSpace, { size: 'small' }, () => buttons);
+    }
   }
 ];
 
@@ -377,9 +384,17 @@ onMounted(() => {
         v-model:columns="columnChecks"
         :disabled-delete="checkedRowKeys.length === 0"
         :loading="loading"
-        @add="handleOpenAdd"
         @refresh="getData"
-      />
+      >
+        <template #default>
+          <NButton v-if="hasAuth('elder:list:add')" size="small" ghost type="primary" @click="handleOpenAdd">
+            <template #icon>
+              <icon-ic-round-plus class="text-icon" />
+            </template>
+            {{ $t('common.add') }}
+          </NButton>
+        </template>
+      </TableHeaderOperation>
 
       <NDataTable
         :columns="columns"

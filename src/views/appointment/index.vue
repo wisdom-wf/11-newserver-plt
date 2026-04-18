@@ -33,6 +33,7 @@ import {
 import { useRouterPush } from '@/hooks/common/router';
 import { useNaivePaginatedTable, useTableOperate, defaultTransform } from '@/hooks/common/table';
 import { useNaiveForm, useFormRules } from '@/hooks/common/form';
+import { useAuth } from '@/hooks/business/auth';
 import TableHeaderOperation from '@/components/advanced/table-header-operation.vue';
 
 defineOptions({
@@ -42,6 +43,7 @@ defineOptions({
 const message = useMessage();
 const { routerPushByKey } = useRouterPush();
 const { formRef, validate, restoreValidation } = useNaiveForm();
+const { hasAuth } = useAuth();
 const { defaultRequiredRule } = useFormRules();
 
 // Statistics
@@ -142,8 +144,12 @@ const columns: DataTableColumns<Api.Appointment.Appointment> = [
         h(NButton, { size: 'small', quaternary: true, type: 'info', onClick: () => showTimeline(row) }, () => '详情')
       );
       if (row.status === 'PENDING') {
+        if (hasAuth('appointment:list:confirm')) {
+          buttons.push(
+            h(NButton, { size: 'small', onClick: () => handleConfirm(row) }, () => '确认'),
+          );
+        }
         buttons.push(
-          h(NButton, { size: 'small', onClick: () => handleConfirm(row) }, () => '确认'),
           h(NButton, { size: 'small', onClick: () => handleCancel(row) }, () => '取消')
         );
       }

@@ -4,6 +4,7 @@ import { NButton, NCard, NTag, NSpace, NInput, NSelect, useMessage } from 'naive
 import type { DataTableColumns } from 'naive-ui';
 import { useNaiveForm, useFormRules } from '@/hooks/common/form';
 import { useNaivePaginatedTable, useTableOperate, defaultTransform } from '@/hooks/common/table';
+import { useAuth } from '@/hooks/business/auth';
 import TableHeaderOperation from '@/components/advanced/table-header-operation.vue';
 import {
   fetchGetStaffList,
@@ -21,6 +22,7 @@ defineOptions({
 const message = useMessage();
 const { formRef, validate, restoreValidation } = useNaiveForm();
 const { defaultRequiredRule } = useFormRules();
+const { hasAuth } = useAuth();
 
 // Form validation rules
 const rules = {
@@ -108,11 +110,16 @@ const columns: DataTableColumns<Api.Staff.Staff> = [
     key: 'actions',
     width: 150,
     fixed: 'right',
-    render: row =>
-      h(NSpace, { size: 'small' }, () => [
-        h(NButton, { size: 'small', onClick: () => handleEdit(row.staffId) }, () => '编辑'),
-        h(NButton, { size: 'small', type: 'error', onClick: () => handleDelete(row.staffId) }, () => '删除')
-      ])
+    render: row => {
+      const buttons = [];
+      if (hasAuth('staff:list:edit')) {
+        buttons.push(h(NButton, { size: 'small', onClick: () => handleEdit(row.staffId) }, () => '编辑'));
+      }
+      if (hasAuth('staff:list:delete')) {
+        buttons.push(h(NButton, { size: 'small', type: 'error', onClick: () => handleDelete(row.staffId) }, () => '删除'));
+      }
+      return h(NSpace, { size: 'small' }, () => buttons);
+    }
   }
 ];
 
@@ -378,9 +385,17 @@ onMounted(() => {
         v-model:columns="columnChecks"
         :disabled-delete="checkedRowKeys.length === 0"
         :loading="loading"
-        @add="handleAdd"
         @refresh="getData"
-      />
+      >
+        <template #default>
+          <NButton v-if="hasAuth('staff:list:add')" size="small" ghost type="primary" @click="handleAdd">
+            <template #icon>
+              <icon-ic-round-plus class="text-icon" />
+            </template>
+            {{ $t('common.add') }}
+          </NButton>
+        </template>
+      </TableHeaderOperation>
 
       <NDataTable
         :columns="columns"

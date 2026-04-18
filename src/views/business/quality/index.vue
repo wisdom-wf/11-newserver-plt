@@ -16,6 +16,7 @@ import {
 import type { DataTableColumns } from 'naive-ui';
 import { fetchGetQualityCheckList, fetchGetQualityStatistics, fetchGetStaff } from '@/service/api';
 import { useNaivePaginatedTable, defaultTransform } from '@/hooks/common/table';
+import { useAuth } from '@/hooks/business/auth';
 import TableHeaderOperation from '@/components/advanced/table-header-operation.vue';
 
 defineOptions({
@@ -23,6 +24,7 @@ defineOptions({
 });
 
 // Statistics
+const { hasAuth } = useAuth();
 const statistics = ref<Api.Quality.Statistics>({
   total: 0,
   qualifiedCount: 0,

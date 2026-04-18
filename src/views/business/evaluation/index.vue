@@ -18,6 +18,7 @@ import {
 import type { DataTableColumns } from 'naive-ui';
 import { fetchGetEvaluationList, fetchGetEvaluationStatistics, fetchGetElder, fetchGetStaff } from '@/service/api';
 import { useNaivePaginatedTable, defaultTransform } from '@/hooks/common/table';
+import { useAuth } from '@/hooks/business/auth';
 import TableHeaderOperation from '@/components/advanced/table-header-operation.vue';
 
 defineOptions({
@@ -25,6 +26,7 @@ defineOptions({
 });
 
 // Statistics
+const { hasAuth } = useAuth();
 const statistics = ref<any>({
   totalCount: 0,
   averageRating: 0,

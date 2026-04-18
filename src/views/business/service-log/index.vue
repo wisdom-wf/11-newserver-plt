@@ -35,6 +35,7 @@ import {
   fetchDeleteServiceLog
 } from '@/service/api';
 import { useNaivePaginatedTable, defaultTransform } from '@/hooks/common/table';
+import { useAuth } from '@/hooks/business/auth';
 import TableHeaderOperation from '@/components/advanced/table-header-operation.vue';
 
 defineOptions({
@@ -42,6 +43,7 @@ defineOptions({
 });
 
 const message = useMessage();
+const { hasAuth } = useAuth();
 
 // Constants
 const MAX_IMAGE_COUNT = 6;
@@ -204,8 +206,12 @@ const columns: DataTableColumns<Api.ServiceLog.ServiceLog> = [
       const buttons = [];
       buttons.push(h(NButton, { size: 'small', onClick: () => showDetail(row) }, { default: () => '详情' }));
       if (!row.status || row.status === 'DRAFT') {
+        if (hasAuth('service-log:list:edit')) {
+          buttons.push(
+            h(NButton, { size: 'small', type: 'default', onClick: () => handleUpdate(row) }, { default: () => '更新' }),
+          );
+        }
         buttons.push(
-          h(NButton, { size: 'small', type: 'default', onClick: () => handleUpdate(row) }, { default: () => '更新' }),
           h(
             NPopconfirm,
             {

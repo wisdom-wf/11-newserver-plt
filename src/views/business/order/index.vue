@@ -39,6 +39,7 @@ import {
 import { useRouterPush } from '@/hooks/common/router';
 import { useNaivePaginatedTable, defaultTransform } from '@/hooks/common/table';
 import { useNaiveForm } from '@/hooks/common/form';
+import { useAuth } from '@/hooks/business/auth';
 import TableHeaderOperation from '@/components/advanced/table-header-operation.vue';
 
 defineOptions({
@@ -48,6 +49,7 @@ defineOptions({
 const message = useMessage();
 const route = useRoute();
 const { routerPushByKey } = useRouterPush();
+const { hasAuth } = useAuth();
 const { formRef } = useNaiveForm();
 
 // Statistics
@@ -288,7 +290,7 @@ const columns: DataTableColumns<Api.Order.Order> = [
       const buttons: ReturnType<typeof h>[] = [];
       // 详情按钮 - 始终显示
       buttons.push(h(NButton, { size: 'small', onClick: () => handleDetail(row) }, () => '详情'));
-      if (row.status === 'CREATED' || row.status === 'PENDING') {
+      if ((row.status === 'CREATED' || row.status === 'PENDING') && hasAuth('order:list:dispatch')) {
         buttons.push(h(NButton, { size: 'small', onClick: () => handleAssign(row) }, () => '分配'));
       }
       if (row.status === 'DISPATCHED') {
@@ -305,7 +307,8 @@ const columns: DataTableColumns<Api.Order.Order> = [
         row.status !== 'EVALUATED' &&
         row.status !== 'SETTLED' &&
         row.status !== 'CANCELLED' &&
-        row.status !== 'REJECTED'
+        row.status !== 'REJECTED' &&
+        hasAuth('order:list:cancel')
       ) {
         buttons.push(h(NButton, { size: 'small', type: 'error', onClick: () => handleCancel(row) }, () => '取消'));
       }
