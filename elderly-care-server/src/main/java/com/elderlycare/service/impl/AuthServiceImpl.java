@@ -19,6 +19,7 @@ import cn.hutool.crypto.symmetric.SymmetricAlgorithm;
 import cn.hutool.crypto.symmetric.SymmetricCrypto;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -42,6 +43,9 @@ public class AuthServiceImpl implements AuthService {
 
     @Autowired
     private JwtUtil jwtUtil;
+
+    @Autowired
+    private PasswordEncoder passwordEncoder;
 
     @Value("${jwt.expiration}")
     private Long expiration;
@@ -225,19 +229,14 @@ public class AuthServiceImpl implements AuthService {
     }
 
     /**
-     * 密码验证（使用AES）
+     * 密码验证（支持BCrypt和明文）
      */
     private boolean verifyPassword(String rawPassword, String encodedPassword) {
-        try {
-            // 解密存储的密码
-            byte[] decoded = Base64.getDecoder().decode(encodedPassword);
-            byte[] key = AES_KEY.getBytes();
-            SymmetricCrypto aes = new SymmetricCrypto(SymmetricAlgorithm.AES, key);
-            String decrypted = aes.decryptStr(decoded);
-            return rawPassword.equals(decrypted);
-        } catch (Exception e) {
-            // 如果解密失败，尝试直接比对（兼容旧密码或简单存储）
-            return rawPassword.equals(encodedPassword);
+        // 优先使用BCrypt验证
+        if (encodedPassword != null && encodedPassword.startsWith("$2")) {
+            return passwordEncoder.matches(rawPassword, encodedPassword);
         }
+        // 兼容明文密码
+        return rawPassword.equals(encodedPassword);
     }
 }

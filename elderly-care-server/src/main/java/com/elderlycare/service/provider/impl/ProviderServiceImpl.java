@@ -7,15 +7,18 @@ import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
 import com.elderlycare.common.BusinessException;
 import com.elderlycare.common.PageResult;
 import com.elderlycare.dto.provider.*;
+import com.elderlycare.entity.User;
 import com.elderlycare.entity.appointment.Appointment;
 import com.elderlycare.entity.provider.Provider;
 import com.elderlycare.entity.provider.ProviderQualification;
 import com.elderlycare.entity.provider.ProviderServiceType;
 import com.elderlycare.mapper.appointment.AppointmentMapper;
 import com.elderlycare.mapper.provider.ProviderMapper;
+import com.elderlycare.service.provider.ProviderAccountService;
 import com.elderlycare.service.provider.ProviderQualificationService;
 import com.elderlycare.service.provider.ProviderService;
 import com.elderlycare.service.provider.ProviderServiceTypeService;
+import com.elderlycare.vo.provider.ProviderCreateResultVO;
 import com.elderlycare.vo.provider.ProviderRatingVO;
 import com.elderlycare.vo.provider.ProviderVO;
 import lombok.RequiredArgsConstructor;
@@ -38,10 +41,11 @@ public class ProviderServiceImpl extends ServiceImpl<ProviderMapper, Provider> i
     private final ProviderQualificationService qualificationService;
     private final ProviderServiceTypeService serviceTypeService;
     private final AppointmentMapper appointmentMapper;
+    private final ProviderAccountService providerAccountService;
 
     @Override
     @Transactional(rollbackFor = Exception.class)
-    public String createProvider(ProviderCreateDTO dto) {
+    public ProviderCreateResultVO createProvider(ProviderCreateDTO dto) {
         // 检查信用代码是否已存在
         if (existsByCreditCode(dto.getCreditCode())) {
             throw BusinessException.fail("统一社会信用代码已存在");
@@ -55,7 +59,23 @@ public class ProviderServiceImpl extends ServiceImpl<ProviderMapper, Provider> i
         }
 
         baseMapper.insert(provider);
-        return provider.getProviderId();
+
+        // 自动创建服务商管理员账号
+        User adminUser = providerAccountService.createProviderAccount(provider);
+
+        // 构建返回结果
+        ProviderCreateResultVO.AccountInfo accountInfo = new ProviderCreateResultVO.AccountInfo(
+            adminUser.getUsername(),
+            "Provider@123",
+            "服务商管理员"
+        );
+
+        return new ProviderCreateResultVO(
+            provider.getProviderId(),
+            provider.getProviderName(),
+            provider.getCreditCode(),
+            accountInfo
+        );
     }
 
     @Override
@@ -126,6 +146,9 @@ public class ProviderServiceImpl extends ServiceImpl<ProviderMapper, Provider> i
         Appointment updateAppointment = new Appointment();
         updateAppointment.setProviderId(null);
         appointmentMapper.update(updateAppointment, wrapper);
+
+        // 删除服务商管理员账号
+        providerAccountService.deleteProviderAccount(providerId);
 
         // 逻辑删除
         baseMapper.deleteById(providerId);

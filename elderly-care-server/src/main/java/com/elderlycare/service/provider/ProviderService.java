@@ -4,6 +4,7 @@ import com.baomidou.mybatisplus.extension.service.IService;
 import com.elderlycare.common.PageResult;
 import com.elderlycare.dto.provider.*;
 import com.elderlycare.entity.provider.Provider;
+import com.elderlycare.vo.provider.ProviderCreateResultVO;
 import com.elderlycare.vo.provider.ProviderRatingVO;
 import com.elderlycare.vo.provider.ProviderVO;
 
@@ -15,9 +16,9 @@ import java.util.List;
 public interface ProviderService extends IService<Provider> {
 
     /**
-     * 创建服务商
+     * 创建服务商（自动创建对应的管理员账号）
      */
-    String createProvider(ProviderCreateDTO dto);
+    ProviderCreateResultVO createProvider(ProviderCreateDTO dto);
 
     /**
      * 分页查询服务商

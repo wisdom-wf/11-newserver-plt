@@ -7,6 +7,7 @@ import com.elderlycare.entity.provider.Provider;
 import com.elderlycare.service.provider.ProviderQualificationService;
 import com.elderlycare.service.provider.ProviderService;
 import com.elderlycare.service.provider.ProviderServiceTypeService;
+import com.elderlycare.vo.provider.ProviderCreateResultVO;
 import com.elderlycare.vo.provider.ProviderRatingVO;
 import com.elderlycare.vo.provider.ProviderVO;
 import com.elderlycare.vo.provider.QualificationVO;
@@ -32,12 +33,12 @@ public class ProviderController {
     // ==================== 服务商管理接口 ====================
 
     /**
-     * 服务商注册
+     * 服务商注册（自动创建对应的管理员账号）
      */
     @PostMapping
-    public Result<String> createProvider(@Validated @RequestBody ProviderCreateDTO dto) {
-        String providerId = providerService.createProvider(dto);
-        return Result.success(providerId);
+    public Result<ProviderCreateResultVO> createProvider(@Validated @RequestBody ProviderCreateDTO dto) {
+        ProviderCreateResultVO result = providerService.createProvider(dto);
+        return Result.success(result);
     }
 
     /**

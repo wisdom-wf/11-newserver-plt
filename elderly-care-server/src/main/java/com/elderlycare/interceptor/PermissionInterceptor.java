@@ -51,6 +51,10 @@ public class PermissionInterceptor implements HandlerInterceptor {
                 if (pathMatcher.match(permUrl, requestUri)) {
                     return true;
                 }
+                // 兼容处理：精确路径匹配时，允许匹配子路径（如 /api/providers 匹配 /api/providers/123）
+                if (permUrl.equals(requestUri) || requestUri.startsWith(permUrl + "/")) {
+                    return true;
+                }
             }
         }
 
