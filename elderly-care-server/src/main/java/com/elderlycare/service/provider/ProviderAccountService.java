@@ -27,7 +27,7 @@ import java.time.LocalDateTime;
 @RequiredArgsConstructor
 public class ProviderAccountService {
 
-    private static final String DEFAULT_PASSWORD = "Provider@123";
+    private static final String DEFAULT_PASSWORD = "mima123";
     private static final String ROLE_ID_PROVIDER_ADMIN = "R002";
     private static final String USER_TYPE_PROVIDER = "PROVIDER";
     private static final String STATUS_NORMAL = "NORMAL";
