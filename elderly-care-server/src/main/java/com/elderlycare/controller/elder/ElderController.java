@@ -6,6 +6,8 @@ import com.elderlycare.common.UserContext;
 import com.elderlycare.dto.elder.*;
 import com.elderlycare.entity.elder.*;
 import com.elderlycare.service.elder.ElderService;
+import com.elderlycare.service.elder.HealthMeasurementService;
+import com.elderlycare.service.elder.HealthReportService;
 import com.elderlycare.vo.elder.*;
 import lombok.RequiredArgsConstructor;
 import org.springframework.web.bind.annotation.*;
@@ -21,6 +23,8 @@ import java.util.List;
 public class ElderController {
 
     private final ElderService elderService;
+    private final HealthMeasurementService healthMeasurementService;
+    private final HealthReportService healthReportService;
 
     // ==================== 老人档案管理 ====================
 
@@ -140,6 +144,141 @@ public class ElderController {
     public Result<ElderHealthVO> getHealthByElderId(@PathVariable String elderId) {
         ElderHealthVO health = elderService.getHealthByElderId(elderId);
         return Result.success(health);
+    }
+
+    // ==================== 健康测量记录管理 ====================
+
+    /**
+     * 添加健康测量记录
+     */
+    @PostMapping("/{elderId}/measurements")
+    public Result<HealthMeasurement> addMeasurement(
+            @PathVariable String elderId,
+            @RequestBody HealthMeasurementDTO dto) {
+        HealthMeasurement measurement = healthMeasurementService.addMeasurement(elderId, dto);
+        return Result.success(measurement);
+    }
+
+    /**
+     * 批量添加健康测量记录
+     */
+    @PostMapping("/{elderId}/measurements/batch")
+    public Result<List<HealthMeasurement>> addMeasurements(
+            @PathVariable String elderId,
+            @RequestBody List<HealthMeasurementDTO> dtos) {
+        List<HealthMeasurement> measurements = healthMeasurementService.addMeasurements(elderId, dtos);
+        return Result.success(measurements);
+    }
+
+    /**
+     * 获取健康测量历史
+     */
+    @GetMapping("/{elderId}/measurements")
+    public Result<List<HealthMeasurementVO>> getMeasurementHistory(
+            @PathVariable String elderId,
+            @RequestParam(required = false) String measurementType,
+            @RequestParam(required = false) Integer limit) {
+        List<HealthMeasurementVO> history = healthMeasurementService.getMeasurementHistory(elderId, measurementType, limit);
+        return Result.success(history);
+    }
+
+    /**
+     * 获取老人最新一次测量记录（指定类型）
+     */
+    @GetMapping("/{elderId}/measurements/latest")
+    public Result<HealthMeasurementVO> getLatestMeasurement(
+            @PathVariable String elderId,
+            @RequestParam String measurementType) {
+        HealthMeasurementVO measurement = healthMeasurementService.getLatestMeasurement(elderId, measurementType);
+        return Result.success(measurement);
+    }
+
+    /**
+     * 获取老人最新测量记录（所有类型）
+     */
+    @GetMapping("/{elderId}/measurements/latest/all")
+    public Result<List<HealthMeasurementVO>> getLatestMeasurements(@PathVariable String elderId) {
+        List<HealthMeasurementVO> measurements = healthMeasurementService.getLatestMeasurements(elderId);
+        return Result.success(measurements);
+    }
+
+    /**
+     * 获取健康测量统计数据
+     */
+    @GetMapping("/{elderId}/measurements/statistics")
+    public Result<HealthMeasurementStatisticsVO> getMeasurementStatistics(
+            @PathVariable String elderId,
+            @RequestParam String measurementType) {
+        HealthMeasurementStatisticsVO stats = healthMeasurementService.getMeasurementStatistics(elderId, measurementType);
+        return Result.success(stats);
+    }
+
+    /**
+     * 获取老人所有类型测量的统计数据
+     */
+    @GetMapping("/{elderId}/measurements/statistics/all")
+    public Result<List<HealthMeasurementStatisticsVO>> getAllMeasurementStatistics(@PathVariable String elderId) {
+        List<HealthMeasurementStatisticsVO> stats = healthMeasurementService.getAllMeasurementStatistics(elderId);
+        return Result.success(stats);
+    }
+
+    /**
+     * 删除测量记录
+     */
+    @DeleteMapping("/measurements/{measurementId}")
+    public Result<Void> deleteMeasurement(@PathVariable String measurementId) {
+        healthMeasurementService.deleteMeasurement(measurementId);
+        return Result.success();
+    }
+
+    // ==================== 健康报告管理 ====================
+
+    /**
+     * 生成健康报告
+     */
+    @PostMapping("/{elderId}/health-reports")
+    public Result<HealthReport> generateHealthReport(
+            @PathVariable String elderId,
+            @RequestBody HealthReportGenerateDTO dto) {
+        dto.setElderId(elderId);
+        HealthReport report = healthReportService.generateReport(dto);
+        return Result.success(report);
+    }
+
+    /**
+     * 获取老人健康报告列表
+     */
+    @GetMapping("/{elderId}/health-reports")
+    public Result<List<HealthReportVO>> getHealthReportList(@PathVariable String elderId) {
+        List<HealthReportVO> reports = healthReportService.getReportList(elderId);
+        return Result.success(reports);
+    }
+
+    /**
+     * 获取健康报告详情
+     */
+    @GetMapping("/health-reports/{reportId}")
+    public Result<HealthReportVO> getHealthReportById(@PathVariable String reportId) {
+        HealthReportVO report = healthReportService.getReportById(reportId);
+        return Result.success(report);
+    }
+
+    /**
+     * 下载健康报告PDF
+     */
+    @GetMapping("/health-reports/{reportId}/pdf")
+    public Result<byte[]> downloadHealthReportPdf(@PathVariable String reportId) {
+        byte[] pdfContent = healthReportService.downloadPdf(reportId);
+        return Result.success(pdfContent);
+    }
+
+    /**
+     * 删除健康报告
+     */
+    @DeleteMapping("/health-reports/{reportId}")
+    public Result<Void> deleteHealthReport(@PathVariable String reportId) {
+        healthReportService.deleteReport(reportId);
+        return Result.success();
     }
 
     // ==================== 老人服务需求管理 ====================
