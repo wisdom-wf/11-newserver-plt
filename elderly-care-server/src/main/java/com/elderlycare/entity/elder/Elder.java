@@ -98,8 +98,9 @@ public class Elder implements Serializable {
     private String areaId;
 
     /**
-     * 区域名称（查询时填充）
+     * 区域名称（查询时填充，非数据库字段）
      */
+    @TableField(exist = false)
     private String areaName;
 
     /**
@@ -150,7 +151,7 @@ public class Elder implements Serializable {
     private String providerId;
 
     /**
-     * 服务商名称（非数据库字段）
+     * 服务商名称（非数据库字段，查询时填充）
      */
     @TableField(exist = false)
     private String providerName;
