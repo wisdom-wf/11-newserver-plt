@@ -21,7 +21,9 @@ import {
   NImage,
   NImageGroup,
   NPopconfirm,
-  NImagePreview
+  NImagePreview,
+  NDrawer,
+  NDrawerContent
 } from 'naive-ui';
 import type { DataTableColumns } from 'naive-ui';
 import {
@@ -78,9 +80,9 @@ const searchServiceCategory = ref('');
 const searchDateRange = ref<[number, number] | null>(null);
 
 // Add/Edit Modal state
-const modalVisible = ref(false);
-const modalLoading = ref(false);
-const isEdit = ref(false);
+const drawerVisible = ref(false);
+const drawerLoading = ref(false);
+const operateType = ref<'add' | 'edit'>('add');
 const currentLogId = ref('');
 const formData = ref({
   orderId: '',
@@ -111,7 +113,7 @@ const qualityReviewResult = ref<'APPROVED' | 'REJECTED'>('APPROVED');
 const qualityReviewComment = ref('');
 
 // Detail modal state
-const detailVisible = ref(false);
+const detailDrawerVisible = ref(false);
 const detailData = ref<Api.ServiceLog.ServiceLog | null>(null);
 const previewVisible = ref(false);
 const previewImages = ref<string[]>([]);
@@ -350,18 +352,18 @@ async function showStaffDetail(row: Api.ServiceLog.ServiceLog) {
 
 function showDetail(row: Api.ServiceLog.ServiceLog) {
   detailData.value = row;
-  detailVisible.value = true;
+  detailDrawerVisible.value = true;
 }
 
 function handleUpdateFromDetail() {
   if (!detailData.value) return;
-  detailVisible.value = false;
+  detailDrawerVisible.value = false;
   handleUpdate(detailData.value);
 }
 
 function handleSubmitReviewFromDetail() {
   if (!detailData.value) return;
-  detailVisible.value = false;
+  detailDrawerVisible.value = false;
   handleSubmitReview(detailData.value);
 }
 
@@ -454,7 +456,7 @@ function removePhoto(index: number) {
 
 // Modal functions
 function showAddModal() {
-  isEdit.value = false;
+  operateType.value = 'add';
   currentLogId.value = '';
   formData.value = {
     orderId: '',
@@ -464,11 +466,11 @@ function showAddModal() {
     serviceContent: '',
     servicePhotos: []
   };
-  modalVisible.value = true;
+  drawerVisible.value = true;
 }
 
 function handleUpdate(row: Api.ServiceLog.ServiceLog) {
-  isEdit.value = true;
+  operateType.value = 'edit';
   currentLogId.value = row.serviceLogId;
   // Convert ISO date string to timestamp for NDatePicker
   const parseToTimestamp = (val: string | null | undefined): number | null => {
@@ -488,7 +490,7 @@ function handleUpdate(row: Api.ServiceLog.ServiceLog) {
         ? [row.servicePhotos]
         : []
   };
-  modalVisible.value = true;
+  drawerVisible.value = true;
 }
 
 function handleSubmitReview(row: Api.ServiceLog.ServiceLog) {
@@ -532,7 +534,7 @@ async function handleSubmitForm() {
     message.error('请选择关联订单');
     return;
   }
-  modalLoading.value = true;
+  drawerLoading.value = true;
   try {
     // Use currentLogId to determine if it's update or create
     const logId = currentLogId.value;
@@ -561,17 +563,17 @@ async function handleSubmitForm() {
       } as any);
       message.success('添加成功');
     }
-    modalVisible.value = false;
+    drawerVisible.value = false;
     getData();
   } catch (e: any) {
     message.error(e.message || '操作失败');
   } finally {
-    modalLoading.value = false;
+    drawerLoading.value = false;
   }
 }
 
 function closeModal() {
-  modalVisible.value = false;
+  drawerVisible.value = false;
 }
 
 function closeReviewDialog() {
@@ -803,271 +805,263 @@ onMounted(() => {
       </NForm>
     </NModal>
 
-    <!-- Add/Edit Modal -->
-    <NModal v-model:show="modalVisible" preset="card" style="width: 700px">
-      <template #header>
-        <div style="display: flex; align-items: center; gap: 12px">
-          <div
-            :style="
-              'width: 4px; height: 24px; background: linear-gradient(180deg, ' +
-              (isEdit ? '#667eea 0%, #764ba2' : '#11998e 0%, #38ef7d') +
-              ' 100%); border-radius: 2px;'
-            "
-          ></div>
-          <span style="font-size: 18px; font-weight: 600">{{ isEdit ? '编辑服务日志' : '添加服务日志' }}</span>
-        </div>
-      </template>
-      <div style="padding: 16px 0">
-        <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 16px">
-          <div>
-            <div style="margin-bottom: 8px; color: #333; font-weight: 500">关联订单 *</div>
-            <NInput v-model:value="formData.orderId" placeholder="请输入订单ID" />
+    <!-- Add/Edit Drawer -->
+    <NDrawer v-model:show="drawerVisible" :width="560" placement="right" closable>
+      <NDrawerContent :title="operateType === 'add' ? '添加服务日志' : '编辑服务日志'" closable>
+        <div style="padding: 16px 0">
+          <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 16px">
+            <div>
+              <div style="margin-bottom: 8px; color: #333; font-weight: 500">关联订单 *</div>
+              <NInput v-model:value="formData.orderId" placeholder="请输入订单ID" />
+            </div>
+            <div>
+              <div style="margin-bottom: 8px; color: #333; font-weight: 500">服务时长(分钟)</div>
+              <NInputNumber v-model:value="formData.serviceDuration" :min="0" style="width: 100%" />
+            </div>
           </div>
-          <div>
-            <div style="margin-bottom: 8px; color: #333; font-weight: 500">服务时长(分钟)</div>
-            <NInputNumber v-model:value="formData.serviceDuration" :min="0" style="width: 100%" />
+          <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 16px; margin-top: 16px">
+            <div>
+              <div style="margin-bottom: 8px; color: #333; font-weight: 500">服务开始时间</div>
+              <NDatePicker v-model:value="formData.serviceStartTime" type="datetime" style="width: 100%" />
+            </div>
+            <div>
+              <div style="margin-bottom: 8px; color: #333; font-weight: 500">服务结束时间</div>
+              <NDatePicker v-model:value="formData.serviceEndTime" type="datetime" style="width: 100%" />
+            </div>
           </div>
-        </div>
-        <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 16px; margin-top: 16px">
-          <div>
-            <div style="margin-bottom: 8px; color: #333; font-weight: 500">服务开始时间</div>
-            <NDatePicker v-model:value="formData.serviceStartTime" type="datetime" style="width: 100%" />
+          <div style="margin-top: 16px">
+            <div style="margin-bottom: 8px; color: #333; font-weight: 500">服务内容</div>
+            <NInput v-model:value="formData.serviceContent" type="textarea" placeholder="请输入服务内容" :rows="3" />
           </div>
-          <div>
-            <div style="margin-bottom: 8px; color: #333; font-weight: 500">服务结束时间</div>
-            <NDatePicker v-model:value="formData.serviceEndTime" type="datetime" style="width: 100%" />
-          </div>
-        </div>
-        <div style="margin-top: 16px">
-          <div style="margin-bottom: 8px; color: #333; font-weight: 500">服务内容</div>
-          <NInput v-model:value="formData.serviceContent" type="textarea" placeholder="请输入服务内容" :rows="3" />
-        </div>
-        <div style="margin-top: 16px">
-          <div style="margin-bottom: 8px; color: #333; font-weight: 500">
-            服务照片
-            <span style="color: #999; font-weight: normal">
-              ({{ formData.servicePhotos.length }}/{{ MAX_IMAGE_COUNT }})
-            </span>
-          </div>
-          <div style="display: flex; flex-wrap: wrap; gap: 12px; margin-bottom: 12px">
-            <div
-              v-for="(photo, index) in formData.servicePhotos"
-              :key="index"
-              style="position: relative; width: 80px; height: 80px"
-            >
-              <img
-                :src="photo"
-                style="width: 80px; height: 80px; object-fit: cover; border-radius: 8px; border: 2px solid #e6e6e6"
-              />
+          <div style="margin-top: 16px">
+            <div style="margin-bottom: 8px; color: #333; font-weight: 500">
+              服务照片
+              <span style="color: #999; font-weight: normal">
+                ({{ formData.servicePhotos.length }}/{{ MAX_IMAGE_COUNT }})
+              </span>
+            </div>
+            <div style="display: flex; flex-wrap: wrap; gap: 12px; margin-bottom: 12px">
               <div
-                style="
-                  position: absolute;
-                  top: -8px;
-                  right: -8px;
-                  width: 22px;
-                  height: 22px;
-                  background: #ff4d4f;
-                  border-radius: 50%;
-                  color: white;
-                  text-align: center;
-                  line-height: 22px;
-                  font-size: 14px;
-                  cursor: pointer;
-                  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
-                "
-                @click="removePhoto(index)"
+                v-for="(photo, index) in formData.servicePhotos"
+                :key="index"
+                style="position: relative; width: 80px; height: 80px"
               >
-                ×
+                <img
+                  :src="photo"
+                  style="width: 80px; height: 80px; object-fit: cover; border-radius: 8px; border: 2px solid #e6e6e6"
+                />
+                <div
+                  style="
+                    position: absolute;
+                    top: -8px;
+                    right: -8px;
+                    width: 22px;
+                    height: 22px;
+                    background: #ff4d4f;
+                    border-radius: 50%;
+                    color: white;
+                    text-align: center;
+                    line-height: 22px;
+                    font-size: 14px;
+                    cursor: pointer;
+                    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
+                  "
+                  @click="removePhoto(index)"
+                >
+                  ×
+                </div>
               </div>
             </div>
+            <NUpload
+              :show-file-list="false"
+              :max="MAX_IMAGE_COUNT - formData.servicePhotos.length"
+              multiple
+              accept="image/*"
+              :custom-request="handleUploadRequest"
+            >
+              <NButton :disabled="formData.servicePhotos.length >= MAX_IMAGE_COUNT">
+                <template #icon>
+                  <span style="margin-right: 4px">+</span>
+                </template>
+                选择图片
+              </NButton>
+            </NUpload>
+            <div style="font-size: 12px; color: #999; margin-top: 8px">每张图片不超过3M</div>
           </div>
-          <NUpload
-            :show-file-list="false"
-            :max="MAX_IMAGE_COUNT - formData.servicePhotos.length"
-            multiple
-            accept="image/*"
-            :custom-request="handleUploadRequest"
-          >
-            <NButton :disabled="formData.servicePhotos.length >= MAX_IMAGE_COUNT">
-              <template #icon>
-                <span style="margin-right: 4px">+</span>
-              </template>
-              选择图片
+        </div>
+        <template #footer>
+          <div style="display: flex; justify-content: flex-end; gap: 12px">
+            <NButton @click="closeModal">取消</NButton>
+            <NButton type="primary" :loading="drawerLoading" @click="handleSubmitForm">
+              {{ operateType === 'edit' ? '保存修改' : '确认添加' }}
             </NButton>
-          </NUpload>
-          <div style="font-size: 12px; color: #999; margin-top: 8px">每张图片不超过3M</div>
-        </div>
-      </div>
-      <template #footer>
-        <div style="display: flex; justify-content: flex-end; gap: 12px">
-          <NButton @click="closeModal">取消</NButton>
-          <NButton type="primary" :loading="modalLoading" @click="handleSubmitForm">
-            {{ isEdit ? '保存修改' : '确认添加' }}
-          </NButton>
-        </div>
-      </template>
-    </NModal>
-
-    <!-- Detail Modal -->
-    <NModal v-model:show="detailVisible" preset="card" style="width: 800px">
-      <template #header>
-        <div style="display: flex; align-items: center; gap: 12px">
-          <div
-            style="
-              width: 4px;
-              height: 24px;
-              background: linear-gradient(180deg, #667eea 0%, #764ba2 100%);
-              border-radius: 2px;
-            "
-          ></div>
-          <span style="font-size: 18px; font-weight: 600">服务日志详情</span>
-          <NTag v-if="detailData" :type="getStatusType(detailData.auditStatus)" size="large">
-            {{ getStatusLabel(detailData.auditStatus) }}
-          </NTag>
-        </div>
-      </template>
-      <div v-if="detailData" style="padding: 8px 0">
-        <!-- Info Section -->
-        <div style="background: #f8f9fa; border-radius: 12px; padding: 20px; margin-bottom: 16px">
-          <div style="display: grid; grid-template-columns: repeat(2, 1fr); gap: 16px">
-            <div>
-              <div style="color: #999; font-size: 12px; margin-bottom: 4px">日志编号</div>
-              <div style="font-weight: 500; color: #333">{{ detailData.logNo }}</div>
-            </div>
-            <div>
-              <div style="color: #999; font-size: 12px; margin-bottom: 4px">订单号</div>
-              <div style="font-weight: 500; color: #333">{{ detailData.orderNo || '-' }}</div>
-            </div>
           </div>
-        </div>
+        </template>
+      </NDrawerContent>
+    </NDrawer>
 
-        <!-- People Info -->
-        <div style="background: #f8f9fa; border-radius: 12px; padding: 20px; margin-bottom: 16px">
-          <div style="color: #667eea; font-size: 13px; font-weight: 600; margin-bottom: 12px">服务对象</div>
-          <div style="display: grid; grid-template-columns: repeat(3, 1fr); gap: 16px">
-            <div>
-              <div style="color: #999; font-size: 12px; margin-bottom: 4px">老人姓名</div>
-              <div style="font-weight: 500">{{ detailData.elderName || '-' }}</div>
-            </div>
-            <div>
-              <div style="color: #999; font-size: 12px; margin-bottom: 4px">服务人员</div>
-              <div style="font-weight: 500">{{ detailData.staffName || '-' }}</div>
-            </div>
-            <div>
-              <div style="color: #999; font-size: 12px; margin-bottom: 4px">服务商</div>
-              <div style="font-weight: 500">{{ detailData.providerName || '-' }}</div>
-            </div>
-          </div>
-        </div>
-
-        <!-- Service Info -->
-        <div style="background: #f8f9fa; border-radius: 12px; padding: 20px; margin-bottom: 16px">
-          <div style="color: #667eea; font-size: 13px; font-weight: 600; margin-bottom: 12px">服务信息</div>
-          <div style="display: grid; grid-template-columns: repeat(4, 1fr); gap: 16px">
-            <div>
-              <div style="color: #999; font-size: 12px; margin-bottom: 4px">服务类别</div>
-              <div style="font-weight: 500">{{ getCategoryLabel(detailData.serviceCategory) }}</div>
-            </div>
-            <div>
-              <div style="color: #999; font-size: 12px; margin-bottom: 4px">服务类型</div>
-              <div style="font-weight: 500">{{ detailData.serviceType || '-' }}</div>
-            </div>
-            <div>
-              <div style="color: #999; font-size: 12px; margin-bottom: 4px">服务时长</div>
-              <div style="font-weight: 500">
-                {{ detailData.serviceDuration ? `${detailData.serviceDuration}分钟` : '-' }}
-              </div>
-            </div>
-            <div>
-              <div style="color: #999; font-size: 12px; margin-bottom: 4px">开始时间</div>
-              <div style="font-weight: 500; font-size: 12px">{{ detailData.serviceStartTime || '-' }}</div>
-            </div>
-            <div>
-              <div style="color: #999; font-size: 12px; margin-bottom: 4px">结束时间</div>
-              <div style="font-weight: 500; font-size: 12px">{{ detailData.serviceEndTime || '-' }}</div>
-            </div>
-          </div>
-        </div>
-
-        <!-- Content -->
-        <div
-          v-if="detailData.serviceContent"
-          style="background: #f8f9fa; border-radius: 12px; padding: 20px; margin-bottom: 16px"
-        >
-          <div style="color: #667eea; font-size: 13px; font-weight: 600; margin-bottom: 12px">服务内容</div>
-          <div style="color: #333; line-height: 1.6">{{ detailData.serviceContent }}</div>
-        </div>
-
-        <!-- Photos -->
-        <div
-          v-if="detailData.servicePhotos && detailData.servicePhotos.length > 0"
-          style="background: #f8f9fa; border-radius: 12px; padding: 20px; margin-bottom: 16px"
-        >
-          <div style="color: #667eea; font-size: 13px; font-weight: 600; margin-bottom: 12px">
-            服务照片 ({{ detailData.servicePhotos.length }})
-          </div>
-          <div style="display: flex; flex-wrap: wrap; gap: 12px">
-            <img
-              v-for="(photo, idx) in detailData.servicePhotos"
-              :key="idx"
-              :src="photo"
+    <!-- Detail Drawer -->
+    <NDrawer v-model:show="detailDrawerVisible" :width="600" placement="right" closable>
+      <NDrawerContent :title="detailData?.logNo + ' - 服务日志详情'" closable>
+        <template #header>
+          <div style="display: flex; align-items: center; gap: 12px">
+            <div
               style="
-                width: 100px;
-                height: 100px;
-                object-fit: cover;
-                border-radius: 8px;
-                cursor: pointer;
-                transition: transform 0.2s;
+                width: 4px;
+                height: 24px;
+                background: linear-gradient(180deg, #667eea 0%, #764ba2 100%);
+                border-radius: 2px;
               "
-              @click="openPreview(detailData.servicePhotos || [])"
-            />
+            ></div>
+            <span style="font-size: 18px; font-weight: 600">服务日志详情</span>
+            <NTag v-if="detailData" :type="getStatusType(detailData.auditStatus)" size="large">
+              {{ getStatusLabel(detailData.auditStatus) }}
+            </NTag>
+          </div>
+        </template>
+        <div v-if="detailData" style="padding: 8px 0">
+          <!-- Info Section -->
+          <div style="background: #f8f9fa; border-radius: 12px; padding: 20px; margin-bottom: 16px">
+            <div style="display: grid; grid-template-columns: repeat(2, 1fr); gap: 16px">
+              <div>
+                <div style="color: #999; font-size: 12px; margin-bottom: 4px">日志编号</div>
+                <div style="font-weight: 500; color: #333">{{ detailData.logNo }}</div>
+              </div>
+              <div>
+                <div style="color: #999; font-size: 12px; margin-bottom: 4px">订单号</div>
+                <div style="font-weight: 500; color: #333">{{ detailData.orderNo || '-' }}</div>
+              </div>
+            </div>
+          </div>
+
+          <!-- People Info -->
+          <div style="background: #f8f9fa; border-radius: 12px; padding: 20px; margin-bottom: 16px">
+            <div style="color: #667eea; font-size: 13px; font-weight: 600; margin-bottom: 12px">服务对象</div>
+            <div style="display: grid; grid-template-columns: repeat(3, 1fr); gap: 16px">
+              <div>
+                <div style="color: #999; font-size: 12px; margin-bottom: 4px">老人姓名</div>
+                <div style="font-weight: 500">{{ detailData.elderName || '-' }}</div>
+              </div>
+              <div>
+                <div style="color: #999; font-size: 12px; margin-bottom: 4px">服务人员</div>
+                <div style="font-weight: 500">{{ detailData.staffName || '-' }}</div>
+              </div>
+              <div>
+                <div style="color: #999; font-size: 12px; margin-bottom: 4px">服务商</div>
+                <div style="font-weight: 500">{{ detailData.providerName || '-' }}</div>
+              </div>
+            </div>
+          </div>
+
+          <!-- Service Info -->
+          <div style="background: #f8f9fa; border-radius: 12px; padding: 20px; margin-bottom: 16px">
+            <div style="color: #667eea; font-size: 13px; font-weight: 600; margin-bottom: 12px">服务信息</div>
+            <div style="display: grid; grid-template-columns: repeat(4, 1fr); gap: 16px">
+              <div>
+                <div style="color: #999; font-size: 12px; margin-bottom: 4px">服务类别</div>
+                <div style="font-weight: 500">{{ getCategoryLabel(detailData.serviceCategory) }}</div>
+              </div>
+              <div>
+                <div style="color: #999; font-size: 12px; margin-bottom: 4px">服务类型</div>
+                <div style="font-weight: 500">{{ detailData.serviceType || '-' }}</div>
+              </div>
+              <div>
+                <div style="color: #999; font-size: 12px; margin-bottom: 4px">服务时长</div>
+                <div style="font-weight: 500">
+                  {{ detailData.serviceDuration ? `${detailData.serviceDuration}分钟` : '-' }}
+                </div>
+              </div>
+              <div>
+                <div style="color: #999; font-size: 12px; margin-bottom: 4px">开始时间</div>
+                <div style="font-weight: 500; font-size: 12px">{{ detailData.serviceStartTime || '-' }}</div>
+              </div>
+              <div>
+                <div style="color: #999; font-size: 12px; margin-bottom: 4px">结束时间</div>
+                <div style="font-weight: 500; font-size: 12px">{{ detailData.serviceEndTime || '-' }}</div>
+              </div>
+            </div>
+          </div>
+
+          <!-- Content -->
+          <div
+            v-if="detailData.serviceContent"
+            style="background: #f8f9fa; border-radius: 12px; padding: 20px; margin-bottom: 16px"
+          >
+            <div style="color: #667eea; font-size: 13px; font-weight: 600; margin-bottom: 12px">服务内容</div>
+            <div style="color: #333; line-height: 1.6">{{ detailData.serviceContent }}</div>
+          </div>
+
+          <!-- Photos -->
+          <div
+            v-if="detailData.servicePhotos && detailData.servicePhotos.length > 0"
+            style="background: #f8f9fa; border-radius: 12px; padding: 20px; margin-bottom: 16px"
+          >
+            <div style="color: #667eea; font-size: 13px; font-weight: 600; margin-bottom: 12px">
+              服务照片 ({{ detailData.servicePhotos.length }})
+            </div>
+            <div style="display: flex; flex-wrap: wrap; gap: 12px">
+              <img
+                v-for="(photo, idx) in detailData.servicePhotos"
+                :key="idx"
+                :src="photo"
+                style="
+                  width: 100px;
+                  height: 100px;
+                  object-fit: cover;
+                  border-radius: 8px;
+                  cursor: pointer;
+                  transition: transform 0.2s;
+                "
+                @click="openPreview(detailData.servicePhotos || [])"
+              />
+            </div>
+          </div>
+
+          <!-- Review Remarks -->
+          <div
+            v-if="detailData.reviewRemarks"
+            style="
+              background: #fff7e6;
+              border-radius: 12px;
+              padding: 20px;
+              margin-bottom: 16px;
+              border: 1px solid #ffd591;
+            "
+          >
+            <div style="color: #fa8c16; font-size: 13px; font-weight: 600; margin-bottom: 8px">审核备注</div>
+            <div style="color: #333; line-height: 1.6">{{ detailData.reviewRemarks }}</div>
+          </div>
+
+          <!-- Time Info -->
+          <div style="display: flex; gap: 24px; color: #999; font-size: 13px">
+            <div>创建时间: {{ detailData.createTime || '-' }}</div>
+            <div>提交时间: {{ detailData.submitTime || '-' }}</div>
           </div>
         </div>
-
-        <!-- Review Remarks -->
-        <div
-          v-if="detailData.reviewRemarks"
-          style="
-            background: #fff7e6;
-            border-radius: 12px;
-            padding: 20px;
-            margin-bottom: 16px;
-            border: 1px solid #ffd591;
-          "
-        >
-          <div style="color: #fa8c16; font-size: 13px; font-weight: 600; margin-bottom: 8px">审核备注</div>
-          <div style="color: #333; line-height: 1.6">{{ detailData.reviewRemarks }}</div>
-        </div>
-
-        <!-- Time Info -->
-        <div style="display: flex; gap: 24px; color: #999; font-size: 13px">
-          <div>创建时间: {{ detailData.createTime || '-' }}</div>
-          <div>提交时间: {{ detailData.submitTime || '-' }}</div>
-        </div>
-      </div>
-      <template #footer>
-        <div style="display: flex; justify-content: space-between; align-items: center">
-          <div>
-            <NButton
-              v-if="!detailData?.auditStatus || detailData?.auditStatus === 'DRAFT'"
-              type="default"
-              @click="handleUpdateFromDetail"
-              style="margin-right: 8px"
-            >
-              更新
-            </NButton>
-            <NButton
-              v-if="!detailData?.auditStatus || detailData?.auditStatus === 'DRAFT'"
-              type="primary"
-              @click="handleSubmitReviewFromDetail"
-            >
-              提交审核
-            </NButton>
+        <template #footer>
+          <div style="display: flex; justify-content: space-between; align-items: center">
+            <div>
+              <NButton
+                v-if="!detailData?.auditStatus || detailData?.auditStatus === 'DRAFT'"
+                type="default"
+                @click="handleUpdateFromDetail"
+                style="margin-right: 8px"
+              >
+                更新
+              </NButton>
+              <NButton
+                v-if="!detailData?.auditStatus || detailData?.auditStatus === 'DRAFT'"
+                type="primary"
+                @click="handleSubmitReviewFromDetail"
+              >
+                提交审核
+              </NButton>
+            </div>
+            <NButton @click="detailDrawerVisible = false">关闭</NButton>
           </div>
-          <NButton @click="detailVisible = false">关闭</NButton>
-        </div>
-      </template>
-    </NModal>
+        </template>
+      </NDrawerContent>
+    </NDrawer>
 
     <!-- Image Preview -->
     <NModal v-model:show="previewVisible" preset="card" style="width: 900px">
