@@ -18,7 +18,8 @@ import {
   NDescriptions,
   NDescriptionsItem,
   NDrawer,
-  NDrawerContent
+  NDrawerContent,
+  NPopconfirm
 } from 'naive-ui';
 import type { DataTableColumns } from 'naive-ui';
 import {
@@ -308,7 +309,18 @@ const columns: DataTableColumns<Api.Order.Order> = [
         (row.status === 'SERVICE_COMPLETED' || row.status === 'EVALUATED' || row.status === 'SETTLED') &&
         hasAuth('order:list:delete')
       ) {
-        buttons.push(h(NButton, { size: 'small', type: 'error', onClick: () => handleDelete(row) }, () => '删除'));
+        buttons.push(
+          h(
+            NPopconfirm,
+            {
+              onPositiveClick: () => handleDelete(row)
+            },
+            {
+              trigger: () => h(NButton, { size: 'small', type: 'error' }, { default: () => '删除' }),
+              default: () => '确认删除?'
+            }
+          )
+        );
       }
       if (
         row.status !== 'SERVICE_COMPLETED' &&

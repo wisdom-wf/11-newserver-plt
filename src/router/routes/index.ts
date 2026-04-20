@@ -8,15 +8,53 @@ import { transformElegantRoutesToVueRoutes } from '../elegant/transform';
  *
  * @link https://github.com/soybeanjs/elegant-router?tab=readme-ov-file#custom-route
  */
-const customRoutes: CustomRoute[] = [];
+const customRoutes: CustomRoute[] = [
+  // 公开路由 - 使用空白布局，无侧边栏和头部
+  {
+    name: 'public',
+    path: '/public',
+    component: 'layout.blank',
+    meta: {
+      constant: true,
+      hideInMenu: true
+    },
+    children: [
+      {
+        name: 'public_dashboard',
+        path: '/public/dashboard',
+        component: 'view.public_dashboard',
+        meta: {
+          constant: true,
+          hideInMenu: true
+        }
+      },
+      {
+        name: 'public_mobile',
+        path: '/public/mobile',
+        component: 'view.public_mobile',
+        meta: {
+          constant: true,
+          hideInMenu: true
+        }
+      }
+    ]
+  }
+];
 
 /** create routes when the auth route mode is static */
 export function createStaticRoutes() {
-  const constantRoutes: ElegantRoute[] = [];
+  const routeMap = new Map<string, ElegantRoute>();
 
+  // 先加入 generatedRoutes
+  generatedRoutes.forEach(item => routeMap.set(item.name, item));
+
+  // 再加入 customRoutes，让后者覆盖前者
+  customRoutes.forEach(item => routeMap.set(item.name, item));
+
+  const constantRoutes: ElegantRoute[] = [];
   const authRoutes: ElegantRoute[] = [];
 
-  [...customRoutes, ...generatedRoutes].forEach(item => {
+  routeMap.forEach(item => {
     if (item.meta?.constant) {
       constantRoutes.push(item);
     } else {

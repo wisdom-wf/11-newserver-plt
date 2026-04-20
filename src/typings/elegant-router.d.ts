@@ -25,6 +25,7 @@ declare module "@elegant-router/types" {
     "business_elder": "/business/elder";
     "business_evaluation": "/business/evaluation";
     "business_financial": "/business/financial";
+    "business_health-archive": "/business/health-archive";
     "business_order": "/business/order";
     "business_quality": "/business/quality";
     "business_service-log": "/business/service-log";
@@ -33,8 +34,10 @@ declare module "@elegant-router/types" {
     "iframe-page": "/iframe-page/:url";
     "login": "/login/:module(pwd-login|code-login|register|reset-pwd|bind-wechat)?";
     "provider": "/provider";
+    "public": "/public";
+    "public_dashboard": "/public/dashboard";
+    "public_mobile": "/public/mobile";
     "system": "/system";
-    "system_area": "/system/area";
     "system_dict": "/system/dict";
     "system_menu": "/system/menu";
     "system_role": "/system/role";
@@ -79,6 +82,7 @@ declare module "@elegant-router/types" {
     | "iframe-page"
     | "login"
     | "provider"
+    | "public"
     | "system"
   >;
 
@@ -105,13 +109,15 @@ declare module "@elegant-router/types" {
     | "business_elder"
     | "business_evaluation"
     | "business_financial"
+    | "business_health-archive"
     | "business_order"
     | "business_quality"
     | "business_service-log"
     | "business_staff"
     | "home"
     | "provider"
-    | "system_area"
+    | "public_dashboard"
+    | "public_mobile"
     | "system_dict"
     | "system_menu"
     | "system_role"

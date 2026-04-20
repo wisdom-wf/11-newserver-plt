@@ -1,6 +1,6 @@
 <script setup lang="ts">
 import { ref, h, onMounted } from 'vue';
-import { NButton, NCard, NTag, NSpace, NInput, NSelect, useMessage } from 'naive-ui';
+import { NButton, NCard, NTag, NSpace, NInput, NSelect, NDrawer, NDrawerContent, useMessage, NImage, NImageGroup, NUpload, NInputNumber, useDialog, NGrid, NGi, NPopconfirm } from 'naive-ui';
 import type { DataTableColumns } from 'naive-ui';
 import { useFormRules } from '@/hooks/common/form';
 import {
@@ -8,7 +8,8 @@ import {
   fetchCreateElder,
   fetchUpdateElder,
   fetchDeleteElder,
-  fetchGetElderStatistics
+  fetchGetElderStatistics,
+  fetchGetElder
 } from '@/service/api';
 import { useNaivePaginatedTable, useTableOperate, defaultTransform } from '@/hooks/common/table';
 import { useNaiveForm } from '@/hooks/common/form';
@@ -20,9 +21,76 @@ defineOptions({
 });
 
 const message = useMessage();
+const dialog = useDialog();
 const { patternRules, createRequiredRule } = useFormRules();
 const { formRef, validate, restoreValidation } = useNaiveForm();
 const { hasAuth } = useAuth();
+
+// Detail drawer state
+const detailVisible = ref(false);
+const detailData = ref<Api.Elder.Elder | null>(null);
+const detailLoading = ref(false);
+
+// Image upload for detail
+const MAX_IMAGE_COUNT = 6;
+const uploadingFiles = new Set<string>();
+
+function parsePhotos(photos: string | string[] | undefined): string[] {
+  if (!photos) return [];
+  if (Array.isArray(photos)) return photos;
+  if (typeof photos === 'string') {
+    try {
+      return JSON.parse(photos);
+    } catch {
+      return photos.split(',').filter(Boolean);
+    }
+  }
+  return [];
+}
+
+function handleDetailUploadRequest({ file, data }: { file: UploadFile; data?: Record<string, string> }) {
+  if (!file.file) return;
+
+  const reader = new FileReader();
+  reader.onload = e => {
+    if (e.target?.result) {
+      const base64Data = e.target.result as string;
+      const field = data?.field || 'healthPhotos';
+      if (field === 'healthPhotos' && detailData.value) {
+        const photos = parsePhotos(detailData.value.healthPhotos);
+        if (!photos.includes(base64Data) && photos.length < MAX_IMAGE_COUNT) {
+          detailData.value.healthPhotos = [...photos, base64Data];
+        }
+      }
+      message.success('上传成功');
+    }
+  };
+  reader.readAsDataURL(file.file);
+  return false;
+}
+
+function removeDetailPhoto(photo: string) {
+  if (detailData.value?.healthPhotos) {
+    detailData.value.healthPhotos = detailData.value.healthPhotos.filter(p => p !== photo);
+  }
+}
+
+async function showDetail(row: Api.Elder.Elder) {
+  detailLoading.value = true;
+  try {
+    const { data, error } = await fetchGetElder(row.elderId);
+    if (error) {
+      message.error(error.message || '获取详情失败');
+      return;
+    }
+    if (data) {
+      detailData.value = data;
+      detailVisible.value = true;
+    }
+  } finally {
+    detailLoading.value = false;
+  }
+}
 
 // Form validation rules
 const rules = {
@@ -130,15 +198,27 @@ const columns: DataTableColumns<Api.Elder.Elder> = [
   {
     title: '操作',
     key: 'actions',
-    width: 150,
+    width: 200,
     fixed: 'right',
     render: row => {
       const buttons = [];
+      buttons.push(h(NButton, { size: 'small', type: 'info', onClick: () => showDetail(row), style: { marginRight: '8px' } }, () => '详情'));
       if (hasAuth('elder:list:edit')) {
-        buttons.push(h(NButton, { size: 'small', onClick: () => handleOpenEdit(row.elderId) }, () => '编辑'));
+        buttons.push(h(NButton, { size: 'small', onClick: () => handleOpenEdit(row.elderId), style: { marginRight: '8px' } }, () => '编辑'));
       }
       if (hasAuth('elder:list:delete')) {
-        buttons.push(h(NButton, { size: 'small', type: 'error', onClick: () => handleDelete(row.elderId) }, () => '删除'));
+        buttons.push(
+          h(
+            NPopconfirm,
+            {
+              onPositiveClick: () => handleDelete(row.elderId)
+            },
+            {
+              trigger: () => h(NButton, { size: 'small', type: 'error' }, { default: () => '删除' }),
+              default: () => '确认删除?'
+            }
+          )
+        );
       }
       return h(NSpace, { size: 'small' }, () => buttons);
     }
@@ -455,6 +535,93 @@ onMounted(() => {
             <NButton type="primary" @click="handleSubmit">确认</NButton>
           </NSpace>
         </template>
+      </NDrawerContent>
+    </NDrawer>
+
+    <!-- Elder Detail Drawer -->
+    <NDrawer v-model:show="detailVisible" :width="600" placement="right" closable>
+      <NDrawerContent title="老人档案详情" closable>
+        <div v-if="detailData" style="padding: 0 8px">
+          <!-- Basic Info -->
+          <div style="margin-bottom: 24px">
+            <div style="font-size: 16px; font-weight: 600; margin-bottom: 12px; color: #333">基本信息</div>
+            <NGrid :cols="2" :x-gap="16" :y-gap="8">
+              <NGi><div style="color: #999; font-size: 13px">姓名</div><div style="margin-top: 4px">{{ detailData.name }}</div></NGi>
+              <NGi><div style="color: #999; font-size: 13px">性别</div><div style="margin-top: 4px">{{ getGenderLabel(detailData.gender) }}</div></NGi>
+              <NGi><div style="color: #999; font-size: 13px">年龄</div><div style="margin-top: 4px">{{ detailData.age || '-' }}</div></NGi>
+              <NGi><div style="color: #999; font-size: 13px">身份证号</div><div style="margin-top: 4px">{{ detailData.idCard }}</div></NGi>
+              <NGi><div style="color: #999; font-size: 13px">手机号</div><div style="margin-top: 4px">{{ detailData.phone || '-' }}</div></NGi>
+              <NGi><div style="color: #999; font-size: 13px">养老类型</div><div style="margin-top: 4px">{{ getCareTypeLabel(detailData.careType) }}</div></NGi>
+              <NGi><div style="color: #999; font-size: 13px">护理等级</div><div style="margin-top: 4px">{{ getCareLevelLabel(detailData.careLevel) }}</div></NGi>
+              <NGi><div style="color: #999; font-size: 13px">补贴类型</div><div style="margin-top: 4px">{{ getSubsidyTypeLabel(detailData.subsidyType) }}</div></NGi>
+            </NGrid>
+          </div>
+
+          <!-- Address -->
+          <div style="margin-bottom: 24px">
+            <div style="font-size: 16px; font-weight: 600; margin-bottom: 12px; color: #333">地址信息</div>
+            <div style="color: #999; font-size: 13px">区域</div>
+            <div style="margin-top: 4px">{{ detailData.areaName || '-' }}</div>
+            <div style="color: #999; font-size: 13px; margin-top: 8px">详细地址</div>
+            <div style="margin-top: 4px">{{ detailData.address || '-' }}</div>
+          </div>
+
+          <!-- Emergency Contact -->
+          <div style="margin-bottom: 24px">
+            <div style="font-size: 16px; font-weight: 600; margin-bottom: 12px; color: #333">紧急联系人</div>
+            <NGrid :cols="2" :x-gap="16">
+              <NGi><div style="color: #999; font-size: 13px">联系人</div><div style="margin-top: 4px">{{ detailData.emergencyContact || '-' }}</div></NGi>
+              <NGi><div style="color: #999; font-size: 13px">联系电话</div><div style="margin-top: 4px">{{ detailData.emergencyPhone || '-' }}</div></NGi>
+            </NGrid>
+          </div>
+
+          <!-- Health Info -->
+          <div style="margin-bottom: 24px">
+            <div style="font-size: 16px; font-weight: 600; margin-bottom: 12px; color: #333">健康信息</div>
+            <div style="color: #999; font-size: 13px">健康状况</div>
+            <div style="margin-top: 4px">{{ detailData.healthStatus || '-' }}</div>
+            <div style="color: #999; font-size: 13px; margin-top: 8px">既往病史</div>
+            <div style="margin-top: 4px">{{ detailData.medicalHistory || '-' }}</div>
+            <div style="color: #999; font-size: 13px; margin-top: 8px">过敏信息</div>
+            <div style="margin-top: 4px">{{ detailData.allergies || '-' }}</div>
+          </div>
+
+          <!-- Photos -->
+          <div style="margin-bottom: 24px">
+            <div style="font-size: 16px; font-weight: 600; margin-bottom: 12px; color: #333">档案照片</div>
+            <div style="color: #999; font-size: 13px; margin-bottom: 8px">健康档案照片</div>
+            <div style="display: flex; flex-wrap: wrap; gap: 8px; margin-bottom: 12px">
+              <template v-if="detailData.healthPhotos && detailData.healthPhotos.length > 0">
+                <div v-for="(photo, index) in detailData.healthPhotos" :key="index" style="position: relative; width: 80px; height: 80px">
+                  <NImage :src="photo" width="80" height="80" object-fit="cover" style="border-radius: 4px" />
+                  <div style="position: absolute; top: -8px; right: -8px; width: 20px; height: 20px; background: #ff4d4f; border-radius: 50%; color: white; font-size: 12px; display: flex; align-items: center; justify-content: center; cursor: pointer" @click="removeDetailPhoto(photo)">×</div>
+                </div>
+              </template>
+              <NUpload
+                :show-file-list="false"
+                :max="MAX_IMAGE_COUNT - (detailData.healthPhotos?.length || 0)"
+                multiple
+                accept="image/*"
+                :custom-request="handleDetailUploadRequest"
+              >
+                <div style="width: 80px; height: 80px; border: 1px dashed #ddd; border-radius: 4px; display: flex; align-items: center; justify-content: center; cursor: pointer; color: #999">
+                  <span style="font-size: 24px">+</span>
+                </div>
+              </NUpload>
+            </div>
+          </div>
+
+          <!-- Other Info -->
+          <div style="margin-bottom: 24px">
+            <div style="font-size: 16px; font-weight: 600; margin-bottom: 12px; color: #333">其他信息</div>
+            <div style="color: #999; font-size: 13px">服务商</div>
+            <div style="margin-top: 4px">{{ detailData.providerName || '-' }}</div>
+            <div style="color: #999; font-size: 13px; margin-top: 8px">备注</div>
+            <div style="margin-top: 4px">{{ detailData.remark || '-' }}</div>
+            <div style="color: #999; font-size: 13px; margin-top: 8px">创建时间</div>
+            <div style="margin-top: 4px">{{ detailData.createTime || '-' }}</div>
+          </div>
+        </div>
       </NDrawerContent>
     </NDrawer>
   </div>

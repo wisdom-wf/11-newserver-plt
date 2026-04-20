@@ -85,3 +85,14 @@ export function fetchGetStaffOptions(params?: { providerId?: string; serviceCate
     params
   });
 }
+
+/**
+ * 获取服务人员的服务日志列表
+ */
+export function fetchGetStaffServiceLogs(staffId: string, limit: number = 20) {
+  return request<Api.Staff.StaffServiceLog[]>({
+    url: `/api/staff/${staffId}/service-logs`,
+    method: 'get',
+    params: { limit }
+  });
+}

@@ -70,11 +70,21 @@ export function fetchReportAnomaly(
 /**
  * 提交审核
  */
-export function fetchSubmitServiceLogForReview(id: string, reviewRemarks?: string) {
+export function fetchSubmitServiceLogForReview(id: string) {
   return request({
     url: `/api/service-log/${id}/submit-review`,
+    method: 'put'
+  });
+}
+
+/**
+ * 审核服务日志
+ */
+export function fetchReviewServiceLog(id: string, result: 'APPROVED' | 'REJECTED', reviewComment?: string) {
+  return request({
+    url: `/api/service-log/${id}/review`,
     method: 'put',
-    data: { reviewRemarks }
+    params: { result, reviewComment }
   });
 }
 

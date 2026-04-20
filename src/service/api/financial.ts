@@ -116,3 +116,103 @@ export function fetchVoidInvoice(id: string, reason: string) {
     data: { reason }
   });
 }
+
+// ==================== 服务定价 API ====================
+
+/**
+ * 获取定价列表
+ */
+export function fetchGetServicePriceList(params?: Api.Financial.ServicePriceQuery & Api.Common.PaginatingQueryParams) {
+  return request<Api.Common.PaginatingQueryRecord<Api.Financial.ServicePrice>>({
+    url: '/api/financial/prices',
+    method: 'get',
+    params
+  });
+}
+
+/**
+ * 获取定价详情
+ */
+export function fetchGetServicePrice(id: string) {
+  return request<Api.Financial.ServicePrice>({
+    url: `/api/financial/prices/${id}`,
+    method: 'get'
+  });
+}
+
+/**
+ * 创建定价
+ */
+export function fetchCreateServicePrice(data: Api.Financial.ServicePriceForm) {
+  return request({
+    url: '/api/financial/prices',
+    method: 'post',
+    data
+  });
+}
+
+/**
+ * 更新定价
+ */
+export function fetchUpdateServicePrice(id: string, data: Api.Financial.ServicePriceForm) {
+  return request({
+    url: `/api/financial/prices/${id}`,
+    method: 'put',
+    data
+  });
+}
+
+/**
+ * 删除定价
+ */
+export function fetchDeleteServicePrice(id: string) {
+  return request({
+    url: `/api/financial/prices/${id}`,
+    method: 'delete'
+  });
+}
+
+// ==================== 退款 API ====================
+
+/**
+ * 获取退款列表
+ */
+export function fetchGetRefundList(params?: Api.Financial.RefundQuery & Api.Common.PaginatingQueryParams) {
+  return request<Api.Common.PaginatingQueryRecord<Api.Financial.Refund>>({
+    url: '/api/financial/refunds',
+    method: 'get',
+    params
+  });
+}
+
+/**
+ * 获取退款详情
+ */
+export function fetchGetRefund(id: string) {
+  return request<Api.Financial.Refund>({
+    url: `/api/financial/refunds/${id}`,
+    method: 'get'
+  });
+}
+
+/**
+ * 创建退款
+ */
+export function fetchCreateRefund(data: Api.Financial.RefundForm) {
+  return request({
+    url: '/api/financial/refunds',
+    method: 'post',
+    data
+  });
+}
+
+/**
+ * 审核退款
+ */
+export function fetchAuditRefund(id: string, data: { result: string; remark?: string }) {
+  return request({
+    url: `/api/financial/refunds/${id}/audit`,
+    method: 'put',
+    data
+  });
+}

@@ -95,6 +95,17 @@ export const generatedRoutes: GeneratedRoute[] = [
         }
       },
       {
+        name: 'business_health-archive',
+        path: '/business/health-archive',
+        component: 'view.business_health-archive',
+        meta: {
+          title: 'business_healthArchive',
+          i18nKey: 'route.business_healthArchive',
+          icon: 'mdi:heart-pulse',
+          order: 5
+        }
+      },
+      {
         name: 'business_order',
         path: '/business/order',
         component: 'view.business_order',
@@ -188,6 +199,35 @@ export const generatedRoutes: GeneratedRoute[] = [
     }
   },
   {
+    name: 'public',
+    path: '/public',
+    component: 'layout.base',
+    meta: {
+      title: 'public',
+      i18nKey: 'route.public'
+    },
+    children: [
+      {
+        name: 'public_dashboard',
+        path: '/public/dashboard',
+        component: 'view.public_dashboard',
+        meta: {
+          title: 'public_dashboard',
+          i18nKey: 'route.public_dashboard'
+        }
+      },
+      {
+        name: 'public_mobile',
+        path: '/public/mobile',
+        component: 'view.public_mobile',
+        meta: {
+          title: 'public_mobile',
+          i18nKey: 'route.public_mobile'
+        }
+      }
+    ]
+  },
+  {
     name: 'system',
     path: '/system',
     component: 'layout.base',
@@ -198,17 +238,6 @@ export const generatedRoutes: GeneratedRoute[] = [
       order: 6
     },
     children: [
-      {
-        name: 'system_area',
-        path: '/system/area',
-        component: 'view.system_area',
-        meta: {
-          title: 'system_area',
-          i18nKey: 'route.system_area',
-          icon: 'mdi:map-marker-radius',
-          order: 1
-        }
-      },
       {
         name: 'system_dict',
         path: '/system/dict',

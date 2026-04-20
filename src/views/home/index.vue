@@ -1,7 +1,7 @@
 <script setup lang="ts">
 import { ref, onMounted } from 'vue';
 import { useRouter } from 'vue-router';
-import { NGrid, NGi, NAlert } from 'naive-ui';
+import { NGrid, NGi, NAlert, NButton, NPopover, NModal, NCard, NSelect, NSpace, useMessage } from 'naive-ui';
 import { useEcharts } from '@/hooks/common/echarts';
 import {
   fetchGetCockpitOverview,
@@ -17,6 +17,7 @@ defineOptions({
 });
 
 const router = useRouter();
+const message = useMessage();
 
 // ============ 数据状态 ============
 const overview = ref<any>({
@@ -584,6 +585,64 @@ function drillDown(type: string) {
   if (route) router.push(route);
 }
 
+// 分享功能 - 直接打开新窗口
+const showShareModal = ref(false);
+const shareType = ref<'dashboard' | 'mobile'>('dashboard');
+const shareExpireOption = ref<number>(7); // 默认一周
+
+const expireOptions = [
+  { label: '1天', value: 1 },
+  { label: '1周', value: 7 },
+  { label: '1个月', value: 30 },
+  { label: '3个月', value: 90 }
+];
+
+function openShareModal(type: 'dashboard' | 'mobile') {
+  shareType.value = type;
+  shareExpireOption.value = 7;
+  showShareModal.value = true;
+}
+
+function confirmShare() {
+  const baseUrl = shareType.value === 'dashboard'
+    ? `${window.location.origin}/public/dashboard`
+    : `${window.location.origin}/public/mobile`;
+  const url = `${baseUrl}?expires=${shareExpireOption.value}`;
+  const specs = shareType.value === 'dashboard'
+    ? 'width=1920,height=1080,scrollbars=yes'
+    : 'width=414,height=896,scrollbars=yes';
+  window.open(url, '_blank', specs);
+  showShareModal.value = false;
+}
+
+// 图表分享 - 添加到分享面板
+const sharedCharts = ref<string[]>([]);
+
+// 从localStorage恢复已分享的图表
+function loadSharedCharts() {
+  const saved = localStorage.getItem('sharedCharts');
+  if (saved) {
+    try {
+      sharedCharts.value = JSON.parse(saved);
+    } catch (e) {
+      console.error('Failed to load shared charts', e);
+    }
+  }
+}
+
+onMounted(() => {
+  loadSharedCharts();
+  // ... other onMounted code
+});
+
+function shareChart(chartName: string) {
+  if (!sharedCharts.value.includes(chartName)) {
+    sharedCharts.value.unshift(chartName); // 新添加的放在前面
+    localStorage.setItem('sharedCharts', JSON.stringify(sharedCharts.value));
+  }
+  message.success('已添加到分享面板');
+}
+
 // 初始化
 initMockData();
 getData();
@@ -591,9 +650,53 @@ getData();
 
 <template>
   <div class="p-4">
-    <NAlert title="运营驾驶舱" type="info" :bordered="false" class="mb-4">
-      实时展示平台运营数据，包括订单统计、服务商分布、服务人员业绩等核心指标
-    </NAlert>
+    <div class="cockpit-header">
+      <NAlert title="运营驾驶舱" type="info" :bordered="false">
+        实时展示平台运营数据，包括订单统计、服务商分布、服务人员业绩等核心指标
+      </NAlert>
+      <div class="share-buttons">
+        <NPopover trigger="hover" placement="bottom">
+          <template #trigger>
+            <NButton type="primary" size="small" @click="openShareModal('dashboard')">
+              <template #icon>
+                <svg viewBox="0 0 24 24" fill="currentColor" width="16" height="16">
+                  <path d="M19 4H5c-1.11 0-2 .9-2 2v12c0 1.1.89 2 2 2h4v-2H5V8h14v10h-4v2h4c1.1 0 2-.9 2-2V6c0-1.1-.89-2-2-2zm-7 6l-4 4h3v6h2v-6h3l-4-4z"/>
+                </svg>
+              </template>
+              大屏分享
+            </NButton>
+          </template>
+          <div>分享大屏展示页面</div>
+        </NPopover>
+        <NPopover trigger="hover" placement="bottom">
+          <template #trigger>
+            <NButton type="warning" size="small" @click="openShareModal('mobile')">
+              <template #icon>
+                <svg viewBox="0 0 24 24" fill="currentColor" width="16" height="16">
+                  <path d="M17 1.01L7 1c-1.1 0-2 .9-2 2v18c0 1.1.9 2 2 2h10c1.1 0 2-.9 2-2V3c0-1.1-.9-1.99-2-1.99zM17 19H7V5h10v14z"/>
+                </svg>
+              </template>
+              移动端分享
+            </NButton>
+          </template>
+          <div>分享移动端展示页面</div>
+        </NPopover>
+      </div>
+
+      <!-- 分享有效期弹窗 -->
+      <NModal v-model:show="showShareModal" preset="card" :title="shareType === 'dashboard' ? '分享大屏页面' : '分享移动端页面'" style="width: 400px;">
+        <div class="share-modal-content">
+          <div class="share-expire-label">链接有效期</div>
+          <NSelect v-model:value="shareExpireOption" :options="expireOptions" placeholder="选择有效期" />
+        </div>
+        <template #footer>
+          <NSpace justify="end">
+            <NButton @click="showShareModal = false">取消</NButton>
+            <NButton type="primary" @click="confirmShare">确认分享</NButton>
+          </NSpace>
+        </template>
+      </NModal>
+    </div>
 
     <!-- 第一行统计卡片 - 5列 -->
     <NGrid :cols="5" :x-gap="16" :y-gap="16" item-responsive class="mb-4">
@@ -753,19 +856,43 @@ getData();
     <NGrid :cols="3" :x-gap="16" :y-gap="16" item-responsive class="mb-4">
       <NGi>
         <div class="chart-card">
-          <div class="chart-title">服务类型分布</div>
+          <div class="chart-title-row">
+            <span class="chart-title">服务类型分布</span>
+            <NButton size="tiny" quaternary :type="sharedCharts.includes('服务类型分布') ? 'success' : 'default'" @click="shareChart('服务类型分布')" class="chart-share-btn">
+              <template #icon>
+                <svg v-if="sharedCharts.includes('服务类型分布')" viewBox="0 0 24 24" fill="currentColor" width="14" height="14"><path d="M9 16.17L4.83 12l-1.42 1.41L9 19 21 7l-1.41-1.41z"/></svg>
+                <svg v-else viewBox="0 0 24 24" fill="currentColor" width="14" height="14"><path d="M18 16.08c-.76 0-1.44.3-1.96.77L8.91 12.7c.05-.23.09-.46.09-.7s-.04-.47-.09-.7l7.05-4.11c.54.5 1.25.81 2.04.81 1.66 0 3-1.34 3-3s-1.34-3-3-3-3 1.34-3 3c0 .24.04.47.09.7L8.04 9.81C7.5 9.31 6.79 9 6 9c-1.66 0-3 1.34-3 3s1.34 3 3 3c.79 0 1.5-.31 2.04-.81l7.12 4.16c-.05.21-.08.43-.08.65 0 1.61 1.31 2.92 2.92 2.92s2.92-1.31 2.92-2.92-1.31-2.92-2.92-2.92z"/></svg>
+              </template>
+            </NButton>
+          </div>
           <div ref="pieDomRef" class="h-280px"></div>
         </div>
       </NGi>
       <NGi>
         <div class="chart-card">
-          <div class="chart-title">老人年龄分布</div>
+          <div class="chart-title-row">
+            <span class="chart-title">老人年龄分布</span>
+            <NButton size="tiny" quaternary :type="sharedCharts.includes('老人年龄分布') ? 'success' : 'default'" @click="shareChart('老人年龄分布')" class="chart-share-btn">
+              <template #icon>
+                <svg v-if="sharedCharts.includes('老人年龄分布')" viewBox="0 0 24 24" fill="currentColor" width="14" height="14"><path d="M9 16.17L4.83 12l-1.42 1.41L9 19 21 7l-1.41-1.41z"/></svg>
+                <svg v-else viewBox="0 0 24 24" fill="currentColor" width="14" height="14"><path d="M18 16.08c-.76 0-1.44.3-1.96.77L8.91 12.7c.05-.23.09-.46.09-.7s-.04-.47-.09-.7l7.05-4.11c.54.5 1.25.81 2.04.81 1.66 0 3-1.34 3-3s-1.34-3-3-3-3 1.34-3 3c0 .24.04.47.09.7L8.04 9.81C7.5 9.31 6.79 9 6 9c-1.66 0-3 1.34-3 3s1.34 3 3 3c.79 0 1.5-.31 2.04-.81l7.12 4.16c-.05.21-.08.43-.08.65 0 1.61 1.31 2.92 2.92 2.92s2.92-1.31 2.92-2.92-1.31-2.92-2.92-2.92z"/></svg>
+              </template>
+            </NButton>
+          </div>
           <div ref="agePieRef" class="h-280px"></div>
         </div>
       </NGi>
       <NGi>
         <div class="chart-card">
-          <div class="chart-title">服务需求分布</div>
+          <div class="chart-title-row">
+            <span class="chart-title">服务需求分布</span>
+            <NButton size="tiny" quaternary :type="sharedCharts.includes('服务需求分布') ? 'success' : 'default'" @click="shareChart('服务需求分布')" class="chart-share-btn">
+              <template #icon>
+                <svg v-if="sharedCharts.includes('服务需求分布')" viewBox="0 0 24 24" fill="currentColor" width="14" height="14"><path d="M9 16.17L4.83 12l-1.42 1.41L9 19 21 7l-1.41-1.41z"/></svg>
+                <svg v-else viewBox="0 0 24 24" fill="currentColor" width="14" height="14"><path d="M18 16.08c-.76 0-1.44.3-1.96.77L8.91 12.7c.05-.23.09-.46.09-.7s-.04-.47-.09-.7l7.05-4.11c.54.5 1.25.81 2.04.81 1.66 0 3-1.34 3-3s-1.34-3-3-3-3 1.34-3 3c0 .24.04.47.09.7L8.04 9.81C7.5 9.31 6.79 9 6 9c-1.66 0-3 1.34-3 3s1.34 3 3 3c.79 0 1.5-.31 2.04-.81l7.12 4.16c-.05.21-.08.43-.08.65 0 1.61 1.31 2.92 2.92 2.92s2.92-1.31 2.92-2.92-1.31-2.92-2.92-2.92z"/></svg>
+              </template>
+            </NButton>
+          </div>
           <div ref="demandRef" class="h-280px"></div>
         </div>
       </NGi>
@@ -775,19 +902,43 @@ getData();
     <NGrid :cols="3" :x-gap="16" :y-gap="16" item-responsive class="mb-4">
       <NGi>
         <div class="chart-card">
-          <div class="chart-title">订单来源分布</div>
+          <div class="chart-title-row">
+            <span class="chart-title">订单来源分布</span>
+            <NButton size="tiny" quaternary :type="sharedCharts.includes('订单来源分布') ? 'success' : 'default'" @click="shareChart('订单来源分布')" class="chart-share-btn">
+              <template #icon>
+                <svg v-if="sharedCharts.includes('订单来源分布')" viewBox="0 0 24 24" fill="currentColor" width="14" height="14"><path d="M9 16.17L4.83 12l-1.42 1.41L9 19 21 7l-1.41-1.41z"/></svg>
+                <svg v-else viewBox="0 0 24 24" fill="currentColor" width="14" height="14"><path d="M18 16.08c-.76 0-1.44.3-1.96.77L8.91 12.7c.05-.23.09-.46.09-.7s-.04-.47-.09-.7l7.05-4.11c.54.5 1.25.81 2.04.81 1.66 0 3-1.34 3-3s-1.34-3-3-3-3 1.34-3 3c0 .24.04.47.09.7L8.04 9.81C7.5 9.31 6.79 9 6 9c-1.66 0-3 1.34-3 3s1.34 3 3 3c.79 0 1.5-.31 2.04-.81l7.12 4.16c-.05.21-.08.43-.08.65 0 1.61 1.31 2.92 2.92 2.92s2.92-1.31 2.92-2.92-1.31-2.92-2.92-2.92z"/></svg>
+              </template>
+            </NButton>
+          </div>
           <div ref="sourceRef" class="h-280px"></div>
         </div>
       </NGi>
       <NGi>
         <div class="chart-card">
-          <div class="chart-title">月度收支趋势</div>
+          <div class="chart-title-row">
+            <span class="chart-title">月度收支趋势</span>
+            <NButton size="tiny" quaternary :type="sharedCharts.includes('月度收支趋势') ? 'success' : 'default'" @click="shareChart('月度收支趋势')" class="chart-share-btn">
+              <template #icon>
+                <svg v-if="sharedCharts.includes('月度收支趋势')" viewBox="0 0 24 24" fill="currentColor" width="14" height="14"><path d="M9 16.17L4.83 12l-1.42 1.41L9 19 21 7l-1.41-1.41z"/></svg>
+                <svg v-else viewBox="0 0 24 24" fill="currentColor" width="14" height="14"><path d="M18 16.08c-.76 0-1.44.3-1.96.77L8.91 12.7c.05-.23.09-.46.09-.7s-.04-.47-.09-.7l7.05-4.11c.54.5 1.25.81 2.04.81 1.66 0 3-1.34 3-3s-1.34-3-3-3-3 1.34-3 3c0 .24.04.47.09.7L8.04 9.81C7.5 9.31 6.79 9 6 9c-1.66 0-3 1.34-3 3s1.34 3 3 3c.79 0 1.5-.31 2.04-.81l7.12 4.16c-.05.21-.08.43-.08.65 0 1.61 1.31 2.92 2.92 2.92s2.92-1.31 2.92-2.92-1.31-2.92-2.92-2.92z"/></svg>
+              </template>
+            </NButton>
+          </div>
           <div ref="trendRef" class="h-280px"></div>
         </div>
       </NGi>
       <NGi>
         <div class="chart-card">
-          <div class="chart-title">服务类型金额分布</div>
+          <div class="chart-title-row">
+            <span class="chart-title">服务类型金额分布</span>
+            <NButton size="tiny" quaternary :type="sharedCharts.includes('服务类型金额分布') ? 'success' : 'default'" @click="shareChart('服务类型金额分布')" class="chart-share-btn">
+              <template #icon>
+                <svg v-if="sharedCharts.includes('服务类型金额分布')" viewBox="0 0 24 24" fill="currentColor" width="14" height="14"><path d="M9 16.17L4.83 12l-1.42 1.41L9 19 21 7l-1.41-1.41z"/></svg>
+                <svg v-else viewBox="0 0 24 24" fill="currentColor" width="14" height="14"><path d="M18 16.08c-.76 0-1.44.3-1.96.77L8.91 12.7c.05-.23.09-.46.09-.7s-.04-.47-.09-.7l7.05-4.11c.54.5 1.25.81 2.04.81 1.66 0 3-1.34 3-3s-1.34-3-3-3-3 1.34-3 3c0 .24.04.47.09.7L8.04 9.81C7.5 9.31 6.79 9 6 9c-1.66 0-3 1.34-3 3s1.34 3 3 3c.79 0 1.5-.31 2.04-.81l7.12 4.16c-.05.21-.08.43-.08.65 0 1.61 1.31 2.92 2.92 2.92s2.92-1.31 2.92-2.92-1.31-2.92-2.92-2.92z"/></svg>
+              </template>
+            </NButton>
+          </div>
           <div ref="serviceAmountRef" class="h-280px"></div>
         </div>
       </NGi>
@@ -919,19 +1070,43 @@ getData();
     <NGrid :cols="3" :x-gap="16" :y-gap="16" item-responsive class="mb-4">
       <NGi>
         <div class="chart-card">
-          <div class="chart-title">服务质量雷达</div>
+          <div class="chart-title-row">
+            <span class="chart-title">服务质量雷达</span>
+            <NButton size="tiny" quaternary :type="sharedCharts.includes('服务质量雷达') ? 'success' : 'default'" @click="shareChart('服务质量雷达')" class="chart-share-btn">
+              <template #icon>
+                <svg v-if="sharedCharts.includes('服务质量雷达')" viewBox="0 0 24 24" fill="currentColor" width="14" height="14"><path d="M9 16.17L4.83 12l-1.42 1.41L9 19 21 7l-1.41-1.41z"/></svg>
+                <svg v-else viewBox="0 0 24 24" fill="currentColor" width="14" height="14"><path d="M18 16.08c-.76 0-1.44.3-1.96.77L8.91 12.7c.05-.23.09-.46.09-.7s-.04-.47-.09-.7l7.05-4.11c.54.5 1.25.81 2.04.81 1.66 0 3-1.34 3-3s-1.34-3-3-3-3 1.34-3 3c0 .24.04.47.09.7L8.04 9.81C7.5 9.31 6.79 9 6 9c-1.66 0-3 1.34-3 3s1.34 3 3 3c.79 0 1.5-.31 2.04-.81l7.12 4.16c-.05.21-.08.43-.08.65 0 1.61 1.31 2.92 2.92 2.92s2.92-1.31 2.92-2.92-1.31-2.92-2.92-2.92z"/></svg>
+              </template>
+            </NButton>
+          </div>
           <div ref="radarDomRef" class="h-280px"></div>
         </div>
       </NGi>
       <NGi>
         <div class="chart-card">
-          <div class="chart-title">订单转化漏斗</div>
+          <div class="chart-title-row">
+            <span class="chart-title">订单转化漏斗</span>
+            <NButton size="tiny" quaternary :type="sharedCharts.includes('订单转化漏斗') ? 'success' : 'default'" @click="shareChart('订单转化漏斗')" class="chart-share-btn">
+              <template #icon>
+                <svg v-if="sharedCharts.includes('订单转化漏斗')" viewBox="0 0 24 24" fill="currentColor" width="14" height="14"><path d="M9 16.17L4.83 12l-1.42 1.41L9 19 21 7l-1.41-1.41z"/></svg>
+                <svg v-else viewBox="0 0 24 24" fill="currentColor" width="14" height="14"><path d="M18 16.08c-.76 0-1.44.3-1.96.77L8.91 12.7c.05-.23.09-.46.09-.7s-.04-.47-.09-.7l7.05-4.11c.54.5 1.25.81 2.04.81 1.66 0 3-1.34 3-3s-1.34-3-3-3-3 1.34-3 3c0 .24.04.47.09.7L8.04 9.81C7.5 9.31 6.79 9 6 9c-1.66 0-3 1.34-3 3s1.34 3 3 3c.79 0 1.5-.31 2.04-.81l7.12 4.16c-.05.21-.08.43-.08.65 0 1.61 1.31 2.92 2.92 2.92s2.92-1.31 2.92-2.92-1.31-2.92-2.92-2.92z"/></svg>
+              </template>
+            </NButton>
+          </div>
           <div ref="funnelDomRef" class="h-280px"></div>
         </div>
       </NGi>
       <NGi>
         <div class="chart-card">
-          <div class="chart-title">服务商排名TOP5</div>
+          <div class="chart-title-row">
+            <span class="chart-title">服务商排名TOP5</span>
+            <NButton size="tiny" quaternary :type="sharedCharts.includes('服务商排名TOP5') ? 'success' : 'default'" @click="shareChart('服务商排名TOP5')" class="chart-share-btn">
+              <template #icon>
+                <svg v-if="sharedCharts.includes('服务商排名TOP5')" viewBox="0 0 24 24" fill="currentColor" width="14" height="14"><path d="M9 16.17L4.83 12l-1.42 1.41L9 19 21 7l-1.41-1.41z"/></svg>
+                <svg v-else viewBox="0 0 24 24" fill="currentColor" width="14" height="14"><path d="M18 16.08c-.76 0-1.44.3-1.96.77L8.91 12.7c.05-.23.09-.46.09-.7s-.04-.47-.09-.7l7.05-4.11c.54.5 1.25.81 2.04.81 1.66 0 3-1.34 3-3s-1.34-3-3-3-3 1.34-3 3c0 .24.04.47.09.7L8.04 9.81C7.5 9.31 6.79 9 6 9c-1.66 0-3 1.34-3 3s1.34 3 3 3c.79 0 1.5-.31 2.04-.81l7.12 4.16c-.05.21-.08.43-.08.65 0 1.61 1.31 2.92 2.92 2.92s2.92-1.31 2.92-2.92-1.31-2.92-2.92-2.92z"/></svg>
+              </template>
+            </NButton>
+          </div>
           <div v-if="overview.providerRanking?.length" class="ranking-list">
             <div
               v-for="(item, index) in overview.providerRanking.slice(0, 5)"
@@ -961,7 +1136,15 @@ getData();
     <NGrid :cols="3" :x-gap="16" :y-gap="16" item-responsive class="mb-4">
       <NGi>
         <div class="chart-card">
-          <div class="chart-title">服务人员排名TOP3</div>
+          <div class="chart-title-row">
+            <span class="chart-title">服务人员排名TOP3</span>
+            <NButton size="tiny" quaternary :type="sharedCharts.includes('服务人员排名TOP3') ? 'success' : 'default'" @click="shareChart('服务人员排名TOP3')" class="chart-share-btn">
+              <template #icon>
+                <svg v-if="sharedCharts.includes('服务人员排名TOP3')" viewBox="0 0 24 24" fill="currentColor" width="14" height="14"><path d="M9 16.17L4.83 12l-1.42 1.41L9 19 21 7l-1.41-1.41z"/></svg>
+                <svg v-else viewBox="0 0 24 24" fill="currentColor" width="14" height="14"><path d="M18 16.08c-.76 0-1.44.3-1.96.77L8.91 12.7c.05-.23.09-.46.09-.7s-.04-.47-.09-.7l7.05-4.11c.54.5 1.25.81 2.04.81 1.66 0 3-1.34 3-3s-1.34-3-3-3-3 1.34-3 3c0 .24.04.47.09.7L8.04 9.81C7.5 9.31 6.79 9 6 9c-1.66 0-3 1.34-3 3s1.34 3 3 3c.79 0 1.5-.31 2.04-.81l7.12 4.16c-.05.21-.08.43-.08.65 0 1.61 1.31 2.92 2.92 2.92s2.92-1.31 2.92-2.92-1.31-2.92-2.92-2.92z"/></svg>
+              </template>
+            </NButton>
+          </div>
           <div v-if="overview.staffRanking?.length" class="ranking-list">
             <div v-for="(item, index) in overview.staffRanking.slice(0, 3)" :key="item.staffId" class="ranking-item">
               <div class="ranking-left">
@@ -979,13 +1162,29 @@ getData();
       </NGi>
       <NGi>
         <div class="chart-card">
-          <div class="chart-title">订单趋势</div>
+          <div class="chart-title-row">
+            <span class="chart-title">订单趋势</span>
+            <NButton size="tiny" quaternary :type="sharedCharts.includes('订单趋势') ? 'success' : 'default'" @click="shareChart('订单趋势')" class="chart-share-btn">
+              <template #icon>
+                <svg v-if="sharedCharts.includes('订单趋势')" viewBox="0 0 24 24" fill="currentColor" width="14" height="14"><path d="M9 16.17L4.83 12l-1.42 1.41L9 19 21 7l-1.41-1.41z"/></svg>
+                <svg v-else viewBox="0 0 24 24" fill="currentColor" width="14" height="14"><path d="M18 16.08c-.76 0-1.44.3-1.96.77L8.91 12.7c.05-.23.09-.46.09-.7s-.04-.47-.09-.7l7.05-4.11c.54.5 1.25.81 2.04.81 1.66 0 3-1.34 3-3s-1.34-3-3-3-3 1.34-3 3c0 .24.04.47.09.7L8.04 9.81C7.5 9.31 6.79 9 6 9c-1.66 0-3 1.34-3 3s1.34 3 3 3c.79 0 1.5-.31 2.04-.81l7.12 4.16c-.05.21-.08.43-.08.65 0 1.61 1.31 2.92 2.92 2.92s2.92-1.31 2.92-2.92-1.31-2.92-2.92-2.92z"/></svg>
+              </template>
+            </NButton>
+          </div>
           <div ref="orderTrendRef" class="h-280px"></div>
         </div>
       </NGi>
       <NGi>
         <div class="chart-card">
-          <div class="chart-title">服务类型分布(订单)</div>
+          <div class="chart-title-row">
+            <span class="chart-title">服务类型分布(订单)</span>
+            <NButton size="tiny" quaternary :type="sharedCharts.includes('服务类型分布(订单)') ? 'success' : 'default'" @click="shareChart('服务类型分布(订单)')" class="chart-share-btn">
+              <template #icon>
+                <svg v-if="sharedCharts.includes('服务类型分布(订单)')" viewBox="0 0 24 24" fill="currentColor" width="14" height="14"><path d="M9 16.17L4.83 12l-1.42 1.41L9 19 21 7l-1.41-1.41z"/></svg>
+                <svg v-else viewBox="0 0 24 24" fill="currentColor" width="14" height="14"><path d="M18 16.08c-.76 0-1.44.3-1.96.77L8.91 12.7c.05-.23.09-.46.09-.7s-.04-.47-.09-.7l7.05-4.11c.54.5 1.25.81 2.04.81 1.66 0 3-1.34 3-3s-1.34-3-3-3-3 1.34-3 3c0 .24.04.47.09.7L8.04 9.81C7.5 9.31 6.79 9 6 9c-1.66 0-3 1.34-3 3s1.34 3 3 3c.79 0 1.5-.31 2.04-.81l7.12 4.16c-.05.21-.08.43-.08.65 0 1.61 1.31 2.92 2.92 2.92s2.92-1.31 2.92-2.92-1.31-2.92-2.92-2.92z"/></svg>
+              </template>
+            </NButton>
+          </div>
           <div ref="serviceBarRef" class="h-280px"></div>
         </div>
       </NGi>
@@ -994,19 +1193,43 @@ getData();
     <NGrid :cols="3" :x-gap="16" :y-gap="16" item-responsive class="mb-4">
       <NGi>
         <div class="chart-card">
-          <div class="chart-title">评分趋势</div>
+          <div class="chart-title-row">
+            <span class="chart-title">评分趋势</span>
+            <NButton size="tiny" quaternary :type="sharedCharts.includes('评分趋势') ? 'success' : 'default'" @click="shareChart('评分趋势')" class="chart-share-btn">
+              <template #icon>
+                <svg v-if="sharedCharts.includes('评分趋势')" viewBox="0 0 24 24" fill="currentColor" width="14" height="14"><path d="M9 16.17L4.83 12l-1.42 1.41L9 19 21 7l-1.41-1.41z"/></svg>
+                <svg v-else viewBox="0 0 24 24" fill="currentColor" width="14" height="14"><path d="M18 16.08c-.76 0-1.44.3-1.96.77L8.91 12.7c.05-.23.09-.46.09-.7s-.04-.47-.09-.7l7.05-4.11c.54.5 1.25.81 2.04.81 1.66 0 3-1.34 3-3s-1.34-3-3-3-3 1.34-3 3c0 .24.04.47.09.7L8.04 9.81C7.5 9.31 6.79 9 6 9c-1.66 0-3 1.34-3 3s1.34 3 3 3c.79 0 1.5-.31 2.04-.81l7.12 4.16c-.05.21-.08.43-.08.65 0 1.61 1.31 2.92 2.92 2.92s2.92-1.31 2.92-2.92-1.31-2.92-2.92-2.92z"/></svg>
+              </template>
+            </NButton>
+          </div>
           <div ref="ratingTrendRef" class="h-280px"></div>
         </div>
       </NGi>
       <NGi>
         <div class="chart-card">
-          <div class="chart-title">评价分布</div>
+          <div class="chart-title-row">
+            <span class="chart-title">评价分布</span>
+            <NButton size="tiny" quaternary :type="sharedCharts.includes('评价分布') ? 'success' : 'default'" @click="shareChart('评价分布')" class="chart-share-btn">
+              <template #icon>
+                <svg v-if="sharedCharts.includes('评价分布')" viewBox="0 0 24 24" fill="currentColor" width="14" height="14"><path d="M9 16.17L4.83 12l-1.42 1.41L9 19 21 7l-1.41-1.41z"/></svg>
+                <svg v-else viewBox="0 0 24 24" fill="currentColor" width="14" height="14"><path d="M18 16.08c-.76 0-1.44.3-1.96.77L8.91 12.7c.05-.23.09-.46.09-.7s-.04-.47-.09-.7l7.05-4.11c.54.5 1.25.81 2.04.81 1.66 0 3-1.34 3-3s-1.34-3-3-3-3 1.34-3 3c0 .24.04.47.09.7L8.04 9.81C7.5 9.31 6.79 9 6 9c-1.66 0-3 1.34-3 3s1.34 3 3 3c.79 0 1.5-.31 2.04-.81l7.12 4.16c-.05.21-.08.43-.08.65 0 1.61 1.31 2.92 2.92 2.92s2.92-1.31 2.92-2.92-1.31-2.92-2.92-2.92z"/></svg>
+              </template>
+            </NButton>
+          </div>
           <div ref="evalRef" class="h-280px"></div>
         </div>
       </NGi>
       <NGi>
         <div class="chart-card">
-          <div class="chart-title">投诉类型分析</div>
+          <div class="chart-title-row">
+            <span class="chart-title">投诉类型分析</span>
+            <NButton size="tiny" quaternary :type="sharedCharts.includes('投诉类型分析') ? 'success' : 'default'" @click="shareChart('投诉类型分析')" class="chart-share-btn">
+              <template #icon>
+                <svg v-if="sharedCharts.includes('投诉类型分析')" viewBox="0 0 24 24" fill="currentColor" width="14" height="14"><path d="M9 16.17L4.83 12l-1.42 1.41L9 19 21 7l-1.41-1.41z"/></svg>
+                <svg v-else viewBox="0 0 24 24" fill="currentColor" width="14" height="14"><path d="M18 16.08c-.76 0-1.44.3-1.96.77L8.91 12.7c.05-.23.09-.46.09-.7s-.04-.47-.09-.7l7.05-4.11c.54.5 1.25.81 2.04.81 1.66 0 3-1.34 3-3s-1.34-3-3-3-3 1.34-3 3c0 .24.04.47.09.7L8.04 9.81C7.5 9.31 6.79 9 6 9c-1.66 0-3 1.34-3 3s1.34 3 3 3c.79 0 1.5-.31 2.04-.81l7.12 4.16c-.05.21-.08.43-.08.65 0 1.61 1.31 2.92 2.92 2.92s2.92-1.31 2.92-2.92-1.31-2.92-2.92-2.92z"/></svg>
+              </template>
+            </NButton>
+          </div>
           <div ref="complaintRef" class="h-280px"></div>
         </div>
       </NGi>
@@ -1015,6 +1238,34 @@ getData();
 </template>
 
 <style scoped>
+/* 驾驶舱头部布局 */
+.cockpit-header {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  margin-bottom: 16px;
+  gap: 16px;
+}
+.cockpit-header :deep(.n-alert) {
+  flex: 1;
+}
+.share-buttons {
+  display: flex;
+  gap: 8px;
+  flex-shrink: 0;
+  padding-top: 4px;
+}
+
+.share-modal-content {
+  padding: 16px 0;
+}
+
+.share-expire-label {
+  margin-bottom: 8px;
+  font-size: 14px;
+  color: var(--n-text-color);
+}
+
 /* 统计卡片基础样式 */
 .stat-card {
   border-radius: 12px;
@@ -1137,12 +1388,27 @@ getData();
   background: var(--n-color);
   border-radius: 12px;
   padding: 16px;
+  position: relative;
+}
+.chart-title-row {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 16px;
 }
 .chart-title {
   font-size: 16px;
   font-weight: 500;
-  margin-bottom: 16px;
   color: var(--n-text-color);
+}
+.chart-share-btn {
+  opacity: 0;
+  transition: opacity 0.2s;
+  padding: 4px 8px;
+  font-size: 12px;
+}
+.chart-card:hover .chart-share-btn {
+  opacity: 1;
 }
 .h-280px {
   height: 280px;

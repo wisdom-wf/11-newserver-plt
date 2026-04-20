@@ -111,6 +111,10 @@ declare namespace Api {
       phone?: string;
       /** 头像 */
       photoUrl?: string;
+      /** 身份证照片 */
+      idCardPhotos?: string[];
+      /** 健康档案照片 */
+      healthPhotos?: string[];
       /** 区域ID */
       areaId?: string;
       /** 区域名称 */
@@ -177,6 +181,231 @@ declare namespace Api {
       careLevelStats: Record<string, number>;
       /** 补贴类型分布 */
       subsidyTypeStats: Record<string, number>;
+    }
+
+    /** 测量类型 */
+    type MeasurementType = 'BLOOD_PRESSURE' | 'BLOOD_GLUCOSE' | 'WEIGHT' | 'TEMPERATURE' | 'PULSE' | 'SPO2' | 'PAIN_SCALE' | 'OTHER';
+
+    /** 预警状态 */
+    type AlertStatus = 'NORMAL' | 'WARNING' | 'ALERT';
+
+    /** 健康测量记录表单 */
+    interface HealthMeasurementForm {
+      /** 测量记录ID */
+      measurementId?: string;
+      /** 老人ID */
+      elderId?: string;
+      /** 服务日志ID */
+      serviceLogId?: string;
+      /** 测量类型 */
+      measurementType: MeasurementType;
+      /** 测量值 */
+      measurementValue: string;
+      /** 测量时间 */
+      measuredAt?: string;
+      /** 备注 */
+      remark?: string;
+    }
+
+    /** 健康测量记录 */
+    interface HealthMeasurement {
+      /** 测量记录ID */
+      measurementId: string;
+      /** 老人ID */
+      elderId: string;
+      /** 老人姓名 */
+      elderName?: string;
+      /** 服务日志ID */
+      serviceLogId?: string;
+      /** 测量类型 */
+      measurementType: MeasurementType;
+      /** 测量类型名称 */
+      measurementTypeName?: string;
+      /** 测量值 */
+      measurementValue: string;
+      /** 单位 */
+      measurementUnit?: string;
+      /** 测量时间 */
+      measuredAt: string;
+      /** 测量人员ID */
+      staffId?: string;
+      /** 测量人员姓名 */
+      staffName?: string;
+      /** 备注 */
+      remark?: string;
+      /** 创建时间 */
+      createTime: string;
+    }
+
+    /** 健康测量统计 */
+    interface HealthMeasurementStatistics {
+      /** 测量类型 */
+      measurementType: MeasurementType;
+      /** 测量类型名称 */
+      measurementTypeName?: string;
+      /** 记录数量 */
+      count: number;
+      /** 最新测量值 */
+      latestValue?: string;
+      /** 最新测量时间 */
+      latestTime?: string;
+      /** 平均值 */
+      averageValue?: number | string;
+      /** 最大值 */
+      maxValue?: number | string;
+      /** 最小值 */
+      minValue?: number | string;
+      /** 趋势数据 */
+      trendData?: Array<{ value: string; time: string }>;
+      /** 预警状态 */
+      alertStatus: AlertStatus;
+      /** 预警信息 */
+      alertMessage?: string;
+    }
+
+    /** 报告类型 */
+    type ReportType = 'MONTHLY' | 'QUARTERLY' | 'YEARLY' | 'SPECIAL';
+
+    /** 健康报告生成参数 */
+    interface HealthReportGenerate {
+      /** 报告类型 */
+      reportType: ReportType;
+      /** 报告开始日期 */
+      startDate?: string;
+      /** 报告结束日期 */
+      endDate?: string;
+      /** 报告标题 */
+      title?: string;
+    }
+
+    /** 健康报告 */
+    interface HealthReport {
+      /** 报告ID */
+      reportId: string;
+      /** 老人ID */
+      elderId: string;
+      /** 报告编号 */
+      reportNo?: string;
+      /** 报告日期 */
+      reportDate?: string;
+      /** 报告类型 */
+      reportType: ReportType;
+      /** 报告标题 */
+      title?: string;
+      /** 报告内容 */
+      content?: string;
+      /** PDF存储路径 */
+      pdfUrl?: string;
+      /** 员工ID */
+      staffId?: string;
+      /** 员工姓名 */
+      staffName?: string;
+      /** 创建时间 */
+      createTime: string;
+    }
+
+    /** 健康报告VO */
+    interface HealthReportVO extends HealthReport {
+      /** 老人姓名 */
+      elderName?: string;
+      /** 报告类型名称 */
+      reportTypeName?: string;
+    }
+
+    /** 护理建议 */
+    interface CareSuggestion {
+      /** 建议类型 */
+      type: string;
+      /** 建议类型名称 */
+      typeName: string;
+      /** 建议内容 */
+      content: string;
+      /** 优先级 */
+      priority: number;
+      /** 依据 */
+      basis: string;
+    }
+
+    /** 护理建议VO */
+    interface CareSuggestionVO {
+      /** 老人ID */
+      elderId: string;
+      /** 老人姓名 */
+      elderName: string;
+      /** 评估时间 */
+      evaluateTime: string;
+      /** 整体护理等级建议 */
+      careLevelSuggestion: string;
+      /** 护理建议列表 */
+      suggestions: CareSuggestion[];
+      /** 风险提示 */
+      riskAlerts: string[];
+    }
+
+    /** 就医建议 */
+    interface MedicalSuggestion {
+      /** 建议类型 */
+      type: string;
+      /** 建议类型名称 */
+      typeName: string;
+      /** 建议内容 */
+      content: string;
+      /** 优先级 */
+      priority: number;
+      /** 依据 */
+      basis: string;
+    }
+
+    /** 就医建议VO */
+    interface MedicalSuggestionVO {
+      /** 老人ID */
+      elderId: string;
+      /** 老人姓名 */
+      elderName: string;
+      /** 评估时间 */
+      evaluateTime: string;
+      /** 就医紧急程度 */
+      urgencyLevel: string;
+      /** 就医紧急程度名称 */
+      urgencyLevelName: string;
+      /** 就医科室建议 */
+      suggestedDepartment: string;
+      /** 就医建议列表 */
+      suggestions: MedicalSuggestion[];
+      /** 症状描述 */
+      symptoms: string[];
+    }
+
+    /** 老人健康卡片（用于健康档案页面展示） */
+    interface ElderHealthCard {
+      /** 老人ID */
+      elderId: string;
+      /** 姓名 */
+      name: string;
+      /** 头像URL */
+      photoUrl?: string;
+      /** 年龄 */
+      age?: number;
+      /** 性别 */
+      gender?: string;
+      /** 性别名称 */
+      genderName?: string;
+      /** 护理等级 */
+      careLevel?: string;
+      /** 护理等级名称 */
+      careLevelName?: string;
+      /** 健康指数（0-100） */
+      healthIndex?: number;
+      /** 健康状态 */
+      healthStatus?: string;
+      /** 最新测量值 */
+      latestMeasurementValue?: string;
+      /** 最新测量时间 */
+      latestMeasurementTime?: string;
+      /** 最新测量类型 */
+      latestMeasurementType?: string;
+      /** 联系电话 */
+      phone?: string;
     }
   }
 }

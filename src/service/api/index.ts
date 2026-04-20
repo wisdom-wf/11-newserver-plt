@@ -1,6 +1,5 @@
 export * from './auth';
 export * from './route';
-export * from './area';
 export * from './role';
 export * from './dict';
 export * from './menu';

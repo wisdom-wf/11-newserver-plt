@@ -58,6 +58,10 @@ declare namespace Api {
       elderSign?: string;
       /** 服务人员签字 */
       staffSign?: string;
+      /** 健康观察备注 */
+      healthObservations?: string;
+      /** 本次给药记录 */
+      medicationGiven?: string;
       /** 养老服务扩展字段 */
       elderCareExtend?: ElderCareExtend;
       /** 家政服务扩展字段 */
@@ -171,6 +175,22 @@ declare namespace Api {
       reviewRemarks?: string;
       /** 提交时间 */
       submitTime?: string;
+      /** 审核状态：DRAFT-草稿, SUBMITTED-已提交, APPROVED-已通过, REJECTED-已驳回 */
+      auditStatus?: string;
+      /** 审核意见 */
+      reviewComment?: string;
+      /** 审核人ID */
+      reviewerId?: string;
+      /** 审核人姓名 */
+      reviewerName?: string;
+      /** 审核时间 */
+      reviewTime?: string;
+      /** 健康观察备注 */
+      healthObservations?: string;
+      /** 本次给药记录 */
+      medicationGiven?: string;
+      /** 服务照片列表 */
+      servicePhotoList?: string[];
       /** 创建时间 */
       createTime: string;
       /** 更新时间 */

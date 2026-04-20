@@ -11,16 +11,43 @@ import {
   NSpace,
   NInput,
   NSelect,
-  NDatePicker
+  NDatePicker,
+  NTabs,
+  NTabPane,
+  NPagination,
+  useMessage,
+  NImage,
+  NImageGroup,
+  NPopconfirm,
+  NInputNumber
 } from 'naive-ui';
 import type { DataTableColumns } from 'naive-ui';
-import { fetchGetSettlementList, fetchGetSettlementStatistics, fetchGetElder, fetchGetStaff } from '@/service/api';
+import {
+  fetchGetSettlementList,
+  fetchGetSettlementStatistics,
+  fetchGetElder,
+  fetchGetStaff,
+  fetchGetServicePriceList,
+  fetchCreateServicePrice,
+  fetchUpdateServicePrice,
+  fetchDeleteServicePrice,
+  fetchGetServicePrice,
+  fetchGetRefundList,
+  fetchGetRefund,
+  fetchCreateRefund,
+  fetchAuditRefund
+} from '@/service/api';
 import { useNaivePaginatedTable, defaultTransform } from '@/hooks/common/table';
 import TableHeaderOperation from '@/components/advanced/table-header-operation.vue';
 
 defineOptions({
   name: 'BusinessFinancial'
 });
+
+const message = useMessage();
+
+// Tab value
+const activeTab = ref('settlement');
 
 // Statistics
 const statistics = ref<Api.Financial.Statistics>({
@@ -33,6 +60,7 @@ const statistics = ref<Api.Financial.Statistics>({
   selfPayTotal: 0
 });
 
+// ========== Settlement Tab ==========
 // Search
 const searchOrderNo = ref('');
 const searchElderName = ref('');
@@ -85,7 +113,10 @@ function getStatusType(status: string): 'warning' | 'success' | 'info' | 'defaul
   const map: Record<string, 'warning' | 'success' | 'info' | 'default'> = {
     PENDING: 'warning',
     SETTLED: 'info',
-    PAID: 'success'
+    PAID: 'success',
+    COMPLETED: 'success',
+    PROCESSING: 'info',
+    FAILED: 'error'
   };
   return map[status] || 'default';
 }
@@ -192,16 +223,296 @@ function handleResetSearch() {
   getData();
 }
 
+// ========== Service Price Tab ==========
+// Service price list
+const priceLoading = ref(false);
+const priceData = ref<Api.Financial.ServicePrice[]>([]);
+const pricePagination = ref({ page: 1, pageSize: 10, itemCount: 0 });
+
+// Service price modal
+const priceModalVisible = ref(false);
+const priceModalLoading = ref(false);
+const priceFormData = ref<Api.Financial.ServicePriceForm>({
+  serviceTypeCode: '',
+  serviceTypeName: '',
+  providerId: '',
+  providerName: '',
+  governmentSubsidy: 0,
+  selfPayStandard: 0,
+  minimumFee: 0,
+  maximumFee: 0,
+  timeUnit: 60,
+  status: 'ACTIVE',
+  remark: ''
+});
+const isPriceEdit = ref(false);
+const priceEditId = ref('');
+
+async function loadPriceData() {
+  priceLoading.value = true;
+  try {
+    const { data } = await fetchGetServicePriceList({
+      page: pricePagination.value.page,
+      pageSize: pricePagination.value.pageSize
+    });
+    if (data) {
+      priceData.value = data.records;
+      pricePagination.value.itemCount = data.total;
+    }
+  } finally {
+    priceLoading.value = false;
+  }
+}
+
+function showAddPriceModal() {
+  priceFormData.value = {
+    serviceTypeCode: '',
+    serviceTypeName: '',
+    providerId: '',
+    providerName: '',
+    governmentSubsidy: 0,
+    selfPayStandard: 0,
+    minimumFee: 0,
+    maximumFee: 0,
+    timeUnit: 60,
+    status: 'ACTIVE',
+    remark: ''
+  };
+  isPriceEdit.value = false;
+  priceEditId.value = '';
+  priceModalVisible.value = true;
+}
+
+async function showEditPriceModal(row: Api.Financial.ServicePrice) {
+  const { data } = await fetchGetServicePrice(row.id);
+  if (data) {
+    priceFormData.value = {
+      serviceTypeCode: data.serviceTypeCode,
+      serviceTypeName: data.serviceTypeName,
+      providerId: data.providerId,
+      providerName: data.providerName || '',
+      governmentSubsidy: data.governmentSubsidy,
+      selfPayStandard: data.selfPayStandard,
+      minimumFee: data.minimumFee || 0,
+      maximumFee: data.maximumFee || 0,
+      timeUnit: data.timeUnit || 60,
+      status: data.status,
+      remark: data.remark || ''
+    };
+    isPriceEdit.value = true;
+    priceEditId.value = row.id;
+    priceModalVisible.value = true;
+  }
+}
+
+async function handleSavePrice() {
+  priceModalLoading.value = true;
+  try {
+    if (isPriceEdit.value) {
+      const { error } = await fetchUpdateServicePrice(priceEditId.value, priceFormData.value);
+      if (error) {
+        message.error(error.message || '更新失败');
+        return;
+      }
+      message.success('更新成功');
+    } else {
+      const { error } = await fetchCreateServicePrice(priceFormData.value);
+      if (error) {
+        message.error(error.message || '创建失败');
+        return;
+      }
+      message.success('创建成功');
+    }
+    priceModalVisible.value = false;
+    loadPriceData();
+  } finally {
+    priceModalLoading.value = false;
+  }
+}
+
+async function handleDeletePrice(row: Api.Financial.ServicePrice) {
+  const { error } = await fetchDeleteServicePrice(row.id);
+  if (error) {
+    message.error(error.message || '删除失败');
+    return;
+  }
+  message.success('删除成功');
+  loadPriceData();
+}
+
+// ========== Refund Tab ==========
+// Refund list
+const refundLoading = ref(false);
+const refundData = ref<Api.Financial.Refund[]>([]);
+const refundPagination = ref({ page: 1, pageSize: 10, itemCount: 0 });
+
+// Refund detail modal
+const refundDetailVisible = ref(false);
+const refundDetailData = ref<Api.Financial.Refund | null>(null);
+
+// Refund audit modal
+const refundAuditVisible = ref(false);
+const refundAuditData = ref({ result: 'APPROVED', remark: '' });
+const refundAuditLoading = ref(false);
+const currentRefundId = ref('');
+
+async function loadRefundData() {
+  refundLoading.value = true;
+  try {
+    const { data } = await fetchGetRefundList({
+      page: refundPagination.value.page,
+      pageSize: refundPagination.value.pageSize
+    });
+    if (data) {
+      refundData.value = data.records;
+      refundPagination.value.itemCount = data.total;
+    }
+  } finally {
+    refundLoading.value = false;
+  }
+}
+
+async function showRefundDetail(row: Api.Financial.Refund) {
+  const { data } = await fetchGetRefund(row.id);
+  if (data) {
+    refundDetailData.value = data;
+    refundDetailVisible.value = true;
+  }
+}
+
+function showRefundAuditModal(row: Api.Financial.Refund) {
+  refundDetailData.value = row;
+  refundAuditData.value = { result: 'APPROVED', remark: '' };
+  currentRefundId.value = row.id;
+  refundAuditVisible.value = true;
+}
+
+async function handleRefundAudit() {
+  refundAuditLoading.value = true;
+  try {
+    const { error } = await fetchAuditRefund(currentRefundId.value, refundAuditData.value);
+    if (error) {
+      message.error(error.message || '审核失败');
+      return;
+    }
+    message.success('审核成功');
+    refundAuditVisible.value = false;
+    loadRefundData();
+  } finally {
+    refundAuditLoading.value = false;
+  }
+}
+
+function getRefundStatusType(status: string): 'warning' | 'success' | 'error' | 'info' | 'default' {
+  const map: Record<string, 'warning' | 'success' | 'error' | 'info' | 'default'> = {
+    PENDING: 'warning',
+    APPROVED: 'info',
+    REJECTED: 'error',
+    COMPLETED: 'success',
+    FAILED: 'error'
+  };
+  return map[status] || 'default';
+}
+
+function getRefundStatusLabel(status: string): string {
+  const map: Record<string, string> = {
+    PENDING: '待审核',
+    APPROVED: '已通过',
+    REJECTED: '已驳回',
+    COMPLETED: '已完成',
+    FAILED: '失败'
+  };
+  return map[status] || status;
+}
+
+const refundColumns: DataTableColumns<Api.Financial.Refund> = [
+  { title: '退款单号', key: 'refundNo', width: 160 },
+  { title: '订单号', key: 'orderNo', width: 160 },
+  { title: '服务商', key: 'providerName', width: 150 },
+  { title: '服务人员', key: 'staffName', width: 100 },
+  { title: '老人姓名', key: 'elderName', width: 100 },
+  { title: '退款金额', key: 'amount', width: 100 },
+  { title: '退款原因', key: 'reason', width: 150, ellipsis: { tooltip: true } },
+  {
+    title: '退款状态',
+    key: 'status',
+    width: 100,
+    render: row => h(NTag, { type: getRefundStatusType(row.status), size: 'small' }, () => getRefundStatusLabel(row.status))
+  },
+  { title: '创建时间', key: 'createTime', width: 170 },
+  {
+    title: '操作',
+    key: 'actions',
+    width: 150,
+    fixed: 'right',
+    render: row => {
+      const actions = [];
+      actions.push(
+        h(NButton, { size: 'small', type: 'primary', onClick: () => showRefundDetail(row), style: { marginRight: '8px' } }, () => '查看')
+      );
+      if (row.status === 'PENDING') {
+        actions.push(
+          h(NButton, { size: 'small', type: 'warning', onClick: () => showRefundAuditModal(row), style: { marginRight: '8px' } }, () => '审核')
+        );
+      }
+      return h(NSpace, null, () => actions);
+    }
+  }
+];
+
+const priceColumns: DataTableColumns<Api.Financial.ServicePrice> = [
+  { title: '服务类型编码', key: 'serviceTypeCode', width: 120 },
+  { title: '服务类型名称', key: 'serviceTypeName', width: 150 },
+  { title: '服务商', key: 'providerName', width: 150 },
+  { title: '政府补贴', key: 'governmentSubsidy', width: 100 },
+  { title: '自付标准', key: 'selfPayStandard', width: 100 },
+  { title: '最低收费', key: 'minimumFee', width: 100 },
+  { title: '最高收费', key: 'maximumFee', width: 100 },
+  { title: '计时单位', key: 'timeUnit', width: 100 },
+  {
+    title: '状态',
+    key: 'status',
+    width: 80,
+    render: row => h(NTag, { type: row.status === 'ACTIVE' ? 'success' : 'default', size: 'small' }, () => row.status === 'ACTIVE' ? '启用' : '禁用')
+  },
+  { title: '创建时间', key: 'createTime', width: 170 },
+  {
+    title: '操作',
+    key: 'actions',
+    width: 150,
+    fixed: 'right',
+    render: row => {
+      const actions = [];
+      actions.push(
+        h(NButton, { size: 'small', type: 'primary', onClick: () => showEditPriceModal(row), style: { marginRight: '8px' } }, () => '编辑')
+      );
+      actions.push(
+        h(
+          NPopconfirm,
+          { onPositiveClick: () => handleDeletePrice(row) },
+          {
+            trigger: () => h(NButton, { size: 'small', type: 'error' }, () => '删除'),
+            default: () => '确认删除？'
+          }
+        )
+      );
+      return h(NSpace, null, () => actions);
+    }
+  }
+];
+
 onMounted(() => {
   getStatistics();
   getData();
+  loadPriceData();
+  loadRefundData();
 });
 </script>
 
 <template>
   <div>
     <!-- Statistics Cards -->
-    <NCard title="财务结算统计" :bordered="false" style="margin-bottom: 16px">
+    <NCard title="财务统计" :bordered="false" style="margin-bottom: 16px">
       <div class="statistics-grid">
         <div class="stat-card stat-primary">
           <div class="stat-label">总金额</div>
@@ -226,46 +537,90 @@ onMounted(() => {
       </div>
     </NCard>
 
-    <!-- Table -->
+    <!-- Tabs -->
     <NCard :bordered="false" style="margin-bottom: 16px">
-      <template #header>
-        <div style="display: flex; justify-content: space-between; align-items: center">
-          <span>财务结算管理</span>
-        </div>
-      </template>
-      <div style="background: #f5f5f5; padding: 12px; margin-bottom: 12px; border-radius: 4px">
-        <NSpace :wrap="true" align="center">
-          <NInput v-model:value="searchOrderNo" placeholder="订单号" clearable style="width: 150px" />
-          <NInput v-model:value="searchElderName" placeholder="老人姓名" clearable style="width: 100px" />
-          <NInput v-model:value="searchProviderName" placeholder="服务商" clearable style="width: 150px" />
-          <NSelect
-            v-model:value="searchStatus"
-            :options="statusOptions"
-            placeholder="结算状态"
-            clearable
-            style="width: 120px"
+      <NTabs v-model:value="activeTab" type="line">
+        <!-- Settlement Tab -->
+        <NTabPane name="settlement" tab="结算管理">
+          <div style="background: #f5f5f5; padding: 12px; margin-bottom: 12px; border-radius: 4px">
+            <NSpace :wrap="true" align="center">
+              <NInput v-model:value="searchOrderNo" placeholder="订单号" clearable style="width: 150px" />
+              <NInput v-model:value="searchElderName" placeholder="老人姓名" clearable style="width: 100px" />
+              <NInput v-model:value="searchProviderName" placeholder="服务商" clearable style="width: 150px" />
+              <NSelect
+                v-model:value="searchStatus"
+                :options="statusOptions"
+                placeholder="结算状态"
+                clearable
+                style="width: 120px"
+              />
+              <NDatePicker v-model:value="searchDateRange" type="daterange" clearable style="width: 260px" />
+              <NButton type="primary" @click="getData">搜索</NButton>
+              <NButton @click="handleResetSearch">重置</NButton>
+            </NSpace>
+          </div>
+
+          <TableHeaderOperation
+            v-model:columns="columnChecks"
+            :loading="loading"
+            @refresh="getData"
           />
-          <NDatePicker v-model:value="searchDateRange" type="daterange" clearable style="width: 260px" />
-          <NButton type="primary" @click="getData">搜索</NButton>
-          <NButton @click="handleResetSearch">重置</NButton>
-        </NSpace>
-      </div>
 
-      <TableHeaderOperation
-        v-model:columns="columnChecks"
-        :loading="loading"
-        @refresh="getData"
-      />
+          <NDataTable
+            :columns="columns"
+            :data="tableData"
+            :loading="loading"
+            :scroll-x="1500"
+            :row-key="(row: any) => row.settlementId || row.id"
+            remote
+            :pagination="mobilePagination"
+          />
+        </NTabPane>
 
-      <NDataTable
-        :columns="columns"
-        :data="tableData"
-        :loading="loading"
-        :scroll-x="1500"
-        :row-key="(row: any) => row.settlementId || row.id"
-        remote
-        :pagination="mobilePagination"
-      />
+        <!-- Service Price Tab -->
+        <NTabPane name="price" tab="服务定价">
+          <div style="margin-bottom: 12px">
+            <NButton type="primary" @click="showAddPriceModal">新增定价</NButton>
+          </div>
+
+          <NDataTable
+            :columns="priceColumns"
+            :data="priceData"
+            :loading="priceLoading"
+            :scroll-x="1200"
+            :row-key="(row: Api.Financial.ServicePrice) => row.id"
+            :pagination="false"
+          />
+          <div style="margin-top: 12px; display: flex; justify-content: flex-end">
+            <NPagination
+              v-model:page="pricePagination.page"
+              :page-size="pricePagination.pageSize"
+              :item-count="pricePagination.itemCount"
+              @update:page="loadPriceData"
+            />
+          </div>
+        </NTabPane>
+
+        <!-- Refund Tab -->
+        <NTabPane name="refund" tab="退款管理">
+          <NDataTable
+            :columns="refundColumns"
+            :data="refundData"
+            :loading="refundLoading"
+            :scroll-x="1400"
+            :row-key="(row: Api.Financial.Refund) => row.id"
+            :pagination="false"
+          />
+          <div style="margin-top: 12px; display: flex; justify-content: flex-end">
+            <NPagination
+              v-model:page="refundPagination.page"
+              :page-size="refundPagination.pageSize"
+              :item-count="refundPagination.itemCount"
+              @update:page="loadRefundData"
+            />
+          </div>
+        </NTabPane>
+      </NTabs>
     </NCard>
 
     <!-- Elder Detail Modal -->
@@ -309,6 +664,102 @@ onMounted(() => {
         <NFormItem label="紧急联系人">{{ staffDetailData.emergencyContact || '-' }}</NFormItem>
         <NFormItem label="紧急联系电话">{{ staffDetailData.emergencyPhone || '-' }}</NFormItem>
       </NForm>
+    </NModal>
+
+    <!-- Service Price Modal -->
+    <NModal v-model:show="priceModalVisible" :title="isPriceEdit ? '编辑定价' : '新增定价'" preset="card" style="width: 500px">
+      <NForm label-placement="left" label-width="100">
+        <NFormItem label="服务类型编码">
+          <NInput v-model:value="priceFormData.serviceTypeCode" placeholder="请输入服务类型编码" />
+        </NFormItem>
+        <NFormItem label="服务类型名称">
+          <NInput v-model:value="priceFormData.serviceTypeName" placeholder="请输入服务类型名称" />
+        </NFormItem>
+        <NFormItem label="政府补贴">
+          <NInput-number v-model:value="priceFormData.governmentSubsidy" :min="0" style="width: 100%" />
+        </NFormItem>
+        <NFormItem label="自付标准">
+          <NInput-number v-model:value="priceFormData.selfPayStandard" :min="0" style="width: 100%" />
+        </NFormItem>
+        <NFormItem label="最低收费">
+          <NInput-number v-model:value="priceFormData.minimumFee" :min="0" style="width: 100%" />
+        </NFormItem>
+        <NFormItem label="最高收费">
+          <NInput-number v-model:value="priceFormData.maximumFee" :min="0" style="width: 100%" />
+        </NFormItem>
+        <NFormItem label="计时单位(分钟)">
+          <NInput-number v-model:value="priceFormData.timeUnit" :min="1" style="width: 100%" />
+        </NFormItem>
+        <NFormItem label="状态">
+          <NSelect
+            v-model:value="priceFormData.status"
+            :options="[{ label: '启用', value: 'ACTIVE' }, { label: '禁用', value: 'INACTIVE' }]"
+            style="width: 100%"
+          />
+        </NFormItem>
+        <NFormItem label="备注">
+          <NInput v-model:value="priceFormData.remark" type="textarea" placeholder="请输入备注" :rows="2" />
+        </NFormItem>
+      </NForm>
+      <template #footer>
+        <NSpace justify="end">
+          <NButton @click="priceModalVisible = false">取消</NButton>
+          <NButton type="primary" :loading="priceModalLoading" @click="handleSavePrice">保存</NButton>
+        </NSpace>
+      </template>
+    </NModal>
+
+    <!-- Refund Detail Modal -->
+    <NModal v-model:show="refundDetailVisible" title="退款详情" preset="card" style="width: 600px">
+      <NForm v-if="refundDetailData" label-placement="left" label-width="100">
+        <NFormItem label="退款单号">{{ refundDetailData.refundNo }}</NFormItem>
+        <NFormItem label="订单号">{{ refundDetailData.orderNo || '-' }}</NFormItem>
+        <NFormItem label="服务商">{{ refundDetailData.providerName || '-' }}</NFormItem>
+        <NFormItem label="服务人员">{{ refundDetailData.staffName || '-' }}</NFormItem>
+        <NFormItem label="老人姓名">{{ refundDetailData.elderName || '-' }}</NFormItem>
+        <NFormItem label="退款金额">¥{{ refundDetailData.amount }}</NFormItem>
+        <NFormItem label="退款类型">{{ refundDetailData.refundType || '-' }}</NFormItem>
+        <NFormItem label="退款原因">{{ refundDetailData.reason }}</NFormItem>
+        <NFormItem label="退款状态">
+          <NTag :type="getRefundStatusType(refundDetailData.status)" size="small">
+            {{ getRefundStatusLabel(refundDetailData.status) }}
+          </NTag>
+        </NFormItem>
+        <NFormItem label="审核备注" v-if="refundDetailData.auditRemark">{{ refundDetailData.auditRemark }}</NFormItem>
+        <NFormItem label="审核时间" v-if="refundDetailData.auditTime">{{ refundDetailData.auditTime }}</NFormItem>
+        <NFormItem label="审核人" v-if="refundDetailData.auditorName">{{ refundDetailData.auditorName }}</NFormItem>
+        <NFormItem label="创建时间">{{ refundDetailData.createTime }}</NFormItem>
+      </NForm>
+    </NModal>
+
+    <!-- Refund Audit Modal -->
+    <NModal v-model:show="refundAuditVisible" title="退款审核" preset="card" style="width: 500px">
+      <NForm label-placement="left" label-width="80">
+        <NFormItem label="审核结果">
+          <NSelect
+            v-model:value="refundAuditData.result"
+            :options="[
+              { label: '通过', value: 'APPROVED' },
+              { label: '驳回', value: 'REJECTED' }
+            ]"
+            style="width: 200px"
+          />
+        </NFormItem>
+        <NFormItem label="审核备注">
+          <NInput
+            v-model:value="refundAuditData.remark"
+            type="textarea"
+            placeholder="请输入审核备注"
+            :rows="3"
+          />
+        </NFormItem>
+      </NForm>
+      <template #footer>
+        <NSpace justify="end">
+          <NButton @click="refundAuditVisible = false">取消</NButton>
+          <NButton type="primary" :loading="refundAuditLoading" @click="handleRefundAudit">提交</NButton>
+        </NSpace>
+      </template>
     </NModal>
   </div>
 </template>

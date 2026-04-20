@@ -178,5 +178,158 @@ declare namespace Api {
       /** 自付统计 */
       selfPayTotal: number;
     }
+
+    // ==================== 服务定价 ====================
+
+    /** 服务定价查询参数 */
+    interface ServicePriceQuery {
+      /** 服务类型编码 */
+      serviceTypeCode?: string;
+      /** 服务类型名称 */
+      serviceTypeName?: string;
+      /** 服务商ID */
+      providerId?: string;
+      /** 状态 */
+      status?: string;
+    }
+
+    /** 服务定价表单 */
+    interface ServicePriceForm {
+      /** 定价ID（编辑时需要） */
+      id?: string;
+      /** 服务类型编码 */
+      serviceTypeCode: string;
+      /** 服务类型名称 */
+      serviceTypeName: string;
+      /** 服务商ID */
+      providerId: string;
+      /** 服务商名称 */
+      providerName?: string;
+      /** 政府补贴标准 */
+      governmentSubsidy: number;
+      /** 自付标准 */
+      selfPayStandard: number;
+      /** 最低收费 */
+      minimumFee?: number;
+      /** 最高收费 */
+      maximumFee?: number;
+      /** 计时单位（分钟） */
+      timeUnit?: number;
+      /** 状态 */
+      status?: string;
+      /** 备注 */
+      remark?: string;
+    }
+
+    /** 服务定价详情 */
+    interface ServicePrice {
+      /** 定价ID */
+      id: string;
+      /** 服务类型编码 */
+      serviceTypeCode: string;
+      /** 服务类型名称 */
+      serviceTypeName: string;
+      /** 服务商ID */
+      providerId: string;
+      /** 服务商名称 */
+      providerName?: string;
+      /** 政府补贴标准 */
+      governmentSubsidy: number;
+      /** 自付标准 */
+      selfPayStandard: number;
+      /** 最低收费 */
+      minimumFee?: number;
+      /** 最高收费 */
+      maximumFee?: number;
+      /** 计时单位（分钟） */
+      timeUnit?: number;
+      /** 状态 */
+      status: string;
+      /** 备注 */
+      remark?: string;
+      /** 创建时间 */
+      createTime: string;
+    }
+
+    // ==================== 退款 ====================
+
+    /** 退款查询参数 */
+    interface RefundQuery {
+      /** 退款单号 */
+      refundNo?: string;
+      /** 订单号 */
+      orderNo?: string;
+      /** 退款状态 */
+      status?: string;
+      /** 退款类型 */
+      refundType?: string;
+      /** 服务商ID */
+      providerId?: string;
+      /** 开始日期 */
+      startDate?: string;
+      /** 结束日期 */
+      endDate?: string;
+    }
+
+    /** 退款表单 */
+    interface RefundForm {
+      /** 订单ID */
+      orderId: string;
+      /** 退款原因 */
+      reason: string;
+      /** 退款金额 */
+      amount: number;
+      /** 退款类型 */
+      refundType?: string;
+      /** 备注 */
+      remark?: string;
+    }
+
+    /** 退款详情 */
+    interface Refund {
+      /** 退款ID */
+      id: string;
+      /** 退款单号 */
+      refundNo: string;
+      /** 订单ID */
+      orderId: string;
+      /** 订单号 */
+      orderNo?: string;
+      /** 服务商ID */
+      providerId: string;
+      /** 服务商名称 */
+      providerName?: string;
+      /** 服务人员ID */
+      staffId?: string;
+      /** 服务人员姓名 */
+      staffName?: string;
+      /** 老人ID */
+      elderId: string;
+      /** 老人姓名 */
+      elderName?: string;
+      /** 退款金额 */
+      amount: number;
+      /** 退款类型 */
+      refundType: string;
+      /** 退款原因 */
+      reason: string;
+      /** 退款状态 */
+      status: RefundStatus;
+      /** 审核备注 */
+      auditRemark?: string;
+      /** 审核时间 */
+      auditTime?: string;
+      /** 审核人 */
+      auditorId?: string;
+      /** 审核人姓名 */
+      auditorName?: string;
+      /** 备注 */
+      remark?: string;
+      /** 创建时间 */
+      createTime: string;
+    }
+
+    /** 退款状态 */
+    type RefundStatus = 'PENDING' | 'APPROVED' | 'REJECTED' | 'COMPLETED' | 'FAILED';
   }
 }

@@ -124,7 +124,7 @@ declare namespace Api {
     type CheckResult = 'QUALIFIED' | 'UNQUALIFIED' | 'NEED_RECTIFY';
 
     /** 整改状态 */
-    type RectifyStatus = 'PENDING' | 'IN_PROGRESS' | 'COMPLETED' | 'VERIFIED' | 'FAILED';
+    type RectifyStatus = 'PENDING' | 'IN_PROGRESS' | 'RECHECK' | 'COMPLETED' | 'VERIFIED' | 'FAILED';
 
     /** 质检统计 */
     interface Statistics {

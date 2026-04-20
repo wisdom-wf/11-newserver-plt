@@ -227,7 +227,6 @@ const local: App.I18n.Schema = {
     'iframe-page': '外链页面',
     home: '首页',
     system: '系统管理',
-    system_area: '区域管理',
     system_menu: '菜单管理',
     system_dict: '字典管理',
     system_role: '角色管理',
@@ -235,13 +234,17 @@ const local: App.I18n.Schema = {
     business: '业务管理',
     business_order: '订单管理',
     business_elder: '老人档案管理',
+    business_healthArchive: '健康档案管理',
     business_staff: '服务人员管理',
     'business_service-log': '服务日志',
     business_evaluation: '满意度评价',
     business_financial: '财务结算',
     business_quality: '质检管理',
     appointment: '预约信息管理',
-    provider: '服务商管理'
+    provider: '服务商管理',
+    public: '公开页面',
+    public_dashboard: '公开驾驶舱',
+    public_mobile: '移动端概览'
   },
   page: {
     login: {

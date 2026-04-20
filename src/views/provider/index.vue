@@ -1,6 +1,6 @@
 <script setup lang="ts">
 import { ref, h, onMounted } from 'vue';
-import { NButton, NCard, NTag, NSpace, NInput, NSelect, useMessage } from 'naive-ui';
+import { NButton, NCard, NTag, NSpace, NInput, NSelect, useMessage, NPopconfirm } from 'naive-ui';
 import type { DataTableColumns } from 'naive-ui';
 import { useFormRules } from '@/hooks/common/form';
 import {
@@ -100,7 +100,18 @@ const columns: DataTableColumns<Api.Provider.Provider> = [
         buttons.push(h(NButton, { size: 'small', onClick: () => handleOpenEdit(row.providerId) }, () => '编辑'));
       }
       if (hasAuth('provider:list:delete')) {
-        buttons.push(h(NButton, { size: 'small', type: 'error', onClick: () => handleDelete(row.providerId) }, () => '删除'));
+        buttons.push(
+          h(
+            NPopconfirm,
+            {
+              onPositiveClick: () => handleDelete(row.providerId)
+            },
+            {
+              trigger: () => h(NButton, { size: 'small', type: 'error' }, { default: () => '删除' }),
+              default: () => '确认删除?'
+            }
+          )
+        );
       }
       return h(NSpace, { size: 'small' }, () => buttons);
     }

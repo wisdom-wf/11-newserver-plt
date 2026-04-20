@@ -54,6 +54,17 @@ export function fetchDeleteElder(id: string) {
 }
 
 /**
+ * 获取最近更新的老人列表（用于健康卡片展示）
+ */
+export function fetchGetRecentUpdatedElders(limit: number = 10) {
+  return request<Api.Elder.ElderHealthCard[]>({
+    url: '/api/elders/recent',
+    method: 'get',
+    params: { limit }
+  });
+}
+
+/**
  * 更新老人状态
  */
 export function fetchUpdateElderStatus(id: string, status: Api.Common.EnableStatus) {
@@ -92,6 +103,172 @@ export function fetchGetElderOptions(params?: { areaId?: string; communityId?: s
 export function fetchGetElderByIdCard(idCard: string) {
   return request<Api.Elder.Elder>({
     url: `/api/elders/idCard/${idCard}`,
+    method: 'get'
+  });
+}
+
+// ==================== 健康测量记录 ====================
+
+/**
+ * 添加健康测量记录
+ */
+export function fetchAddHealthMeasurement(elderId: string, data: Api.Elder.HealthMeasurementForm) {
+  return request<Api.Elder.HealthMeasurement>({
+    url: `/api/elders/${elderId}/measurements`,
+    method: 'post',
+    data
+  });
+}
+
+/**
+ * 批量添加健康测量记录
+ */
+export function fetchAddHealthMeasurements(elderId: string, data: Api.Elder.HealthMeasurementForm[]) {
+  return request<Api.Elder.HealthMeasurement[]>({
+    url: `/api/elders/${elderId}/measurements/batch`,
+    method: 'post',
+    data
+  });
+}
+
+/**
+ * 获取健康测量历史
+ */
+export function fetchGetHealthMeasurementHistory(
+  elderId: string,
+  params?: { measurementType?: string; limit?: number }
+) {
+  return request<Api.Elder.HealthMeasurement[]>({
+    url: `/api/elders/${elderId}/measurements`,
+    method: 'get',
+    params
+  });
+}
+
+/**
+ * 获取老人最新一次测量记录（指定类型）
+ */
+export function fetchGetLatestMeasurement(elderId: string, measurementType: string) {
+  return request<Api.Elder.HealthMeasurement>({
+    url: `/api/elders/${elderId}/measurements/latest`,
+    method: 'get',
+    params: { measurementType }
+  });
+}
+
+/**
+ * 获取老人最新测量记录（所有类型）
+ */
+export function fetchGetLatestMeasurements(elderId: string) {
+  return request<Api.Elder.HealthMeasurement[]>({
+    url: `/api/elders/${elderId}/measurements/latest/all`,
+    method: 'get'
+  });
+}
+
+/**
+ * 获取健康测量统计数据
+ */
+export function fetchGetMeasurementStatistics(elderId: string, measurementType: string) {
+  return request<Api.Elder.HealthMeasurementStatistics>({
+    url: `/api/elders/${elderId}/measurements/statistics`,
+    method: 'get',
+    params: { measurementType }
+  });
+}
+
+/**
+ * 获取老人所有类型测量的统计数据
+ */
+export function fetchGetAllMeasurementStatistics(elderId: string) {
+  return request<Api.Elder.HealthMeasurementStatistics[]>({
+    url: `/api/elders/${elderId}/measurements/statistics/all`,
+    method: 'get'
+  });
+}
+
+/**
+ * 删除测量记录
+ */
+export function fetchDeleteMeasurement(measurementId: string) {
+  return request({
+    url: `/api/elders/measurements/${measurementId}`,
+    method: 'delete'
+  });
+}
+
+// ==================== 健康报告 ====================
+
+/**
+ * 生成健康报告
+ */
+export function fetchGenerateHealthReport(elderId: string, data: Api.Elder.HealthReportGenerate) {
+  return request<Api.Elder.HealthReport>({
+    url: `/api/elders/${elderId}/health-reports`,
+    method: 'post',
+    data
+  });
+}
+
+/**
+ * 获取老人健康报告列表
+ */
+export function fetchGetHealthReportList(elderId: string) {
+  return request<Api.Elder.HealthReport[]>({
+    url: `/api/elders/${elderId}/health-reports`,
+    method: 'get'
+  });
+}
+
+/**
+ * 获取健康报告详情
+ */
+export function fetchGetHealthReport(reportId: string) {
+  return request<Api.Elder.HealthReportVO>({
+    url: `/api/elders/health-reports/${reportId}`,
+    method: 'get'
+  });
+}
+
+/**
+ * 下载健康报告PDF
+ */
+export function fetchDownloadHealthReportPdf(reportId: string) {
+  return request<Blob>({
+    url: `/api/elders/health-reports/${reportId}/pdf`,
+    method: 'get',
+    responseType: 'blob'
+  });
+}
+
+/**
+ * 删除健康报告
+ */
+export function fetchDeleteHealthReport(reportId: string) {
+  return request({
+    url: `/api/elders/health-reports/${reportId}`,
+    method: 'delete'
+  });
+}
+
+// ==================== AI健康建议 ====================
+
+/**
+ * 获取护理建议
+ */
+export function fetchGetCareSuggestions(elderId: string) {
+  return request<Api.Elder.CareSuggestionVO>({
+    url: `/api/elders/${elderId}/care-suggestions`,
+    method: 'get'
+  });
+}
+
+/**
+ * 获取就医建议
+ */
+export function fetchGetMedicalSuggestions(elderId: string) {
+  return request<Api.Elder.MedicalSuggestionVO>({
+    url: `/api/elders/${elderId}/medical-suggestions`,
     method: 'get'
   });
 }

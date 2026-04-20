@@ -4,15 +4,11 @@ import {
   NButton,
   NCard,
   NDataTable,
-  NGrid,
-  NGi,
   NModal,
   NPopconfirm,
-  NTree,
   NSpace,
   NTag,
-  useMessage,
-  NSpin
+  useMessage
 } from 'naive-ui';
 import { fetchGetMenuTree, fetchDeleteMenu, fetchCreateMenu, fetchUpdateMenu } from '@/service/api';
 import type { DataTableColumns } from 'naive-ui';
@@ -146,50 +142,20 @@ onMounted(() => {
 
 <template>
   <div>
-    <NSpace vertical :size="16">
-      <NCard :bordered="false">
-        <NGrid :cols="2" :x-gap="16" responsive="screen" item-responsive>
-          <NGi span="2 m:6">
-            <NCard :bordered="false">
-              <template #header>
-                <NSpace>
-                  <NButton type="primary" size="small" @click="handleAdd">新增</NButton>
-                  <NButton size="small" @click="getTreeData">刷新</NButton>
-                </NSpace>
-              </template>
-              <NDataTable
-                :columns="columns"
-                :data="treeData"
-                :scroll-x="1200"
-                :expanded-row-keys="expandedKeys"
-                :row-key="(row: Api.User.Menu) => row.permissionId"
-                row-expandable
-              />
-            </NCard>
-          </NGi>
-          <NGi span="2 m:6">
-            <NCard title="菜单树" :bordered="false">
-              <template #header-extra>
-                <NButton size="small" @click="getTreeData">刷新</NButton>
-              </template>
-              <NSpin :show="loading">
-                <NTree
-                  v-if="treeData.length > 0"
-                  :data="treeData"
-                  :expanded-keys="expandedKeys"
-                  :block-line="true"
-                  block-node
-                  virtual-scroll
-                  label-field="permissionName"
-                  @update:expanded-keys="keys => (expandedKeys = keys)"
-                />
-                <div v-else style="padding: 20px; text-align: center; color: #999">暂无数据</div>
-              </NSpin>
-            </NCard>
-          </NGi>
-        </NGrid>
-      </NCard>
-    </NSpace>
+    <NCard :bordered="false">
+      <template #header>
+        <NSpace>
+          <NButton type="primary" size="small" @click="handleAdd">新增</NButton>
+          <NButton size="small" @click="getTreeData">刷新</NButton>
+        </NSpace>
+      </template>
+      <NDataTable
+        :columns="columns"
+        :data="treeData"
+        :scroll-x="1200"
+        :row-key="(row: Api.User.Menu) => row.permissionId"
+      />
+    </NCard>
 
     <NModal
       v-model:show="modalVisible"

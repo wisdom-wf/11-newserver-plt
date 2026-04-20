@@ -143,5 +143,69 @@ declare namespace Api {
       /** 平均评分 */
       avgRating: number;
     }
+
+    /** 服务日志（用于服务人员详情展示） */
+    interface StaffServiceLog {
+      /** 服务日志ID */
+      serviceLogId: string;
+      /** 订单ID */
+      orderId?: string;
+      /** 订单号 */
+      orderNo?: string;
+      /** 老人ID */
+      elderId?: string;
+      /** 老人姓名 */
+      elderName?: string;
+      /** 服务人员ID */
+      staffId?: string;
+      /** 服务人员姓名 */
+      staffName?: string;
+      /** 服务类型 */
+      serviceType?: string;
+      /** 服务类型名称 */
+      serviceCategory?: string;
+      /** 服务日期 */
+      serviceDate?: string;
+      /** 服务开始时间 */
+      serviceStartTime?: string;
+      /** 服务结束时间 */
+      serviceEndTime?: string;
+      /** 服务时长（分钟） */
+      serviceDuration?: number;
+      /** 实际服务时长 */
+      actualDuration?: number;
+      /** 服务评价/内容 */
+      serviceComment?: string;
+      /** 服务内容 */
+      serviceContent?: string;
+      /** 服务状态 */
+      status?: string;
+      /** 提交时间 */
+      submitTime?: string;
+      /** 是否有异常 */
+      hasAnomaly?: boolean;
+      /** 异常类型 */
+      anomalyType?: string;
+      /** 异常描述 */
+      anomalyDesc?: string;
+      /** 异常处理状态 */
+      anomalyStatus?: string;
+      /** 创建时间 */
+      createTime?: string;
+      /** 服务照片 */
+      servicePhotos?: string[];
+      /** 审核状态 */
+      auditStatus?: string;
+      /** 审核意见 */
+      reviewComment?: string;
+      /** 审核人姓名 */
+      reviewerName?: string;
+      /** 审核时间 */
+      reviewTime?: string;
+      /** 健康观察备注 */
+      healthObservations?: string;
+      /** 本次给药记录 */
+      medicationGiven?: string;
+    }
   }
 }

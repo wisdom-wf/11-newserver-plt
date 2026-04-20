@@ -231,7 +231,6 @@ const local: App.I18n.Schema = {
     'iframe-page': 'Iframe',
     home: 'Home',
     system: 'System',
-    system_area: 'Area Management',
     system_menu: 'Menu Management',
     system_dict: 'Dict Management',
     system_role: 'Role Management',
@@ -240,13 +239,17 @@ const local: App.I18n.Schema = {
     business_appointment: 'Appointment Management',
     business_order: 'Order Management',
     business_elder: 'Elder Archive',
+    business_healthArchive: 'Health Archive',
     business_provider: 'Provider Management',
     business_staff: 'Staff Management',
     'business_service-log': 'Service Log',
     business_cockpit: 'Operations Cockpit',
     business_evaluation: 'Satisfaction Evaluation',
     business_financial: 'Financial Settlement',
-    business_quality: 'Quality Inspection'
+    business_quality: 'Quality Inspection',
+    public: 'Public Pages',
+    public_dashboard: 'Public Dashboard',
+    public_mobile: 'Mobile View'
   },
   page: {
     login: {
