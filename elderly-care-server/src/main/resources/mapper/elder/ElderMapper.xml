@@ -104,4 +104,24 @@
         ORDER BY e.create_time DESC
     </select>
 
+    <select id="selectRecentUpdated" resultType="com.elderlycare.vo.elder.ElderHealthCardVO">
+        SELECT
+            e.elder_id AS elderId,
+            e.elder_name AS name,
+            e.photo_url AS photoUrl,
+            e.age AS age,
+            e.gender AS gender,
+            e.care_level AS careLevel,
+            e.health_status AS healthStatus,
+            e.phone AS phone,
+            e.update_time AS updateTime
+        FROM t_elder e
+        WHERE e.deleted = 0
+        <if test="providerId != null and providerId != ''">
+            AND e.provider_id = #{providerId}
+        </if>
+        ORDER BY e.update_time DESC
+        LIMIT #{limit}
+    </select>
+
 </mapper>

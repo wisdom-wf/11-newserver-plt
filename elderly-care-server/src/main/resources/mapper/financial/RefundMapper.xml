@@ -33,8 +33,11 @@
         <if test="query.orderId != null and query.orderId != ''">
             AND order_id = #{query.orderId}
         </if>
-        <if test="query.status != null and query.status != ''">
-            AND refund_status = #{query.status}
+        <if test="query.auditStatus != null and query.auditStatus != ''">
+            AND refund_status = #{query.auditStatus}
+        </if>
+        <if test="query.refundType != null and query.refundType != ''">
+            AND refund_type = #{query.refundType}
         </if>
         ORDER BY create_time DESC
     </select>

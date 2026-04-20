@@ -136,4 +136,9 @@ public class ElderDTO implements Serializable {
      * 紧急联系人关系
      */
     private String emergencyContactRelation;
+
+    /**
+     * 照片URL
+     */
+    private String photoUrl;
 }

@@ -10,6 +10,7 @@ import com.elderlycare.entity.elder.*;
 import com.elderlycare.entity.provider.Provider;
 import com.elderlycare.mapper.config.AreaMapper;
 import com.elderlycare.mapper.elder.*;
+import com.elderlycare.mapper.elder.HealthMeasurementMapper;
 import com.elderlycare.mapper.provider.ProviderMapper;
 import com.elderlycare.vo.elder.*;
 import lombok.RequiredArgsConstructor;
@@ -42,6 +43,7 @@ public class ElderServiceImpl implements ElderService {
     private final ElderSubsidyMapper elderSubsidyMapper;
     private final ProviderMapper providerMapper;
     private final AreaMapper areaMapper;
+    private final HealthMeasurementMapper measurementMapper;
 
     // ==================== 老人档案管理 ====================
 
@@ -780,5 +782,155 @@ public class ElderServiceImpl implements ElderService {
             case "CANCELLED" -> "注销";
             default -> "未知";
         };
+    }
+
+    @Override
+    public List<ElderHealthCardVO> getRecentUpdatedElders(String providerId, int limit) {
+        List<ElderHealthCardVO> cards = elderMapper.selectRecentUpdated(providerId, limit);
+
+        // 转换性别和护理等级为中文名称，并获取最新测量和健康指数
+        for (ElderHealthCardVO card : cards) {
+            card.setGenderName("MALE".equals(card.getGender()) ? "女" : "男");
+            card.setCareLevelName(getCareLevelNameString(card.getCareLevel()));
+
+            // 获取该老人的最新测量记录
+            LambdaQueryWrapper<HealthMeasurement> wrapper = new LambdaQueryWrapper<>();
+            wrapper.eq(HealthMeasurement::getElderId, card.getElderId());
+            wrapper.orderByDesc(HealthMeasurement::getMeasuredAt);
+            wrapper.last("LIMIT 1");
+            HealthMeasurement latest = measurementMapper.selectOne(wrapper);
+
+            if (latest != null) {
+                card.setLatestMeasurementValue(latest.getMeasurementValue());
+                card.setLatestMeasurementTime(latest.getMeasuredAt().toString());
+                card.setLatestMeasurementType(getMeasurementTypeName(latest.getMeasurementType()));
+                // 计算健康指数
+                card.setHealthIndex(calculateHealthIndexInternal(card.getElderId()));
+                card.setHealthStatus(getHealthStatusFromIndex(card.getHealthIndex()));
+            } else {
+                card.setHealthIndex(75); // 没有测量数据时返回中等分数
+                card.setHealthStatus("WARNING");
+            }
+        }
+        return cards;
+    }
+
+    private String getMeasurementTypeName(String type) {
+        if (type == null) return "";
+        return switch (type) {
+            case "BLOOD_PRESSURE" -> "血压";
+            case "BLOOD_GLUCOSE" -> "血糖";
+            case "WEIGHT" -> "体重";
+            case "TEMPERATURE" -> "体温";
+            case "PULSE" -> "脉搏";
+            case "SPO2" -> "血氧";
+            case "PAIN_SCALE" -> "疼痛";
+            default -> type;
+        };
+    }
+
+    private int calculateHealthIndexInternal(String elderId) {
+        // 获取老人所有类型的最新测量
+        LambdaQueryWrapper<HealthMeasurement> wrapper = new LambdaQueryWrapper<>();
+        wrapper.eq(HealthMeasurement::getElderId, elderId);
+        wrapper.orderByDesc(HealthMeasurement::getMeasuredAt);
+        List<HealthMeasurement> measurements = measurementMapper.selectList(wrapper);
+
+        if (measurements.isEmpty()) {
+            return 75; // 没有测量数据时返回中等分数
+        }
+
+        // 按类型分组取最新
+        Map<String, HealthMeasurement> latestByType = measurements.stream()
+                .collect(java.util.stream.Collectors.toMap(
+                        HealthMeasurement::getMeasurementType,
+                        m -> m,
+                        (m1, m2) -> m1.getMeasuredAt().isAfter(m2.getMeasuredAt()) ? m1 : m2
+                ));
+
+        int totalScore = 60; // 基础分
+        int count = 0;
+
+        for (HealthMeasurement m : latestByType.values()) {
+            int score = evaluateMeasurementScore(m.getMeasurementType(), m.getMeasurementValue());
+            totalScore += score;
+            count++;
+        }
+
+        if (count > 0) {
+            totalScore = Math.min(100, Math.max(0, 60 + (totalScore - 60) / Math.min(count, 4) * Math.min(count, 4)));
+        }
+
+        return totalScore;
+    }
+
+    private int evaluateMeasurementScore(String type, String value) {
+        if (value == null || value.isEmpty()) return 0;
+        try {
+            switch (type) {
+                case "BLOOD_PRESSURE":
+                    String[] bpParts = value.split("/");
+                    if (bpParts.length == 2) {
+                        int systolic = Integer.parseInt(bpParts[0].trim());
+                        int diastolic = Integer.parseInt(bpParts[1].trim());
+                        if (systolic >= 90 && systolic <= 120 && diastolic >= 60 && diastolic <= 80) {
+                            return 20;
+                        } else if (systolic <= 140 && diastolic <= 90) {
+                            return 10;
+                        } else if (systolic > 160 || diastolic > 100) {
+                            return -10;
+                        }
+                        return 5;
+                    }
+                    return 0;
+                case "BLOOD_GLUCOSE":
+                    BigDecimal glucose = new BigDecimal(value.trim());
+                    if (glucose.compareTo(new BigDecimal("4.4")) >= 0 && glucose.compareTo(new BigDecimal("6.1")) <= 0) {
+                        return 15;
+                    } else if (glucose.compareTo(new BigDecimal("7.0")) <= 0) {
+                        return 5;
+                    } else if (glucose.compareTo(new BigDecimal("11.0")) > 0) {
+                        return -5;
+                    }
+                    return 0;
+                case "WEIGHT":
+                    try {
+                        double weight = Double.parseDouble(value.trim());
+                        if (weight >= 40 && weight <= 80) return 10;
+                        else if (weight >= 30 && weight <= 100) return 5;
+                    } catch (NumberFormatException ignored) {}
+                    return 0;
+                case "TEMPERATURE":
+                    BigDecimal temp = new BigDecimal(value.trim());
+                    if (temp.compareTo(new BigDecimal("36.3")) >= 0 && temp.compareTo(new BigDecimal("37.2")) <= 0) return 10;
+                    else if (temp.compareTo(new BigDecimal("38.0")) > 0) return -5;
+                    return 5;
+                case "PULSE":
+                    int pulse = Integer.parseInt(value.trim());
+                    if (pulse >= 60 && pulse <= 100) return 10;
+                    return 5;
+                case "SPO2":
+                    int spo2 = Integer.parseInt(value.trim());
+                    if (spo2 >= 95) return 10;
+                    else if (spo2 >= 94) return 5;
+                    return -5;
+                case "PAIN_SCALE":
+                    int pain = Integer.parseInt(value.trim());
+                    if (pain <= 3) return 5;
+                    else if (pain <= 6) return 0;
+                    return -5;
+                default:
+                    return 0;
+            }
+        } catch (Exception e) {
+            return 0;
+        }
+    }
+
+    private String getHealthStatusFromIndex(Integer index) {
+        if (index == null) return "WARNING";
+        if (index >= 80) return "NORMAL";
+        if (index >= 60) return "WARNING";
+        return "ALERT";
     }
 }

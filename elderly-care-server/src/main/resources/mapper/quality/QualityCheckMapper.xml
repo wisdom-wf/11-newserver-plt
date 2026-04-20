@@ -38,6 +38,9 @@
     <select id="selectQualityCheckPage" resultMap="BaseResultMap">
         SELECT * FROM quality_check
         WHERE deleted = 0
+        <if test="dto.orderNo != null and dto.orderNo != ''">
+            AND order_no LIKE CONCAT('%', #{dto.orderNo}, '%')
+        </if>
         <if test="dto.providerId != null and dto.providerId != ''">
             AND provider_id = #{dto.providerId}
         </if>
@@ -46,6 +49,9 @@
         </if>
         <if test="dto.staffName != null and dto.staffName != ''">
             AND staff_name LIKE CONCAT('%', #{dto.staffName}, '%')
+        </if>
+        <if test="dto.serviceCategory != null and dto.serviceCategory != ''">
+            AND service_category = #{dto.serviceCategory}
         </if>
         <if test="dto.checkType != null and dto.checkType != ''">
             AND check_type = #{dto.checkType}
@@ -62,11 +68,11 @@
         <if test="dto.rectifyStatus != null and dto.rectifyStatus != ''">
             AND rectify_status = #{dto.rectifyStatus}
         </if>
-        <if test="dto.checkStartTime != null">
-            AND check_time &gt;= #{dto.checkStartTime}
+        <if test="dto.startDate != null and dto.startDate != ''">
+            AND check_time &gt;= #{dto.startDate}
         </if>
-        <if test="dto.checkEndTime != null">
-            AND check_time &lt;= #{dto.checkEndTime}
+        <if test="dto.endDate != null and dto.endDate != ''">
+            AND check_time &lt;= #{dto.endDate}
         </if>
         ORDER BY create_time DESC
     </select>

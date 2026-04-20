@@ -51,4 +51,10 @@ public interface HealthMeasurementService {
      * 删除测量记录
      */
     void deleteMeasurement(String measurementId);
+
+    /**
+     * 计算老人健康指数（0-100）
+     * 基于各类型测量的综合评分
+     */
+    int calculateHealthIndex(String elderId);
 }

@@ -120,4 +120,10 @@ public class ServiceLogVO implements Serializable {
 
     /** 审核时间 */
     private String reviewTime;
+
+    /** 健康观察备注 */
+    private String healthObservations;
+
+    /** 本次给药记录 */
+    private String medicationGiven;
 }

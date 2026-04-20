@@ -374,4 +374,131 @@ public class HealthMeasurementServiceImpl implements HealthMeasurementService {
         stats.setAlertStatus(alertStatus);
         stats.setAlertMessage(alertMessage);
     }
+
+    @Override
+    public int calculateHealthIndex(String elderId) {
+        // 获取老人所有类型的最新测量
+        List<HealthMeasurementVO> latestMeasurements = getLatestMeasurements(elderId);
+
+        if (latestMeasurements == null || latestMeasurements.isEmpty()) {
+            return 75; // 没有测量数据时返回中等分数
+        }
+
+        int totalScore = 60; // 基础分
+        int count = 0;
+
+        for (HealthMeasurementVO measurement : latestMeasurements) {
+            int score = evaluateMeasurementScore(measurement.getMeasurementType(), measurement.getMeasurementValue());
+            totalScore += score;
+            count++;
+        }
+
+        // 考虑测量类型数量进行调整
+        if (count > 0) {
+            // 根据实际测量类型数量微调分数
+            int averageExtra = (totalScore - 60) / count;
+            totalScore = Math.min(100, Math.max(0, 60 + averageExtra * Math.min(count, 4)));
+        }
+
+        return totalScore;
+    }
+
+    /**
+     * 根据测量类型和值计算加分
+     * 满分100，基础分60，各类型正常加分
+     */
+    private int evaluateMeasurementScore(String type, String value) {
+        if (value == null || value.isEmpty()) {
+            return 0;
+        }
+
+        try {
+            switch (type) {
+                case "BLOOD_PRESSURE":
+                    // 血压：正常 120/80 左右 +20，高血压 140/90 +10，超高 160/100 -10
+                    String[] bpParts = value.split("/");
+                    if (bpParts.length == 2) {
+                        int systolic = Integer.parseInt(bpParts[0].trim());
+                        int diastolic = Integer.parseInt(bpParts[1].trim());
+                        if (systolic >= 90 && systolic <= 120 && diastolic >= 60 && diastolic <= 80) {
+                            return 20; // 正常
+                        } else if (systolic <= 140 && diastolic <= 90) {
+                            return 10; // 正常高值
+                        } else if (systolic > 160 || diastolic > 100) {
+                            return -10; // 高血压
+                        }
+                        return 5; // 其他情况
+                    }
+                    return 0;
+
+                case "BLOOD_GLUCOSE":
+                    // 血糖：正常 4.4-6.1 +15，偏高 6.1-7.0 +5，超高 >7.0 -5
+                    BigDecimal glucose = new BigDecimal(value.trim());
+                    if (glucose.compareTo(new BigDecimal("4.4")) >= 0 && glucose.compareTo(new BigDecimal("6.1")) <= 0) {
+                        return 15; // 正常
+                    } else if (glucose.compareTo(new BigDecimal("7.0")) <= 0) {
+                        return 5; // 偏高
+                    } else if (glucose.compareTo(new BigDecimal("11.0")) > 0) {
+                        return -5; // 超高
+                    }
+                    return 0;
+
+                case "WEIGHT":
+                    // 体重：根据BMI估算，正常范围 +10
+                    // 这里简化处理，体重值在40-80kg之间视为正常
+                    try {
+                        double weight = Double.parseDouble(value.trim());
+                        if (weight >= 40 && weight <= 80) {
+                            return 10;
+                        } else if (weight >= 30 && weight <= 100) {
+                            return 5;
+                        }
+                    } catch (NumberFormatException ignored) {}
+                    return 0;
+
+                case "TEMPERATURE":
+                    // 体温：36.3-37.2 正常 +10
+                    BigDecimal temp = new BigDecimal(value.trim());
+                    if (temp.compareTo(new BigDecimal("36.3")) >= 0 && temp.compareTo(new BigDecimal("37.2")) <= 0) {
+                        return 10;
+                    } else if (temp.compareTo(new BigDecimal("38.0")) > 0) {
+                        return -5; // 发烧
+                    }
+                    return 5;
+
+                case "PULSE":
+                    // 脉搏：60-100 正常 +10
+                    int pulse = Integer.parseInt(value.trim());
+                    if (pulse >= 60 && pulse <= 100) {
+                        return 10;
+                    }
+                    return 5;
+
+                case "SPO2":
+                    // 血氧：95-100 正常 +10，94 偏低，<94 预警
+                    int spo2 = Integer.parseInt(value.trim());
+                    if (spo2 >= 95) {
+                        return 10;
+                    } else if (spo2 >= 94) {
+                        return 5;
+                    }
+                    return -5;
+
+                case "PAIN_SCALE":
+                    // 疼痛指数：0-3 正常 +5，4-6 中等，7-10 严重
+                    int pain = Integer.parseInt(value.trim());
+                    if (pain <= 3) {
+                        return 5;
+                    } else if (pain <= 6) {
+                        return 0;
+                    }
+                    return -5;
+
+                default:
+                    return 0;
+            }
+        } catch (Exception e) {
+            return 0;
+        }
+    }
 }

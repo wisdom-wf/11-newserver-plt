@@ -66,6 +66,9 @@
         <if test="query.staffId != null and query.staffId != ''">
             AND o.staff_id = #{query.staffId}
         </if>
+        <if test="query.orderNo != null and query.orderNo != ''">
+            AND o.order_no LIKE CONCAT('%', #{query.orderNo}, '%')
+        </if>
         ORDER BY o.create_time DESC
     </select>
 

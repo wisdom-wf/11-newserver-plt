@@ -6,10 +6,15 @@ import com.elderlycare.common.UserContext;
 import com.elderlycare.dto.elder.*;
 import com.elderlycare.entity.elder.*;
 import com.elderlycare.service.elder.ElderService;
+import com.elderlycare.service.elder.HealthAdviceService;
 import com.elderlycare.service.elder.HealthMeasurementService;
 import com.elderlycare.service.elder.HealthReportService;
 import com.elderlycare.vo.elder.*;
 import lombok.RequiredArgsConstructor;
+import org.springframework.http.HttpHeaders;
+import org.springframework.http.HttpStatus;
+import org.springframework.http.MediaType;
+import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
@@ -25,6 +30,7 @@ public class ElderController {
     private final ElderService elderService;
     private final HealthMeasurementService healthMeasurementService;
     private final HealthReportService healthReportService;
+    private final HealthAdviceService healthAdviceService;
 
     // ==================== 老人档案管理 ====================
 
@@ -49,6 +55,17 @@ public class ElderController {
         }
         IPage<ElderVO> page = elderService.getElderPage(dto);
         return Result.success(page);
+    }
+
+    /**
+     * 获取最近更新的老人档案列表（用于健康卡片展示）
+     */
+    @GetMapping("/recent")
+    public Result<List<ElderHealthCardVO>> getRecentUpdatedElders(
+            @RequestParam(defaultValue = "10") int limit) {
+        String providerId = UserContext.getProviderId();
+        List<ElderHealthCardVO> cards = elderService.getRecentUpdatedElders(providerId, limit);
+        return Result.success(cards);
     }
 
     /**
@@ -267,9 +284,14 @@ public class ElderController {
      * 下载健康报告PDF
      */
     @GetMapping("/health-reports/{reportId}/pdf")
-    public Result<byte[]> downloadHealthReportPdf(@PathVariable String reportId) {
+    public ResponseEntity<byte[]> downloadHealthReportPdf(@PathVariable String reportId) {
         byte[] pdfContent = healthReportService.downloadPdf(reportId);
-        return Result.success(pdfContent);
+
+        HttpHeaders headers = new HttpHeaders();
+        headers.setContentType(MediaType.APPLICATION_PDF);
+        headers.setContentDispositionFormData("attachment", "health-report.pdf");
+
+        return new ResponseEntity<>(pdfContent, headers, HttpStatus.OK);
     }
 
     /**
@@ -356,5 +378,25 @@ public class ElderController {
     public Result<SubsidyBalanceVO> getSubsidyBalance(@PathVariable String subsidyId) {
         SubsidyBalanceVO balance = elderService.getSubsidyBalance(subsidyId);
         return Result.success(balance);
+    }
+
+    // ==================== AI健康建议（规则引擎）====================
+
+    /**
+     * 获取护理建议
+     */
+    @GetMapping("/{elderId}/care-suggestions")
+    public Result<CareSuggestionVO> getCareSuggestions(@PathVariable String elderId) {
+        CareSuggestionVO suggestions = healthAdviceService.getCareSuggestions(elderId);
+        return Result.success(suggestions);
+    }
+
+    /**
+     * 获取就医建议
+     */
+    @GetMapping("/{elderId}/medical-suggestions")
+    public Result<MedicalSuggestionVO> getMedicalSuggestions(@PathVariable String elderId) {
+        MedicalSuggestionVO suggestions = healthAdviceService.getMedicalSuggestions(elderId);
+        return Result.success(suggestions);
     }
 }

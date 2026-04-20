@@ -38,6 +38,9 @@ public class ServiceLogQueryDTO {
     /** 结束日期 */
     private String endDate;
 
+    /** 审核状态 */
+    private String auditStatus;
+
     /** 当前页 */
     private Integer current = 1;
 

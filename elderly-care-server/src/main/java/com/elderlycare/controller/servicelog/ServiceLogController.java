@@ -101,4 +101,37 @@ public class ServiceLogController {
         ServiceLogStatisticsVO result = serviceLogService.getStatistics(areaId, providerId, staffId, startDate, endDate);
         return Result.success(result);
     }
+
+    /**
+     * 提交服务日志审核
+     * PUT /api/service-log/{id}/submit-review
+     */
+    @PutMapping("/{id}/submit-review")
+    public Result<Void> submitForReview(@PathVariable String id) {
+        serviceLogService.submitForReview(id);
+        return Result.success("提交审核成功");
+    }
+
+    /**
+     * 审核服务日志
+     * PUT /api/service-log/{id}/review
+     */
+    @PutMapping("/{id}/review")
+    public Result<Void> reviewServiceLog(
+            @PathVariable String id,
+            @RequestParam String result,
+            @RequestParam(required = false) String reviewComment) {
+        serviceLogService.reviewServiceLog(id, result, reviewComment);
+        return Result.success("审核完成");
+    }
+
+    /**
+     * 删除服务日志
+     * DELETE /api/service-log/{id}
+     */
+    @DeleteMapping("/{id}")
+    public Result<Void> deleteServiceLog(@PathVariable String id) {
+        serviceLogService.deleteServiceLog(id);
+        return Result.success("删除成功");
+    }
 }

@@ -126,7 +126,7 @@ public class QualityCheckServiceImpl implements QualityCheckService {
         if (qualityCheck != null) {
             qualityCheck.setRectifyPhotos((String) params.get("photos"));
             qualityCheck.setRectifyRemark((String) params.get("remark"));
-            qualityCheck.setRectifyStatus("IN_PROGRESS");
+            qualityCheck.setRectifyStatus("RECHECK");
             qualityCheckMapper.updateById(qualityCheck);
         }
     }
@@ -136,7 +136,6 @@ public class QualityCheckServiceImpl implements QualityCheckService {
         QualityCheck qualityCheck = qualityCheckMapper.selectById(id);
         if (qualityCheck != null) {
             qualityCheck.setRecheckResult((String) params.get("result"));
-            qualityCheck.setRectifyRemark((String) params.get("remark"));
             qualityCheck.setRecheckTime(LocalDateTime.now());
             if ("PASSED".equals(params.get("result"))) {
                 qualityCheck.setRectifyStatus("VERIFIED");

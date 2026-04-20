@@ -1,4 +1,76 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
 <mapper namespace="com.elderlycare.mapper.appointment.AppointmentMapper">
+
+    <resultMap id="BaseResultMap" type="com.elderlycare.entity.appointment.Appointment">
+        <id column="appointment_id" property="appointmentId"/>
+        <result column="appointment_no" property="appointmentNo"/>
+        <result column="elder_name" property="elderName"/>
+        <result column="elder_id_card" property="elderIdCard"/>
+        <result column="elder_phone" property="elderPhone"/>
+        <result column="elder_address" property="elderAddress"/>
+        <result column="elder_area_id" property="elderAreaId"/>
+        <result column="elder_area_name" property="elderAreaName"/>
+        <result column="service_type" property="serviceType"/>
+        <result column="service_type_code" property="serviceTypeCode"/>
+        <result column="service_content" property="serviceContent"/>
+        <result column="appointment_time" property="appointmentTime"/>
+        <result column="service_duration" property="serviceDuration"/>
+        <result column="provider_id" property="providerId"/>
+        <result column="provider_name" property="providerName"/>
+        <result column="provider_address" property="providerAddress"/>
+        <result column="visitor_count" property="visitorCount"/>
+        <result column="remark" property="remark"/>
+        <result column="status" property="status"/>
+        <result column="validity" property="validity"/>
+        <result column="cancel_reason" property="cancelReason"/>
+        <result column="reply_info" property="replyInfo"/>
+        <result column="assessment_type" property="assessmentType"/>
+        <result column="order_id" property="orderId"/>
+        <result column="order_no" property="orderNo"/>
+        <result column="create_time" property="createTime"/>
+        <result column="confirm_time" property="confirmTime"/>
+        <result column="update_time" property="updateTime"/>
+    </resultMap>
+
+    <select id="selectAppointmentPage" resultMap="BaseResultMap">
+        SELECT * FROM appointment
+        WHERE validity = 'VALID'
+        <if test="query.appointmentNo != null and query.appointmentNo != ''">
+            AND appointment_no LIKE CONCAT('%', #{query.appointmentNo}, '%')
+        </if>
+        <if test="query.elderName != null and query.elderName != ''">
+            AND elder_name LIKE CONCAT('%', #{query.elderName}, '%')
+        </if>
+        <if test="query.elderPhone != null and query.elderPhone != ''">
+            AND elder_phone = #{query.elderPhone}
+        </if>
+        <if test="query.serviceType != null and query.serviceType != ''">
+            AND service_type = #{query.serviceType}
+        </if>
+        <if test="query.serviceTypeCode != null and query.serviceTypeCode != ''">
+            AND service_type_code = #{query.serviceTypeCode}
+        </if>
+        <if test="query.status != null and query.status != ''">
+            AND status = #{query.status}
+        </if>
+        <if test="query.areaId != null and query.areaId != ''">
+            AND elder_area_id = #{query.areaId}
+        </if>
+        <if test="query.providerId != null and query.providerId != ''">
+            AND provider_id = #{query.providerId}
+        </if>
+        <if test="query.startDate != null and query.startDate != ''">
+            AND appointment_time &gt;= #{query.startDate}
+        </if>
+        <if test="query.endDate != null and query.endDate != ''">
+            AND appointment_time &lt;= #{query.endDate}
+        </if>
+        ORDER BY create_time DESC
+    </select>
+
+    <select id="selectByIdWithNames" resultMap="BaseResultMap">
+        SELECT * FROM appointment WHERE appointment_id = #{appointmentId} AND validity = 'VALID'
+    </select>
+
 </mapper>

@@ -69,6 +69,15 @@
         <if test="query.providerName != null and query.providerName != ''">
             AND p.provider_name LIKE CONCAT('%', #{query.providerName}, '%')
         </if>
+        <if test="query.serviceTypeCode != null and query.serviceTypeCode != ''">
+            AND o.service_type_code = #{query.serviceTypeCode}
+        </if>
+        <if test="query.minRating != null">
+            AND se.average_score &gt;= #{query.minRating}
+        </if>
+        <if test="query.maxRating != null">
+            AND se.average_score &lt;= #{query.maxRating}
+        </if>
         <if test="query.startDate != null and query.startDate != ''">
             AND DATE(se.create_time) &gt;= #{query.startDate}
         </if>

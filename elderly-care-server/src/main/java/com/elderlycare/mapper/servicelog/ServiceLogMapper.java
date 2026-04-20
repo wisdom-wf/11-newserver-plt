@@ -8,6 +8,7 @@ import org.apache.ibatis.annotations.Select;
 
 import java.math.BigDecimal;
 import java.time.LocalDateTime;
+import java.util.List;
 
 /**
  * 服务日志Mapper
@@ -23,4 +24,6 @@ public interface ServiceLogMapper extends BaseMapper<ServiceLog> {
 
     @Select("SELECT AVG(actual_duration) FROM service_log WHERE deleted = 0 AND actual_duration IS NOT NULL")
     BigDecimal avgActualDuration();
+
+    List<ServiceLog> selectServiceLogsByStaffId(@Param("staffId") String staffId, @Param("limit") int limit);
 }

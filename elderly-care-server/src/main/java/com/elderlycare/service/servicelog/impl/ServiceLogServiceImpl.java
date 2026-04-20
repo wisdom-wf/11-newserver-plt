@@ -6,8 +6,10 @@ import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import com.elderlycare.common.IDGenerator;
 import com.elderlycare.common.PageResult;
 import com.elderlycare.dto.servicelog.ServiceLogQueryDTO;
+import com.elderlycare.entity.order.Order;
 import com.elderlycare.entity.quality.QualityCheck;
 import com.elderlycare.entity.servicelog.ServiceLog;
+import com.elderlycare.mapper.order.OrderMapper;
 import com.elderlycare.mapper.quality.QualityCheckMapper;
 import com.elderlycare.mapper.servicelog.ServiceLogMapper;
 import com.elderlycare.service.servicelog.ServiceLogService;
@@ -35,6 +37,7 @@ public class ServiceLogServiceImpl implements ServiceLogService {
 
     private final ServiceLogMapper serviceLogMapper;
     private final QualityCheckMapper qualityCheckMapper;
+    private final OrderMapper orderMapper;
     private final ObjectMapper objectMapper = new ObjectMapper();
 
     @Override
@@ -96,23 +99,31 @@ public class ServiceLogServiceImpl implements ServiceLogService {
     @Override
     @Transactional(rollbackFor = Exception.class)
     public void submitServiceLog(ServiceLogVO vo) {
+        // 先获取订单信息，填充服务商和人员字段
+        Order order = orderMapper.selectByIdWithNames(vo.getOrderId());
+
         ServiceLog serviceLog = new ServiceLog();
         serviceLog.setLogNo("SL" + System.currentTimeMillis());
         serviceLog.setOrderId(vo.getOrderId());
-        serviceLog.setElderId(vo.getElderId());
-        serviceLog.setElderName(vo.getElderName());
-        serviceLog.setElderPhone(vo.getElderPhone());
-        serviceLog.setStaffId(vo.getStaffId());
-        serviceLog.setStaffName(vo.getStaffName());
-        serviceLog.setProviderId(vo.getProviderId());
-        serviceLog.setServiceTypeCode(vo.getServiceCategory());
-        serviceLog.setServiceTypeName(vo.getServiceType());
+        // 优先使用VO中的值，否则使用订单中的值
+        serviceLog.setElderId(vo.getElderId() != null ? vo.getElderId() : (order != null ? order.getElderId() : null));
+        serviceLog.setElderName(vo.getElderName() != null ? vo.getElderName() : (order != null ? order.getElderName() : null));
+        serviceLog.setElderPhone(vo.getElderPhone() != null ? vo.getElderPhone() : (order != null ? order.getElderPhone() : null));
+        serviceLog.setStaffId(vo.getStaffId() != null ? vo.getStaffId() : (order != null ? order.getStaffId() : null));
+        serviceLog.setStaffName(vo.getStaffName() != null ? vo.getStaffName() : (order != null ? order.getStaffName() : null));
+        serviceLog.setStaffPhone(order != null ? order.getStaffPhone() : null);
+        serviceLog.setProviderId(vo.getProviderId() != null ? vo.getProviderId() : (order != null ? order.getProviderId() : null));
+        serviceLog.setProviderName(order != null ? order.getProviderName() : null);
+        serviceLog.setElderAddress(order != null ? order.getServiceAddress() : null);
+        serviceLog.setOrderNo(order != null ? order.getOrderNo() : null);
+        serviceLog.setServiceTypeCode(vo.getServiceCategory() != null ? vo.getServiceCategory() : (order != null ? order.getServiceTypeCode() : null));
+        serviceLog.setServiceTypeName(vo.getServiceType() != null ? vo.getServiceType() : (order != null ? order.getServiceTypeName() : null));
         serviceLog.setServiceDate(vo.getServiceDate());
         serviceLog.setServiceStartTime(vo.getServiceStartTime() != null ? LocalDateTime.parse(vo.getServiceStartTime()) : null);
         serviceLog.setServiceEndTime(vo.getServiceEndTime() != null ? LocalDateTime.parse(vo.getServiceEndTime()) : null);
         serviceLog.setServiceDuration(vo.getServiceDuration());
         serviceLog.setServiceComment(vo.getServiceContent() != null ? vo.getServiceContent() : vo.getServiceComment());
-        serviceLog.setServiceStatus(vo.getStatus());
+        serviceLog.setServiceStatus(vo.getStatus() != null ? vo.getStatus() : "PENDING");
         // 将照片数组序列化为JSON字符串存储
         if (vo.getServicePhotos() != null && vo.getServicePhotos().length > 0) {
             try {
@@ -123,6 +134,9 @@ public class ServiceLogServiceImpl implements ServiceLogService {
         }
         serviceLog.setAuditStatus("DRAFT");
         serviceLog.setCreateTime(LocalDateTime.now());
+        // 健康观察字段
+        serviceLog.setHealthObservations(vo.getHealthObservations());
+        serviceLog.setMedicationGiven(vo.getMedicationGiven());
         serviceLogMapper.insert(serviceLog);
 
         // 自动生成质检单（待质检状态）
@@ -130,13 +144,13 @@ public class ServiceLogServiceImpl implements ServiceLogService {
         qualityCheck.setQualityCheckId(IDGenerator.generateId());
         qualityCheck.setCheckNo("QC" + System.currentTimeMillis());
         qualityCheck.setOrderId(vo.getOrderId());
-        qualityCheck.setOrderNo(vo.getOrderNo());
+        qualityCheck.setOrderNo(order != null ? order.getOrderNo() : null);
         qualityCheck.setServiceLogId(serviceLog.getServiceLogId());
-        qualityCheck.setServiceCategory(vo.getServiceCategory());
-        qualityCheck.setProviderId(vo.getProviderId());
-        qualityCheck.setProviderName(vo.getProviderName());
-        qualityCheck.setStaffId(vo.getStaffId());
-        qualityCheck.setStaffName(vo.getStaffName());
+        qualityCheck.setServiceCategory(serviceLog.getServiceTypeCode());
+        qualityCheck.setProviderId(serviceLog.getProviderId());
+        qualityCheck.setProviderName(serviceLog.getProviderName());
+        qualityCheck.setStaffId(serviceLog.getStaffId());
+        qualityCheck.setStaffName(serviceLog.getStaffName());
         qualityCheck.setCheckType("COMPLETION"); // 完工质检
         qualityCheck.setCheckMethod("PHOTO_REVIEW"); // 默认照片审核
         qualityCheck.setCheckResult("PENDING"); // 待质检
@@ -170,6 +184,8 @@ public class ServiceLogServiceImpl implements ServiceLogService {
             }
         }
         serviceLog.setActualDuration(vo.getActualDuration());
+        serviceLog.setHealthObservations(vo.getHealthObservations());
+        serviceLog.setMedicationGiven(vo.getMedicationGiven());
         serviceLogMapper.updateById(serviceLog);
     }
 
@@ -328,6 +344,9 @@ public class ServiceLogServiceImpl implements ServiceLogService {
         vo.setReviewerId(serviceLog.getReviewerId());
         vo.setReviewerName(serviceLog.getReviewerName());
         vo.setReviewTime(serviceLog.getReviewTime() != null ? serviceLog.getReviewTime().toString() : null);
+        // 健康观察字段
+        vo.setHealthObservations(serviceLog.getHealthObservations());
+        vo.setMedicationGiven(serviceLog.getMedicationGiven());
         // 解析服务照片JSON，设置为servicePhotos数组供前端使用
         if (serviceLog.getServicePhotos() != null && !serviceLog.getServicePhotos().isEmpty()) {
             try {

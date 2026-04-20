@@ -121,4 +121,9 @@ public interface ElderService {
      * 查询补贴余额
      */
     SubsidyBalanceVO getSubsidyBalance(String subsidyId);
+
+    /**
+     * 获取最近更新的老人档案列表（用于健康卡片展示）
+     */
+    List<ElderHealthCardVO> getRecentUpdatedElders(String providerId, int limit);
 }

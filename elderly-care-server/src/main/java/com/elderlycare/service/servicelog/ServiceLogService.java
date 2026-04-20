@@ -46,4 +46,22 @@ public interface ServiceLogService {
      * 获取服务日志统计
      */
     ServiceLogStatisticsVO getStatistics(String areaId, String providerId, String staffId, String startDate, String endDate);
+
+    /**
+     * 提交服务日志审核
+     */
+    void submitForReview(String id);
+
+    /**
+     * 审核服务日志
+     * @param id 服务日志ID
+     * @param result 审核结果 APPROVED/REJECTED
+     * @param reviewComment 审核意见
+     */
+    void reviewServiceLog(String id, String result, String reviewComment);
+
+    /**
+     * 删除服务日志
+     */
+    void deleteServiceLog(String id);
 }

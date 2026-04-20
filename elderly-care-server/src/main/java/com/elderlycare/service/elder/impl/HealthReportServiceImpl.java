@@ -372,19 +372,19 @@ public class HealthReportServiceImpl implements HealthReportService {
                 float fontSize = 12;
                 float titleSize = 18;
 
-                // 使用内置字体（仅支持ASCII）
-                PDType1Font font = new PDType1Font(Standard14Fonts.FontName.HELVETICA);
+                // 使用支持中文的字体
+                PDType1Font regularFont = new PDType1Font(Standard14Fonts.FontName.HELVETICA);
                 PDType1Font boldFont = new PDType1Font(Standard14Fonts.FontName.HELVETICA_BOLD);
 
-                // 辅助方法：将文本截断到指定宽度（用于长文本）
-                java.util.function.BiFunction<String, Float, String> truncateText = (text, maxWidth) -> {
-                    if (text == null) return "";
-                    // 粗略估算：每个字符约6点宽度
-                    int maxChars = (int) (maxWidth / (fontSize * 0.5f));
-                    if (text.length() > maxChars) {
-                        return text.substring(0, maxChars - 3) + "...";
+                // 辅助方法：检测是否包含中文字符
+                java.util.function.Predicate<String> containsChinese = (text) -> {
+                    if (text == null || text.isEmpty()) return false;
+                    for (char c : text.toCharArray()) {
+                        if (Character.UnicodeBlock.of(c) == Character.UnicodeBlock.CJK_UNIFIED_IDEOGRAPHS) {
+                            return true;
+                        }
                     }
-                    return text;
+                    return false;
                 };
 
                 float pageWidth = page.getMediaBox().getWidth() - 2 * margin;
@@ -393,20 +393,22 @@ public class HealthReportServiceImpl implements HealthReportService {
                 contentStream.beginText();
                 contentStream.setFont(boldFont, titleSize);
                 contentStream.newLineAtOffset(margin, y);
-                contentStream.showText(truncateText.apply(report.getTitle() != null ? report.getTitle() : "Health Report", pageWidth));
+                String title = report.getTitle() != null ? report.getTitle() : "Health Report";
+                // 如果标题包含中文，用英文替代
+                contentStream.showText(containsChinese.test(title) ? "Health Report" : title);
                 contentStream.endText();
                 y -= titleSize * 2;
 
                 // 报告信息
-                drawText(contentStream, font, fontSize, margin, y,
+                drawText(contentStream, regularFont, fontSize, margin, y,
                     "Report No: " + (report.getReportNo() != null ? report.getReportNo() : "N/A"));
                 y -= leading;
 
-                drawText(contentStream, font, fontSize, margin, y,
+                drawText(contentStream, regularFont, fontSize, margin, y,
                     "Report Date: " + (report.getReportDate() != null ? report.getReportDate().toString() : "N/A"));
                 y -= leading;
 
-                drawText(contentStream, font, fontSize, margin, y,
+                drawText(contentStream, regularFont, fontSize, margin, y,
                     "Report Type: " + getReportTypeNameEn(report.getReportType()));
                 y -= leading * 2;
 
@@ -425,23 +427,25 @@ public class HealthReportServiceImpl implements HealthReportService {
                 contentStream.endText();
                 y -= leading * 1.5f;
 
-                drawText(contentStream, font, fontSize, margin, y,
-                    "Name: " + (elder.getName() != null ? elder.getName() : "N/A"));
+                // 姓名（可能是中文，显示拼音或英文替代）
+                String name = elder.getName() != null ? stripNonAscii(elder.getName()) : "N/A";
+                if (name.isEmpty()) name = "[Chinese Name]";
+                drawText(contentStream, regularFont, fontSize, margin, y, "Name: " + name);
                 y -= leading;
 
-                drawText(contentStream, font, fontSize, margin, y,
+                drawText(contentStream, regularFont, fontSize, margin, y,
                     "Gender: " + (elder.getGender() != null ? elder.getGender() : "N/A"));
                 y -= leading;
 
-                drawText(contentStream, font, fontSize, margin, y,
+                drawText(contentStream, regularFont, fontSize, margin, y,
                     "Age: " + (elder.getAge() != null ? elder.getAge().toString() : "N/A"));
                 y -= leading;
 
-                drawText(contentStream, font, fontSize, margin, y,
+                drawText(contentStream, regularFont, fontSize, margin, y,
                     "ID Card: " + (elder.getIdCard() != null ? elder.getIdCard() : "N/A"));
                 y -= leading;
 
-                drawText(contentStream, font, fontSize, margin, y,
+                drawText(contentStream, regularFont, fontSize, margin, y,
                     "Phone: " + (elder.getPhone() != null ? elder.getPhone() : "N/A"));
                 y -= leading * 2;
 
@@ -464,13 +468,13 @@ public class HealthReportServiceImpl implements HealthReportService {
                                 y -= leading * 1.5f;
 
                                 if (healthInfo.get("bloodType") != null) {
-                                    drawText(contentStream, font, fontSize, margin, y,
+                                    drawText(contentStream, regularFont, fontSize, margin, y,
                                         "Blood Type: " + getBloodTypeNameEn((Integer) healthInfo.get("bloodType")));
                                     y -= leading;
                                 }
 
                                 if (healthInfo.get("height") != null || healthInfo.get("weight") != null) {
-                                    drawText(contentStream, font, fontSize, margin, y,
+                                    drawText(contentStream, regularFont, fontSize, margin, y,
                                         "Height/Weight: " +
                                         (healthInfo.get("height") != null ? healthInfo.get("height") + "cm" : "") + " / " +
                                         (healthInfo.get("weight") != null ? healthInfo.get("weight") + "kg" : ""));
@@ -478,19 +482,19 @@ public class HealthReportServiceImpl implements HealthReportService {
                                 }
 
                                 if (healthInfo.get("adlScore") != null) {
-                                    drawText(contentStream, font, fontSize, margin, y,
+                                    drawText(contentStream, regularFont, fontSize, margin, y,
                                         "ADL Score: " + healthInfo.get("adlScore"));
                                     y -= leading;
                                 }
 
                                 if (healthInfo.get("mmseScore") != null) {
-                                    drawText(contentStream, font, fontSize, margin, y,
+                                    drawText(contentStream, regularFont, fontSize, margin, y,
                                         "MMSE Score: " + healthInfo.get("mmseScore"));
                                     y -= leading;
                                 }
 
                                 if (healthInfo.get("fallRisk") != null) {
-                                    drawText(contentStream, font, fontSize, margin, y,
+                                    drawText(contentStream, regularFont, fontSize, margin, y,
                                         "Fall Risk: " + getFallRiskNameEn((Integer) healthInfo.get("fallRisk")));
                                     y -= leading;
                                 }
@@ -511,7 +515,7 @@ public class HealthReportServiceImpl implements HealthReportService {
                                 contentStream.endText();
                                 y -= leading * 1.5f;
 
-                                drawText(contentStream, font, fontSize, margin, y,
+                                drawText(contentStream, regularFont, fontSize, margin, y,
                                     "Total Services: " + serviceStats.get("totalCount"));
                                 y -= leading * 2;
                             }
@@ -529,7 +533,7 @@ public class HealthReportServiceImpl implements HealthReportService {
                                 contentStream.endText();
                                 y -= leading * 1.5f;
 
-                                drawText(contentStream, font, fontSize, margin, y,
+                                drawText(contentStream, regularFont, fontSize, margin, y,
                                     "Total Measurements: " + measurementStats.get("totalCount"));
                                 y -= leading;
                             }
@@ -542,10 +546,10 @@ public class HealthReportServiceImpl implements HealthReportService {
 
                 // 页脚
                 y = margin;
-                drawText(contentStream, font, fontSize - 2, margin, y,
+                drawText(contentStream, regularFont, fontSize - 2, margin, y,
                     "Generated: " + LocalDateTime.now().format(DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss")));
 
-                drawText(contentStream, font, fontSize - 2,
+                drawText(contentStream, regularFont, fontSize - 2,
                     page.getMediaBox().getWidth() - margin - 100, y,
                     "Elderly Care Platform");
             }
@@ -561,7 +565,20 @@ public class HealthReportServiceImpl implements HealthReportService {
         contentStream.beginText();
         contentStream.setFont(font, fontSize);
         contentStream.newLineAtOffset(x, y);
-        contentStream.showText(text != null ? text : "");
+        // 过滤非ASCII字符，防止Helvetica-Bold无法显示中文
+        String safeText = stripNonAscii(text);
+        contentStream.showText(safeText != null ? safeText : "");
         contentStream.endText();
     }
+
+    // 移除非ASCII字符
+    private String stripNonAscii(String text) {
+        if (text == null || text.isEmpty()) return text;
+        StringBuilder sb = new StringBuilder();
+        for (char c : text.toCharArray()) {
+            if (c < 128) sb.append(c);
+        }
+        return sb.toString();
+    }
+
 }

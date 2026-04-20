@@ -29,4 +29,6 @@ public class OrderQueryDTO implements Serializable {
     private String providerId;
 
     private String staffId;
+
+    private String orderNo;
 }

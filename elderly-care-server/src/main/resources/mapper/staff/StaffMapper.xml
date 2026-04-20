@@ -62,6 +62,9 @@
         <if test="query.providerId != null">
             AND s.provider_id = #{query.providerId}
         </if>
+        <if test="query.serviceType != null and query.serviceType != ''">
+            AND s.service_types LIKE CONCAT('%', #{query.serviceType}, '%')
+        </if>
         <if test="query.hireDateStart != null">
             AND s.hire_date &gt;= #{query.hireDateStart}
         </if>
