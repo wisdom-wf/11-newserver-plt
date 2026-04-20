@@ -1,10 +1,12 @@
 <script setup lang="ts">
 import { ref, h, onMounted, watch, computed } from 'vue';
-import { NButton, NCard, NTag, NSpace, NInput, NSelect, useMessage } from 'naive-ui';
+import { NButton, NCard, NTag, NSpace, NInput, NSelect, NDrawer, NDrawerContent, useMessage, NImage, NImageGroup, NUpload, NGrid, NGi, NPopconfirm, NTabs, NTabPane, NAvatar, NRate, NEmpty, NSpin } from 'naive-ui';
+import PersonCard from '@/components/common/person-card.vue';
 import type { DataTableColumns } from 'naive-ui';
 import { useNaiveForm, useFormRules } from '@/hooks/common/form';
 import { useNaivePaginatedTable, useTableOperate, defaultTransform } from '@/hooks/common/table';
 import { useAuth } from '@/hooks/business/auth';
+import { useRouterPush } from '@/hooks/common/router';
 import TableHeaderOperation from '@/components/advanced/table-header-operation.vue';
 import {
   fetchGetStaffList,
@@ -12,7 +14,9 @@ import {
   fetchUpdateStaff,
   fetchDeleteStaff,
   fetchGetStaffStatistics,
-  fetchGetProviderOptions
+  fetchGetProviderOptions,
+  fetchGetStaff,
+  fetchGetStaffServiceLogs
 } from '@/service/api';
 
 defineOptions({
@@ -23,6 +27,70 @@ const message = useMessage();
 const { formRef, validate, restoreValidation } = useNaiveForm();
 const { defaultRequiredRule } = useFormRules();
 const { hasAuth } = useAuth();
+const { routerPushByKeyWithMetaQuery } = useRouterPush();
+
+// Detail drawer state
+const detailVisible = ref(false);
+const detailData = ref<Api.Staff.Staff | null>(null);
+const detailLoading = ref(false);
+const MAX_IMAGE_COUNT = 6;
+
+// View type (list or card)
+const viewType = ref<'list' | 'card'>('list');
+
+// Service logs for detail drawer
+const serviceLogs = ref<Api.Staff.StaffServiceLog[]>([]);
+const serviceLogsLoading = ref(false);
+const detailActiveTab = ref('basic');
+
+async function showDetail(row: Api.Staff.Staff) {
+  detailLoading.value = true;
+  try {
+    const { data, error } = await fetchGetStaff(row.staffId);
+    if (error) {
+      message.error(error.message || '获取详情失败');
+      return;
+    }
+    if (data) {
+      detailData.value = data;
+      detailVisible.value = true;
+      detailActiveTab.value = 'basic';
+      // Load service logs
+      loadServiceLogs(row.staffId);
+    }
+  } finally {
+    detailLoading.value = false;
+  }
+}
+
+async function loadServiceLogs(staffId: string) {
+  serviceLogsLoading.value = true;
+  try {
+    const { data, error } = await fetchGetStaffServiceLogs(staffId, 20);
+    if (error) {
+      console.error('Failed to load service logs', error);
+      return;
+    }
+    serviceLogs.value = data || [];
+  } catch (e) {
+    console.error('Failed to load service logs', e);
+  } finally {
+    serviceLogsLoading.value = false;
+  }
+}
+
+function parsePhotos(photos: string | string[] | undefined): string[] {
+  if (!photos) return [];
+  if (Array.isArray(photos)) return photos;
+  if (typeof photos === 'string') {
+    try {
+      return JSON.parse(photos);
+    } catch {
+      return photos.split(',').filter(Boolean);
+    }
+  }
+  return [];
+}
 
 // Form validation rules
 const rules = {
@@ -108,15 +176,27 @@ const columns: DataTableColumns<Api.Staff.Staff> = [
   {
     title: '操作',
     key: 'actions',
-    width: 150,
+    width: 200,
     fixed: 'right',
     render: row => {
       const buttons = [];
+      buttons.push(h(NButton, { size: 'small', type: 'info', onClick: () => showDetail(row), style: { marginRight: '8px' } }, () => '详情'));
       if (hasAuth('staff:list:edit')) {
-        buttons.push(h(NButton, { size: 'small', onClick: () => handleEdit(row.staffId) }, () => '编辑'));
+        buttons.push(h(NButton, { size: 'small', onClick: () => handleEdit(row.staffId), style: { marginRight: '8px' } }, () => '编辑'));
       }
       if (hasAuth('staff:list:delete')) {
-        buttons.push(h(NButton, { size: 'small', type: 'error', onClick: () => handleDelete(row.staffId) }, () => '删除'));
+        buttons.push(
+          h(
+            NPopconfirm,
+            {
+              onPositiveClick: () => handleDelete(row.staffId)
+            },
+            {
+              trigger: () => h(NButton, { size: 'small', type: 'error' }, { default: () => '删除' }),
+              default: () => '确认删除?'
+            }
+          )
+        );
       }
       return h(NSpace, { size: 'small' }, () => buttons);
     }
@@ -271,6 +351,34 @@ async function handleDelete(staffId: string) {
   }
 }
 
+// 照片上传处理
+async function handlePhotoUpload(staffId: string, file: File) {
+  const reader = new FileReader();
+  reader.onload = async (e) => {
+    if (e.target?.result) {
+      const base64Data = e.target.result as string;
+      try {
+        const { error } = await fetchUpdateStaff(staffId, { avatarUrl: base64Data } as any);
+        if (error) {
+          message.error(error.message || '上传失败');
+          return;
+        }
+        message.success('上传成功');
+        await getData();
+        await getStatistics();
+      } catch (err) {
+        message.error('上传失败');
+      }
+    }
+  };
+  reader.readAsDataURL(file);
+}
+
+// 跳转到服务日志页面
+function handleViewServiceLogs(staff: Api.Staff.Staff) {
+  routerPushByKeyWithMetaQuery('business_service-log', { staffId: staff.staffId });
+}
+
 async function handleSubmit() {
   try {
     await validate();
@@ -353,8 +461,26 @@ onMounted(() => {
     <!-- Table -->
     <NCard :bordered="false" style="margin-bottom: 16px">
       <template #header>
-        <div style="display: flex; justify-content: space-between; align-items: center">
+        <div style="display: flex; justify-content: space-between; align-items: center; width: 100%">
           <span>服务人员管理</span>
+          <NSpace>
+            <NButton
+              :type="viewType === 'list' ? 'primary' : 'default'"
+              size="small"
+              quaternary
+              @click="viewType = 'list'"
+            >
+              列表
+            </NButton>
+            <NButton
+              :type="viewType === 'card' ? 'primary' : 'default'"
+              size="small"
+              quaternary
+              @click="viewType = 'card'"
+            >
+              卡片
+            </NButton>
+          </NSpace>
         </div>
       </template>
       <div style="background: #f5f5f5; padding: 12px; margin-bottom: 12px; border-radius: 4px">
@@ -397,7 +523,9 @@ onMounted(() => {
         </template>
       </TableHeaderOperation>
 
+      <!-- List View -->
       <NDataTable
+        v-if="viewType === 'list'"
         :columns="columns"
         :data="tableData"
         :loading="loading"
@@ -406,6 +534,74 @@ onMounted(() => {
         remote
         :pagination="mobilePagination"
       />
+
+      <!-- Card View - 每行2个卡片 -->
+      <div v-else style="display: flex; flex-wrap: wrap; gap: 12px">
+        <div
+          v-for="staff in tableData"
+          :key="staff.staffId"
+          style="width: calc(33.33% - 8px); background: #fff; border-radius: 8px; padding: 12px; cursor: pointer; transition: all 0.2s; border: 1px solid #f0f0f0; box-sizing: border-box"
+          @click="showDetail(staff)"
+        >
+          <!-- 顶部：照片 + 信息 -->
+          <div style="display: flex; gap: 12px; margin-bottom: 10px">
+            <!-- 照片区域 -->
+            <div style="position: relative; width: 70px; height: 125px; flex-shrink: 0; background: #f5f5f5; border-radius: 6px; overflow: hidden">
+              <NImage
+                v-if="staff.avatarUrl"
+                :src="staff.avatarUrl"
+                style="width: 70px; height: 125px; object-fit: cover"
+              />
+              <NAvatar v-else :size="56" round style="position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%)">
+                {{ staff.staffName?.charAt(0) || '?' }}
+              </NAvatar>
+              <!-- 上传按钮 -->
+              <NUpload
+                :show-file-list="false"
+                accept="image/*"
+                :custom-request="(options) => handlePhotoUpload(staff.staffId, options.file.file!)"
+              >
+                <NButton
+                  size="tiny"
+                  style="position: absolute; bottom: 4px; right: 4px; opacity: 0.9; width: 22px; height: 22px; min-width: 22px; padding: 0"
+                  circle
+                  type="primary"
+                  @click.stop
+                >
+                  +
+                </NButton>
+              </NUpload>
+            </div>
+            <!-- 信息区域 -->
+            <div style="flex: 1; overflow: hidden">
+              <div style="font-weight: 600; font-size: 15px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; margin-bottom: 4px">
+                {{ staff.staffName || '未知' }}
+              </div>
+              <div style="font-size: 12px; color: #666; margin-bottom: 6px">
+                {{ staff.phone || '-' }}
+              </div>
+              <div style="display: flex; flex-wrap: wrap; gap: 4px; margin-bottom: 6px">
+                <NTag :type="getStatusType(staff.status)" size="tiny">{{ getStatusLabel(staff.status) }}</NTag>
+                <NTag v-if="staff.serviceTypes" size="tiny" type="info">{{ staff.serviceTypes.split(',')[0] }}</NTag>
+              </div>
+              <div style="display: flex; align-items: center; gap: 8px; font-size: 12px">
+                <span v-if="staff.rating" style="display: flex; align-items: center">
+                  <NRate :value="staff.rating" readonly size="small" />
+                  <span style="margin-left: 4px; color: #666">{{ staff.rating.toFixed(1) }}</span>
+                </span>
+                <span v-if="staff.orderCount" style="color: #999">|{{ staff.orderCount }}单</span>
+              </div>
+            </div>
+          </div>
+          <!-- 底部：查看服务日志按钮 -->
+          <div style="display: flex; gap: 8px; margin-top: 4px">
+            <NButton size="small" style="flex: 1" @click.stop="handleViewServiceLogs(staff)">
+              查看服务日志 →
+            </NButton>
+          </div>
+        </div>
+        <NEmpty v-if="tableData.length === 0" description="暂无数据" style="width: 100%; margin-top: 40px" />
+      </div>
     </NCard>
 
     <!-- Staff Drawer -->
@@ -454,6 +650,98 @@ onMounted(() => {
             <NButton type="primary" @click="handleSubmit">确认</NButton>
           </NSpace>
         </template>
+      </NDrawerContent>
+    </NDrawer>
+
+    <!-- Staff Detail Drawer -->
+    <NDrawer v-model:show="detailVisible" :width="550" placement="right" closable>
+      <NDrawerContent title="服务人员详情" closable>
+        <NTabs v-model:value="detailActiveTab" type="line" style="margin-top: 8px">
+          <NTabPane name="basic" tab="基本信息">
+            <div style="max-height: calc(100vh - 220px); overflow-y: auto">
+              <!-- Avatar and Basic Info -->
+              <div style="display: flex; gap: 16px; margin-bottom: 24px; align-items: flex-start">
+                <div style="width: 80px; height: 80px; border-radius: 8px; overflow: hidden; flex-shrink: 0">
+                  <NImage v-if="detailData.avatarUrl" :src="detailData.avatarUrl" width="80" height="80" object-fit="cover" />
+                  <NAvatar v-else :size="80" round style="background: #5394ec; color: #fff; font-size: 24px">{{ detailData.staffName?.charAt(0) || '?' }}</NAvatar>
+                </div>
+                <div style="flex: 1">
+                  <div style="font-size: 18px; font-weight: 600; margin-bottom: 4px">{{ detailData.staffName }}</div>
+                  <div style="color: #666; font-size: 13px; margin-bottom: 8px">{{ detailData.phone || '-' }}</div>
+                  <NTag :type="getStatusType(detailData.status)" size="small">{{ getStatusLabel(detailData.status) }}</NTag>
+                </div>
+              </div>
+
+              <!-- Basic Info Grid -->
+              <div style="margin-bottom: 24px">
+                <NGrid :cols="2" :x-gap="16" :y-gap="8">
+                  <NGi><div style="color: #999; font-size: 13px">工号</div><div style="margin-top: 4px">{{ detailData.staffNo || '-' }}</div></NGi>
+                  <NGi><div style="color: #999; font-size: 13px">年龄</div><div style="margin-top: 4px">{{ detailData.age || '-' }}</div></NGi>
+                  <NGi><div style="color: #999; font-size: 13px">性别</div><div style="margin-top: 4px">{{ getGenderLabel(detailData.gender) }}</div></NGi>
+                  <NGi><div style="color: #999; font-size: 13px">身份证号</div><div style="margin-top: 4px">{{ detailData.idCard || '-' }}</div></NGi>
+                  <NGi><div style="color: #999; font-size: 13px">服务类型</div><div style="margin-top: 4px">{{ detailData.serviceTypes || '-' }}</div></NGi>
+                  <NGi><div style="color: #999; font-size: 13px">评分</div><div style="margin-top: 4px"><NRate v-if="detailData.rating" :value="detailData.rating" readonly size="small" /><span v-else>-</span></div></NGi>
+                </NGrid>
+              </div>
+
+              <!-- Employment Info -->
+              <div style="margin-bottom: 24px">
+                <div style="font-size: 14px; font-weight: 600; margin-bottom: 12px; color: #333">任职信息</div>
+                <NGrid :cols="2" :x-gap="16">
+                  <NGi><div style="color: #999; font-size: 13px">所属服务商</div><div style="margin-top: 4px">{{ detailData.providerName || '-' }}</div></NGi>
+                  <NGi><div style="color: #999; font-size: 13px">入职日期</div><div style="margin-top: 4px">{{ detailData.hireDate || '-' }}</div></NGi>
+                  <NGi><div style="color: #999; font-size: 13px">接单数</div><div style="margin-top: 4px">{{ detailData.orderCount || 0 }}</div></NGi>
+                  <NGi><div style="color: #999; font-size: 13px">状态</div><div style="margin-top: 4px">
+                    <NTag :type="getStatusType(detailData.status)" size="small">{{ getStatusLabel(detailData.status) }}</NTag>
+                  </div></NGi>
+                </NGrid>
+              </div>
+
+              <!-- Emergency Contact -->
+              <div style="margin-bottom: 24px">
+                <div style="font-size: 14px; font-weight: 600; margin-bottom: 12px; color: #333">紧急联系人</div>
+                <NGrid :cols="2" :x-gap="16">
+                  <NGi><div style="color: #999; font-size: 13px">联系人</div><div style="margin-top: 4px">{{ detailData.emergencyContact || '-' }}</div></NGi>
+                  <NGi><div style="color: #999; font-size: 13px">联系电话</div><div style="margin-top: 4px">{{ detailData.emergencyPhone || '-' }}</div></NGi>
+                </NGrid>
+              </div>
+
+              <!-- Other Info -->
+              <div style="margin-bottom: 24px">
+                <div style="font-size: 14px; font-weight: 600; margin-bottom: 12px; color: #333">其他信息</div>
+                <div style="color: #999; font-size: 13px">备注</div>
+                <div style="margin-top: 4px">{{ detailData.remark || '-' }}</div>
+                <div style="color: #999; font-size: 13px; margin-top: 8px">创建时间</div>
+                <div style="margin-top: 4px">{{ detailData.createTime || '-' }}</div>
+              </div>
+            </div>
+          </NTabPane>
+          <NTabPane name="logs" tab="服务记录">
+            <div style="max-height: calc(100vh - 220px); overflow-y: auto">
+              <div v-if="serviceLogsLoading" style="text-align: center; padding: 40px 0">
+                <NSpin size="medium" />
+              </div>
+              <div v-else-if="serviceLogs.length === 0" style="text-align: center; padding: 40px 0">
+                <NEmpty description="暂无服务记录" />
+              </div>
+              <div v-else style="display: flex; flex-direction: column; gap: 12px">
+                <div v-for="log in serviceLogs" :key="log.serviceLogId" style="background: #f8f8f8; border-radius: 8px; padding: 12px">
+                  <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 8px">
+                    <div style="font-weight: 600">{{ log.serviceCategory || log.serviceType || '-' }}</div>
+                    <NTag :type="log.hasAnomaly ? 'error' : 'success'" size="small">{{ log.hasAnomaly ? '有异常' : '正常' }}</NTag>
+                  </div>
+                  <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 4px; font-size: 13px; color: #666">
+                    <div>老人：{{ log.elderName || '-' }}</div>
+                    <div>日期：{{ log.serviceDate || '-' }}</div>
+                    <div>时长：{{ log.actualDuration ? log.actualDuration + '分钟' : '-' }}</div>
+                    <div>评分：{{ log.serviceComment ? '⭐'.repeat(Math.min(5, parseInt(log.serviceComment))) : '-' }}</div>
+                  </div>
+                  <div v-if="log.serviceContent" style="margin-top: 8px; font-size: 13px; color: #666">{{ log.serviceContent }}</div>
+                </div>
+              </div>
+            </div>
+          </NTabPane>
+        </NTabs>
       </NDrawerContent>
     </NDrawer>
   </div>

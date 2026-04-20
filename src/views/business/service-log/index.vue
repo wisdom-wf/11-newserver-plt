@@ -90,7 +90,9 @@ const formData = ref({
   serviceEndTime: null as number | null,
   serviceDuration: 0,
   serviceContent: '',
-  servicePhotos: [] as string[]
+  servicePhotos: [] as string[],
+  healthObservations: '',
+  medicationGiven: ''
 });
 
 // Helper: convert timestamp to LocalDateTime string format
@@ -282,6 +284,10 @@ const tableHookResult = useNaivePaginatedTable<
       queryParams.startDate = new Date(searchDateRange.value[0]).toISOString().split('T')[0];
       queryParams.endDate = new Date(searchDateRange.value[1]).toISOString().split('T')[0];
     }
+    // Handle staffId from staff page
+    if (route.query.staffId) {
+      queryParams.staffId = route.query.staffId as string;
+    }
     return fetchGetServiceLogList(queryParams);
   },
   apiParams: {
@@ -464,7 +470,9 @@ function showAddModal() {
     serviceEndTime: null,
     serviceDuration: 0,
     serviceContent: '',
-    servicePhotos: []
+    servicePhotos: [],
+    healthObservations: '',
+    medicationGiven: ''
   };
   drawerVisible.value = true;
 }
@@ -488,7 +496,9 @@ function handleUpdate(row: Api.ServiceLog.ServiceLog) {
       ? row.servicePhotos
       : row.servicePhotos
         ? [row.servicePhotos]
-        : []
+        : [],
+    healthObservations: (row as any).healthObservations || '',
+    medicationGiven: (row as any).medicationGiven || ''
   };
   drawerVisible.value = true;
 }
@@ -548,6 +558,8 @@ async function handleSubmitForm() {
         serviceDuration: formData.value.serviceDuration,
         serviceContent: formData.value.serviceContent,
         servicePhotos: formData.value.servicePhotos,
+        healthObservations: formData.value.healthObservations,
+        medicationGiven: formData.value.medicationGiven,
         status: 'DRAFT'
       } as any);
       message.success('更新成功');
@@ -559,7 +571,9 @@ async function handleSubmitForm() {
         serviceEndTime: formatDateTime(formData.value.serviceEndTime),
         serviceDuration: formData.value.serviceDuration,
         serviceContent: formData.value.serviceContent,
-        servicePhotos: formData.value.servicePhotos
+        servicePhotos: formData.value.servicePhotos,
+        healthObservations: formData.value.healthObservations,
+        medicationGiven: formData.value.medicationGiven
       } as any);
       message.success('添加成功');
     }
@@ -581,11 +595,10 @@ function closeReviewDialog() {
 }
 
 onMounted(() => {
-  // Handle query parameters from order page
+  // Handle query parameters from other pages
   if (route.query.orderId) {
     searchOrderNo.value = (route.query.orderNo as string) || (route.query.orderId as string);
   }
-  getStatistics();
   getData();
 });
 </script>
@@ -834,6 +847,24 @@ onMounted(() => {
             <NInput v-model:value="formData.serviceContent" type="textarea" placeholder="请输入服务内容" :rows="3" />
           </div>
           <div style="margin-top: 16px">
+            <div style="margin-bottom: 8px; color: #333; font-weight: 500">健康观察备注</div>
+            <NInput
+              v-model:value="formData.healthObservations"
+              type="textarea"
+              placeholder="请输入本次服务的健康观察（可选）"
+              :rows="2"
+            />
+          </div>
+          <div style="margin-top: 16px">
+            <div style="margin-bottom: 8px; color: #333; font-weight: 500">本次给药记录</div>
+            <NInput
+              v-model:value="formData.medicationGiven"
+              type="textarea"
+              placeholder="请输入本次服务给药记录（可选）"
+              :rows="2"
+            />
+          </div>
+          <div style="margin-top: 16px">
             <div style="margin-bottom: 8px; color: #333; font-weight: 500">
               服务照片
               <span style="color: #999; font-weight: normal">
@@ -989,6 +1020,22 @@ onMounted(() => {
           >
             <div style="color: #667eea; font-size: 13px; font-weight: 600; margin-bottom: 12px">服务内容</div>
             <div style="color: #333; line-height: 1.6">{{ detailData.serviceContent }}</div>
+          </div>
+
+          <!-- Health Info -->
+          <div
+            v-if="detailData.healthObservations || (detailData as any).medicationGiven"
+            style="background: #fff7e6; border-radius: 12px; padding: 20px; margin-bottom: 16px; border: 1px solid #ffd591"
+          >
+            <div style="color: #fa8c16; font-size: 13px; font-weight: 600; margin-bottom: 12px">健康观察</div>
+            <div v-if="detailData.healthObservations" style="margin-bottom: 12px">
+              <div style="color: #999; font-size: 12px; margin-bottom: 4px">观察备注</div>
+              <div style="color: #333; line-height: 1.6">{{ detailData.healthObservations }}</div>
+            </div>
+            <div v-if="(detailData as any).medicationGiven">
+              <div style="color: #999; font-size: 12px; margin-bottom: 4px">给药记录</div>
+              <div style="color: #333; line-height: 1.6">{{ (detailData as any).medicationGiven }}</div>
+            </div>
           </div>
 
           <!-- Photos -->
