@@ -33,6 +33,11 @@
         <result column="anomaly_photos" property="anomalyPhotos"/>
         <result column="anomaly_status" property="anomalyStatus"/>
         <result column="audit_status" property="auditStatus"/>
+        <result column="reviewer_id" property="reviewerId"/>
+        <result column="reviewer_name" property="reviewerName"/>
+        <result column="review_time" property="reviewTime"/>
+        <result column="health_observations" property="healthObservations"/>
+        <result column="medication_given" property="medicationGiven"/>
         <result column="deleted" property="deleted"/>
         <result column="create_time" property="createTime"/>
         <result column="update_time" property="updateTime"/>
@@ -42,26 +47,38 @@
         SELECT *
         FROM service_log
         WHERE deleted = 0
-        <if test="query.orderId != null and query.orderId != ''">
-            AND order_id = #{query.orderId}
+        <if test="query.orderNo != null and query.orderNo != ''">
+            AND order_no LIKE CONCAT('%', #{query.orderNo}, '%')
         </if>
         <if test="query.elderId != null and query.elderId != ''">
             AND elder_id = #{query.elderId}
         </if>
+        <if test="query.elderName != null and query.elderName != ''">
+            AND elder_name LIKE CONCAT('%', #{query.elderName}, '%')
+        </if>
         <if test="query.staffId != null and query.staffId != ''">
             AND staff_id = #{query.staffId}
+        </if>
+        <if test="query.staffName != null and query.staffName != ''">
+            AND staff_name LIKE CONCAT('%', #{query.staffName}, '%')
         </if>
         <if test="query.providerId != null and query.providerId != ''">
             AND provider_id = #{query.providerId}
         </if>
+        <if test="query.serviceType != null and query.serviceType != ''">
+            AND service_type_code = #{query.serviceType}
+        </if>
         <if test="query.serviceStatus != null and query.serviceStatus != ''">
             AND service_status = #{query.serviceStatus}
         </if>
-        <if test="query.serviceDateStart != null">
-            AND service_date &gt;= #{query.serviceDateStart}
+        <if test="query.auditStatus != null and query.auditStatus != ''">
+            AND audit_status = #{query.auditStatus}
         </if>
-        <if test="query.serviceDateEnd != null">
-            AND service_date &lt;= #{query.serviceDateEnd}
+        <if test="query.startDate != null and query.startDate != ''">
+            AND service_date &gt;= #{query.startDate}
+        </if>
+        <if test="query.endDate != null and query.endDate != ''">
+            AND service_date &lt;= #{query.endDate}
         </if>
         ORDER BY create_time DESC
     </select>
@@ -77,6 +94,14 @@
         FROM service_log
         WHERE order_id = #{orderId} AND deleted = 0
         ORDER BY create_time DESC
+    </select>
+
+    <select id="selectServiceLogsByStaffId" resultMap="BaseResultMap">
+        SELECT *
+        FROM service_log
+        WHERE staff_id = #{staffId} AND deleted = 0
+        ORDER BY service_date DESC, create_time DESC
+        LIMIT #{limit}
     </select>
 
 </mapper>

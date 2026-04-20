@@ -10,10 +10,12 @@ import com.elderlycare.entity.staff.Staff;
 import com.elderlycare.entity.staff.StaffQualification;
 import com.elderlycare.entity.staff.StaffSchedule;
 import com.elderlycare.entity.staff.StaffWorkRecord;
+import com.elderlycare.entity.servicelog.ServiceLog;
 import com.elderlycare.mapper.staff.StaffMapper;
 import com.elderlycare.mapper.staff.StaffQualificationMapper;
 import com.elderlycare.mapper.staff.StaffScheduleMapper;
 import com.elderlycare.mapper.staff.StaffWorkRecordMapper;
+import com.elderlycare.mapper.servicelog.ServiceLogMapper;
 import com.elderlycare.service.staff.StaffService;
 import com.elderlycare.vo.staff.*;
 import lombok.RequiredArgsConstructor;
@@ -37,6 +39,7 @@ public class StaffServiceImpl implements StaffService {
     private final StaffQualificationMapper qualificationMapper;
     private final StaffScheduleMapper scheduleMapper;
     private final StaffWorkRecordMapper workRecordMapper;
+    private final ServiceLogMapper serviceLogMapper;
 
     /**
      * 根据身份证号计算年龄（18位中国身份证）
@@ -727,5 +730,37 @@ public class StaffServiceImpl implements StaffService {
             case 1 -> "异常";
             default -> "未知";
         };
+    }
+
+    @Override
+    public List<com.elderlycare.vo.servicelog.ServiceLogVO> getServiceLogs(String staffId, int limit) {
+        List<ServiceLog> logs = serviceLogMapper.selectServiceLogsByStaffId(staffId, limit);
+        return logs.stream().map(this::convertToServiceLogVO).collect(Collectors.toList());
+    }
+
+    private com.elderlycare.vo.servicelog.ServiceLogVO convertToServiceLogVO(ServiceLog log) {
+        com.elderlycare.vo.servicelog.ServiceLogVO vo = new com.elderlycare.vo.servicelog.ServiceLogVO();
+        vo.setServiceLogId(log.getServiceLogId());
+        vo.setOrderId(log.getOrderId());
+        vo.setOrderNo(log.getOrderNo());
+        vo.setElderId(log.getElderId());
+        vo.setElderName(log.getElderName());
+        vo.setStaffId(log.getStaffId());
+        vo.setStaffName(log.getStaffName());
+        vo.setServiceType(log.getServiceTypeCode());
+        vo.setServiceCategory(log.getServiceTypeName());
+        vo.setServiceDate(log.getServiceDate());
+        vo.setServiceStartTime(log.getServiceStartTime() != null ? log.getServiceStartTime().toString() : null);
+        vo.setServiceEndTime(log.getServiceEndTime() != null ? log.getServiceEndTime().toString() : null);
+        vo.setServiceDuration(log.getServiceDuration());
+        vo.setActualDuration(log.getActualDuration());
+        vo.setServiceComment(log.getServiceComment());
+        vo.setCreateTime(log.getCreateTime() != null ? log.getCreateTime().toString() : null);
+        vo.setHealthObservations(log.getHealthObservations());
+        vo.setMedicationGiven(log.getMedicationGiven());
+        vo.setAnomalyType(log.getAnomalyType());
+        vo.setAnomalyDesc(log.getAnomalyDesc());
+        vo.setAuditStatus(log.getAuditStatus());
+        return vo;
     }
 }

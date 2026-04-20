@@ -5,6 +5,7 @@ import com.elderlycare.common.Result;
 import com.elderlycare.common.UserContext;
 import com.elderlycare.dto.staff.*;
 import com.elderlycare.service.staff.StaffService;
+import com.elderlycare.vo.servicelog.ServiceLogVO;
 import com.elderlycare.vo.staff.*;
 import lombok.RequiredArgsConstructor;
 import org.springframework.format.annotation.DateTimeFormat;
@@ -234,5 +235,18 @@ public class StaffController {
         queryDTO.setPageSize(pageSize);
         PageResult<WorkRecordVO> result = staffService.queryWorkRecords(queryDTO);
         return Result.success(result);
+    }
+
+    // ==================== 服务日志 ====================
+
+    /**
+     * 获取服务人员的服务日志列表
+     */
+    @GetMapping("/{staffId}/service-logs")
+    public Result<List<ServiceLogVO>> getServiceLogs(
+            @PathVariable String staffId,
+            @RequestParam(defaultValue = "20") int limit) {
+        List<ServiceLogVO> logs = staffService.getServiceLogs(staffId, limit);
+        return Result.success(logs);
     }
 }

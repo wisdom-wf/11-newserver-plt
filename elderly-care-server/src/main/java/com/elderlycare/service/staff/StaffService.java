@@ -106,4 +106,11 @@ public interface StaffService {
      * 查询工作记录
      */
     PageResult<WorkRecordVO> queryWorkRecords(WorkRecordQueryDTO queryDTO);
+
+    // ==================== 服务日志 ====================
+
+    /**
+     * 获取服务人员的服务日志列表
+     */
+    java.util.List<com.elderlycare.vo.servicelog.ServiceLogVO> getServiceLogs(String staffId, int limit);
 }
