@@ -255,7 +255,7 @@ feat(module): 另一条描述
 ### 当前仓库状态
 - **根仓库 (11-newserver-plt)**：master 分支，已推送
 - **子模块 (dingfeng-work)**：main 分支，已推送
-- **GitHub Token**：已配置（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）
+- **GitHub Token**：已配置（在本地 .gitconfig 或环境变量中，勿提交到代码库）
 
 ### 子模块更新后父仓库需同步
 ```bash
