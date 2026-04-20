@@ -4,7 +4,7 @@
  * 用于服务人员、老人等需要照片展示的场景
  * 支持：照片上传、健康/状态指数、选中状态、跳转操作
  */
-import { computed } from 'vue';
+import { computed, ref } from 'vue';
 import { NImage, NAvatar, NUpload, NButton, NTag, NProgress } from 'naive-ui';
 import type { UploadFile } from 'naive-ui';
 
@@ -31,6 +31,8 @@ interface Props {
   clickText?: string;
   /** 照片宽度 */
   photoWidth?: number;
+  /** 照片高度缩放比例（0-1，1=100%，0.85=85%） */
+  scale?: number;
   /** 卡片最小宽度 */
   cardMinWidth?: number;
 }
@@ -47,6 +49,7 @@ const props = withDefaults(defineProps<Props>(), {
   uploadText: '上传照片',
   clickText: '',
   photoWidth: 90,
+  scale: 1,
   cardMinWidth: 320
 });
 
@@ -57,7 +60,7 @@ const emit = defineEmits<{
 }>();
 
 // 计算照片高度（保持9:16比例）
-const computedPhotoHeight = computed(() => Math.round(props.photoWidth * (16 / 9)));
+const computedPhotoHeight = computed(() => Math.round(props.photoWidth * (16 / 9) * props.scale));
 
 function getIndexColor(index?: number): string {
   if (index === undefined) return '#999';
@@ -73,11 +76,30 @@ function getIndexText(index?: number): string {
   return '告警';
 }
 
-function handlePhotoUpload(file: UploadFile) {
-  if (file.file) {
-    emit('photo-upload', file.file);
+function handlePhotoUpload(options: { file: UploadFile; onFinish: () => void; onError: () => void }) {
+  if (options.file.file) {
+    emit('photo-upload', options.file.file);
+    options.onFinish();
+  } else {
+    options.onError();
   }
   return false;
+}
+
+const fileInputRef = ref<HTMLInputElement | null>(null);
+
+function triggerUpload() {
+  fileInputRef.value?.click();
+}
+
+function handleFileChange(e: Event) {
+  const target = e.target as HTMLInputElement;
+  const file = target.files?.[0];
+  if (file) {
+    emit('photo-upload', file);
+  }
+  // 重置input以便下次选择同一文件
+  target.value = '';
 }
 
 function handleCardClick() {
@@ -140,32 +162,33 @@ function handleActionClick(e: Event) {
         >
           {{ name?.charAt(0) || '?' }}
         </NAvatar>
-        <!-- 上传按钮 -->
-        <NUpload
+        <!-- 上传按钮 - 用ref手动触发 -->
+        <NButton
           v-if="showUploadBtn"
-          :show-file-list="false"
-          accept="image/*"
-          :custom-request="(options) => handlePhotoUpload(options.file)"
+          size="tiny"
+          :style="{
+            position: 'absolute',
+            bottom: '4px',
+            right: '4px',
+            opacity: 0.9,
+            width: '24px',
+            height: '24px',
+            minWidth: '24px',
+            padding: 0
+          }"
+          circle
+          type="primary"
+          @click.stop="triggerUpload"
         >
-          <NButton
-            size="tiny"
-            :style="{
-              position: 'absolute',
-              bottom: '4px',
-              right: '4px',
-              opacity: 0.9,
-              width: '24px',
-              height: '24px',
-              minWidth: '24px',
-              padding: 0
-            }"
-            circle
-            type="primary"
-            @click.stop
-          >
-            +
-          </NButton>
-        </NUpload>
+          +
+        </NButton>
+        <input
+          ref="fileInputRef"
+          type="file"
+          accept="image/*"
+          style="display: none"
+          @change="handleFileChange"
+        >
       </div>
 
       <!-- 信息区域 -->

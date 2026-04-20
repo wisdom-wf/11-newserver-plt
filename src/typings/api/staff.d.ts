@@ -124,10 +124,22 @@ declare namespace Api {
       rating?: number;
       /** 接单数 */
       orderCount?: number;
+      /** 系统账户用户名 */
+      username?: string;
+      /** 是否已创建系统账户 */
+      hasAccount?: boolean;
       /** 创建时间 */
       createTime: string;
       /** 更新时间 */
       updateTime?: string;
+    }
+
+    /** 服务人员创建结果 */
+    interface CreateStaffResult extends Staff {
+      /** 初始密码（仅创建时返回） */
+      password?: string;
+      /** 是否已创建账户 */
+      accountCreated?: boolean;
     }
 
     /** 服务人员统计 */
@@ -206,6 +218,16 @@ declare namespace Api {
       healthObservations?: string;
       /** 本次给药记录 */
       medicationGiven?: string;
+    }
+
+    /** 创建服务人员结果（包含账户信息） */
+    interface CreateStaffResult {
+      /** 账户是否创建成功 */
+      accountCreated: boolean;
+      /** 系统用户名（手机号） */
+      username?: string;
+      /** 初始密码 */
+      password?: string;
     }
   }
 }

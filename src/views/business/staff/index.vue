@@ -1,6 +1,6 @@
 <script setup lang="ts">
 import { ref, h, onMounted, watch, computed } from 'vue';
-import { NButton, NCard, NTag, NSpace, NInput, NSelect, NDrawer, NDrawerContent, useMessage, NImage, NImageGroup, NUpload, NGrid, NGi, NPopconfirm, NTabs, NTabPane, NAvatar, NRate, NEmpty, NSpin } from 'naive-ui';
+import { NButton, NCard, NTag, NSpace, NInput, NSelect, NDrawer, NDrawerContent, useMessage, NImage, NUpload, NGrid, NGi, NPopconfirm, NTabs, NTabPane, NAvatar, NRate, NEmpty, NSpin, NModal, NAlert, NDescriptions, NDescriptionsItem } from 'naive-ui';
 import PersonCard from '@/components/common/person-card.vue';
 import type { DataTableColumns } from 'naive-ui';
 import { useNaiveForm, useFormRules } from '@/hooks/common/form';
@@ -16,7 +16,8 @@ import {
   fetchGetStaffStatistics,
   fetchGetProviderOptions,
   fetchGetStaff,
-  fetchGetStaffServiceLogs
+  fetchGetStaffServiceLogs,
+  fetchResetStaffPassword
 } from '@/service/api';
 
 defineOptions({
@@ -140,6 +141,17 @@ function getGenderLabel(gender?: number): string {
   if (gender === 0) return '女';
   if (gender === 1) return '男';
   return '未知';
+}
+
+// 重置密码
+async function resetPassword() {
+  if (!detailData.value?.staffId) return;
+  try {
+    await fetchResetStaffPassword(detailData.value.staffId);
+    message.success('密码已重置为 mima123');
+  } catch (e) {
+    console.error('Failed to reset password', e);
+  }
 }
 
 function getStatusType(status?: string): 'success' | 'warning' | 'error' | 'default' {
@@ -379,6 +391,10 @@ function handleViewServiceLogs(staff: Api.Staff.Staff) {
   routerPushByKeyWithMetaQuery('business_service-log', { staffId: staff.staffId });
 }
 
+// 账户信息弹窗
+const accountModalVisible = ref(false);
+const accountInfo = ref<{ username: string; password: string; staffName: string } | null>(null);
+
 async function handleSubmit() {
   try {
     await validate();
@@ -387,8 +403,17 @@ async function handleSubmit() {
   }
   try {
     if (operateType.value === 'add') {
-      await fetchCreateStaff(form.value);
+      const result = await fetchCreateStaff(form.value);
       message.success('添加成功');
+      // 如果创建了账户，显示账户信息
+      if (result?.accountCreated && result.username && result.password) {
+        accountInfo.value = {
+          username: result.username,
+          password: result.password,
+          staffName: form.value.staffName || ''
+        };
+        accountModalVisible.value = true;
+      }
     } else if (editingData.value) {
       await fetchUpdateStaff(editingData.value.staffId, form.value);
       message.success('修改成功');
@@ -398,6 +423,15 @@ async function handleSubmit() {
     await getStatistics();
   } catch (e) {
     console.error('Failed to submit', e);
+  }
+}
+
+// 复制账户信息
+async function copyAccountInfo() {
+  if (accountInfo.value) {
+    const text = `用户名: ${accountInfo.value.username}\n密码: ${accountInfo.value.password}`;
+    await navigator.clipboard.writeText(text);
+    message.success('已复制到剪贴板');
   }
 }
 
@@ -535,71 +569,26 @@ onMounted(() => {
         :pagination="mobilePagination"
       />
 
-      <!-- Card View - 每行2个卡片 -->
+      <!-- Card View - 使用PersonCard组件 -->
       <div v-else style="display: flex; flex-wrap: wrap; gap: 12px">
-        <div
+        <PersonCard
           v-for="staff in tableData"
           :key="staff.staffId"
-          style="width: calc(33.33% - 8px); background: #fff; border-radius: 8px; padding: 12px; cursor: pointer; transition: all 0.2s; border: 1px solid #f0f0f0; box-sizing: border-box"
+          :photo-url="staff.avatarUrl"
+          :name="staff.staffName || '未知'"
+          :subtitle="staff.phone || '-'"
+          :extra-info="[
+            { label: '状态', value: getStatusLabel(staff.status) },
+            ...(staff.serviceTypes ? [{ label: '服务类型', value: staff.serviceTypes.split(',')[0] }] : [])
+          ]"
+          :index-value="staff.rating"
+          index-label="评分"
+          photo-width="70"
+          scale="0.78"
+          :show-upload-btn="true"
           @click="showDetail(staff)"
-        >
-          <!-- 顶部：照片 + 信息 -->
-          <div style="display: flex; gap: 12px; margin-bottom: 10px">
-            <!-- 照片区域 -->
-            <div style="position: relative; width: 70px; height: 125px; flex-shrink: 0; background: #f5f5f5; border-radius: 6px; overflow: hidden">
-              <NImage
-                v-if="staff.avatarUrl"
-                :src="staff.avatarUrl"
-                style="width: 70px; height: 125px; object-fit: cover"
-              />
-              <NAvatar v-else :size="56" round style="position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%)">
-                {{ staff.staffName?.charAt(0) || '?' }}
-              </NAvatar>
-              <!-- 上传按钮 -->
-              <NUpload
-                :show-file-list="false"
-                accept="image/*"
-                :custom-request="(options) => handlePhotoUpload(staff.staffId, options.file.file!)"
-              >
-                <NButton
-                  size="tiny"
-                  style="position: absolute; bottom: 4px; right: 4px; opacity: 0.9; width: 22px; height: 22px; min-width: 22px; padding: 0"
-                  circle
-                  type="primary"
-                  @click.stop
-                >
-                  +
-                </NButton>
-              </NUpload>
-            </div>
-            <!-- 信息区域 -->
-            <div style="flex: 1; overflow: hidden">
-              <div style="font-weight: 600; font-size: 15px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; margin-bottom: 4px">
-                {{ staff.staffName || '未知' }}
-              </div>
-              <div style="font-size: 12px; color: #666; margin-bottom: 6px">
-                {{ staff.phone || '-' }}
-              </div>
-              <div style="display: flex; flex-wrap: wrap; gap: 4px; margin-bottom: 6px">
-                <NTag :type="getStatusType(staff.status)" size="tiny">{{ getStatusLabel(staff.status) }}</NTag>
-                <NTag v-if="staff.serviceTypes" size="tiny" type="info">{{ staff.serviceTypes.split(',')[0] }}</NTag>
-              </div>
-              <div style="display: flex; align-items: center; gap: 8px; font-size: 12px">
-                <span v-if="staff.rating" style="display: flex; align-items: center">
-                  <NRate :value="staff.rating" readonly size="small" />
-                  <span style="margin-left: 4px; color: #666">{{ staff.rating.toFixed(1) }}</span>
-                </span>
-                <span v-if="staff.orderCount" style="color: #999">|{{ staff.orderCount }}单</span>
-              </div>
-            </div>
-          </div>
-          <!-- 底部：查看服务日志按钮 -->
-          <div style="display: flex; gap: 8px; margin-top: 4px">
-            <NButton size="small" style="flex: 1" @click.stop="handleViewServiceLogs(staff)">
-              查看服务日志 →
-            </NButton>
-          </div>
-        </div>
+          @photo-upload="(file) => handlePhotoUpload(staff.staffId, file)"
+        />
         <NEmpty v-if="tableData.length === 0" description="暂无数据" style="width: 100%; margin-top: 40px" />
       </div>
     </NCard>
@@ -697,6 +686,24 @@ onMounted(() => {
                 </NGrid>
               </div>
 
+              <!-- Account Info -->
+              <div style="margin-bottom: 24px">
+                <div style="font-size: 14px; font-weight: 600; margin-bottom: 12px; color: #333">系统账户</div>
+                <NGrid :cols="2" :x-gap="16">
+                  <NGi><div style="color: #999; font-size: 13px">用户名</div><div style="margin-top: 4px">
+                    <NTag v-if="detailData.username" type="info">{{ detailData.username }}</NTag>
+                    <span v-else>-</span>
+                  </div></NGi>
+                  <NGi><div style="color: #999; font-size: 13px">账户状态</div><div style="margin-top: 4px">
+                    <NTag v-if="detailData.hasAccount" type="success">已开通</NTag>
+                    <NTag v-else type="default">未开通</NTag>
+                  </div></NGi>
+                </NGrid>
+                <div v-if="detailData.username" style="margin-top: 12px">
+                  <NButton size="small" type="warning" @click="resetPassword">重置密码</NButton>
+                </div>
+              </div>
+
               <!-- Emergency Contact -->
               <div style="margin-bottom: 24px">
                 <div style="font-size: 14px; font-weight: 600; margin-bottom: 12px; color: #333">紧急联系人</div>
@@ -744,6 +751,35 @@ onMounted(() => {
         </NTabs>
       </NDrawerContent>
     </NDrawer>
+
+    <!-- 账户信息弹窗 -->
+    <NModal
+      v-model:show="accountModalVisible"
+      preset="card"
+      title="系统账户信息"
+      :style="{ width: '400px' }"
+    >
+      <NAlert type="warning" :bordered="false" style="margin-bottom: 16px">
+        请将以下信息告知服务人员，建议首次登录后修改密码
+      </NAlert>
+      <NDescriptions label-placement="top">
+        <NDescriptionsItem label="服务人员">
+          {{ accountInfo?.staffName }}
+        </NDescriptionsItem>
+        <NDescriptionsItem label="用户名">
+          <NTag type="info">{{ accountInfo?.username }}</NTag>
+        </NDescriptionsItem>
+        <NDescriptionsItem label="密码">
+          <NTag type="warning">{{ accountInfo?.password }}</NTag>
+        </NDescriptionsItem>
+      </NDescriptions>
+      <template #footer>
+        <NSpace justify="end">
+          <NButton @click="accountModalVisible = false">关闭</NButton>
+          <NButton type="primary" @click="copyAccountInfo">复制信息</NButton>
+        </NSpace>
+      </template>
+    </NModal>
   </div>
 </template>
 

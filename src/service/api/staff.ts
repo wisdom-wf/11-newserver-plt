@@ -25,7 +25,7 @@ export function fetchGetStaff(id: string) {
  * 创建服务人员
  */
 export function fetchCreateStaff(data: Api.Staff.StaffForm) {
-  return request({
+  return request<Api.Staff.CreateStaffResult>({
     url: '/api/staff',
     method: 'post',
     data
@@ -94,5 +94,15 @@ export function fetchGetStaffServiceLogs(staffId: string, limit: number = 20) {
     url: `/api/staff/${staffId}/service-logs`,
     method: 'get',
     params: { limit }
+  });
+}
+
+/**
+ * 重置服务人员密码
+ */
+export function fetchResetStaffPassword(staffId: string) {
+  return request({
+    url: `/api/staff/${staffId}/reset-password`,
+    method: 'post'
   });
 }
