@@ -182,4 +182,14 @@ public class StaffVO implements Serializable {
      * 更新时间
      */
     private LocalDateTime updateTime;
+
+    /**
+     * 系统账户用户名
+     */
+    private String username;
+
+    /**
+     * 是否已创建系统账户
+     */
+    private Boolean hasAccount;
 }

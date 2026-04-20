@@ -101,4 +101,9 @@ public class StaffCreateDTO implements Serializable {
      * 备注
      */
     private String remark;
+
+    /**
+     * 是否同时创建系统账户
+     */
+    private Boolean createAccount = true;
 }

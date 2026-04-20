@@ -13,8 +13,11 @@ public interface StaffService {
 
     /**
      * 创建服务人员
+     * @param createDTO 创建参数
+     * @param createAccount 是否同时创建系统账户
+     * @return 创建结果（包含账户信息）
      */
-    StaffVO createStaff(StaffCreateDTO createDTO);
+    StaffCreateResultVO createStaff(StaffCreateDTO createDTO, boolean createAccount);
 
     /**
      * 分页查询服务人员
@@ -113,4 +116,9 @@ public interface StaffService {
      * 获取服务人员的服务日志列表
      */
     java.util.List<com.elderlycare.vo.servicelog.ServiceLogVO> getServiceLogs(String staffId, int limit);
+
+    /**
+     * 重置服务人员密码
+     */
+    void resetPassword(String staffId);
 }

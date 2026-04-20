@@ -30,8 +30,10 @@ public class StaffController {
      * 创建服务人员
      */
     @PostMapping("")
-    public Result<StaffVO> createStaff(@RequestBody StaffCreateDTO createDTO) {
-        StaffVO vo = staffService.createStaff(createDTO);
+    public Result<StaffCreateResultVO> createStaff(@RequestBody StaffCreateDTO createDTO) {
+        // 默认创建账户
+        boolean createAccount = createDTO.getCreateAccount() == null || createDTO.getCreateAccount();
+        StaffCreateResultVO vo = staffService.createStaff(createDTO, createAccount);
         return Result.success(vo);
     }
 
@@ -248,5 +250,14 @@ public class StaffController {
             @RequestParam(defaultValue = "20") int limit) {
         List<ServiceLogVO> logs = staffService.getServiceLogs(staffId, limit);
         return Result.success(logs);
+    }
+
+    /**
+     * 重置服务人员密码
+     */
+    @PostMapping("/{staffId}/reset-password")
+    public Result<Void> resetPassword(@PathVariable String staffId) {
+        staffService.resetPassword(staffId);
+        return Result.success();
     }
 }

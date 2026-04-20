@@ -3,6 +3,7 @@ package com.elderlycare.service.staff.impl;
 import com.baomidou.mybatisplus.core.metadata.IPage;
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import com.elderlycare.common.BusinessException;
+import com.elderlycare.common.IDGenerator;
 import com.elderlycare.common.PageResult;
 import com.elderlycare.common.DateUtil;
 import com.elderlycare.dto.staff.*;
@@ -11,14 +12,20 @@ import com.elderlycare.entity.staff.StaffQualification;
 import com.elderlycare.entity.staff.StaffSchedule;
 import com.elderlycare.entity.staff.StaffWorkRecord;
 import com.elderlycare.entity.servicelog.ServiceLog;
+import com.elderlycare.entity.User;
+import com.elderlycare.entity.UserRole;
 import com.elderlycare.mapper.staff.StaffMapper;
 import com.elderlycare.mapper.staff.StaffQualificationMapper;
 import com.elderlycare.mapper.staff.StaffScheduleMapper;
 import com.elderlycare.mapper.staff.StaffWorkRecordMapper;
 import com.elderlycare.mapper.servicelog.ServiceLogMapper;
+import com.elderlycare.mapper.UserMapper;
+import com.elderlycare.mapper.UserRoleMapper;
 import com.elderlycare.service.staff.StaffService;
 import com.elderlycare.vo.staff.*;
 import lombok.RequiredArgsConstructor;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -40,6 +47,17 @@ public class StaffServiceImpl implements StaffService {
     private final StaffScheduleMapper scheduleMapper;
     private final StaffWorkRecordMapper workRecordMapper;
     private final ServiceLogMapper serviceLogMapper;
+    private final UserMapper userMapper;
+    private final UserRoleMapper userRoleMapper;
+
+    @Autowired
+    private PasswordEncoder passwordEncoder;
+
+/** 默认密码 */
+    private static final String DEFAULT_PASSWORD = "mima123";
+
+    /** STAFF角色ID */
+    private static final String STAFF_ROLE_ID = "R005";
 
     /**
      * 根据身份证号计算年龄（18位中国身份证）
@@ -70,7 +88,7 @@ public class StaffServiceImpl implements StaffService {
 
     @Override
     @Transactional
-    public StaffVO createStaff(StaffCreateDTO createDTO) {
+    public StaffCreateResultVO createStaff(StaffCreateDTO createDTO, boolean createAccount) {
         // 生成员工编号
         String staffNo = "S" + DateUtil.generateNo("");
 
@@ -103,7 +121,86 @@ public class StaffServiceImpl implements StaffService {
         staff.setRemark(createDTO.getRemark());
 
         staffMapper.insert(staff);
-        return convertToStaffVO(staff);
+
+        // 创建结果VO
+        StaffCreateResultVO result = new StaffCreateResultVO();
+        result.setStaffId(staff.getStaffId());
+        result.setProviderId(staff.getProviderId());
+        result.setProviderName(staff.getProviderName());
+        result.setStaffNo(staff.getStaffNo());
+        result.setStaffName(staff.getStaffName());
+        result.setGender(staff.getGender());
+        result.setGenderText(getGenderText(staff.getGender()));
+        result.setIdCard(staff.getIdCard());
+        result.setPhone(staff.getPhone());
+        result.setAge(staff.getAge());
+        result.setBirthDate(staff.getBirthDate());
+        result.setNation(staff.getNation());
+        result.setEducation(staff.getEducation());
+        result.setEducationText(getEducationText(staff.getEducation()));
+        result.setPoliticalStatus(staff.getPoliticalStatus());
+        result.setPoliticalStatusText(getPoliticalStatusText(staff.getPoliticalStatus()));
+        result.setMaritalStatus(staff.getMaritalStatus());
+        result.setMaritalStatusText(getMaritalStatusText(staff.getMaritalStatus()));
+        result.setDomicileAddress(staff.getDomicileAddress());
+        result.setResidenceAddress(staff.getResidenceAddress());
+        result.setEmergencyContact(staff.getEmergencyContact());
+        result.setEmergencyPhone(staff.getEmergencyPhone());
+        result.setServiceTypes(staff.getServiceTypes());
+        result.setServiceTypesText(staff.getServiceTypes());
+        result.setStatus(staff.getStatus());
+        result.setStatusText(getStatusText(staff.getStatus()));
+        result.setHireDate(staff.getHireDate());
+        result.setAvatarUrl(staff.getAvatarUrl());
+        result.setRemark(staff.getRemark());
+        result.setCreateTime(staff.getCreateTime());
+        result.setUpdateTime(staff.getUpdateTime());
+
+        // 如果需要创建账户
+        if (createAccount) {
+            try {
+                String username = createDTO.getPhone(); // 使用手机号作为用户名
+                String password = DEFAULT_PASSWORD;
+
+                // 检查用户名是否已存在
+                User existingUser = userMapper.selectByUsername(username);
+                if (existingUser != null) {
+                    // 用户名已存在，使用 staffId 作为用户名
+                    username = "STAFF_" + staff.getStaffId().substring(0, 8);
+                }
+
+                // 创建系统用户
+                User user = new User();
+                user.setUserId(IDGenerator.generateId());
+                user.setUsername(username);
+                user.setPassword(passwordEncoder.encode(password));
+                user.setRealName(staff.getStaffName());
+                user.setPhone(staff.getPhone());
+                user.setUserType("STAFF");
+                user.setProviderId(staff.getProviderId());
+                user.setStatus("NORMAL");
+                userMapper.insert(user);
+
+                // 分配 STAFF 角色
+                UserRole userRole = new UserRole();
+                userRole.setUserRoleId(IDGenerator.generateId());
+                userRole.setUserId(user.getUserId());
+                userRole.setRoleId(STAFF_ROLE_ID);
+                userRoleMapper.insert(userRole);
+
+                // 设置返回结果
+                result.setUsername(username);
+                result.setPassword(password);
+                result.setAccountCreated(true);
+            } catch (Exception e) {
+                // 账户创建失败，不影响服务人员创建
+                result.setAccountCreated(false);
+            }
+        } else {
+            result.setAccountCreated(false);
+        }
+
+        return result;
     }
 
     @Override
@@ -506,6 +603,20 @@ public class StaffServiceImpl implements StaffService {
         vo.setRemark(staff.getRemark());
         vo.setCreateTime(staff.getCreateTime());
         vo.setUpdateTime(staff.getUpdateTime());
+
+        // 查询账户信息
+        if (staff.getPhone() != null) {
+            User user = userMapper.selectByUsername(staff.getPhone());
+            if (user != null) {
+                vo.setUsername(staff.getPhone());
+                vo.setHasAccount(true);
+            } else {
+                vo.setHasAccount(false);
+            }
+        } else {
+            vo.setHasAccount(false);
+        }
+
         return vo;
     }
 
@@ -762,5 +873,20 @@ public class StaffServiceImpl implements StaffService {
         vo.setAnomalyDesc(log.getAnomalyDesc());
         vo.setAuditStatus(log.getAuditStatus());
         return vo;
+    }
+
+    @Override
+    public void resetPassword(String staffId) {
+        // 查找服务人员信息
+        Staff staff = staffMapper.selectById(staffId);
+        if (staff != null && staff.getPhone() != null) {
+            // 用手机号作为用户名查找用户账户
+            User user = userMapper.selectByUsername(staff.getPhone());
+            if (user != null) {
+                // 重置为默认密码 mima123
+                user.setPassword(passwordEncoder.encode("mima123"));
+                userMapper.updateById(user);
+            }
+        }
     }
 }
