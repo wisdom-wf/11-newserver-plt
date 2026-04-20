@@ -351,3 +351,164 @@ servicePhotos: Array.isArray(row.servicePhotos)
 2. 确认返回数据字段名和类型符合预期
 3. 边界条件测试: null、0、空字符串的处理
 
+### 12. Modal → NDrawer 改造规范
+
+已完成的改造：elder、staff、service-log、quality、evaluation 模块的详情/编辑已统一为 NDrawer。
+
+#### 改造步骤（以单个 Modal → Drawer 为例）
+
+**1. 导入组件**
+```typescript
+import { NDrawer, NDrawerContent } from 'naive-ui';
+```
+
+**2. 状态变量命名规范**
+```typescript
+// ❌ 旧命名
+const detailVisible = ref(false);
+const modalLoading = ref(false);
+const isEdit = ref(false);
+
+// ✅ 新命名
+const detailDrawerVisible = ref(false);
+const drawerLoading = ref(false);
+const operateType = ref<'add' | 'edit'>('add');
+```
+
+**3. 变量替换规则**
+使用 `replace_all` 批量替换：
+- `modalVisible.value` → `drawerVisible.value`
+- `detailVisible.value` → `detailDrawerVisible.value`
+- `rectifyVisible.value` → `rectifyDrawerVisible.value`
+- `isEdit.value` (三元判断) → `operateType.value === 'edit'`
+
+**4. NModal → NDrawer 模板替换**
+```vue
+<!-- ❌ 旧写法 -->
+<NModal v-model:show="modalVisible" preset="card" style="width: 700px">
+  <template #header>...</template>
+  <div>...</div>
+  <template #footer>...</template>
+</NModal>
+
+<!-- ✅ 新写法 -->
+<NDrawer v-model:show="drawerVisible" :width="560" placement="right" closable>
+  <NDrawerContent :title="operateType === 'add' ? '新增' : '编辑'" closable>
+    <div>...</div>
+    <template #footer>...</template>
+  </NDrawerContent>
+</NDrawer>
+```
+
+**5. 提交按钮 loading 状态**
+```typescript
+// ❌ 旧
+<NButton :loading="modalLoading">
+
+// ✅ 新
+<NButton :loading="drawerLoading">
+```
+
+#### Drawer 宽度规范
+| 用途 | 宽度 |
+|------|------|
+| 简单表单 | 480px |
+| 标准详情/编辑 | 560px |
+| 复杂详情（含图片） | 600px |
+
+#### 混合模式原则（Plan C）
+- **Drawer**: 详情查看、复杂表单编辑、多步骤操作
+- **Modal**: 图片预览、快速确认、提示信息
+- **不强制统一**: 根据操作复杂度选择合适容器
+
+### 14. PersonCard组件复用规范（经验教训）
+
+**问题**: staff/index.vue 手写了卡片代码而不是复用PersonCard组件，导致：
+- photoUrl上传按钮点击无反应（控制台无错误）
+- 代码重复，维护成本高
+
+**正确做法**: 老人健康档案和服务人员卡片都应使用 `PersonCard` 组件：
+```vue
+<PersonCard
+  :photo-url="staff.avatarUrl"
+  :name="staff.staffName || '未知'"
+  :subtitle="staff.phone || '-'"
+  :extra-info="[{ label: '状态', value: getStatusLabel(staff.status) }]"
+  :index-value="staff.rating"
+  index-label="评分"
+  :show-upload-btn="true"
+  @photo-upload="(file) => handlePhotoUpload(staff.staffId, file)"
+/>
+```
+
+**PersonCard的NUpload机制**:
+- `custom-request` 返回 `false` 阻止默认上传
+- 手动 emit `photo-upload` 事件传递 File 对象
+- 父组件在事件处理中读取File并转为Base64
+
+**验证**: 强制刷新浏览器(Cmd+Shift+R)清除缓存
+
+### 15. 删除操作二次确认规范
+
+**所有删除操作必须使用 `NPopconfirm` 组件进行二次确认**，防止误删数据。
+
+#### 标准写法
+```vue
+<!-- ✅ 正确：使用 NPopconfirm 包裹删除按钮 -->
+<n-popconfirm @positive-click="handleDelete(row)">
+  <template #trigger>
+    <n-button type="error" size="small">删除</n-button>
+  </template>
+  确定要删除该记录吗？
+</n-popconfirm>
+
+<!-- ❌ 错误：直接使用按钮，无确认 -->
+<n-button type="error" size="small" @click="handleDelete(row)">删除</n-button>
+```
+
+#### 需要确认的删除场景
+| 场景 | 确认内容 |
+|------|----------|
+| 列表删除按钮 | "确定要删除该记录吗？此操作不可恢复。" |
+| 批量删除 | "确定要删除选中的 {n} 条记录吗？此操作不可恢复。" |
+| 级联删除 | "删除将同时移除关联数据，确定继续吗？" |
+
+#### 实现示例
+```vue
+<template>
+  <n-popconfirm @positive-click="handleDelete(row)">
+    <template #trigger>
+      <n-button type="error" size="small">
+        <icon:delete /> 删除
+      </n-button>
+    </template>
+    确定要删除该记录吗？此操作不可恢复。
+  </n-popconfirm>
+</template>
+
+<script setup>
+const handleDelete = async (row) => {
+  try {
+    await deleteApi(row.id);
+    message.success('删除成功');
+    refreshTable();
+  } catch (error) {
+    message.error('删除失败');
+  }
+};
+</script>
+```
+
+#### 已完成改造的模块
+- elder (老人档案)
+- staff (服务人员)
+- service-log (服务日志)
+- quality (质检管理)
+- evaluation (评价管理)
+- order (订单管理)
+- appointment (预约管理)
+
+#### 按钮文字规范
+- 删除按钮：使用 `type="error"` 样式，图标 + 文字
+- 确认文字：简洁明确，说明操作后果
+
