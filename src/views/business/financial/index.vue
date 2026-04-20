@@ -430,7 +430,7 @@ const refundColumns: DataTableColumns<Api.Financial.Refund> = [
   { title: '订单号', key: 'orderNo', width: 160 },
   { title: '服务商', key: 'providerName', width: 150 },
   { title: '服务人员', key: 'staffName', width: 100 },
-  { title: '老人姓名', key: 'elderName', width: 100 },
+  { title: '客户姓名', key: 'elderName', width: 100 },
   { title: '退款金额', key: 'amount', width: 100 },
   { title: '退款原因', key: 'reason', width: 150, ellipsis: { tooltip: true } },
   {
@@ -545,7 +545,7 @@ onMounted(() => {
           <div style="background: #f5f5f5; padding: 12px; margin-bottom: 12px; border-radius: 4px">
             <NSpace :wrap="true" align="center">
               <NInput v-model:value="searchOrderNo" placeholder="订单号" clearable style="width: 150px" />
-              <NInput v-model:value="searchElderName" placeholder="老人姓名" clearable style="width: 100px" />
+              <NInput v-model:value="searchElderName" placeholder="客户姓名" clearable style="width: 100px" />
               <NInput v-model:value="searchProviderName" placeholder="服务商" clearable style="width: 150px" />
               <NSelect
                 v-model:value="searchStatus"
@@ -624,7 +624,7 @@ onMounted(() => {
     </NCard>
 
     <!-- Elder Detail Modal -->
-    <NModal v-model:show="elderDetailVisible" title="老人档案详情" preset="card" style="width: 600px">
+    <NModal v-model:show="elderDetailVisible" title="客户档案详情" preset="card" style="width: 600px">
       <NForm v-if="elderDetailData" label-placement="left" label-width="100">
         <NFormItem label="姓名">{{ elderDetailData.name }}</NFormItem>
         <NFormItem label="性别">
@@ -716,7 +716,7 @@ onMounted(() => {
         <NFormItem label="订单号">{{ refundDetailData.orderNo || '-' }}</NFormItem>
         <NFormItem label="服务商">{{ refundDetailData.providerName || '-' }}</NFormItem>
         <NFormItem label="服务人员">{{ refundDetailData.staffName || '-' }}</NFormItem>
-        <NFormItem label="老人姓名">{{ refundDetailData.elderName || '-' }}</NFormItem>
+        <NFormItem label="客户姓名">{{ refundDetailData.elderName || '-' }}</NFormItem>
         <NFormItem label="退款金额">¥{{ refundDetailData.amount }}</NFormItem>
         <NFormItem label="退款类型">{{ refundDetailData.refundType || '-' }}</NFormItem>
         <NFormItem label="退款原因">{{ refundDetailData.reason }}</NFormItem>

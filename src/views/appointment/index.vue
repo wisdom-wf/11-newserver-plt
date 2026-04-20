@@ -119,8 +119,8 @@ function getStatusLabel(status: string): string {
 // Table columns
 const columns: DataTableColumns<Api.Appointment.Appointment> = [
   { title: '预约单号', key: 'appointmentNo', width: 160 },
-  { title: '老人姓名', key: 'elderName', width: 100 },
-  { title: '老人手机号', key: 'elderPhone', width: 130 },
+  { title: '客户姓名', key: 'elderName', width: 100 },
+  { title: '客户手机号', key: 'elderPhone', width: 130 },
   { title: '服务类型', key: 'serviceType', width: 120 },
   { title: '预约时间', key: 'appointmentTime', width: 170 },
   { title: '服务商', key: 'providerName', width: 150 },
@@ -551,8 +551,8 @@ onMounted(() => {
         <NSpace :wrap="true" align="center">
           <span style="font-size: 13px; color: #666">筛选条件:</span>
           <NInput v-model:value="searchAppointmentNo" placeholder="预约单号" clearable style="width: 150px" />
-          <NInput v-model:value="searchElderName" placeholder="老人姓名" clearable style="width: 120px" />
-          <NInput v-model:value="searchElderPhone" placeholder="老人手机号" clearable style="width: 130px" />
+          <NInput v-model:value="searchElderName" placeholder="客户姓名" clearable style="width: 120px" />
+          <NInput v-model:value="searchElderPhone" placeholder="客户手机号" clearable style="width: 130px" />
           <NSelect
             v-model:value="searchStatus"
             :options="statusOptions"
@@ -644,8 +644,8 @@ onMounted(() => {
     <!-- Add Modal -->
     <NModal v-model:show="addModalVisible" title="添加预约" preset="card" style="width: 600px">
       <NForm :model="addForm" label-placement="left" label-width="100">
-        <NFormItem label="老人姓名" required>
-          <NInput v-model:value="addForm.elderName" placeholder="请输入老人姓名" />
+        <NFormItem label="客户姓名" required>
+          <NInput v-model:value="addForm.elderName" placeholder="请输入客户姓名" />
         </NFormItem>
         <NFormItem label="手机号" required>
           <NInput v-model:value="addForm.elderPhone" placeholder="请输入手机号" />

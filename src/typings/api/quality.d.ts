@@ -158,7 +158,7 @@ declare namespace Api {
       punctuality: number;
       /** 服务质量（40分） */
       serviceQuality: number;
-      /** 老人满意度（20分） */
+      /** 客户满意度（20分） */
       elderSatisfaction: number;
       /** 总分 */
       totalScore: number;

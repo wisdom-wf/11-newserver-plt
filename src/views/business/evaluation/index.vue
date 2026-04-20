@@ -155,7 +155,7 @@ const columns: DataTableColumns<any> = [
   { title: '评价编号', key: 'evalNo', width: 160 },
   { title: '订单号', key: 'orderNo', width: 160 },
   {
-    title: '老人姓名',
+    title: '客户姓名',
     key: 'elderName',
     width: 100,
     render: row =>
@@ -323,7 +323,7 @@ onMounted(() => {
       <div style="background: #f5f5f5; padding: 12px; margin-bottom: 12px; border-radius: 4px">
         <NSpace :wrap="true" align="center">
           <NInput v-model:value="searchOrderNo" placeholder="订单号" clearable style="width: 150px" />
-          <NInput v-model:value="searchElderName" placeholder="老人姓名" clearable style="width: 100px" />
+          <NInput v-model:value="searchElderName" placeholder="客户姓名" clearable style="width: 100px" />
           <NInput v-model:value="searchProviderName" placeholder="服务商" clearable style="width: 150px" />
           <NDatePicker v-model:value="searchDateRange" type="daterange" clearable style="width: 260px" />
           <NButton type="primary" @click="getData">搜索</NButton>
@@ -349,7 +349,7 @@ onMounted(() => {
 
     <!-- Elder Detail Drawer -->
     <NDrawer v-model:show="elderDetailDrawerVisible" :width="500" placement="right" closable>
-      <NDrawerContent title="老人档案详情" closable>
+      <NDrawerContent title="客户档案详情" closable>
         <NForm v-if="elderDetailData" label-placement="left" label-width="100">
           <NFormItem label="姓名">{{ elderDetailData.name }}</NFormItem>
           <NFormItem label="性别">

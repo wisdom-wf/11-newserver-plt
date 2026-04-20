@@ -1,7 +1,7 @@
 import { request } from '../request';
 
 /**
- * 获取老人列表
+ * 获取客户列表
  */
 export function fetchGetElderList(params?: Api.Elder.ElderQuery & Api.Common.PaginatingQueryParams) {
   return request<Api.Common.PaginatingQueryRecord<Api.Elder.Elder>>({
@@ -12,7 +12,7 @@ export function fetchGetElderList(params?: Api.Elder.ElderQuery & Api.Common.Pag
 }
 
 /**
- * 获取老人详情
+ * 获取客户详情
  */
 export function fetchGetElder(id: string) {
   return request<Api.Elder.Elder>({
@@ -22,7 +22,7 @@ export function fetchGetElder(id: string) {
 }
 
 /**
- * 创建老人
+ * 创建客户
  */
 export function fetchCreateElder(data: Api.Elder.ElderForm) {
   return request({
@@ -33,7 +33,7 @@ export function fetchCreateElder(data: Api.Elder.ElderForm) {
 }
 
 /**
- * 更新老人
+ * 更新客户
  */
 export function fetchUpdateElder(id: string, data: Api.Elder.ElderForm) {
   return request({
@@ -44,7 +44,7 @@ export function fetchUpdateElder(id: string, data: Api.Elder.ElderForm) {
 }
 
 /**
- * 删除老人
+ * 删除客户
  */
 export function fetchDeleteElder(id: string) {
   return request({
@@ -54,7 +54,7 @@ export function fetchDeleteElder(id: string) {
 }
 
 /**
- * 获取最近更新的老人列表（用于健康卡片展示）
+ * 获取最近更新的客户列表（用于健康卡片展示）
  */
 export function fetchGetRecentUpdatedElders(limit: number = 10) {
   return request<Api.Elder.ElderHealthCard[]>({
@@ -65,7 +65,7 @@ export function fetchGetRecentUpdatedElders(limit: number = 10) {
 }
 
 /**
- * 更新老人状态
+ * 更新客户状态
  */
 export function fetchUpdateElderStatus(id: string, status: Api.Common.EnableStatus) {
   return request({
@@ -76,7 +76,7 @@ export function fetchUpdateElderStatus(id: string, status: Api.Common.EnableStat
 }
 
 /**
- * 获取老人统计
+ * 获取客户统计
  */
 export function fetchGetElderStatistics(params?: { areaId?: string; communityId?: string }) {
   return request<Api.Elder.Statistics>({
@@ -87,7 +87,7 @@ export function fetchGetElderStatistics(params?: { areaId?: string; communityId?
 }
 
 /**
- * 获取老人选择列表
+ * 获取客户选择列表
  */
 export function fetchGetElderOptions(params?: { areaId?: string; communityId?: string }) {
   return request<{ id: string; name: string; phone?: string }[]>({
@@ -98,7 +98,7 @@ export function fetchGetElderOptions(params?: { areaId?: string; communityId?: s
 }
 
 /**
- * 通过身份证号获取老人信息
+ * 通过身份证号获取客户信息
  */
 export function fetchGetElderByIdCard(idCard: string) {
   return request<Api.Elder.Elder>({
@@ -146,7 +146,7 @@ export function fetchGetHealthMeasurementHistory(
 }
 
 /**
- * 获取老人最新一次测量记录（指定类型）
+ * 获取客户最新一次测量记录（指定类型）
  */
 export function fetchGetLatestMeasurement(elderId: string, measurementType: string) {
   return request<Api.Elder.HealthMeasurement>({
@@ -157,7 +157,7 @@ export function fetchGetLatestMeasurement(elderId: string, measurementType: stri
 }
 
 /**
- * 获取老人最新测量记录（所有类型）
+ * 获取客户最新测量记录（所有类型）
  */
 export function fetchGetLatestMeasurements(elderId: string) {
   return request<Api.Elder.HealthMeasurement[]>({
@@ -178,7 +178,7 @@ export function fetchGetMeasurementStatistics(elderId: string, measurementType: 
 }
 
 /**
- * 获取老人所有类型测量的统计数据
+ * 获取客户所有类型测量的统计数据
  */
 export function fetchGetAllMeasurementStatistics(elderId: string) {
   return request<Api.Elder.HealthMeasurementStatistics[]>({
@@ -211,7 +211,7 @@ export function fetchGenerateHealthReport(elderId: string, data: Api.Elder.Healt
 }
 
 /**
- * 获取老人健康报告列表
+ * 获取客户健康报告列表
  */
 export function fetchGetHealthReportList(elderId: string) {
   return request<Api.Elder.HealthReport[]>({

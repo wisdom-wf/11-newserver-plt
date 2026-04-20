@@ -399,7 +399,7 @@ onMounted(() => {
 <template>
   <div>
     <!-- Statistics Cards -->
-    <NCard title="老人统计" :bordered="false" style="margin-bottom: 16px">
+    <NCard title="客户统计" :bordered="false" style="margin-bottom: 16px">
       <div class="statistics-grid">
         <div class="stat-card stat-primary">
           <div class="stat-label">总人数</div>
@@ -432,7 +432,7 @@ onMounted(() => {
     <NCard :bordered="false" style="margin-bottom: 16px">
       <template #header>
         <div style="display: flex; justify-content: space-between; align-items: center">
-          <span>老人档案管理</span>
+          <span>客户档案管理</span>
         </div>
       </template>
       <div style="background: #f5f5f5; padding: 12px; margin-bottom: 12px; border-radius: 4px">
@@ -490,7 +490,7 @@ onMounted(() => {
 
     <!-- Elder Drawer -->
     <NDrawer v-model:show="drawerVisible" :width="600" placement="right" closable>
-      <NDrawerContent :title="operateType === 'add' ? '新增老人' : '编辑老人'" closable>
+      <NDrawerContent :title="operateType === 'add' ? '新增客户' : '编辑客户'" closable>
         <NForm ref="formRef" :model="form" :rules="rules" label-placement="left" label-width="100">
           <NFormItem label="姓名" path="name">
             <NInput v-model:value="form.name" placeholder="请输入姓名" />
@@ -540,7 +540,7 @@ onMounted(() => {
 
     <!-- Elder Detail Drawer -->
     <NDrawer v-model:show="detailVisible" :width="600" placement="right" closable>
-      <NDrawerContent title="老人档案详情" closable>
+      <NDrawerContent title="客户档案详情" closable>
         <div v-if="detailData" style="padding: 0 8px">
           <!-- Basic Info -->
           <div style="margin-bottom: 24px">

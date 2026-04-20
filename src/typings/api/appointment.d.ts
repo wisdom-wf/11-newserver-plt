@@ -8,9 +8,9 @@ declare namespace Api {
     interface AppointmentQuery {
       /** 预约单号 */
       appointmentNo?: string;
-      /** 老人姓名 */
+      /** 客户姓名 */
       elderName?: string;
-      /** 老人手机号 */
+      /** 客户手机号 */
       elderPhone?: string;
       /** 服务类型 */
       serviceType?: string;
@@ -34,13 +34,13 @@ declare namespace Api {
       appointmentId: string;
       /** 预约单号 */
       appointmentNo: string;
-      /** 老人姓名 */
+      /** 客户姓名 */
       elderName: string;
-      /** 老人身份证号 */
+      /** 客户身份证号 */
       elderIdCard: string;
-      /** 老人手机号 */
+      /** 客户手机号 */
       elderPhone: string;
-      /** 老人地址 */
+      /** 客户地址 */
       elderAddress: string;
       /** 区域ID */
       elderAreaId?: string;

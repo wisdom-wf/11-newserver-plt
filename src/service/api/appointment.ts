@@ -113,7 +113,7 @@ export function fetchGetAppointmentStatistics(params?: { areaId?: string; startD
 }
 
 /**
- * 根据老人手机号获取预约历史
+ * 根据客户手机号获取预约历史
  */
 export function fetchGetAppointmentsByPhone(phone: string) {
   return request<Api.Appointment.Appointment[]>({

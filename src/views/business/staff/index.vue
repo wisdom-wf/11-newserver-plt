@@ -738,7 +738,7 @@ onMounted(() => {
                     <NTag :type="log.hasAnomaly ? 'error' : 'success'" size="small">{{ log.hasAnomaly ? '有异常' : '正常' }}</NTag>
                   </div>
                   <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 4px; font-size: 13px; color: #666">
-                    <div>老人：{{ log.elderName || '-' }}</div>
+                    <div>客户：{{ log.elderName || '-' }}</div>
                     <div>日期：{{ log.serviceDate || '-' }}</div>
                     <div>时长：{{ log.actualDuration ? log.actualDuration + '分钟' : '-' }}</div>
                     <div>评分：{{ log.serviceComment ? '⭐'.repeat(Math.min(5, parseInt(log.serviceComment))) : '-' }}</div>

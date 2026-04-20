@@ -164,9 +164,9 @@ declare namespace Api {
       orderId?: string;
       /** 订单号 */
       orderNo?: string;
-      /** 老人ID */
+      /** 客户ID */
       elderId?: string;
-      /** 老人姓名 */
+      /** 客户姓名 */
       elderName?: string;
       /** 服务人员ID */
       staffId?: string;

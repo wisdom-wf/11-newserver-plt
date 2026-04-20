@@ -22,7 +22,7 @@ declare namespace Api {
       providerCount: number;
       /** 服务人员数量 */
       staffCount: number;
-      /** 老人数量 */
+      /** 客户数量 */
       elderCount: number;
       /** 本月营收 */
       monthRevenue: number;
@@ -178,7 +178,7 @@ declare namespace Api {
       providerName: string;
       /** 服务人员 */
       staffName: string;
-      /** 老人姓名 */
+      /** 客户姓名 */
       elderName: string;
       /** 状态 */
       status: OrderStatus;

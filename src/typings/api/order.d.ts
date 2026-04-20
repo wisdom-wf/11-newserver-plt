@@ -8,7 +8,7 @@ declare namespace Api {
     interface OrderQuery {
       /** 订单号 */
       orderNo?: string;
-      /** 老人姓名 */
+      /** 客户姓名 */
       elderName?: string;
       /** 服务类型 */
       serviceType?: string;
@@ -36,13 +36,13 @@ declare namespace Api {
       appointmentId?: string;
       /** 服务类别 */
       serviceCategory?: string;
-      /** 老人ID */
+      /** 客户ID */
       elderId: string;
-      /** 老人姓名 */
+      /** 客户姓名 */
       elderName: string;
-      /** 老人手机号 */
+      /** 客户手机号 */
       elderPhone?: string;
-      /** 老人地址 */
+      /** 客户地址 */
       serviceAddress?: string;
       /** 区域ID */
       areaId?: string;
@@ -88,13 +88,13 @@ declare namespace Api {
       appointmentNo?: string;
       /** 服务类别 */
       serviceCategory?: string;
-      /** 老人ID */
+      /** 客户ID */
       elderId: string;
-      /** 老人姓名 */
+      /** 客户姓名 */
       elderName: string;
-      /** 老人手机号 */
+      /** 客户手机号 */
       elderPhone?: string;
-      /** 老人地址 */
+      /** 客户地址 */
       serviceAddress?: string;
       /** 区域ID */
       areaId?: string;

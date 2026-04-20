@@ -233,7 +233,7 @@ const local: App.I18n.Schema = {
     system_user: '用户管理',
     business: '业务管理',
     business_order: '订单管理',
-    business_elder: '老人档案管理',
+    business_elder: '客户档案管理',
     business_healthArchive: '健康档案管理',
     business_staff: '服务人员管理',
     'business_service-log': '服务日志',

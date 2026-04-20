@@ -8,7 +8,7 @@ declare namespace Api {
     interface EvaluationQuery {
       /** 订单号 */
       orderNo?: string;
-      /** 老人姓名 */
+      /** 客户姓名 */
       elderName?: string;
       /** 服务商名称 */
       providerName?: string;

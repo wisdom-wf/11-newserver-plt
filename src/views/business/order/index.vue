@@ -250,13 +250,13 @@ function formatServiceTime(serviceDate: string | undefined, serviceTime: string 
 const columns: DataTableColumns<Api.Order.Order> = [
   { title: '订单号', key: 'orderNo', width: 160 },
   {
-    title: '老人姓名',
+    title: '客户姓名',
     key: 'elderName',
     width: 100,
     render: row =>
       h('a', { style: { color: '#18a058', cursor: 'pointer' }, onClick: () => showElderDetail(row) }, row.elderName)
   },
-  { title: '老人手机', key: 'elderPhone', width: 130 },
+  { title: '客户手机', key: 'elderPhone', width: 130 },
   { title: '服务类型', key: 'serviceTypeName', width: 120 },
   {
     title: '预约服务时间',
@@ -440,11 +440,11 @@ function handleAdd() {
 
 async function handleAddSubmit() {
   if (!addForm.value.elderName) {
-    message.warning('请输入老人姓名');
+    message.warning('请输入客户姓名');
     return;
   }
   if (!addForm.value.elderPhone) {
-    message.warning('请输入老人手机号');
+    message.warning('请输入客户手机号');
     return;
   }
   if (!addForm.value.serviceTypeCode) {
@@ -738,7 +738,7 @@ function generateOrderTimeline(order: Api.Order.Order): OrderTimelineItem[] {
 
   if (order.createTime) {
     const details: { label: string; value: string }[] = [
-      { label: '老人姓名', value: order.elderName || '-' },
+      { label: '客户姓名', value: order.elderName || '-' },
       { label: '服务类型', value: order.serviceTypeName || '-' },
       { label: '预估费用', value: `¥${order.estimatedPrice || 0}` }
     ];
@@ -970,7 +970,7 @@ onMounted(() => {
       <div style="background: #f5f5f5; padding: 12px; margin-bottom: 12px; border-radius: 4px">
         <NSpace :wrap="true" align="center">
           <NInput v-model:value="searchOrderNo" placeholder="订单号" clearable style="width: 150px" />
-          <NInput v-model:value="searchElderName" placeholder="老人姓名" clearable style="width: 100px" />
+          <NInput v-model:value="searchElderName" placeholder="客户姓名" clearable style="width: 100px" />
           <NSelect
             v-model:value="searchProviderId"
             :options="providerOptions"
@@ -1024,8 +1024,8 @@ onMounted(() => {
     <!-- Add Modal -->
     <NModal v-model:show="addModalVisible" title="添加订单" preset="card" style="width: 600px">
       <NForm :model="addForm" label-placement="left" label-width="100">
-        <NFormItem label="老人姓名" required>
-          <NInput v-model:value="addForm.elderName" placeholder="请输入老人姓名" />
+        <NFormItem label="客户姓名" required>
+          <NInput v-model:value="addForm.elderName" placeholder="请输入客户姓名" />
         </NFormItem>
         <NFormItem label="手机号" required>
           <NInput v-model:value="addForm.elderPhone" placeholder="请输入手机号" />
@@ -1173,7 +1173,7 @@ onMounted(() => {
     </NModal>
 
     <!-- Elder Detail Modal -->
-    <NModal v-model:show="elderDetailVisible" title="老人档案详情" preset="card" style="width: 600px">
+    <NModal v-model:show="elderDetailVisible" title="客户档案详情" preset="card" style="width: 600px">
       <NForm v-if="elderDetailData" label-placement="left" label-width="100">
         <NFormItem label="姓名">{{ elderDetailData.name }}</NFormItem>
         <NFormItem label="性别">
@@ -1259,8 +1259,8 @@ onMounted(() => {
                 {{ getStatusLabel(orderDetailData.status) }}
               </NTag>
             </NDescriptionsItem>
-            <NDescriptionsItem label="老人姓名">{{ orderDetailData.elderName }}</NDescriptionsItem>
-            <NDescriptionsItem label="老人手机">{{ orderDetailData.elderPhone }}</NDescriptionsItem>
+            <NDescriptionsItem label="客户姓名">{{ orderDetailData.elderName }}</NDescriptionsItem>
+            <NDescriptionsItem label="客户手机">{{ orderDetailData.elderPhone }}</NDescriptionsItem>
             <NDescriptionsItem label="服务类型">{{ orderDetailData.serviceTypeName }}</NDescriptionsItem>
             <NDescriptionsItem label="预约时间">
               {{ formatServiceTime(orderDetailData.serviceDate, orderDetailData.serviceTime) }}

@@ -42,7 +42,7 @@ const { domRef: careBarRef, updateOptions: updateCareBarOptions } = useEcharts<E
   yAxis: { type: 'value' },
   series: [
     {
-      name: '老人数量',
+      name: '客户数量',
       type: 'bar',
       data: [] as number[],
       itemStyle: {
@@ -166,7 +166,7 @@ function formatNumber(num: number): string {
         <div class="stat-card-primary">
           <div class="stat-content">
             <span class="stat-value">{{ formatNumber(elderStats.totalElders) }}</span>
-            <span class="stat-label">老人总数</span>
+            <span class="stat-label">客户总数</span>
           </div>
         </div>
       </NGi>
@@ -182,7 +182,7 @@ function formatNumber(num: number): string {
         <div class="stat-card-warning">
           <div class="stat-content">
             <span class="stat-value">{{ formatNumber(elderStats.activeElders) }}</span>
-            <span class="stat-label">活跃老人</span>
+            <span class="stat-label">活跃客户</span>
           </div>
         </div>
       </NGi>
@@ -192,7 +192,7 @@ function formatNumber(num: number): string {
     <NGrid :cols="2" :x-gap="16" :y-gap="16" item-responsive>
       <NGi>
         <div class="chart-card">
-          <div class="chart-title">老人年龄分布</div>
+          <div class="chart-title">客户年龄分布</div>
           <div ref="agePieRef" class="h-300px"></div>
         </div>
       </NGi>

@@ -64,9 +64,9 @@ declare namespace Api {
       staffId?: string;
       /** 服务人员姓名 */
       staffName?: string;
-      /** 老人ID */
+      /** 客户ID */
       elderId: string;
-      /** 老人姓名 */
+      /** 客户姓名 */
       elderName?: string;
       /** 服务费 */
       serviceFee?: number;
@@ -137,9 +137,9 @@ declare namespace Api {
       providerId: string;
       /** 服务商名称 */
       providerName?: string;
-      /** 老人ID */
+      /** 客户ID */
       elderId: string;
-      /** 老人姓名 */
+      /** 客户姓名 */
       elderName?: string;
       /** 发票类型 */
       invoiceType: InvoiceType;
@@ -303,9 +303,9 @@ declare namespace Api {
       staffId?: string;
       /** 服务人员姓名 */
       staffName?: string;
-      /** 老人ID */
+      /** 客户ID */
       elderId: string;
-      /** 老人姓名 */
+      /** 客户姓名 */
       elderName?: string;
       /** 退款金额 */
       amount: number;

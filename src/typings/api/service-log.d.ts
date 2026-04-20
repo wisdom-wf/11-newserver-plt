@@ -8,7 +8,7 @@ declare namespace Api {
     interface ServiceLogQuery {
       /** 订单号 */
       orderNo?: string;
-      /** 老人姓名 */
+      /** 客户姓名 */
       elderName?: string;
       /** 服务人员姓名 */
       staffName?: string;
@@ -54,7 +54,7 @@ declare namespace Api {
       anomalyDesc?: string;
       /** 异常照片 */
       anomalyPhotos?: string[];
-      /** 老人签字 */
+      /** 客户签字 */
       elderSign?: string;
       /** 服务人员签字 */
       staffSign?: string;
@@ -115,13 +115,13 @@ declare namespace Api {
       orderNo?: string;
       /** 服务类别 */
       serviceCategory?: ServiceCategory;
-      /** 老人ID */
+      /** 客户ID */
       elderId: string;
-      /** 老人姓名 */
+      /** 客户姓名 */
       elderName: string;
-      /** 老人手机号 */
+      /** 客户手机号 */
       elderPhone?: string;
-      /** 老人地址 */
+      /** 客户地址 */
       elderAddress?: string;
       /** 服务人员ID */
       staffId: string;
@@ -157,7 +157,7 @@ declare namespace Api {
       serviceComment?: string;
       /** 服务照片 - 后端为逗号分隔字符串 */
       servicePhotos?: string | string[];
-      /** 老人签名 - 与后端elderSignature对齐 */
+      /** 客户签名 - 与后端elderSignature对齐 */
       elderSignature?: string;
       /** 是否有异常 */
       hasAnomaly?: boolean;

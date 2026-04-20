@@ -161,7 +161,7 @@ const columns: DataTableColumns<Api.ServiceLog.ServiceLog> = [
   { title: '日志编号', key: 'logNo', width: 160 },
   { title: '订单号', key: 'orderNo', width: 160 },
   {
-    title: '老人姓名',
+    title: '客户姓名',
     key: 'elderName',
     width: 100,
     render: row =>
@@ -747,7 +747,7 @@ onMounted(() => {
       <div style="background: #f5f5f5; padding: 12px; margin-bottom: 12px; border-radius: 4px">
         <NSpace :wrap="true" align="center">
           <NInput v-model:value="searchOrderNo" placeholder="订单号" clearable style="width: 150px" />
-          <NInput v-model:value="searchElderName" placeholder="老人姓名" clearable style="width: 100px" />
+          <NInput v-model:value="searchElderName" placeholder="客户姓名" clearable style="width: 100px" />
           <NInput v-model:value="searchStaffName" placeholder="服务人员" clearable style="width: 100px" />
           <NSelect
             v-model:value="searchServiceCategory"
@@ -776,7 +776,7 @@ onMounted(() => {
     </NCard>
 
     <!-- Elder Detail Modal -->
-    <NModal v-model:show="elderDetailVisible" title="老人档案详情" preset="card" style="width: 600px">
+    <NModal v-model:show="elderDetailVisible" title="客户档案详情" preset="card" style="width: 600px">
       <NForm v-if="elderDetailData" label-placement="left" label-width="100">
         <NFormItem label="姓名">{{ elderDetailData.name }}</NFormItem>
         <NFormItem label="性别">
@@ -970,7 +970,7 @@ onMounted(() => {
             <div style="color: #667eea; font-size: 13px; font-weight: 600; margin-bottom: 12px">服务对象</div>
             <div style="display: grid; grid-template-columns: repeat(3, 1fr); gap: 16px">
               <div>
-                <div style="color: #999; font-size: 12px; margin-bottom: 4px">老人姓名</div>
+                <div style="color: #999; font-size: 12px; margin-bottom: 4px">客户姓名</div>
                 <div style="font-weight: 500">{{ detailData.elderName || '-' }}</div>
               </div>
               <div>
@@ -1237,7 +1237,7 @@ onMounted(() => {
         <div style="background: #f8f9fa; border-radius: 12px; padding: 20px; margin-bottom: 16px">
           <div style="display: grid; grid-template-columns: repeat(3, 1fr); gap: 16px">
             <div>
-              <div style="color: #999; font-size: 12px; margin-bottom: 4px">老人姓名</div>
+              <div style="color: #999; font-size: 12px; margin-bottom: 4px">客户姓名</div>
               <div style="font-weight: 500">{{ qualityReviewData.elderName || '-' }}</div>
             </div>
             <div>

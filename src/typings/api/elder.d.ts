@@ -1,5 +1,5 @@
 /**
- * 老人档案管理模块
+ * 客户档案管理模块
  */
 
 declare namespace Api {
@@ -15,7 +15,7 @@ declare namespace Api {
     /** 健康状况 */
     type HealthStatus = 'GOOD' | 'FAIR' | 'POOR' | 'UNKNOWN';
 
-    /** 老人查询参数 */
+    /** 客户查询参数 */
     interface ElderQuery {
       /** 姓名 */
       name?: string;
@@ -35,9 +35,9 @@ declare namespace Api {
       status?: string;
     }
 
-    /** 老人表单 */
+    /** 客户表单 */
     interface ElderForm {
-      /** 老人ID（编辑时需要） */
+      /** 客户ID（编辑时需要） */
       elderId?: string;
       /** 姓名 */
       name: string;
@@ -87,15 +87,15 @@ declare namespace Api {
       remark?: string;
     }
 
-    /** 老人详情 */
+    /** 客户详情 */
     interface Elder {
-      /** 老人ID */
+      /** 客户ID */
       elderId: string;
       /** 档案编号 */
       fileNo?: string;
       /** 姓名 - 与后端elder_name字段映射 */
       name: string;
-      /** 老人姓名 - 兼容其他模块使用的elderName */
+      /** 客户姓名 - 兼容其他模块使用的elderName */
       elderName?: string;
       /** 性别 */
       gender?: string;
@@ -167,7 +167,7 @@ declare namespace Api {
       updateTime?: string;
     }
 
-    /** 老人统计 */
+    /** 客户统计 */
     interface Statistics {
       /** 总数 */
       total: number;
@@ -193,7 +193,7 @@ declare namespace Api {
     interface HealthMeasurementForm {
       /** 测量记录ID */
       measurementId?: string;
-      /** 老人ID */
+      /** 客户ID */
       elderId?: string;
       /** 服务日志ID */
       serviceLogId?: string;
@@ -211,9 +211,9 @@ declare namespace Api {
     interface HealthMeasurement {
       /** 测量记录ID */
       measurementId: string;
-      /** 老人ID */
+      /** 客户ID */
       elderId: string;
-      /** 老人姓名 */
+      /** 客户姓名 */
       elderName?: string;
       /** 服务日志ID */
       serviceLogId?: string;
@@ -282,7 +282,7 @@ declare namespace Api {
     interface HealthReport {
       /** 报告ID */
       reportId: string;
-      /** 老人ID */
+      /** 客户ID */
       elderId: string;
       /** 报告编号 */
       reportNo?: string;
@@ -306,7 +306,7 @@ declare namespace Api {
 
     /** 健康报告VO */
     interface HealthReportVO extends HealthReport {
-      /** 老人姓名 */
+      /** 客户姓名 */
       elderName?: string;
       /** 报告类型名称 */
       reportTypeName?: string;
@@ -328,9 +328,9 @@ declare namespace Api {
 
     /** 护理建议VO */
     interface CareSuggestionVO {
-      /** 老人ID */
+      /** 客户ID */
       elderId: string;
-      /** 老人姓名 */
+      /** 客户姓名 */
       elderName: string;
       /** 评估时间 */
       evaluateTime: string;
@@ -358,9 +358,9 @@ declare namespace Api {
 
     /** 就医建议VO */
     interface MedicalSuggestionVO {
-      /** 老人ID */
+      /** 客户ID */
       elderId: string;
-      /** 老人姓名 */
+      /** 客户姓名 */
       elderName: string;
       /** 评估时间 */
       evaluateTime: string;
@@ -376,9 +376,9 @@ declare namespace Api {
       symptoms: string[];
     }
 
-    /** 老人健康卡片（用于健康档案页面展示） */
+    /** 客户健康卡片（用于健康档案页面展示） */
     interface ElderHealthCard {
-      /** 老人ID */
+      /** 客户ID */
       elderId: string;
       /** 姓名 */
       name: string;
