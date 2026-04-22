@@ -45,6 +45,9 @@ public class UserInfoVO implements Serializable {
     /** 服务商ID */
     private String providerId;
 
+    /** 关联的服务人员ID */
+    private String staffId;
+
     /** 角色列表 */
     private List<String> roles;
 

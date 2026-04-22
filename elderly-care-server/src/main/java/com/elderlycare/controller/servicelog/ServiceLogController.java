@@ -33,6 +33,11 @@ public class ServiceLogController {
         if (autoPid != null) {
             query.setProviderId(autoPid);
         }
+        // STAFF角色：注入staffId（只能看自己的）
+        String staffId = UserContext.getStaffId();
+        if (staffId != null) {
+            query.setStaffId(staffId);
+        }
         PageResult<ServiceLogVO> result = serviceLogService.getServiceLogList(query);
         return Result.success(result);
     }

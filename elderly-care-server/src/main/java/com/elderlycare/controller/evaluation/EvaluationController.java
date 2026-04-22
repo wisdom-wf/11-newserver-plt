@@ -51,6 +51,11 @@ public class EvaluationController {
         if (autoPid != null) {
             dto.setProviderId(autoPid);
         }
+        // STAFF角色：注入staffId（只能看自己的）
+        String staffId = UserContext.getStaffId();
+        if (staffId != null) {
+            dto.setStaffId(staffId);
+        }
         PageResult<ServiceEvaluation> result = evaluationService.queryEvaluations(dto);
         return Result.success(result);
     }

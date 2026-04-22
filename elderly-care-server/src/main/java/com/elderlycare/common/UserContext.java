@@ -14,6 +14,7 @@ public class UserContext {
     private static final ThreadLocal<List<String>> PERMISSIONS = new ThreadLocal<>();
     private static final ThreadLocal<String> PROVIDER_ID = new ThreadLocal<>();
     private static final ThreadLocal<String> USER_TYPE = new ThreadLocal<>();
+    private static final ThreadLocal<String> STAFF_ID = new ThreadLocal<>();
     private static final ThreadLocal<List<String>> PERMISSION_URLS = new ThreadLocal<>();
 
     public static void setUserId(String userId) {
@@ -64,6 +65,14 @@ public class UserContext {
         return USER_TYPE.get();
     }
 
+    public static void setStaffId(String staffId) {
+        STAFF_ID.set(staffId);
+    }
+
+    public static String getStaffId() {
+        return STAFF_ID.get();
+    }
+
     public static void setPermissionUrls(List<String> permissionUrls) {
         PERMISSION_URLS.set(permissionUrls);
     }
@@ -79,6 +88,7 @@ public class UserContext {
         PERMISSIONS.remove();
         PROVIDER_ID.remove();
         USER_TYPE.remove();
+        STAFF_ID.remove();
         PERMISSION_URLS.remove();
     }
 }

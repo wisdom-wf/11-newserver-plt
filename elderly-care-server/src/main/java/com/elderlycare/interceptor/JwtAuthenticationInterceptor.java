@@ -121,6 +121,7 @@ public class JwtAuthenticationInterceptor implements HandlerInterceptor {
         if (user != null) {
             UserContext.setUserType(user.getUserType());
             UserContext.setProviderId(user.getProviderId());
+            UserContext.setStaffId(user.getStaffId());
         }
     }
 

@@ -45,6 +45,9 @@ public class User implements Serializable {
     /** 服务商ID */
     private String providerId;
 
+    /** 关联的服务人员ID */
+    private String staffId;
+
     /** 区域ID */
     private String areaId;
 

@@ -57,7 +57,7 @@ public class StaffServiceImpl implements StaffService {
     private static final String DEFAULT_PASSWORD = "mima123";
 
     /** STAFF角色ID */
-    private static final String STAFF_ROLE_ID = "R005";
+    private static final String STAFF_ROLE_ID = "R003";
 
     /**
      * 根据身份证号计算年龄（18位中国身份证）

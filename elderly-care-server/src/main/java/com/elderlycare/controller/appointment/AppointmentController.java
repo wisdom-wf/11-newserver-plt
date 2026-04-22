@@ -42,6 +42,11 @@ public class AppointmentController {
         if (autoPid != null) {
             query.setProviderId(autoPid);
         }
+        // STAFF角色：注入staffId（只能看自己的）
+        String staffId = UserContext.getStaffId();
+        if (staffId != null) {
+            query.setStaffId(staffId);
+        }
         PageResult<AppointmentVO> result = appointmentService.getAppointmentList(query);
         return Result.success(result);
     }

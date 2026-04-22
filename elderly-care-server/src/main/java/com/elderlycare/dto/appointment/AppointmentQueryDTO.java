@@ -32,6 +32,9 @@ public class AppointmentQueryDTO {
     /** 服务商ID */
     private String providerId;
 
+    /** 服务人员ID（STAFF角色数据隔离） */
+    private String staffId;
+
     /** 开始日期 */
     private String startDate;
 

@@ -44,6 +44,9 @@
         <if test="dto.providerId != null and dto.providerId != ''">
             AND provider_id = #{dto.providerId}
         </if>
+        <if test="dto.staffId != null and dto.staffId != ''">
+            AND staff_id = #{dto.staffId}
+        </if>
         <if test="dto.providerName != null and dto.providerName != ''">
             AND provider_name LIKE CONCAT('%', #{dto.providerName}, '%')
         </if>

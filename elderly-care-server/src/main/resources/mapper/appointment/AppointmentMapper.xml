@@ -60,6 +60,9 @@
         <if test="query.providerId != null and query.providerId != ''">
             AND provider_id = #{query.providerId}
         </if>
+        <if test="query.staffId != null and query.staffId != ''">
+            AND staff_id = #{query.staffId}
+        </if>
         <if test="query.startDate != null and query.startDate != ''">
             AND appointment_time &gt;= #{query.startDate}
         </if>
