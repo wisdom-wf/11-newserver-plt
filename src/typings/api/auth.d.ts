@@ -28,6 +28,8 @@ declare namespace Api {
       areaName?: string;
       /** 服务商ID（用于服务商管理员） */
       providerId?: string;
+      /** 关联的服务人员ID（用于STAFF角色） */
+      staffId?: string;
       /** 服务商名称 */
       providerName?: string;
       /** 手机号 */

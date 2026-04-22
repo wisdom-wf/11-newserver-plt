@@ -33,6 +33,7 @@ export const useAuthStore = defineStore(SetupStoreId.Auth, () => {
     areaName: '',
     providerId: '',
     providerName: '',
+    staffId: '',
     phone: '',
     email: '',
     avatar: ''
