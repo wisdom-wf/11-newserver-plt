@@ -12,7 +12,7 @@ export default defineConfig({
   workers: process.env.CI ? 1 : undefined,
   reporter: 'html',
   use: {
-    baseURL: 'http://localhost:18080',
+    baseURL: 'http://localhost:9527',
     trace: 'on-first-retry',
     screenshot: 'only-on-failure',
     video: 'retain-on-failure'
@@ -23,9 +23,5 @@ export default defineConfig({
       use: { ...devices['Desktop Chrome'] }
     }
   ],
-  webServer: {
-    command: 'pnpm dev --port 18080',
-    url: 'http://localhost:18080',
-    reuseExistingServer: true
-  }
+  webServer: undefined
 });
