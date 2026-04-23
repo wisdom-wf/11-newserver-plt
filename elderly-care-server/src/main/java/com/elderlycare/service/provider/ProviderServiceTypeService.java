@@ -26,20 +26,20 @@ public interface ProviderServiceTypeService extends IService<ProviderServiceType
     /**
      * 更新服务类型
      */
-    void updateServiceType(String serviceTypeId, ServiceTypeUpdateDTO dto);
+    void updateServiceType(String providerServiceId, ServiceTypeUpdateDTO dto);
 
     /**
      * 删除服务类型
      */
-    void deleteServiceType(String serviceTypeId);
+    void deleteServiceType(String providerServiceId);
 
     /**
      * 检查服务类型是否属于指定服务商
      */
-    boolean isServiceTypeOwnedByProvider(String serviceTypeId, String providerId);
+    boolean isServiceTypeOwnedByProvider(String providerServiceId, String providerId);
 
     /**
      * 根据服务类型ID获取服务类型
      */
-    ServiceTypeVO getServiceTypeById(String serviceTypeId);
+    ServiceTypeVO getServiceTypeById(String providerServiceId);
 }

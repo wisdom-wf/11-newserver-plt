@@ -12,15 +12,17 @@ public class QualificationVO implements Serializable {
 
     private static final long serialVersionUID = 1L;
 
-    private String certId;
+    private String qualificationId;
     private String providerId;
-    private String certName;
-    private String certType;
-    private String certNumber;
-    private LocalDateTime validFrom;
-    private LocalDateTime validTo;
-    private String certImageUrl;
-    private Integer status;
+    private String qualificationName;
+    private String qualificationType;
+    private String qualificationNumber;
+    private LocalDateTime issueDate;
+    private LocalDateTime expiryDate;
+    private String issueOrganization;
+    private String attachmentUrl;
+    private String status;
+    private String auditStatus;
     private LocalDateTime createTime;
     private LocalDateTime updateTime;
 }

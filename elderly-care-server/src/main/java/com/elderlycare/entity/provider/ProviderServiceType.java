@@ -19,7 +19,7 @@ public class ProviderServiceType implements Serializable {
      * 服务类型ID
      */
     @TableId(type = IdType.ASSIGN_ID)
-    private String serviceTypeId;
+    private String providerServiceId;
 
     /**
      * 服务商ID
@@ -29,17 +29,12 @@ public class ProviderServiceType implements Serializable {
     /**
      * 服务类型编码
      */
-    private String serviceCode;
+    private String serviceTypeCode;
 
     /**
      * 服务类型名称
      */
-    private String serviceName;
-
-    /**
-     * 服务描述
-     */
-    private String description;
+    private String serviceTypeName;
 
     /**
      * 政府补贴价格
@@ -49,22 +44,17 @@ public class ProviderServiceType implements Serializable {
     /**
      * 市场价格
      */
-    private BigDecimal marketPrice;
+    private BigDecimal servicePrice;
 
     /**
-     * 单位(小时/次/户等)
+     * 服务区域
      */
-    private String unit;
+    private String serviceArea;
 
     /**
-     * 预计服务时长(分钟)
+     * 状态: ACTIVE-启用, INACTIVE-禁用
      */
-    private Integer estimatedDuration;
-
-    /**
-     * 状态: 0禁用, 1启用
-     */
-    private Integer status;
+    private String status;
 
     /**
      * 创建时间

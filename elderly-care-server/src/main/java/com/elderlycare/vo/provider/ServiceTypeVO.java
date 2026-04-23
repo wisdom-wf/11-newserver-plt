@@ -13,16 +13,14 @@ public class ServiceTypeVO implements Serializable {
 
     private static final long serialVersionUID = 1L;
 
-    private String serviceTypeId;
+    private String providerServiceId;
     private String providerId;
-    private String serviceCode;
-    private String serviceName;
-    private String description;
+    private String serviceTypeCode;
+    private String serviceTypeName;
     private BigDecimal subsidyPrice;
-    private BigDecimal marketPrice;
-    private String unit;
-    private Integer estimatedDuration;
-    private Integer status;
+    private BigDecimal servicePrice;
+    private String serviceArea;
+    private String status;
     private LocalDateTime createTime;
     private LocalDateTime updateTime;
 }

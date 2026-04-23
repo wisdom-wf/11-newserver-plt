@@ -33,10 +33,10 @@ public class ProviderServiceTypeServiceImpl
         ProviderServiceType serviceType = new ProviderServiceType();
         BeanUtils.copyProperties(dto, serviceType);
         serviceType.setProviderId(providerId);
-        serviceType.setStatus(1); // 默认启用
+        serviceType.setStatus("ACTIVE"); // 默认启用
 
         baseMapper.insert(serviceType);
-        return serviceType.getServiceTypeId();
+        return serviceType.getProviderServiceId();
     }
 
     @Override
@@ -56,29 +56,23 @@ public class ProviderServiceTypeServiceImpl
 
     @Override
     @Transactional(rollbackFor = Exception.class)
-    public void updateServiceType(String serviceTypeId, ServiceTypeUpdateDTO dto) {
-        ProviderServiceType serviceType = baseMapper.selectById(serviceTypeId);
+    public void updateServiceType(String providerServiceId, ServiceTypeUpdateDTO dto) {
+        ProviderServiceType serviceType = baseMapper.selectById(providerServiceId);
         if (serviceType == null) {
             throw BusinessException.notFound("服务类型不存在");
         }
 
-        if (StringUtils.isNotBlank(dto.getServiceName())) {
-            serviceType.setServiceName(dto.getServiceName());
-        }
-        if (dto.getDescription() != null) {
-            serviceType.setDescription(dto.getDescription());
+        if (StringUtils.isNotBlank(dto.getServiceTypeName())) {
+            serviceType.setServiceTypeName(dto.getServiceTypeName());
         }
         if (dto.getSubsidyPrice() != null) {
             serviceType.setSubsidyPrice(dto.getSubsidyPrice());
         }
-        if (dto.getMarketPrice() != null) {
-            serviceType.setMarketPrice(dto.getMarketPrice());
+        if (dto.getServicePrice() != null) {
+            serviceType.setServicePrice(dto.getServicePrice());
         }
-        if (StringUtils.isNotBlank(dto.getUnit())) {
-            serviceType.setUnit(dto.getUnit());
-        }
-        if (dto.getEstimatedDuration() != null) {
-            serviceType.setEstimatedDuration(dto.getEstimatedDuration());
+        if (StringUtils.isNotBlank(dto.getServiceArea())) {
+            serviceType.setServiceArea(dto.getServiceArea());
         }
         if (dto.getStatus() != null) {
             serviceType.setStatus(dto.getStatus());
@@ -89,27 +83,27 @@ public class ProviderServiceTypeServiceImpl
 
     @Override
     @Transactional(rollbackFor = Exception.class)
-    public void deleteServiceType(String serviceTypeId) {
-        ProviderServiceType serviceType = baseMapper.selectById(serviceTypeId);
+    public void deleteServiceType(String providerServiceId) {
+        ProviderServiceType serviceType = baseMapper.selectById(providerServiceId);
         if (serviceType == null) {
             throw BusinessException.notFound("服务类型不存在");
         }
 
-        baseMapper.deleteById(serviceTypeId);
+        baseMapper.deleteById(providerServiceId);
     }
 
     @Override
-    public boolean isServiceTypeOwnedByProvider(String serviceTypeId, String providerId) {
+    public boolean isServiceTypeOwnedByProvider(String providerServiceId, String providerId) {
         LambdaQueryWrapper<ProviderServiceType> wrapper = new LambdaQueryWrapper<>();
-        wrapper.eq(ProviderServiceType::getServiceTypeId, serviceTypeId);
+        wrapper.eq(ProviderServiceType::getProviderServiceId, providerServiceId);
         wrapper.eq(ProviderServiceType::getProviderId, providerId);
 
         return baseMapper.selectCount(wrapper) > 0;
     }
 
     @Override
-    public ServiceTypeVO getServiceTypeById(String serviceTypeId) {
-        ProviderServiceType serviceType = baseMapper.selectById(serviceTypeId);
+    public ServiceTypeVO getServiceTypeById(String providerServiceId) {
+        ProviderServiceType serviceType = baseMapper.selectById(providerServiceId);
         if (serviceType == null) {
             throw BusinessException.notFound("服务类型不存在");
         }

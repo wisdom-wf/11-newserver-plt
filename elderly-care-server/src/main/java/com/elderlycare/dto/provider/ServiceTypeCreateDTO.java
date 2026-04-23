@@ -18,39 +18,26 @@ public class ServiceTypeCreateDTO implements Serializable {
      * 服务类型编码
      */
     @NotBlank(message = "服务类型编码不能为空")
-    private String serviceCode;
+    private String serviceTypeCode;
 
     /**
      * 服务类型名称
      */
     @NotBlank(message = "服务类型名称不能为空")
-    private String serviceName;
-
-    /**
-     * 服务描述
-     */
-    private String description;
+    private String serviceTypeName;
 
     /**
      * 政府补贴价格
      */
-    @NotNull(message = "政府补贴价格不能为空")
     private BigDecimal subsidyPrice;
 
     /**
      * 市场价格
      */
-    @NotNull(message = "市场价格不能为空")
-    private BigDecimal marketPrice;
+    private BigDecimal servicePrice;
 
     /**
-     * 单位
+     * 服务区域
      */
-    @NotBlank(message = "单位不能为空")
-    private String unit;
-
-    /**
-     * 预计服务时长(分钟)
-     */
-    private Integer estimatedDuration;
+    private String serviceArea;
 }

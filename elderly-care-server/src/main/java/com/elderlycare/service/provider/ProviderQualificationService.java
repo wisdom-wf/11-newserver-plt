@@ -25,10 +25,10 @@ public interface ProviderQualificationService extends IService<ProviderQualifica
     /**
      * 删除资质
      */
-    void deleteQualification(String certId);
+    void deleteQualification(String qualificationId);
 
     /**
      * 检查资质是否属于指定服务商
      */
-    boolean isQualificationOwnedByProvider(String certId, String providerId);
+    boolean isQualificationOwnedByProvider(String qualificationId, String providerId);
 }

@@ -15,12 +15,7 @@ public class ServiceTypeUpdateDTO implements Serializable {
     /**
      * 服务类型名称
      */
-    private String serviceName;
-
-    /**
-     * 服务描述
-     */
-    private String description;
+    private String serviceTypeName;
 
     /**
      * 政府补贴价格
@@ -30,20 +25,15 @@ public class ServiceTypeUpdateDTO implements Serializable {
     /**
      * 市场价格
      */
-    private BigDecimal marketPrice;
+    private BigDecimal servicePrice;
 
     /**
-     * 单位
+     * 服务区域
      */
-    private String unit;
+    private String serviceArea;
 
     /**
-     * 预计服务时长(分钟)
+     * 状态: ACTIVE-启用, INACTIVE-禁用
      */
-    private Integer estimatedDuration;
-
-    /**
-     * 状态: 0禁用, 1启用
-     */
-    private Integer status;
+    private String status;
 }

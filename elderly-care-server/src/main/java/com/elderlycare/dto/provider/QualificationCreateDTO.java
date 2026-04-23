@@ -17,31 +17,36 @@ public class QualificationCreateDTO implements Serializable {
      * 资质名称
      */
     @NotBlank(message = "资质名称不能为空")
-    private String certName;
+    private String qualificationName;
 
     /**
      * 资质类型
      */
     @NotBlank(message = "资质类型不能为空")
-    private String certType;
+    private String qualificationType;
 
     /**
      * 资质编号
      */
-    private String certNumber;
+    private String qualificationNumber;
 
     /**
      * 有效期开始
      */
-    private LocalDateTime validFrom;
+    private LocalDateTime issueDate;
 
     /**
      * 有效期截止
      */
-    private LocalDateTime validTo;
+    private LocalDateTime expiryDate;
+
+    /**
+     * 发证机构
+     */
+    private String issueOrganization;
 
     /**
      * 资质证书图片URL
      */
-    private String certImageUrl;
+    private String attachmentUrl;
 }
