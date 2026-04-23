@@ -1,0 +1,35 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.elderlycare.mapper.PublicTokenMapper">
+
+    <resultMap id="BaseResultMap" type="com.elderlycare.entity.PublicToken">
+        <id column="token_id" property="tokenId"/>
+        <result column="token" property="token"/>
+        <result column="type" property="type"/>
+        <result column="expires_at" property="expiresAt"/>
+        <result column="create_time" property="createTime"/>
+        <result column="create_by" property="createBy"/>
+        <result column="status" property="status"/>
+        <result column="remark" property="remark"/>
+    </resultMap>
+
+    <select id="selectByToken" resultMap="BaseResultMap">
+        SELECT * FROM t_public_token
+        WHERE token = #{token}
+        AND status = 'ACTIVE'
+        AND expires_at > NOW()
+    </select>
+
+    <update id="revokeToken">
+        UPDATE t_public_token
+        SET status = 'REVOKED'
+        WHERE token = #{token}
+    </update>
+
+    <delete id="deleteExpiredTokens">
+        DELETE FROM t_public_token
+        WHERE expires_at &lt; #{now}
+        OR status = 'REVOKED'
+    </delete>
+
+</mapper>
