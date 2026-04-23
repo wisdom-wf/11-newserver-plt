@@ -24,5 +24,6 @@ public interface ProviderMapper extends BaseMapper<Provider> {
                           @Param("providerType") String providerType, @Param("serviceCategory") String serviceCategory,
                           @Param("legalPerson") String legalPerson, @Param("contactPhone") String contactPhone,
                           @Param("address") String address, @Param("serviceAreas") String serviceAreas,
-                          @Param("description") String description, @Param("status") String status);
+                          @Param("description") String description, @Param("businessLicense") String businessLicense,
+                          @Param("status") String status);
 }

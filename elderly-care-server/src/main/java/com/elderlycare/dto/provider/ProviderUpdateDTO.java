@@ -54,6 +54,11 @@ public class ProviderUpdateDTO implements Serializable {
     private String description;
 
     /**
+     * 营业执照(base64)
+     */
+    private String businessLicense;
+
+    /**
      * 状态: 0禁用, 1启用
      */
     private String status;

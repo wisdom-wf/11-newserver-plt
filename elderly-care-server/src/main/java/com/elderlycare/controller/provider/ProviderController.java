@@ -3,6 +3,7 @@ package com.elderlycare.controller.provider;
 import com.elderlycare.common.PageResult;
 import com.elderlycare.common.Result;
 import com.elderlycare.dto.provider.*;
+import com.elderlycare.entity.User;
 import com.elderlycare.entity.provider.Provider;
 import com.elderlycare.service.provider.ProviderQualificationService;
 import com.elderlycare.service.provider.ProviderService;
@@ -128,6 +129,26 @@ public class ProviderController {
     public Result<Void> deleteQualification(@PathVariable String certId) {
         qualificationService.deleteQualification(certId);
         return Result.success();
+    }
+
+    // ==================== 服务商管理员账户接口 ====================
+
+    /**
+     * 获取服务商管理员账户
+     */
+    @GetMapping("/{providerId}/admin-account")
+    public Result<User> getProviderAdminAccount(@PathVariable String providerId) {
+        User user = providerService.getProviderAdminAccount(providerId);
+        return Result.success(user);
+    }
+
+    /**
+     * 重置服务商管理员密码
+     */
+    @PostMapping("/{providerId}/admin-account/reset")
+    public Result<String> resetProviderAdminPassword(@PathVariable String providerId) {
+        String newPassword = providerService.resetProviderAdminPassword(providerId);
+        return Result.success(newPassword);
     }
 
     // ==================== 服务商服务类型管理接口 ====================

@@ -50,6 +50,7 @@
             <if test="address != null">address = #{address},</if>
             <if test="serviceAreas != null">service_areas = #{serviceAreas},</if>
             <if test="description != null">description = #{description},</if>
+            <if test="businessLicense != null">business_license = #{businessLicense},</if>
             <if test="status != null">status = #{status},</if>
         </set>
         WHERE provider_id = #{providerId}

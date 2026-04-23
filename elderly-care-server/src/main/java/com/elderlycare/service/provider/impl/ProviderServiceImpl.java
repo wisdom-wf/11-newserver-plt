@@ -127,6 +127,7 @@ public class ProviderServiceImpl extends ServiceImpl<ProviderMapper, Provider> i
             dto.getAddress(),
             dto.getServiceAreas(),
             dto.getDescription(),
+            dto.getBusinessLicense(),
             dto.getStatus()
         );
     }
@@ -201,5 +202,15 @@ public class ProviderServiceImpl extends ServiceImpl<ProviderMapper, Provider> i
     @Override
     public List<Provider> listByIds(List<String> providerIds) {
         return baseMapper.selectBatchIds(providerIds);
+    }
+
+    @Override
+    public User getProviderAdminAccount(String providerId) {
+        return providerAccountService.getProviderAdminUser(providerId);
+    }
+
+    @Override
+    public String resetProviderAdminPassword(String providerId) {
+        return providerAccountService.resetProviderAdminPassword(providerId);
     }
 }

@@ -28,13 +28,23 @@ public class ProviderQualificationServiceImpl
     @Override
     @Transactional(rollbackFor = Exception.class)
     public String createQualification(String providerId, QualificationCreateDTO dto) {
+        // Check for duplicate: same provider + same qualification name
+        LambdaQueryWrapper<ProviderQualification> wrapper = new LambdaQueryWrapper<>();
+        wrapper.eq(ProviderQualification::getProviderId, providerId)
+               .eq(ProviderQualification::getQualificationName, dto.getQualificationName())
+               .eq(ProviderQualification::getDeleted, 0);
+        if (baseMapper.selectCount(wrapper) > 0) {
+            throw BusinessException.fail("该证书已存在，请勿重复上传");
+        }
+
         ProviderQualification qualification = new ProviderQualification();
         BeanUtils.copyProperties(dto, qualification);
         qualification.setProviderId(providerId);
-        qualification.setStatus(1); // 默认有效
+        qualification.setStatus("VALID"); // 默认有效
+        qualification.setAuditStatus("APPROVED"); // 默认已审核
 
         baseMapper.insert(qualification);
-        return qualification.getCertId();
+        return qualification.getQualificationId();
     }
 
     @Override
@@ -54,19 +64,19 @@ public class ProviderQualificationServiceImpl
 
     @Override
     @Transactional(rollbackFor = Exception.class)
-    public void deleteQualification(String certId) {
-        ProviderQualification qualification = baseMapper.selectById(certId);
+    public void deleteQualification(String qualificationId) {
+        ProviderQualification qualification = baseMapper.selectById(qualificationId);
         if (qualification == null) {
             throw BusinessException.notFound("资质不存在");
         }
 
-        baseMapper.deleteById(certId);
+        baseMapper.deleteById(qualificationId);
     }
 
     @Override
-    public boolean isQualificationOwnedByProvider(String certId, String providerId) {
+    public boolean isQualificationOwnedByProvider(String qualificationId, String providerId) {
         LambdaQueryWrapper<ProviderQualification> wrapper = new LambdaQueryWrapper<>();
-        wrapper.eq(ProviderQualification::getCertId, certId);
+        wrapper.eq(ProviderQualification::getQualificationId, qualificationId);
         wrapper.eq(ProviderQualification::getProviderId, providerId);
 
         return baseMapper.selectCount(wrapper) > 0;

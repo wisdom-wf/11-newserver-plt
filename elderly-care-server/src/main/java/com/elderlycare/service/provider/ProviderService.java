@@ -3,6 +3,7 @@ package com.elderlycare.service.provider;
 import com.baomidou.mybatisplus.extension.service.IService;
 import com.elderlycare.common.PageResult;
 import com.elderlycare.dto.provider.*;
+import com.elderlycare.entity.User;
 import com.elderlycare.entity.provider.Provider;
 import com.elderlycare.vo.provider.ProviderCreateResultVO;
 import com.elderlycare.vo.provider.ProviderRatingVO;
@@ -49,6 +50,16 @@ public interface ProviderService extends IService<Provider> {
      * 获取服务商评分
      */
     ProviderRatingVO getProviderRating(String providerId);
+
+    /**
+     * 获取服务商管理员账户
+     */
+    User getProviderAdminAccount(String providerId);
+
+    /**
+     * 重置服务商管理员密码
+     */
+    String resetProviderAdminPassword(String providerId);
 
     /**
      * 根据信用代码检查服务商是否存在

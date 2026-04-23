@@ -26,6 +26,12 @@ public class ProviderVO implements Serializable {
     private String status;
     private Double rating;
     private Integer ratingCount;
+
+    /**
+     * 营业执照(base64)
+     */
+    private String businessLicense;
+
     private LocalDateTime createTime;
     private LocalDateTime updateTime;
 

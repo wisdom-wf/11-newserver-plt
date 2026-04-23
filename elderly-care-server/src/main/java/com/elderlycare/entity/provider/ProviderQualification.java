@@ -18,7 +18,7 @@ public class ProviderQualification implements Serializable {
      * 资质ID
      */
     @TableId(type = IdType.ASSIGN_ID)
-    private String certId;
+    private String qualificationId;
 
     /**
      * 服务商ID
@@ -28,37 +28,47 @@ public class ProviderQualification implements Serializable {
     /**
      * 资质名称
      */
-    private String certName;
+    private String qualificationName;
 
     /**
      * 资质类型
      */
-    private String certType;
+    private String qualificationType;
 
     /**
      * 资质编号
      */
-    private String certNumber;
+    private String qualificationNumber;
 
     /**
      * 有效期开始
      */
-    private LocalDateTime validFrom;
+    private LocalDateTime issueDate;
 
     /**
      * 有效期截止
      */
-    private LocalDateTime validTo;
+    private LocalDateTime expiryDate;
+
+    /**
+     * 发证机构
+     */
+    private String issueOrganization;
 
     /**
      * 资质证书图片URL
      */
-    private String certImageUrl;
+    private String attachmentUrl;
 
     /**
-     * 状态: 0失效, 1有效
+     * 状态: VALID-有效, INVALID-失效
      */
-    private Integer status;
+    private String status;
+
+    /**
+     * 审核状态: APPROVED-已审核, PENDING-待审核, REJECTED-已拒绝
+     */
+    private String auditStatus;
 
     /**
      * 创建时间

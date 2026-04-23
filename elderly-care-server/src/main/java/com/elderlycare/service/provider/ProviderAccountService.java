@@ -28,7 +28,7 @@ import java.time.LocalDateTime;
 public class ProviderAccountService {
 
     public static final String DEFAULT_PASSWORD = "mima123";
-    private static final String ROLE_ID_PROVIDER_ADMIN = "R002";
+    private static final String ROLE_ID_PROVIDER_ADMIN = "R004";
     private static final String USER_TYPE_PROVIDER = "PROVIDER";
     private static final String STATUS_NORMAL = "NORMAL";
 
@@ -104,6 +104,30 @@ public class ProviderAccountService {
             userMapper.deleteById(user.getUserId());
             log.info("删除服务商管理员账号: userId={}, username={}", user.getUserId(), user.getUsername());
         }
+    }
+
+    /**
+     * 重置服务商管理员密码（如果不存在则自动创建）
+     * @return 新密码
+     */
+    @Transactional(rollbackFor = Exception.class)
+    public String resetProviderAdminPassword(String providerId) {
+        User user = getProviderAdminUser(providerId);
+        if (user == null) {
+            // 创建新账号
+            Provider provider = new Provider();
+            provider.setProviderId(providerId);
+            // 使用默认名称
+            provider.setProviderName("服务商");
+            provider.setContactPhone("");
+            user = createProviderAccount(provider);
+            return "新账号已创建，密码为: " + DEFAULT_PASSWORD;
+        }
+        String newPassword = IDGenerator.generateId().substring(0, 8);
+        user.setPassword(passwordEncoder.encode(newPassword));
+        userMapper.updateById(user);
+        log.info("重置服务商管理员密码: userId={}, username={}, newPassword={}", user.getUserId(), user.getUsername(), newPassword);
+        return newPassword;
     }
 
 }

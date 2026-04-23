@@ -81,6 +81,11 @@ public class Provider implements Serializable {
     private Integer ratingCount;
 
     /**
+     * 营业执照(base64)
+     */
+    private String businessLicense;
+
+    /**
      * 创建时间
      */
     @TableField(fill = FieldFill.INSERT)
