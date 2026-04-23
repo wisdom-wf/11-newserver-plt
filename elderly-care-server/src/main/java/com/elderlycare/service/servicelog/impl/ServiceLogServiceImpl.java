@@ -98,7 +98,7 @@ public class ServiceLogServiceImpl implements ServiceLogService {
 
     @Override
     @Transactional(rollbackFor = Exception.class)
-    public void submitServiceLog(ServiceLogVO vo) {
+    public String submitServiceLog(ServiceLogVO vo) {
         // 先获取订单信息，填充服务商和人员字段
         Order order = orderMapper.selectByIdWithNames(vo.getOrderId());
 
@@ -157,6 +157,8 @@ public class ServiceLogServiceImpl implements ServiceLogService {
         qualityCheck.setRectifyStatus("PENDING");
         qualityCheck.setCreateTime(LocalDateTime.now());
         qualityCheckMapper.insert(qualityCheck);
+
+        return serviceLog.getServiceLogId();
     }
 
     @Override

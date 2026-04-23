@@ -49,6 +49,9 @@ public class ServiceLogController {
     @GetMapping("/{id}")
     public Result<ServiceLogVO> getServiceLog(@PathVariable String id) {
         ServiceLogVO vo = serviceLogService.getServiceLog(id);
+        if (vo == null) {
+            return Result.notFound("服务日志不存在");
+        }
         return Result.success(vo);
     }
 
@@ -59,6 +62,9 @@ public class ServiceLogController {
     @GetMapping("/order/{orderId}")
     public Result<ServiceLogVO> getServiceLogByOrderId(@PathVariable String orderId) {
         ServiceLogVO vo = serviceLogService.getServiceLogByOrderId(orderId);
+        if (vo == null) {
+            return Result.notFound("该订单暂无服务日志");
+        }
         return Result.success(vo);
     }
 
@@ -67,9 +73,9 @@ public class ServiceLogController {
      * POST /api/service-log
      */
     @PostMapping
-    public Result<Void> submitServiceLog(@RequestBody ServiceLogVO vo) {
-        serviceLogService.submitServiceLog(vo);
-        return Result.success("服务日志提交成功");
+    public Result<String> submitServiceLog(@RequestBody ServiceLogVO vo) {
+        String serviceLogId = serviceLogService.submitServiceLog(vo);
+        return Result.success(serviceLogId);
     }
 
     /**

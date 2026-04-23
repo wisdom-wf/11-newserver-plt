@@ -30,7 +30,7 @@ public interface ServiceLogService {
     /**
      * 提交服务日志
      */
-    void submitServiceLog(ServiceLogVO vo);
+    String submitServiceLog(ServiceLogVO vo);
 
     /**
      * 更新服务日志
