@@ -84,10 +84,7 @@ test.describe('Health Archive UI Tests', () => {
     // Wait for page to load
     await page.waitForLoadState('networkidle');
 
-    // Verify page title is visible
-    await expect(page.locator('text=健康档案管理').first()).toBeVisible();
-
-    // Verify elder select is visible
+    // Verify elder select is visible (page has no "健康档案管理" title, use n-select instead)
     await expect(page.locator('.n-select').first()).toBeVisible();
   });
 
