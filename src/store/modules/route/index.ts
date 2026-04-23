@@ -182,7 +182,7 @@ export const useRouteStore = defineStore(SetupStoreId.Route, () => {
     }
 
     if (authRouteMode.value === 'static') {
-      initStaticAuthRoute();
+      await initStaticAuthRoute();
     } else {
       await initDynamicAuthRoute();
     }
@@ -190,15 +190,43 @@ export const useRouteStore = defineStore(SetupStoreId.Route, () => {
     tabStore.initHomeTab();
   }
 
+  /** Convert menu item to ElegantConstRoute */
+  function convertMenuToRoute(menu: Api.Menu.MenuItem): ElegantConstRoute {
+    const route: ElegantConstRoute = {
+      name: menu.menuCode,
+      path: menu.path,
+      component: menu.component,
+      meta: {
+        title: menu.menuName,
+        icon: menu.icon,
+        order: menu.orderNum,
+        hideInMenu: menu.isHidden === 1
+      }
+    };
+
+    if (menu.children && menu.children.length > 0) {
+      route.children = menu.children.map(child => convertMenuToRoute(child));
+    }
+
+    return route;
+  }
+
+  /** Convert menu tree to ElegantConstRoute array */
+  function convertMenuTreeToRoutes(menus: Api.Menu.MenuTree[]): ElegantConstRoute[] {
+    return menus.map(menu => convertMenuToRoute(menu));
+  }
+
   /** Init static auth route */
-  function initStaticAuthRoute() {
+  async function initStaticAuthRoute() {
     const { authRoutes: staticAuthRoutes } = createStaticRoutes();
 
+    // Use static route filtering based on user roles
+    // Note: Full dynamic menu loading requires elegant-router integration which needs more work
     if (authStore.isStaticSuper) {
       addAuthRoutes(staticAuthRoutes);
     } else {
+      // Filter static routes by user roles (currently working solution)
       const filteredAuthRoutes = filterAuthRoutesByRoles(staticAuthRoutes, authStore.userInfo.roles);
-
       addAuthRoutes(filteredAuthRoutes);
     }
 

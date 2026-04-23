@@ -83,3 +83,13 @@ export function fetchAssignPermissions(roleId: string, menuIds: string[]) {
     data: { menuIds }
   });
 }
+
+/**
+ * 获取当前用户的菜单（动态菜单API）
+ */
+export function fetchGetUserMenus() {
+  return request<Api.Menu.MenuTree[]>({
+    url: '/api/menu/user',
+    method: 'get'
+  });
+}

@@ -12,7 +12,7 @@ export default defineConfig({
   workers: process.env.CI ? 1 : undefined,
   reporter: 'html',
   use: {
-    baseURL: 'http://localhost:9527',
+    baseURL: 'http://localhost:18080',
     trace: 'on-first-retry',
     screenshot: 'only-on-failure',
     video: 'retain-on-failure'
@@ -24,8 +24,8 @@ export default defineConfig({
     }
   ],
   webServer: {
-    command: 'pnpm dev',
-    url: 'http://localhost:9527',
+    command: 'pnpm dev --port 18080',
+    url: 'http://localhost:18080',
     reuseExistingServer: true
   }
 });
