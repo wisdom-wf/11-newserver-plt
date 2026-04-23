@@ -14,6 +14,7 @@ import { useNaivePaginatedTable, useTableOperate, defaultTransform } from '@/hoo
 import { useNaiveForm } from '@/hooks/common/form';
 import { useAuth } from '@/hooks/business/auth';
 import TableHeaderOperation from '@/components/advanced/table-header-operation.vue';
+import ProviderDetail from './components/ProviderDetail.vue';
 
 defineOptions({
   name: 'BusinessProvider'
@@ -41,6 +42,10 @@ const statistics = ref<Api.Provider.Statistics>({
   enabledProviders: 0,
   disabledProviders: 0
 });
+
+// Detail drawer state
+const detailVisible = ref(false);
+const detailProviderId = ref<string | null>(null);
 
 // Search
 const searchName = ref('');
@@ -92,12 +97,16 @@ const columns: DataTableColumns<Api.Provider.Provider> = [
   {
     title: '操作',
     key: 'actions',
-    width: 150,
+    width: 200,
     fixed: 'right',
     render: row => {
       const buttons = [];
+      // 详情按钮
+      buttons.push(
+        h(NButton, { size: 'small', type: 'info', onClick: () => showDetail(row.providerId), style: { marginRight: '8px' } }, () => '详情')
+      );
       if (hasAuth('provider:list:edit')) {
-        buttons.push(h(NButton, { size: 'small', onClick: () => handleOpenEdit(row.providerId) }, () => '编辑'));
+        buttons.push(h(NButton, { size: 'small', onClick: () => handleOpenEdit(row.providerId), style: { marginRight: '8px' } }, () => '编辑'));
       }
       if (hasAuth('provider:list:delete')) {
         buttons.push(
@@ -198,6 +207,11 @@ function resetForm() {
     description: '',
     status: 'ENABLED'
   };
+}
+
+function showDetail(providerId: string) {
+  detailProviderId.value = providerId;
+  detailVisible.value = true;
 }
 
 function handleOpenAdd() {
@@ -404,6 +418,12 @@ onMounted(() => {
         </template>
       </NDrawerContent>
     </NDrawer>
+
+    <!-- Provider Detail Drawer -->
+    <ProviderDetail
+      v-model:visible="detailVisible"
+      :provider-id="detailProviderId"
+    />
   </div>
 </template>
 
