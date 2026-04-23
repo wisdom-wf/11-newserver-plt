@@ -15,7 +15,10 @@ import {
   NAlert,
   NDrawer,
   NDrawerContent,
-  NSpin
+  NSpin,
+  NEmpty,
+  NImage,
+  NModal
 } from 'naive-ui';
 import type { DataTableColumns } from 'naive-ui';
 import {
@@ -28,12 +31,15 @@ import {
   fetchImportAppointment,
   fetchGetAppointmentStatistics,
   fetchGetProviderOptions,
-  fetchGetAppointmentTimeline
+  fetchGetAppointmentTimeline,
+  fetchGetProviderCertificates
 } from '@/service/api';
 import { useRouterPush } from '@/hooks/common/router';
 import { useNaivePaginatedTable, useTableOperate, defaultTransform } from '@/hooks/common/table';
 import { useNaiveForm, useFormRules } from '@/hooks/common/form';
 import { useAuth } from '@/hooks/business/auth';
+import { useAuthStore } from '@/store/modules/auth';
+import { addWatermarkToImage } from '@/utils/watermark';
 import TableHeaderOperation from '@/components/advanced/table-header-operation.vue';
 
 defineOptions({
@@ -266,6 +272,36 @@ async function handleAddSubmit() {
 const confirmModalVisible = ref(false);
 const confirmForm = ref({ providerId: '', appointmentTime: '' });
 
+// Provider credentials drawer
+const credentialsDrawerVisible = ref(false);
+const credentialsLoading = ref(false);
+const credentialsData = ref<Api.Provider.Qualification[]>([]);
+const credentialsProviderName = ref('');
+
+// Watermark text
+const authStore = useAuthStore();
+const watermarkText = computed(() => {
+  const user = authStore.userInfo;
+  const account = user?.userName || user?.realName || '未知用户';
+  return `社区智慧运营管理平台\n${account}`;
+});
+
+// Download credential image with watermark
+async function handleDownloadCredential(url: string, filename: string) {
+  if (!url) return;
+  try {
+    const watermarkedBase64 = await addWatermarkToImage(url, watermarkText.value);
+    const link = document.createElement('a');
+    link.href = watermarkedBase64;
+    link.download = filename;
+    link.click();
+    message.success('下载成功');
+  } catch (err) {
+    console.error('Download failed', err);
+    message.error('下载失败');
+  }
+}
+
 // Cancel modal
 const cancelModalVisible = ref(false);
 const cancelForm = ref({ reason: '' });
@@ -354,6 +390,21 @@ async function handleConfirm(row: Api.Appointment.Appointment) {
   confirmForm.value = { providerId: '', appointmentTime: row.appointmentTime };
   await getProviderOptions();
   confirmModalVisible.value = true;
+}
+
+async function showProviderCredentials(providerId: string, providerName: string) {
+  credentialsProviderName.value = providerName;
+  credentialsDrawerVisible.value = true;
+  credentialsLoading.value = true;
+  try {
+    const { data } = await fetchGetProviderCertificates(providerId);
+    credentialsData.value = data || [];
+  } catch (e) {
+    console.error('Failed to get provider credentials', e);
+    message.error('获取服务商资质失败');
+  } finally {
+    credentialsLoading.value = false;
+  }
 }
 
 async function handleConfirmSubmit() {
@@ -605,6 +656,17 @@ onMounted(() => {
       </NForm>
       <template #footer>
         <NSpace justify="end">
+          <NButton
+            v-if="confirmForm.providerId"
+            quaternary
+            type="info"
+            @click="() => {
+              const provider = providerOptions.find(p => p.value === confirmForm.providerId);
+              showProviderCredentials(confirmForm.providerId, provider?.label || '');
+            }"
+          >
+            查看服务商资质
+          </NButton>
           <NButton @click="confirmModalVisible = false">取消</NButton>
           <NButton type="primary" @click="handleConfirmSubmit">确认</NButton>
         </NSpace>
@@ -851,6 +913,56 @@ onMounted(() => {
           </div>
         </template>
         <div v-if="!timelineData?.nodes?.length && !timelineData?.orderNodes?.length" style="text-align: center; padding: 40px; color: #999">暂无时间轴数据</div>
+        </template>
+      </NDrawerContent>
+    </NDrawer>
+
+    <!-- Provider Credentials Drawer -->
+    <NDrawer v-model:show="credentialsDrawerVisible" :width="500" placement="right" closable>
+      <NDrawerContent :title="`服务商资质 - ${credentialsProviderName}`" closable>
+        <NSpin :show="credentialsLoading">
+          <div v-if="credentialsData.length">
+            <div
+              v-for="cert in credentialsData"
+              :key="cert.qualificationId"
+              style="display: flex; gap: 12px; padding: 12px; border: 1px solid #eee; border-radius: 8px; margin-bottom: 12px"
+            >
+              <NImage
+                v-if="cert.attachmentUrl"
+                :src="cert.attachmentUrl"
+                width="80"
+                height="80"
+                object-fit="cover"
+                style="border-radius: 4px; cursor: pointer"
+              />
+              <div v-else style="width: 80px; height: 80px; background: #f5f5f5; border-radius: 4px; display: flex; align-items: center; justify-content: center; color: #999">
+                无图片
+              </div>
+              <div style="flex: 1">
+                <div style="font-weight: 500; margin-bottom: 4px">{{ cert.qualificationName || '-' }}</div>
+                <div style="color: #666; font-size: 13px">类型: {{ cert.qualificationType || '-' }}</div>
+                <div style="color: #666; font-size: 13px">编号: {{ cert.qualificationNumber || '-' }}</div>
+                <div style="color: #666; font-size: 13px">
+                  有效期: {{ cert.issueDate ? cert.issueDate.split('T')[0] : '-' }} ~ {{ cert.expiryDate ? cert.expiryDate.split('T')[0] : '-' }}
+                </div>
+                <NButton
+                  v-if="cert.attachmentUrl"
+                  size="small"
+                  type="info"
+                  style="margin-top: 4px"
+                  @click="handleDownloadCredential(cert.attachmentUrl, `${cert.qualificationName || '证书'}.jpg`)"
+                >
+                  下载证书
+                </NButton>
+              </div>
+            </div>
+          </div>
+          <NEmpty v-else description="暂无资质证书" />
+        </NSpin>
+        <template #footer>
+          <NSpace justify="end">
+            <NButton @click="credentialsDrawerVisible = false">关闭</NButton>
+          </NSpace>
         </template>
       </NDrawerContent>
     </NDrawer>

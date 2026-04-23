@@ -99,3 +99,62 @@ export async function fetchGetProviderOptions(params?: { areaId?: string; servic
   }
   return [];
 }
+
+/**
+ * 创建服务商资质证书
+ */
+export function fetchCreateProviderCertificate(providerId: string, data: {
+  qualificationName: string;
+  qualificationType: string;
+  qualificationNumber?: string;
+  issueDate?: string;
+  expiryDate?: string;
+  issueOrganization?: string;
+  attachmentUrl: string;
+}) {
+  return request({
+    url: `/api/providers/${providerId}/certificates`,
+    method: 'post',
+    data
+  });
+}
+
+/**
+ * 删除服务商资质证书
+ */
+export function fetchDeleteProviderCertificate(qualificationId: string) {
+  return request({
+    url: `/api/providers/certificates/${qualificationId}`,
+    method: 'delete'
+  });
+}
+
+/**
+ * 获取服务商资质证书列表
+ */
+export function fetchGetProviderCertificates(providerId: string) {
+  return request<Api.Provider.Qualification[]>({
+    url: `/api/providers/${providerId}/certificates`,
+    method: 'get'
+  });
+}
+
+/**
+ * 获取服务商管理员账户
+ */
+export function fetchGetProviderAdminAccount(providerId: string) {
+  return request<{ userId: string; username: string; status: string; createTime: string } | null>({
+    url: `/api/providers/${providerId}/admin-account`,
+    method: 'get'
+  });
+}
+
+/**
+ * 重置服务商管理员密码
+ */
+export function fetchResetProviderAdminPassword(providerId: string) {
+  return request<string>({
+    url: `/api/providers/${providerId}/admin-account/reset`,
+    method: 'post'
+  });
+}
