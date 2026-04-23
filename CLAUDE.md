@@ -512,3 +512,36 @@ const handleDelete = async (row) => {
 - 删除按钮：使用 `type="error"` 样式，图标 + 文字
 - 确认文字：简洁明确，说明操作后果
 
+### 16. 修改实体前必须验证数据库结构（重要！）
+
+**问题**：修改 `ProviderServiceType` 实体时，每次只修一个字段，修改了 3 次才成功。
+
+**根因**：没有先查数据库实际结构就修改，导致"头痛医头脚痛医脚"。
+
+**正确流程**：
+
+1. **修改前先查数据库结构**
+```bash
+docker exec mysql-dev mysql -uroot -proot elderly_care --default-character-set=utf8mb4 -e "DESCRIBE t_table_name;"
+```
+
+2. **对比实体字段与数据库列**
+   - 实体有但数据库没有的字段 → 移除或加 `@TableField(exist = false)`
+   - 数据库有但实体没有的字段 → 添加到实体
+   - 字段名不一致 → 改成数据库实际列名
+
+3. **修改后必须用 curl 自测**
+```bash
+# 获取 Token
+TOKEN=$(curl -s -X POST "http://localhost:8080/api/auth/login" \
+  -H "Content-Type: application/json" \
+  -d '{"username":"admin","password":"admin123"}' | grep -o '"accessToken":"[^"]*' | cut -d'"' -f4)
+
+# 测试 API
+curl -s "http://localhost:8080/api/providers/{id}" -H "Authorization: Bearer $TOKEN"
+```
+
+4. **验证通过后再让用户测试** — 不能把未经验证的修改直接交给用户测
+
+**核心原则**：数据库是唯一真相，代码中的实体定义可能过时，必须以数据库为准。
+
