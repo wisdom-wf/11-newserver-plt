@@ -13,6 +13,7 @@ import com.elderlycare.mapper.order.OrderMapper;
 import com.elderlycare.mapper.quality.QualityCheckMapper;
 import com.elderlycare.mapper.servicelog.ServiceLogMapper;
 import com.elderlycare.service.servicelog.ServiceLogService;
+import java.util.List;
 import com.elderlycare.vo.servicelog.ServiceLogStatisticsVO;
 import com.elderlycare.vo.servicelog.ServiceLogVO;
 import lombok.RequiredArgsConstructor;
@@ -90,10 +91,16 @@ public class ServiceLogServiceImpl implements ServiceLogService {
 
     @Override
     public ServiceLogVO getServiceLogByOrderId(String orderId) {
-        LambdaQueryWrapper<ServiceLog> wrapper = new LambdaQueryWrapper<>();
-        wrapper.eq(ServiceLog::getOrderId, orderId);
-        ServiceLog serviceLog = serviceLogMapper.selectOne(wrapper);
-        return convertToVO(serviceLog);
+        List<ServiceLog> list = serviceLogMapper.selectList(
+            new LambdaQueryWrapper<ServiceLog>()
+                .eq(ServiceLog::getOrderId, orderId)
+                .orderByDesc(ServiceLog::getCreateTime)
+                .last("LIMIT 1")
+        );
+        if (list == null || list.isEmpty()) {
+            return null;
+        }
+        return convertToVO(list.get(0));
     }
 
     @Override

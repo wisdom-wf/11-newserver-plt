@@ -94,6 +94,7 @@
         FROM service_log
         WHERE order_id = #{orderId} AND deleted = 0
         ORDER BY create_time DESC
+        LIMIT 1
     </select>
 
     <select id="selectServiceLogsByStaffId" resultMap="BaseResultMap">
