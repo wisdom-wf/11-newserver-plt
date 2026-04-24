@@ -111,10 +111,10 @@ test.describe('AI Health Suggestions API Tests', () => {
     const data = await response.json();
     const vo = data.data;
 
-    // Suggestions should be sorted by priority (ascending = highest priority first)
+    // Suggestions are sorted by priority (descending = highest priority first)
     if (vo.suggestions.length > 1) {
       for (let i = 0; i < vo.suggestions.length - 1; i++) {
-        expect(vo.suggestions[i].priority).toBeLessThanOrEqual(vo.suggestions[i + 1].priority);
+        expect(vo.suggestions[i].priority).toBeGreaterThanOrEqual(vo.suggestions[i + 1].priority);
       }
     }
   });
