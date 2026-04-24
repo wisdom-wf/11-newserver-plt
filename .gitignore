@@ -33,3 +33,11 @@ package-lock.json
 yarn.lock
 
 .VSCodeCounter
+
+# Playwright
+e2e/screenshots/
+e2e/videos/
+test-results/
+playwright-report/
+*.png
+*.json
