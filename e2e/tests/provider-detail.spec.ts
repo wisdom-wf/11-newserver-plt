@@ -1,6 +1,6 @@
 import { test, expect } from '@playwright/test';
 
-const FRONTEND_URL = 'http://localhost:18080';
+const FRONTEND_URL = 'http://localhost:9527';
 const BACKEND_URL = 'http://localhost:8080';
 
 test.describe('服务商详情抽屉测试', () => {
