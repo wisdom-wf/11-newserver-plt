@@ -241,15 +241,16 @@ public interface StatisticsMapper {
     /**
      * 查询服务商排名
      */
-    @Select("""
+        @Select("""
         SELECT p.provider_id AS providerId, p.provider_name AS providerName, p.provider_type AS providerType,
-               COUNT(o.order_id) AS orderCount,
+               COUNT(DISTINCT o.order_id) AS orderCount,
                SUM(CASE WHEN o.status IN ('SERVICE_COMPLETED', 'EVALUATED', 'SETTLED') THEN 1 ELSE 0 END) AS completedOrderCount,
-               p.rating AS rating
+               AVG(e.overall_score) AS rating
         FROM t_provider p
         LEFT JOIN t_order o ON p.provider_id = o.provider_id AND o.deleted = 0
+        LEFT JOIN t_service_evaluation e ON o.order_id = e.order_id AND e.deleted = 0 AND e.overall_score IS NOT NULL
         WHERE p.deleted = 0
-        GROUP BY p.provider_id, p.provider_name, p.provider_type, p.rating
+        GROUP BY p.provider_id, p.provider_name, p.provider_type
         ORDER BY orderCount DESC
         LIMIT 20
         """)
