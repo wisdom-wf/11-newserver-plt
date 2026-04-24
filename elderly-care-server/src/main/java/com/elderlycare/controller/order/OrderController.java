@@ -42,15 +42,18 @@ public class OrderController {
      */
     @GetMapping("")
     public Result<PageResult<OrderVO>> getOrderList(OrderQueryDTO query) {
-        // 数据权限：服务商管理员自动注入 providerId
+        // 数据权限：PROVIDER用户强制只看自己服务商（不接受前端providerId参数）
+        String userType = UserContext.getUserType();
         String autoPid = UserContext.getProviderId();
-        if (autoPid != null) {
-            query.setProviderId(autoPid);
+        if ("PROVIDER".equals(userType) && autoPid != null) {
+            query.setProviderId(autoPid);           // 强制覆盖
+            query.setStaffId(null);                  // PROVIDER不用staffId过滤
         }
-        // STAFF角色：注入staffId（只能看自己的）
+        // STAFF用户强制只看自己（不接受前端任何providerId参数）
         String staffId = UserContext.getStaffId();
-        if (staffId != null) {
-            query.setStaffId(staffId);
+        if ("STAFF".equals(userType) && staffId != null) {
+            query.setStaffId(staffId);               // 强制覆盖
+            query.setProviderId(null);                // STAFF不用providerId过滤
         }
         PageResult<OrderVO> result = orderService.getOrderList(query);
         return Result.success(result);

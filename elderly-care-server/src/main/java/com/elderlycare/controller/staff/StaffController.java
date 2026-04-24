@@ -54,9 +54,10 @@ public class StaffController {
         queryDTO.setStaffNo(staffNo);
         queryDTO.setPhone(phone);
         queryDTO.setStatus(status);
-        // 数据权限：服务商管理员自动覆盖 providerId
+        String userType = UserContext.getUserType();
         String autoPid = UserContext.getProviderId();
-        queryDTO.setProviderId(autoPid != null ? autoPid : providerId);
+        // PROVIDER用户强制只看自己员工；非PROVIDER用户可按参数查询
+        queryDTO.setProviderId("PROVIDER".equals(userType) ? autoPid : providerId);
         queryDTO.setPage(page);
         queryDTO.setPageSize(pageSize);
         PageResult<StaffVO> result = staffService.queryStaff(queryDTO);

@@ -46,15 +46,16 @@ public class EvaluationController {
      */
     @GetMapping("")
     public Result<PageResult<ServiceEvaluation>> queryEvaluations(EvaluationQueryDTO dto) {
-        // 数据权限：服务商管理员自动注入 providerId
+        String userType = UserContext.getUserType();
         String autoPid = UserContext.getProviderId();
-        if (autoPid != null) {
+        if ("PROVIDER".equals(userType) && autoPid != null) {
             dto.setProviderId(autoPid);
+            dto.setStaffId(null);
         }
-        // STAFF角色：注入staffId（只能看自己的）
         String staffId = UserContext.getStaffId();
-        if (staffId != null) {
+        if ("STAFF".equals(userType) && staffId != null) {
             dto.setStaffId(staffId);
+            dto.setProviderId(null);
         }
         PageResult<ServiceEvaluation> result = evaluationService.queryEvaluations(dto);
         return Result.success(result);

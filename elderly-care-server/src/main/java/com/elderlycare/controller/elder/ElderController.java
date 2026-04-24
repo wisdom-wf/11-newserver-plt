@@ -48,9 +48,12 @@ public class ElderController {
      */
     @GetMapping("")
     public Result<IPage<ElderVO>> getElderPage(ElderPageDTO dto) {
-        // 数据权限：服务商管理员自动注入 providerId
+        String userType = UserContext.getUserType();
         String providerId = UserContext.getProviderId();
-        if (providerId != null) {
+        if ("PROVIDER".equals(userType) && providerId != null) {
+            dto.setProviderId(providerId);
+        } else if ("STAFF".equals(userType) && providerId != null) {
+            // STAFF用户：只看所属服务商的老人（强制覆盖前端传入的providerId）
             dto.setProviderId(providerId);
         }
         IPage<ElderVO> page = elderService.getElderPage(dto);
@@ -63,8 +66,10 @@ public class ElderController {
     @GetMapping("/recent")
     public Result<List<ElderHealthCardVO>> getRecentUpdatedElders(
             @RequestParam(defaultValue = "10") int limit) {
+        String userType = UserContext.getUserType();
         String providerId = UserContext.getProviderId();
-        List<ElderHealthCardVO> cards = elderService.getRecentUpdatedElders(providerId, limit);
+        List<ElderHealthCardVO> cards = elderService.getRecentUpdatedElders(
+                "PROVIDER".equals(userType) ? providerId : null, limit);
         return Result.success(cards);
     }
 

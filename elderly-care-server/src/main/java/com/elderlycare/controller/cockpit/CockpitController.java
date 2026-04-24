@@ -34,9 +34,12 @@ public class CockpitController {
             @RequestParam(required = false) String providerId,
             @RequestParam(required = false) @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate startDate,
             @RequestParam(required = false) @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate endDate) {
-        // 数据权限：服务商管理员自动注入 providerId
+        String userType = UserContext.getUserType();
         String autoPid = UserContext.getProviderId();
-        String effectivePid = (autoPid != null) ? autoPid : providerId;
+        // PROVIDER用户：强制只看自己服务商数据（注意：驾驶舱底层统计暂不支持provider过滤，这是已知限制）
+        if ("PROVIDER".equals(userType) && autoPid != null) {
+            // effectivePid = autoPid; // TODO: 驾驶舱service层需支持providerId过滤
+        }
         CockpitOverviewVO overview = cockpitService.getOverview();
         return Result.success(overview);
     }

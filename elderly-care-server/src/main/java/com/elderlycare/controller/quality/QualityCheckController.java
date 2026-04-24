@@ -28,15 +28,16 @@ public class QualityCheckController {
      */
     @GetMapping("/list")
     public Result<PageResult<QualityCheckVO>> getQualityCheckList(QualityCheckQueryDTO query) {
-        // 数据权限：服务商管理员自动注入 providerId
+        String userType = UserContext.getUserType();
         String autoPid = UserContext.getProviderId();
-        if (autoPid != null) {
+        if ("PROVIDER".equals(userType) && autoPid != null) {
             query.setProviderId(autoPid);
+            query.setStaffId(null);
         }
-        // STAFF角色：注入staffId（只能看自己的）
         String staffId = UserContext.getStaffId();
-        if (staffId != null) {
+        if ("STAFF".equals(userType) && staffId != null) {
             query.setStaffId(staffId);
+            query.setProviderId(null);
         }
         PageResult<QualityCheckVO> result = qualityCheckService.getQualityCheckList(query);
         return Result.success(result);
