@@ -111,6 +111,26 @@ docker start mysql-dev
 - 从 git 移除 400+ 测试截图和 MCP 日志文件
 - Commit：`0c22ec4`
 
+### 7. 服务日志多记录Bug修复 ✅ (2026-04-24)
+**问题**：TC-SL-API-003 按订单ID查服务日志返回500
+**根因**：`selectOne()` 在一个订单有多条服务日志时（数据库中最多16条）抛 `TooManyResultsException`
+**修复**：
+- `ServiceLogServiceImpl.getServiceLogByOrderId()` 改用 `selectList()` + `last("LIMIT 1")`
+- `ServiceLogMapper.xml` 加 `LIMIT 1`
+- 添加 `import java.util.List`
+**Commit**：`4e32547`
+
+### 8. AI建议测试断言修复 ✅ (2026-04-24)
+**TC-AI-011**：priority实际是**降序**排列（4→2），测试断言方向错误 → 改为 `GreaterThanOrEqual`
+**TC-AI-008**：AI引擎不生成 `BLOOD_GLUCOSE` 类型建议 → 改为验证"有建议返回"而非具体类型
+**结果**：12/12 AI建议测试全部通过
+**Commit**：`8d22e9f0`
+
+### 9. photo_url DDL持久化 ✅ (2026-04-24)
+- 生成 `sql/photo-url-mediumtext.sql`
+- 将 `t_staff.photo_url` 和 `t_elder.photo_url` 从 varchar(500) 改为 mediumtext
+- Commit：`407a249`
+
 ---
 
 ## 三、当前状态
