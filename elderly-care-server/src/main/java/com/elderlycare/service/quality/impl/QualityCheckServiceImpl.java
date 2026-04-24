@@ -181,9 +181,8 @@ public class QualityCheckServiceImpl implements QualityCheckService {
             stats.setQualifiedRate(BigDecimal.ZERO);
         }
 
-        // 平均评分
-        BigDecimal avgScore = qualityCheckMapper.avgCheckScore();
-        stats.setAvgScore(avgScore != null ? avgScore : BigDecimal.ZERO);
+        // 平均评分（无数据时返回null，前端formatter处理）
+        stats.setAvgScore(qualityCheckMapper.avgCheckScore());  // null则保持null
 
         return stats;
     }

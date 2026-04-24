@@ -68,11 +68,11 @@ public class CockpitServiceImpl implements CockpitService {
         overview.setMonthRevenue(financialStats.getMonthAmount() != null ? financialStats.getMonthAmount() : BigDecimal.ZERO);
         overview.setTotalRevenue(financialStats.getTotalAmount() != null ? financialStats.getTotalAmount() : BigDecimal.ZERO);
 
-        // 满意度和合格率
+        // 满意度和合格率（无数据时返回null，前端formatter处理）
         if (qualityStats.getPositiveRate() != null) {
             overview.setSatisfaction(qualityStats.getPositiveRate());
         } else {
-            overview.setSatisfaction(BigDecimal.ZERO);
+            overview.setSatisfaction(null);  // 无数据返回null，显示为"--"
         }
         overview.setQualifiedRate(BigDecimal.valueOf(95)); // 默认95%
 
@@ -249,7 +249,7 @@ public class CockpitServiceImpl implements CockpitService {
                             ranking.setOrderCount(orderCount != null ? ((Number) orderCount).longValue() : 0L);
                             Object serviceCount = m.get("serviceCount");
                             ranking.setServiceCount(serviceCount != null ? ((Number) serviceCount).longValue() : 0L);
-                            ranking.setRating(0.0); // 默认评分
+                            ranking.setRating(null); // 无评分数据返回null，显示为"--"
                             return ranking;
                         })
                         .collect(Collectors.toList());

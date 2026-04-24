@@ -264,8 +264,8 @@ public class StatisticsServiceImpl implements StatisticsService {
     public QualityStatisticsVO getQualityStatistics() {
         QualityStatisticsVO vo = new QualityStatisticsVO();
 
-        Double avgRating = statisticsMapper.selectAverageProviderRating();
-        vo.setAverageRating(avgRating != null ? avgRating : 0.0);
+        // 服务商平均评分（无数据时返回null，前端formatter处理）
+        vo.setAverageRating(statisticsMapper.selectAverageProviderRating());
 
         Long totalEvaluations = statisticsMapper.selectTotalEvaluations();
         Long positiveCount = statisticsMapper.selectPositiveEvaluations();
@@ -277,7 +277,7 @@ public class StatisticsServiceImpl implements StatisticsService {
         vo.setNeutralCount(neutralCount != null ? neutralCount : 0L);
         vo.setNegativeCount(negativeCount != null ? negativeCount : 0L);
 
-        // 计算好评率
+        // 计算好评率（无数据时返回null，前端formatter处理）
         if (totalEvaluations != null && totalEvaluations > 0 && positiveCount != null) {
             BigDecimal positiveRate = BigDecimal.valueOf(positiveCount)
                     .divide(BigDecimal.valueOf(totalEvaluations), 4, RoundingMode.HALF_UP)
@@ -285,7 +285,7 @@ public class StatisticsServiceImpl implements StatisticsService {
                     .setScale(2, RoundingMode.HALF_UP);
             vo.setPositiveRate(positiveRate);
         } else {
-            vo.setPositiveRate(BigDecimal.ZERO);
+            vo.setPositiveRate(null);  // 无数据返回null
         }
 
         // 投诉率暂用差评率代替
@@ -483,7 +483,7 @@ public class StatisticsServiceImpl implements StatisticsService {
             item.setProviderType(toString(row.get("providerType")));
             item.setOrderCount(toLong(row.get("orderCount")));
             item.setCompletedOrderCount(toLong(row.get("completedOrderCount")));
-            item.setRating(toDouble(row.get("rating")));
+            item.setRating(toDoubleOrNull(row.get("rating")));
 
             Long total = toLong(row.get("orderCount"));
             Long completed = toLong(row.get("completedOrderCount"));
@@ -663,6 +663,18 @@ public class StatisticsServiceImpl implements StatisticsService {
             return Double.parseDouble(value.toString());
         } catch (NumberFormatException e) {
             return 0.0;
+        }
+    }
+
+    private Double toDoubleOrNull(Object value) {
+        if (value == null) return null;
+        if (value instanceof Double) return (Double) value;
+        if (value instanceof BigDecimal) return ((BigDecimal) value).doubleValue();
+        if (value instanceof Float) return ((Float) value).doubleValue();
+        try {
+            return Double.parseDouble(value.toString());
+        } catch (NumberFormatException e) {
+            return null;
         }
     }
 
