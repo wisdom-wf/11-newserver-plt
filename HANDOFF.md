@@ -1,7 +1,7 @@
 # 项目交接文档 — 智慧居家养老服务管理平台
 
 > 本文档由董老师编写，供 Claude Code 接手继续开发使用。
-> 最后更新：2026-04-21
+> 最后更新：2026-04-24
 
 ---
 
@@ -11,12 +11,12 @@
 - **项目名称**：智慧居家养老服务管理平台
 - **仓库**：https://github.com/wisdom-wf/11-newserver-plt
 - **技术栈**：Spring Boot + Vue3 (NaiveUI) + MySQL + Docker
-- **端口**：前端 9528，后端 8080
+- **端口**：前端 **9527**，后端 **8080**
 
 ### 仓库结构
 ```
 11-newserver-plt/               # Git根仓库（子模块结构）
-├── elderly-care-server/        # Spring Boot 后端（主仓库）
+├── elderly-care-server/        # Spring Boot 后端（master分支）
 │   └── src/main/java/com/elderlycare/
 │       ├── controller/        # REST API
 │       ├── service/            # 业务逻辑
@@ -24,7 +24,7 @@
 │       ├── entity/             # 数据库实体
 │       ├── dto/                # 数据传输对象
 │       └── vo/                 # 视图对象
-├── dingfeng-work/              # Vue3 前端（Git子模块，GitHub: elderly-care-web）
+├── dingfeng-work/              # Vue3 前端（main分支，GitHub: elderly-care-web）
 │   └── src/
 │       ├── views/business/     # 业务页面
 │       ├── components/common/  # 通用组件
@@ -46,90 +46,111 @@ docker start mysql-dev
 
 ---
 
-## 二、最近完成的工作（2026-04-20 ~ 2026-04-21）
+## 二、最近完成的工作（2026-04-21 ~ 2026-04-24）
 
-### 1. 服务人员照片上传功能 ✓
+### 1. 服务日志 API 修复 ✅
+**问题**：TC-SL-API-003/004/008 测试失败
+**根因**：
+1. `POST /api/service-logs` 返回 `Result<Void>` 不返回新建记录的 ID
+2. `GET /api/service-logs/order/{orderId}` 在无记录时返回 `200+null` 而非 404
 
-**问题描述**：服务人员卡片点击上传按钮无反应，老人档案页面上传正常。
+**修复**：
+- `ServiceLogController.submitServiceLog()` 返回 `Result<String>` 并在末尾返回 `serviceLogId`
+- `ServiceLogController.getServiceLogByOrderId()` 对 null 返回 `Result.notFound()`（HTTP 404）
+- 测试适配：从 `POST` 响应 body.data 获取 logId 用于后续 GET 测试
 
-**根因分析**：
-1. staff/index.vue 手写了卡片代码而不是复用 PersonCard 组件，导致 photo upload 逻辑不一致
-2. PersonCard 组件使用 NUpload `custom-request` 模式，但 NUpload 在该模式下**不会自动弹出文件选择器**
-3. `t_staff.photo_url` 字段类型为 `varchar(500)`，base64 DataURL 超过长度限制
+**Commit**：`798b6c2` fix(servicelog): 修复服务日志API返回值的两个问题
 
-**修复方案**：
-1. staff/index.vue：移除 ~70 行手写卡片代码，改用 `<PersonCard>` 组件
-2. person-card.vue：用原生 `<input type="file" hidden>` + `ref` + `triggerUpload()` 替代 NUpload
-3. 数据库：`ALTER TABLE t_staff MODIFY COLUMN photo_url MEDIUMTEXT;`
-4. 后端：新增 `PUT /api/staff/{staffId}/photo` 接口 + `avatarUrl` 字段
+### 2. 首页统计数值 null 化修复 ✅
+**问题**：Home页显示"0.0%"——无数据时后端返回数值0，前端 `formatScore(0)` 显示为"0.0"而非"--"
 
-**修改文件**：
-| 文件 | 改动 |
-|------|------|
-| `person-card.vue` | 新增 `ref` import、`fileInputRef`、`triggerUpload`、`handleFileChange` |
-| `staff/index.vue` | 手写卡片 → `<PersonCard>` 组件 |
-| `staff.ts` | 新增 `updateStaffPhoto` API |
-| `StaffController.java` | 新增 `/api/staff/{staffId}/photo` PUT 接口 |
-| `StaffService.java` | 新增 `updatePhoto` 方法 |
-| `StaffVO.java` | 新增 `avatarUrl` 字段 |
-| `StaffCreateDTO.java` | 新增 `avatarUrl` 字段 |
-| MySQL t_staff 表 | `photo_url` varchar(500) → mediumtext |
+**根因**：6处后端代码将 null 替换为 0 或 BigDecimal.ZERO
 
-**Commit**：
-- frontend: `42e3c8eb` feat(staff): 照片上传功能修复 + PersonCard组件复用
-- backend: `dcf5e00` feat(staff): 新增服务人员照片相关接口与字段
+**修复**（6处）：
+| 文件 | 字段 | 修复前 | 修复后 |
+|------|------|--------|--------|
+| CockpitServiceImpl | satisfaction | BigDecimal.ZERO | null |
+| CockpitServiceImpl | qualifiedRate | BigDecimal.ZERO | null |
+| CockpitServiceImpl | staffRanking[].rating | 0.0 | null |
+| StatisticsServiceImpl | positiveRate | BigDecimal.ZERO | null |
+| StatisticsServiceImpl | averageRating | avgRating ?: 0.0 | 直接返回 |
+| QualityCheckServiceImpl | avgScore | avgScore ?: ZERO | 直接返回 |
 
-### 2. 已完成的 Playwright E2E 测试
+**Commit**：`6594dea` fix(statistics): 修复统计接口无数据时返回0而非null的问题
 
-测试文件位于 `dingfeng-work/e2e/tests/`：
-- `elder-photo.spec.ts` — 8个测试，老人照片上传流程，**全部通过**
-- `servicelog-api.spec.ts` — 10个测试，服务日志API，3个失败（后端500错误，非前端问题）
-- `staff-service-log-link.spec.ts` — 9个测试
-- `health-archive/health-index.spec.ts` — 7个测试
-- `staff-service-log-ui.spec.ts` — 8个测试
-- `ui-quality-audit.spec.ts` — UI质量审计
-- `ue-interaction-test.spec.ts` — UE交互测试
+### 3. 服务商排名 SQL 修复 ✅
+**问题**：providerRanking[].rating 始终显示"0.0"（来自服务商表静态字段）
+
+**根因**：`selectProviderRankings` SQL 查询 `p.rating`（服务商表默认0字段）而非 `AVG(e.overall_score)`（评价表平均分）
+
+**修复**：
+- SQL 改为 `AVG(e.overall_score) AS rating` 从 `t_service_evaluation` 表计算
+- JOIN `t_service_evaluation` 表关联评价数据
+- `COUNT(DISTINCT o.order_id)` 避免重复计数
+
+**Commit**：`30e8848` fix(mapper): selectProviderRankings使用评价表计算平均分而非静态字段
+
+### 4. 全面 Playwright UI 审计 ✅
+**覆盖**：15个页面路由 + 5个API健康检查 + 关键按钮可见性
+**测试文件**：
+- `comprehensive-audit.spec.ts` — 31个测试，30通过，1超时（无页面crash）
+- `screenshot-audit.spec.ts` — 4个关键页面截图
+- `extract-to-file.spec.ts` — 3个页面文本内容JSON提取
+- `UI质量审查报告_20260424.md` — 完整测试报告
+
+**Commit**：`b70b4799` test: 全面审计套件
+
+### 5. 前端配置修复 ✅
+- `playwright.config.ts` baseURL 从 `localhost:18080` 改为 `localhost:9527`
+- `health-archive-ui.spec.ts` 选择器从"健康档案管理"标题改为 `.n-select`
+
+**Commit**：`716a016d`
+
+### 6. 父仓库 Git 清理 ✅
+- 创建 `.gitignore` 排除 `.playwright-mcp/` `playwright-report/` `test-results/` 等测试产物
+- 从 git 移除 400+ 测试截图和 MCP 日志文件
+- Commit：`0c22ec4`
 
 ---
 
 ## 三、当前状态
 
 ### 已完成的功能模块
-- 服务商管理（Provider）
-- 服务人员管理（Staff）— 照片功能刚修复
-- 老人档案管理（Elder）— 含健康档案
-- 订单管理（Order）
-- 预约管理（Appointment）
-- 服务日志（ServiceLog）
-- 质检管理（QualityCheck）
-- 服务评价（Evaluation）
-- 财务结算（Settlement）
-- 系统配置（Config/Dict）
-- 驾驶舱（Cockpit）— 公开页 + 认证页
+- 服务商管理（Provider）✅
+- 服务人员管理（Staff）✅ — 含照片上传、账户同步
+- 老人档案管理（Elder）✅ — 含健康档案
+- 订单管理（Order）✅
+- 预约管理（Appointment）✅
+- 服务日志（ServiceLog）✅ — API 已修复
+- 质检管理（QualityCheck）✅
+- 服务评价（Evaluation）✅
+- 财务结算（Settlement）✅
+- 系统配置（Config/Dict）✅
+- 驾驶舱（Cockpit）✅
+- 动态菜单系统 ✅
+- STAFF 角色数据隔离 ✅（commit 4678cf4）
 
-### 待完成的功能（来自需求文档）
-- **R005 STAFF 角色菜单权限配置** — `t_role_menu` 表未给 STAFF 角色分配菜单
-- **数据隔离** — ServiceLog、Order 等接口需按 `staffId` 过滤（STAFF 角色只能看自己的数据）
-- **登录接口返回 staffId** — 当前登录返回 `userId`，服务人员需知自己的 `staffId`
+### Git 当前状态（2026-04-24）
+```
+根仓库 (11-newserver-plt):  master  0c22ec4  ← 清理完成
+  elderly-care-server:      master  30e8848  ← 服务商排名修复
+  dingfeng-work:            main    716a016d ← 测试配置修复
+```
 
 ---
 
 ## 四、已知问题
 
-### 1. 服务日志 API 3个测试失败
-**文件**：`servicelog-api.spec.ts` TC-SL-API-003/004/008
-**原因**：后端对不存在的 orderId 返回 500 而非业务错误数据
-**状态**：非阻塞，前端功能正常
+### P1: 测试数据不足
+老人档案和服务商主数据为空，无法完整测试健康档案选择功能。
+**建议**：补充测试数据后重新验证相关功能。
 
-### 2. Staff 角色的数据隔离未实现
-STAFF 用户登录后，订单/服务日志等接口没有按 `staffId` 过滤数据。
-所有 STAFF 用户可以看到所有订单。
-**修复位置**：
-- `ServiceLogController`、`OrderController` 等需检查 `UserContext.getStaffId()` 并注入查询条件
+### P2: photo_url DDL 未持久化
+`t_staff.photo_url` 在运行中容器改为 `mediumtext`，但未生成 SQL 脚本。
+**位置**：`sql/servicelog_health_columns.sql` 同级目录
 
-### 3. t_staff.photo_url 字段修改未持久化
-字段类型修改（varchar → mediumtext）是在运行中的 Docker 容器执行的，未生成 SQL 脚本。
-**建议**：在 `sql/` 目录生成 `schema-photo-fix.sql` 持久化该变更。
+### P2: 前端未跟踪文件
+`dingfeng-work/src/main/java/` 下有 health advice 相关 Java 文件（后端代码？），待确认处理。
 
 ---
 
@@ -207,6 +228,9 @@ grep -rn "selfPay\|avatarUrl\|photoUrl" elderly-care-server/src/main/java/
 - 返回值**已含符号**（¥/%），模板中不要再加：`{{ formatMoney(x) }}` 而非 `¥{{ formatMoney(x) }}`
 - 业务0值显示 `"--"` 而非 "0"
 
+#### 8. 前端端口
+**前端端口是 9527，不是 9528**。playwright.config.ts baseURL 已修正。
+
 ### 后端规范
 
 #### 1. MySQL 连接字符集
@@ -228,15 +252,16 @@ appointmentMapper.updateById(appointment);
 - `*` 匹配单段：`/api/orders/*/cancel`
 - `**` 匹配多段：`/api/users/**`
 
-#### 4. STAFF 角色数据隔离注入点
-在需要数据隔离的 Controller 方法中添加：
-```java
-String staffId = UserContext.getStaffId();
-if (staffId != null) {
-    queryDTO.setStaffId(staffId);
-}
-```
-Mapper XML 中需有对应条件：`AND staff_id = #{staffId}`
+#### 4. 统计接口 null 语义
+**重要**：统计类接口（cockpit/overview、quality-check/statistics、statistics/xxx）在无数据时必须返回 `null` 而非 `0` 或 `BigDecimal.ZERO`。
+前端 `formatter.ts` 规则：
+- `formatScore(null/undefined/NaN/0)` → `"--"`
+- `formatPercent(null)` → `"--"`
+- `formatMoney(null)` → `"--"`
+
+#### 5. VO 字段类型选择
+评分类字段（rating/score/avgScore）用 `Double`（可null），不用 `double`（原始类型永远是0）。
+统计计数字段（count/total）用 `Long`（可null），不用 `long`。
 
 ---
 
@@ -245,7 +270,6 @@ Mapper XML 中需有对应条件：`AND staff_id = #{staffId}`
 ### 提交规范
 ```
 feat(module): 简短描述
-feat(module): 另一条描述
 
 1. 具体改动1
 2. 具体改动2
@@ -260,8 +284,12 @@ feat(module): 另一条描述
 ### 子模块更新后父仓库需同步
 ```bash
 cd 11-newserver-plt
-git add dingfeng-work && git commit -m "chore: 更新子模块" && git push
+git add dingfeng-work elderly-care-server && git commit -m "chore: 更新子模块" && git push
 ```
+
+### Playwright 测试产物处理
+`.gitignore` 已配置排除：`playwright-report/` `test-results/` `.playwright-mcp/`
+截图文件（*.png/*.jpg）也已排除，测试截图请存 `e2e/screenshots/` 目录（已在 .gitignore 中）
 
 ---
 
@@ -272,29 +300,24 @@ git add dingfeng-work && git commit -m "chore: 更新子模块" && git push
 docker exec mysql-dev mysql -uroot -proot elderly_care --default-character-set=utf8mb4
 ```
 
-### 关键表结构差异（教训）
+### 关键表结构
 | 表 | photo_url 类型 | 说明 |
 |----|---------------|------|
-| t_elder | mediumtext | OK，base64 DataURL 够存 |
-| t_staff | mediumtext | 已修复（原为 varchar(500)，导致上传失败） |
+| t_elder | mediumtext | OK |
+| t_staff | mediumtext | 已修复（varchar(500) → mediumtext） |
 
 ---
 
 ## 八、下一步建议
 
-### 高优先级
-1. **R005 STAFF 角色菜单权限** — 在 `t_role_menu` 配置，否则服务人员登录后无菜单
-2. **数据隔离** — ServiceLog/Order 接口加 staffId 过滤
-3. **登录返回 staffId** — 服务人员知道自己是谁
-
 ### 中优先级
-4. **持久化 photo_url DDL** — 生成 `sql/photo-url-mediumtext.sql`
-5. **服务日志 API 测试修复** — 后端对无效 orderId 的错误处理
-6. **Playwright 测试完善** — staff 照片上传自动化测试
+1. **持久化 photo_url DDL** — 生成 `sql/photo-url-mediumtext.sql`，避免容器重建后字段类型回滚
+2. **补充测试数据** — 老人档案、服务商主数据，为完整功能验证做准备
+3. **前端未跟踪 Java 文件处理** — `dingfeng-work/src/main/java/` 下 health advice 代码需确认是后端误放还是独立功能
 
 ### 低优先级
-7. **健康档案详情页** — 目前只有卡片列表，缺详情编辑页
-8. **驾驶舱图表优化** — 公开页图表刷新逻辑
+4. **健康档案详情页** — 目前只有卡片列表，缺详情编辑页
+5. **驾驶舱图表优化** — 公开页图表刷新逻辑
 
 ---
 
@@ -302,9 +325,11 @@ docker exec mysql-dev mysql -uroot -proot elderly_care --default-character-set=u
 
 ```bash
 # 前端热更新
-cd dingfeng-work && npm run dev  # 端口 9528
+cd dingfeng-work && npm run dev  # 端口 9527
 
 # 后端重启
+pkill -f "spring-boot:run" && cd elderly-care-server && nohup mvn spring-boot:run -q > /tmp/backend.log 2>&1 &
+# 或直接
 cd elderly-care-server && mvn spring-boot:run
 
 # 数据库
