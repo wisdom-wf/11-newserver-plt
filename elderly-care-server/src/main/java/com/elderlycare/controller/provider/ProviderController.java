@@ -1,7 +1,9 @@
 package com.elderlycare.controller.provider;
 
+import com.elderlycare.common.BusinessException;
 import com.elderlycare.common.PageResult;
 import com.elderlycare.common.Result;
+import com.elderlycare.common.UserContext;
 import com.elderlycare.dto.provider.*;
 import com.elderlycare.entity.User;
 import com.elderlycare.entity.provider.Provider;
@@ -44,29 +46,52 @@ public class ProviderController {
 
     /**
      * 服务商列表
+     * GET /api/providers
+     * 隔离规则：SYSTEM/CITY/DISTRICT可见全部；PROVIDER只能看自己
      */
     @GetMapping
     public Result<PageResult<Provider>> queryProviders(ProviderQueryDTO dto) {
+        String userType = UserContext.getUserType();
+        String autoPid = UserContext.getProviderId();
+        // PROVIDER用户强制只看自己；SYSTEM类用户不过滤
+        if ("PROVIDER".equals(userType) && autoPid != null) {
+            dto.setProviderId(autoPid);  // 只查自己，强制覆盖前端传入
+        }
         PageResult<Provider> result = providerService.queryProviders(dto);
         return Result.success(result);
     }
 
     /**
      * 服务商详情
+     * GET /api/providers/{providerId}
+     * 隔离规则：PROVIDER只能查自己的详情
      */
     @GetMapping("/{providerId}")
     public Result<ProviderVO> getProviderById(@PathVariable String providerId) {
+        String userType = UserContext.getUserType();
+        String autoPid = UserContext.getProviderId();
+        // PROVIDER用户只能查自己的详情
+        if ("PROVIDER".equals(userType) && autoPid != null && !autoPid.equals(providerId)) {
+            throw BusinessException.fail("无权访问其他服务商信息");
+        }
         ProviderVO vo = providerService.getProviderById(providerId);
         return Result.success(vo);
     }
 
     /**
      * 服务商信息修改
+     * PUT /api/providers/{providerId}
+     * 隔离规则：PROVIDER只能改自己的
      */
     @PutMapping("/{providerId}")
     public Result<Void> updateProvider(
             @PathVariable String providerId,
             @Validated @RequestBody ProviderUpdateDTO dto) {
+        String userType = UserContext.getUserType();
+        String autoPid = UserContext.getProviderId();
+        if ("PROVIDER".equals(userType) && autoPid != null && !autoPid.equals(providerId)) {
+            throw BusinessException.fail("无权修改其他服务商信息");
+        }
         providerService.updateProvider(providerId, dto);
         return Result.success();
     }
@@ -76,6 +101,11 @@ public class ProviderController {
      */
     @DeleteMapping("/{providerId}")
     public Result<Void> deleteProvider(@PathVariable String providerId) {
+        String userType = UserContext.getUserType();
+        String autoPid = UserContext.getProviderId();
+        if ("PROVIDER".equals(userType) && autoPid != null && !autoPid.equals(providerId)) {
+            throw BusinessException.fail("无权删除其他服务商");
+        }
         providerService.deleteProvider(providerId);
         return Result.success();
     }
@@ -87,6 +117,11 @@ public class ProviderController {
     public Result<Void> updateServiceAreas(
             @PathVariable String providerId,
             @RequestBody ProviderServiceAreaDTO dto) {
+        String userType = UserContext.getUserType();
+        String autoPid = UserContext.getProviderId();
+        if ("PROVIDER".equals(userType) && autoPid != null && !autoPid.equals(providerId)) {
+            throw BusinessException.fail("无权修改其他服务商服务区域");
+        }
         providerService.updateServiceAreas(providerId, dto);
         return Result.success();
     }
@@ -96,6 +131,11 @@ public class ProviderController {
      */
     @GetMapping("/{providerId}/ratings")
     public Result<ProviderRatingVO> getProviderRating(@PathVariable String providerId) {
+        String userType = UserContext.getUserType();
+        String autoPid = UserContext.getProviderId();
+        if ("PROVIDER".equals(userType) && autoPid != null && !autoPid.equals(providerId)) {
+            throw BusinessException.fail("无权查看其他服务商评分");
+        }
         ProviderRatingVO vo = providerService.getProviderRating(providerId);
         return Result.success(vo);
     }
@@ -109,6 +149,11 @@ public class ProviderController {
     public Result<String> createQualification(
             @PathVariable String providerId,
             @Validated @RequestBody QualificationCreateDTO dto) {
+        String userType = UserContext.getUserType();
+        String autoPid = UserContext.getProviderId();
+        if ("PROVIDER".equals(userType) && autoPid != null && !autoPid.equals(providerId)) {
+            throw BusinessException.fail("无权为其他服务商添加资质");
+        }
         String certId = qualificationService.createQualification(providerId, dto);
         return Result.success(certId);
     }
@@ -118,6 +163,11 @@ public class ProviderController {
      */
     @GetMapping("/{providerId}/certificates")
     public Result<List<QualificationVO>> getQualifications(@PathVariable String providerId) {
+        String userType = UserContext.getUserType();
+        String autoPid = UserContext.getProviderId();
+        if ("PROVIDER".equals(userType) && autoPid != null && !autoPid.equals(providerId)) {
+            throw BusinessException.fail("无权查看其他服务商资质");
+        }
         List<QualificationVO> list = qualificationService.getQualificationsByProviderId(providerId);
         return Result.success(list);
     }
@@ -138,6 +188,11 @@ public class ProviderController {
      */
     @GetMapping("/{providerId}/admin-account")
     public Result<User> getProviderAdminAccount(@PathVariable String providerId) {
+        String userType = UserContext.getUserType();
+        String autoPid = UserContext.getProviderId();
+        if ("PROVIDER".equals(userType) && autoPid != null && !autoPid.equals(providerId)) {
+            throw BusinessException.fail("无权查看其他服务商管理员账户");
+        }
         User user = providerService.getProviderAdminAccount(providerId);
         return Result.success(user);
     }
@@ -147,6 +202,11 @@ public class ProviderController {
      */
     @PostMapping("/{providerId}/admin-account/reset")
     public Result<String> resetProviderAdminPassword(@PathVariable String providerId) {
+        String userType = UserContext.getUserType();
+        String autoPid = UserContext.getProviderId();
+        if ("PROVIDER".equals(userType) && autoPid != null && !autoPid.equals(providerId)) {
+            throw BusinessException.fail("无权操作其他服务商管理员账户");
+        }
         String newPassword = providerService.resetProviderAdminPassword(providerId);
         return Result.success(newPassword);
     }
@@ -160,6 +220,11 @@ public class ProviderController {
     public Result<String> createServiceType(
             @PathVariable String providerId,
             @Validated @RequestBody ServiceTypeCreateDTO dto) {
+        String userType = UserContext.getUserType();
+        String autoPid = UserContext.getProviderId();
+        if ("PROVIDER".equals(userType) && autoPid != null && !autoPid.equals(providerId)) {
+            throw BusinessException.fail("无权为其他服务商配置服务类型");
+        }
         String serviceTypeId = serviceTypeService.createServiceType(providerId, dto);
         return Result.success(serviceTypeId);
     }
@@ -169,26 +234,37 @@ public class ProviderController {
      */
     @GetMapping("/{providerId}/service-types")
     public Result<List<ServiceTypeVO>> getServiceTypes(@PathVariable String providerId) {
+        String userType = UserContext.getUserType();
+        String autoPid = UserContext.getProviderId();
+        if ("PROVIDER".equals(userType) && autoPid != null && !autoPid.equals(providerId)) {
+            throw BusinessException.fail("无权查看其他服务商服务类型");
+        }
         List<ServiceTypeVO> list = serviceTypeService.getServiceTypesByProviderId(providerId);
         return Result.success(list);
     }
 
     /**
      * 服务类型修改
+     * PUT /api/providers/service-types/{serviceTypeId}
+     * 隔离：只能改自己公司的服务类型
      */
     @PutMapping("/service-types/{serviceTypeId}")
     public Result<Void> updateServiceType(
             @PathVariable String serviceTypeId,
             @Validated @RequestBody ServiceTypeUpdateDTO dto) {
+        // TODO: Service层校验serviceTypeId归属后再更新
         serviceTypeService.updateServiceType(serviceTypeId, dto);
         return Result.success();
     }
 
     /**
      * 服务类型删除
+     * DELETE /api/providers/service-types/{serviceTypeId}
+     * 隔离：只能删自己公司的服务类型
      */
     @DeleteMapping("/service-types/{serviceTypeId}")
     public Result<Void> deleteServiceType(@PathVariable String serviceTypeId) {
+        // TODO: Service层校验serviceTypeId归属后再删除
         serviceTypeService.deleteServiceType(serviceTypeId);
         return Result.success();
     }

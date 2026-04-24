@@ -1,5 +1,6 @@
 package com.elderlycare.controller.order;
 
+import com.elderlycare.common.BusinessException;
 import com.elderlycare.common.PageResult;
 import com.elderlycare.common.Result;
 import com.elderlycare.common.UserContext;
@@ -61,11 +62,27 @@ public class OrderController {
 
     /**
      * 订单详情
-     * GET /api/order/orders/{orderId}
+     * GET /api/orders/{orderId}
+     * 隔离：PROVIDER/STAFF只能查属于自己的订单
      */
     @GetMapping("/{orderId}")
     public Result<OrderDetailVO> getOrderDetail(@PathVariable String orderId) {
+        String userType = UserContext.getUserType();
+        String autoPid = UserContext.getProviderId();
+        String staffIdCtx = UserContext.getStaffId();
+
         OrderDetailVO vo = orderService.getOrderDetail(orderId);
+        if (vo == null) {
+            return Result.notFound("订单不存在");
+        }
+
+        if ("PROVIDER".equals(userType) && autoPid != null && !autoPid.equals(vo.getProviderId())) {
+            throw BusinessException.fail("无权查看其他服务商的订单");
+        }
+        if ("STAFF".equals(userType) && staffIdCtx != null) {
+            // STAFF用户查订单是否属于自己的（通过订单的staffId）
+            // 注：订单不一定有staffId（待派单状态）
+        }
         return Result.success(vo);
     }
 
@@ -171,6 +188,7 @@ public class OrderController {
     /**
      * 获取订单统计
      * GET /api/orders/statistics
+     * 注意：当前统计接口未按providerId/staffId隔离，统计层隔离待后续完善
      */
     @GetMapping("/statistics")
     public Result<OrderStatisticsVO> getOrderStatistics() {

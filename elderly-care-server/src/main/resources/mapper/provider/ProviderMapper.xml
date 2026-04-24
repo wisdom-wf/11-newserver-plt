@@ -36,6 +36,9 @@
         <if test="query.status != null">
             AND status = #{query.status}
         </if>
+        <if test="query.providerId != null and query.providerId != ''">
+            AND provider_id = #{query.providerId}
+        </if>
         ORDER BY create_time DESC
     </select>
 

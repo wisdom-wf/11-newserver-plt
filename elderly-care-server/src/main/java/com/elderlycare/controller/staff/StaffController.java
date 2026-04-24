@@ -1,5 +1,6 @@
 package com.elderlycare.controller.staff;
 
+import com.elderlycare.common.BusinessException;
 import com.elderlycare.common.PageResult;
 import com.elderlycare.common.Result;
 import com.elderlycare.common.UserContext;
@@ -66,10 +67,28 @@ public class StaffController {
 
     /**
      * 获取服务人员详情
+     * GET /api/staff/{staffId}
+     * 隔离：PROVIDER只能看自己公司的员工；STAFF只能看自己
      */
     @GetMapping("/{staffId}")
     public Result<StaffVO> getStaffById(@PathVariable String staffId) {
+        String userType = UserContext.getUserType();
+        String autoPid = UserContext.getProviderId();
+        String staffIdCtx = UserContext.getStaffId();
+
+        // STAFF只能查自己
+        if ("STAFF".equals(userType) && staffIdCtx != null && !staffIdCtx.equals(staffId)) {
+            throw BusinessException.fail("无权查看其他服务人员信息");
+        }
+
         StaffVO vo = staffService.getStaffById(staffId);
+
+        // PROVIDER用户：校验员工是否属于自己公司
+        if ("PROVIDER".equals(userType) && autoPid != null) {
+            if (!autoPid.equals(vo.getProviderId())) {
+                throw BusinessException.fail("无权查看其他服务商的员工信息");
+            }
+        }
         return Result.success(vo);
     }
 

@@ -1,5 +1,6 @@
 package com.elderlycare.controller.servicelog;
 
+import com.elderlycare.common.BusinessException;
 import com.elderlycare.common.PageResult;
 import com.elderlycare.common.Result;
 import com.elderlycare.common.UserContext;
@@ -46,12 +47,24 @@ public class ServiceLogController {
     /**
      * 获取服务日志详情
      * GET /api/service-log/{id}
+     * 隔离：PROVIDER/STAFF只能查属于自己的日志
      */
     @GetMapping("/{id}")
     public Result<ServiceLogVO> getServiceLog(@PathVariable String id) {
+        String userType = UserContext.getUserType();
+        String autoPid = UserContext.getProviderId();
+        String staffIdCtx = UserContext.getStaffId();
+
         ServiceLogVO vo = serviceLogService.getServiceLog(id);
         if (vo == null) {
             return Result.notFound("服务日志不存在");
+        }
+
+        if ("PROVIDER".equals(userType) && autoPid != null && !autoPid.equals(vo.getProviderId())) {
+            throw BusinessException.fail("无权查看其他服务商的日志");
+        }
+        if ("STAFF".equals(userType) && staffIdCtx != null && !staffIdCtx.equals(vo.getStaffId())) {
+            throw BusinessException.fail("无权查看其他人员的服务日志");
         }
         return Result.success(vo);
     }

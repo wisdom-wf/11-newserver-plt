@@ -40,4 +40,9 @@ public class ProviderQueryDTO implements Serializable {
      * 状态
      */
     private String status;
+
+    /**
+     * 服务商ID（数据隔离用，Controller层自动注入）
+     */
+    private String providerId;
 }

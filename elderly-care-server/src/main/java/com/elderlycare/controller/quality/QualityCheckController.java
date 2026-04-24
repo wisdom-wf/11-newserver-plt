@@ -1,5 +1,6 @@
 package com.elderlycare.controller.quality;
 
+import com.elderlycare.common.BusinessException;
 import com.elderlycare.common.PageResult;
 import com.elderlycare.common.Result;
 import com.elderlycare.common.UserContext;
@@ -46,10 +47,25 @@ public class QualityCheckController {
     /**
      * 获取质检详情
      * GET /api/quality-check/{id}
+     * 隔离：PROVIDER/STAFF只能查属于自己的质检
      */
     @GetMapping("/{id}")
     public Result<QualityCheckVO> getQualityCheck(@PathVariable String id) {
+        String userType = UserContext.getUserType();
+        String autoPid = UserContext.getProviderId();
+        String staffIdCtx = UserContext.getStaffId();
+
         QualityCheckVO vo = qualityCheckService.getQualityCheck(id);
+        if (vo == null) {
+            return Result.notFound("质检记录不存在");
+        }
+
+        if ("PROVIDER".equals(userType) && autoPid != null && !autoPid.equals(vo.getProviderId())) {
+            throw BusinessException.fail("无权查看其他服务商的质检记录");
+        }
+        if ("STAFF".equals(userType) && staffIdCtx != null && !staffIdCtx.equals(vo.getStaffId())) {
+            throw BusinessException.fail("无权查看其他人员的质检记录");
+        }
         return Result.success(vo);
     }
 
