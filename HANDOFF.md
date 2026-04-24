@@ -1,7 +1,7 @@
 # 项目交接文档 — 智慧居家养老服务管理平台
 
 > 本文档由董老师编写，供 Claude Code 接手继续开发使用。
-> 最后更新：2026-04-25 凌晨（账号权限完整修复 + 越权拦截）
+> 最后更新：2026-04-24晚（Provider数据隔离全面修复 + 17个隔离测试通过）
 
 ---
 
@@ -374,19 +374,52 @@ t_role_menu:        R001=0,   R002=0,  R003=0,  R004=10, R005=8
 
 ---
 
-## 九、测试通过状态（2026-04-25凌晨）
+## 九、测试通过状态（2026-04-25凌晨 → 2026-04-24晚间）
+
+### 数据隔离测试（provider-data-isolation.spec.ts）
+
+| 测试 | 场景 | 结果 |
+|------|------|------|
+| T01 | 服务商列表 | ✅ FWS1只看自己1个 |
+| T02 | 服务商详情 | ✅ FWS2→400拒绝 |
+| T03 | 修改服务商信息 | ✅ FWS2→400拒绝 |
+| T04 | 员工列表 | ✅ 按providerId隔离 |
+| T05 | 员工详情 | ✅ 跨provider→400 |
+| T06 | 预约单列表 | ✅ 按providerId隔离 |
+| T07 | 预约单详情 | ✅ 跨provider→400 |
+| T08 | 客户档案列表 | ✅ 按providerId隔离 |
+| T09 | 服务日志列表 | ✅ 按providerId隔离 |
+| T10 | 服务日志详情 | ✅ 跨provider→400 |
+| T11 | 质检列表 | ✅ 按providerId隔离 |
+| T12 | 质检详情 | ✅ 跨provider→400 |
+| T13 | ADMIN全量访问 | ✅ 4个服务商全可见 |
+| T14 | STAFF自览日志 | ✅ staffId隔离 |
+| T15 | 自己资质列表 | ✅ 可正常访问 |
+| T16 | 他家资质列表 | ✅ 400拒绝 |
+| T17 | 订单统计 | ⚠️ 列表层隔离，统计层待完善 |
+| **合计** | **17 passed** | ✅ |
+
+### 历史测试
 
 | 测试套件 | 结果 | 备注 |
 |---------|------|------|
 | servicelog-api.spec.ts | 7 passed / 3 skipped | ✅ |
 | ai-suggestions.spec.ts | 12 passed | ✅ |
 | elder-photo.spec.ts | 8 passed | ✅ |
-| health-archive-ui.spec.ts | 16 passed | ✅（修复tabs选择器+orphan tests） |
-| **合计** | **43 passed / 3 skipped** | ✅ |
+| health-archive-ui.spec.ts | 16 passed | ✅ |
+| provider-data-isolation.spec.ts | 17 passed | ✅ 新增 |
+| **合计** | **60 passed / 3 skipped** | ✅ |
 
-### 低优先级
-1. **健康档案详情页** — 目前只有卡片列表，缺详情编辑页
-2. **驾驶舱图表优化** — 公开页图表刷新逻辑
+### 已知遗留问题
+
+| # | 问题 | 影响 | 建议 |
+|---|------|------|------|
+| 1 | `t_user.user_type`与`role_id`无绑定 | 历史账号权限不可预期 | 后续统一 |
+| 2 | 订单统计接口无providerId过滤 | PROVIDER可看全局统计 | Phase 2完善 |
+| 3 | ServiceType update/delete无归属校验 | 可越权改删他公司服务类型 | 低频操作，待补 |
+| 4 | 质检/满意度评价表无完整CRUD | 前端无法管理 | Phase 2开发 |
+
+
 
 ---
 
