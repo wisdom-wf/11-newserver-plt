@@ -29,7 +29,7 @@
             se.provider_id,
             p.provider_name,
             se.elder_id,
-            e.elder_name,
+            e.name AS elder_name,
             o.service_type_code,
             o.service_type_name,
             se.attitude_score,

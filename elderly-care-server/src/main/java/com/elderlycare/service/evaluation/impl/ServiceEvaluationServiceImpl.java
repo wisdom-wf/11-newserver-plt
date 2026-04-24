@@ -290,6 +290,15 @@ public class ServiceEvaluationServiceImpl extends ServiceImpl<ServiceEvaluationM
     }
 
     @Override
+    public ServiceEvaluation getEvaluationByOrderId(String orderId) {
+        LambdaQueryWrapper<ServiceEvaluation> wrapper = new LambdaQueryWrapper<>();
+        wrapper.eq(ServiceEvaluation::getOrderId, orderId)
+                .orderByDesc(ServiceEvaluation::getCreateTime)
+                .last("LIMIT 1");
+        return evaluationMapper.selectOne(wrapper);
+    }
+
+    @Override
     @Transactional(rollbackFor = Exception.class)
     public void replyEvaluation(String evaluationId, String replyContent) {
         ServiceEvaluation evaluation = evaluationMapper.selectById(evaluationId);

@@ -71,6 +71,15 @@ public class EvaluationController {
     }
 
     /**
+     * 根据订单ID查询评价（用于质检详情页关联展示）
+     */
+    @GetMapping("/order/{orderId}")
+    public Result<ServiceEvaluation> getEvaluationByOrderId(@PathVariable String orderId) {
+        ServiceEvaluation evaluation = evaluationService.getEvaluationByOrderId(orderId);
+        return Result.success(evaluation);
+    }
+
+    /**
      * 服务商评分查询
      */
     @GetMapping("/provider-score")

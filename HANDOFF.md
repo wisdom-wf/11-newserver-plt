@@ -1,7 +1,7 @@
 # 项目交接文档 — 智慧居家养老服务管理平台
 
 > 本文档由董老师编写，供 Claude Code 接手继续开发使用。
-> 最后更新：2026-04-24晚（Provider数据隔离全面修复 + 17个隔离测试通过）
+> 最后更新：2026-04-25凌晨（ServiceType隔离修复 + 评价/质检接口完善）
 
 ---
 
@@ -131,6 +131,54 @@ docker start mysql-dev
 - 将 `t_staff.photo_url` 和 `t_elder.photo_url` 从 varchar(500) 改为 mediumtext
 - Commit：`407a249`
 
+### 10. ServiceType 归属隔离修复 ✅ (2026-04-25)
+**问题**：PROVIDER 用户 PUT/DELETE 自己创建的服务类型也返回 403
+
+**根因**：
+1. `createServiceType` path param 用短 ID（`1`），但 `UserContext.getProviderId()` 返回长 ID（`2044978647030419457`），导致创建时 provider_id 字段写的是短 ID
+2. `isServiceTypeOwnedByProvider` 比较时：FWS1 的长 ID ≠ DB 里的短 ID → 永远 403
+
+**修复**：
+- `ProviderController.createServiceType()`：PROVIDER 用户强制用 `UserContext.getProviderId()` 覆盖 path param，确保 DB 里存的是长 ID
+- `BusinessException.java`：新增 `forbidden(403)` 静态工厂方法（之前编译失败）
+
+**验证结果**（4/4）：
+| 操作 | FWS1 对 FWS2 | FWS1 对自己 |
+|------|-------------|------------|
+| PUT | 403 ✅ | 200 ✅ |
+| DELETE | 403 ✅ | 200 ✅ |
+
+### 11. 质检查 orderId 多结果 Bug ✅ (2026-04-25)
+**问题**：`GET /api/quality-check/order/{orderId}` 一个订单可能有多条质检记录，`selectOne()` 抛 `TooManyResultsException`
+
+**修复**：`QualityCheckServiceImpl.getQualityCheckByOrderId()` 加 `orderByDesc(createTime)` + `last("LIMIT 1")`，取最新一条
+
+### 12. 评价查 orderId 接口缺失 ✅ (2026-04-25)
+**问题**：前端 `fetchGetEvaluationByOrderId` 调用 `GET /api/evaluations/order/{orderId}`，但后端没有这个路由
+
+**修复**：
+- `ServiceEvaluationService`：新增 `getEvaluationByOrderId()` 接口
+- `ServiceEvaluationServiceImpl`：新增实现（LIMIT 1 取最新）
+- `EvaluationController`：新增 `GET /order/{orderId}` 路由
+
+### 13. 评价统计接口 500 Bug ✅ (2026-04-24)
+**问题**：`GET /api/evaluations/statistics` 返回 500
+
+**根因**：`ServiceEvaluation` 实体有 5 个联表字段（elderName、staffName、providerName、serviceTypeCode、serviceTypeName）无 `@TableField(exist=false)` 注解，MyBatis-Plus BaseMapper 自动把它们加入 SELECT 语句，查不存在的列
+
+**修复**：5 个联表字段全部加 `@TableField(exist=false)`
+
+### 14. 前端链路串联 ✅ (2026-04-24)
+- `quality/index.vue`：新增质检对话框 + `@add` 绑定 + route.query.orderNo 预填 + 质检详情"发起满意度评价"按钮
+- `service-log/index.vue`：APPROVED/COMPLETED 状态行加"去质检"/"去评价"按钮
+- `evaluation/index.vue`：新增评价对话框 + `@add` 绑定 + route.query.orderNo 预填自动打开 + 评价详情抽屉内展示关联质检信息
+
+### 15. 测试套件新增 ✅ (2026-04-24~25)
+- `quality-evaluation-chain.spec.ts`：8 个 E2E 链路测试（TC-LEC-01~08）
+- `satisfaction-survey-tdd.spec.ts`：5 个 TDD 测试（T01~T07）
+- `quality-check-api.spec.ts`：补 TC-QC-008 删除质检
+- 合计新增测试文件 3 个，测试用例 17 个
+
 ---
 
 ## 三、当前状态
@@ -150,12 +198,30 @@ docker start mysql-dev
 - 动态菜单系统 ✅
 - STAFF 角色数据隔离 ✅（commit 4678cf4）
 
-### Git 当前状态（2026-04-24）
+### Git 当前状态（2026-04-25）
 ```
-根仓库 (11-newserver-plt):  master  0c22ec4  ← 清理完成
-  elderly-care-server:      master  30e8848  ← 服务商排名修复
-  dingfeng-work:            main    716a016d ← 测试配置修复
+根仓库 (11-newserver-plt):  master  待提交  ← ServiceType隔离+评价接口
+  elderly-care-server:      master  待提交
+  dingfeng-work:            main    待提交
 ```
+
+### 测试基线（2026-04-25）
+```
+44 passed / 4 skipped / 0 failed
+├── 隔离测试              17 passed
+├── 质检 API               8 passed (TC-QC-001~008)
+├── 满意度评价 TDD         5 passed (T01~T04, T07)
+├── 评价 API               7 passed
+├── 链路 E2E               8 passed (TC-LEC-01~08)
+└── skipped: T05/T06 等数据就绪后解除
+```
+
+### 真实账号 ID 速查
+| 账号 | providerId（长） | 说明 |
+|------|-----------------|------|
+| FWS1 | `2044978647030419457` | PROVIDER_ADMIN，短ID=1 |
+| FWS2 | `2044978337352372225` | PROVIDER_ADMIN，短ID=2 |
+| staff001 | `3` | STAFF，providerId=3 |
 
 ---
 

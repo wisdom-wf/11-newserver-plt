@@ -45,6 +45,11 @@ public interface ServiceEvaluationService extends IService<ServiceEvaluation> {
     EvaluationStatisticsVO getStatistics(EvaluationStatisticsDTO dto);
 
     /**
+     * 根据订单ID查询最新评价
+     */
+    ServiceEvaluation getEvaluationByOrderId(String orderId);
+
+    /**
      * 回复评价
      */
     void replyEvaluation(String evaluationId, String replyContent);

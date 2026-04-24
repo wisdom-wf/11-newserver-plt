@@ -41,26 +41,31 @@ public class ServiceEvaluation implements Serializable {
     /**
      * 老人姓名(联表)
      */
+    @TableField(exist = false)
     private String elderName;
 
     /**
      * 服务类型编码(联表)
      */
+    @TableField(exist = false)
     private String serviceTypeCode;
 
     /**
      * 服务类型名称(联表)
      */
+    @TableField(exist = false)
     private String serviceTypeName;
 
     /**
      * 服务人员姓名(联表)
      */
+    @TableField(exist = false)
     private String staffName;
 
     /**
      * 服务商名称(联表)
      */
+    @TableField(exist = false)
     private String providerName;
 
     /**

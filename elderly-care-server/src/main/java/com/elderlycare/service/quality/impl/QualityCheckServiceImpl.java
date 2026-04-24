@@ -80,6 +80,8 @@ public class QualityCheckServiceImpl implements QualityCheckService {
     public QualityCheckVO getQualityCheckByOrderId(String orderId) {
         LambdaQueryWrapper<QualityCheck> wrapper = new LambdaQueryWrapper<>();
         wrapper.eq(QualityCheck::getOrderId, orderId);
+        wrapper.orderByDesc(QualityCheck::getCreateTime);
+        wrapper.last("LIMIT 1");
         QualityCheck qualityCheck = qualityCheckMapper.selectOne(wrapper);
         return convertToVO(qualityCheck);
     }

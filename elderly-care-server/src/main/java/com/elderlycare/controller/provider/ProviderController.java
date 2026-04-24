@@ -222,8 +222,9 @@ public class ProviderController {
             @Validated @RequestBody ServiceTypeCreateDTO dto) {
         String userType = UserContext.getUserType();
         String autoPid = UserContext.getProviderId();
-        if ("PROVIDER".equals(userType) && autoPid != null && !autoPid.equals(providerId)) {
-            throw BusinessException.fail("无权为其他服务商配置服务类型");
+        // PROVIDER 用户只能用自己账号的 providerId（长ID），不能用短ID path param
+        if ("PROVIDER".equals(userType) && autoPid != null) {
+            providerId = autoPid;
         }
         String serviceTypeId = serviceTypeService.createServiceType(providerId, dto);
         return Result.success(serviceTypeId);
@@ -252,7 +253,12 @@ public class ProviderController {
     public Result<Void> updateServiceType(
             @PathVariable String serviceTypeId,
             @Validated @RequestBody ServiceTypeUpdateDTO dto) {
-        // TODO: Service层校验serviceTypeId归属后再更新
+        String userType = UserContext.getUserType();
+        String autoPid = UserContext.getProviderId();
+        if ("PROVIDER".equals(userType) && autoPid != null
+                && !serviceTypeService.isServiceTypeOwnedByProvider(serviceTypeId, autoPid)) {
+            throw BusinessException.forbidden("无权修改其他公司的服务类型");
+        }
         serviceTypeService.updateServiceType(serviceTypeId, dto);
         return Result.success();
     }
@@ -264,7 +270,12 @@ public class ProviderController {
      */
     @DeleteMapping("/service-types/{serviceTypeId}")
     public Result<Void> deleteServiceType(@PathVariable String serviceTypeId) {
-        // TODO: Service层校验serviceTypeId归属后再删除
+        String userType = UserContext.getUserType();
+        String autoPid = UserContext.getProviderId();
+        if ("PROVIDER".equals(userType) && autoPid != null
+                && !serviceTypeService.isServiceTypeOwnedByProvider(serviceTypeId, autoPid)) {
+            throw BusinessException.forbidden("无权删除其他公司的服务类型");
+        }
         serviceTypeService.deleteServiceType(serviceTypeId);
         return Result.success();
     }

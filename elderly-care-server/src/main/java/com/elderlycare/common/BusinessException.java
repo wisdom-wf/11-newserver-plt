@@ -44,4 +44,11 @@ public class BusinessException extends RuntimeException {
     public static BusinessException fail(String message) {
         return new BusinessException(400, message);
     }
+
+    /**
+     * 禁止访问异常（无权限）
+     */
+    public static BusinessException forbidden(String message) {
+        return new BusinessException(403, message);
+    }
 }
