@@ -1,7 +1,0 @@
-- generic [active] [ref=e1]:
-  - generic [ref=e3]:
-    - img [ref=e5]
-    - heading "社区服务综合运营管理平台" [level=2] [ref=e20]
-  - generic "Toggle devtools panel" [ref=e22] [cursor=pointer]:
-    - img [ref=e23]
-  - img

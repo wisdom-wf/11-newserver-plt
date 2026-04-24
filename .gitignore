@@ -1,0 +1,22 @@
+# Playwright artifacts (untracked only - no need to untrack existing files)
+.playwright-mcp/
+.playwright-cli/
+playwright-report/
+test-results/
+
+# Hermes
+.hermes/
+
+# Workbuddy / MCP temp
+.workbuddy/
+.connect_chrome.js
+
+# Local screenshots & generated reports
+screenshots/
+*.png
+*.jpg
+*.jpeg
+
+# Temporary
+.DS_Store
+*.log

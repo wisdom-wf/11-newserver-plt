@@ -1,2 +1,0 @@
-[    1605ms] [VERBOSE] [DOM] Input elements should have autocomplete attributes (suggested: "current-password"): (More info: https://goo.gl/9p2vKq) %o @ http://localhost:9531/login:0
-[   11105ms] [LOG] [ECharts] Specified `grid.containLabel` but no `use(LegacyGridContainLabel)`;use `grid.outerBounds` instead. @ http://localhost:9531/node_modules/.vite/deps/Axis-DtSNu9CG.js?v=0185d794:667
