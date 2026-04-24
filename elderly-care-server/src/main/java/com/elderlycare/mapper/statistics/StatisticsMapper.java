@@ -281,39 +281,20 @@ public interface StatisticsMapper {
     /**
      * 查询订单服务类型分布
      */
-    @Select("""
-        SELECT service_type_code AS serviceTypeCode, service_type_name AS serviceTypeName,
-               COUNT(*) AS orderCount,
-               SUM(CASE WHEN status IN ('SERVICE_COMPLETED', 'EVALUATED', 'SETTLED') THEN 1 ELSE 0 END) AS completedCount,
-               COALESCE(SUM(estimated_price), 0) AS totalAmount
-        FROM t_order WHERE deleted = 0
-        GROUP BY service_type_code, service_type_name
-        ORDER BY orderCount DESC
-        """)
-    List<Map<String, Object>> selectOrderServiceTypeDistribution();
+    /**
+     * 查询订单服务类型分布
+     */
+    List<Map<String, Object>> selectOrderServiceTypeDistribution(@Param("providerId") String providerId);
 
     /**
      * 查询订单来源分布
      */
-    @Select("""
-        SELECT order_source AS orderSource, COUNT(*) AS count
-        FROM t_order WHERE deleted = 0
-        GROUP BY order_source
-        ORDER BY count DESC
-        """)
-    List<Map<String, Object>> selectOrderSourceDistribution();
+    List<Map<String, Object>> selectOrderSourceDistribution(@Param("providerId") String providerId);
 
     /**
      * 查询财务统计数据
      */
-    @Select("""
-        SELECT
-            COALESCE(SUM(estimated_price), 0) AS totalAmount,
-            COALESCE(SUM(subsidy_amount), 0) AS totalSubsidyAmount,
-            COALESCE(SUM(self_pay_amount), 0) AS totalSelfPayAmount
-        FROM t_order WHERE deleted = 0
-        """)
-    Map<String, Object> selectFinancialSummary();
+    Map<String, Object> selectFinancialSummary(@Param("providerId") String providerId);
 
     /**
      * 查询本月财务数据
@@ -468,17 +449,10 @@ public interface StatisticsMapper {
     /**
      * 查询服务人员排名TOP
      */
-    @Select("SELECT s.staff_id AS staffId, s.staff_name AS staffName, p.provider_name AS providerName, " +
-            "COUNT(o.order_id) AS orderCount, " +
-            "SUM(CASE WHEN o.status IN ('SERVICE_COMPLETED', 'EVALUATED', 'SETTLED') THEN 1 ELSE 0 END) AS serviceCount " +
-            "FROM t_staff s " +
-            "LEFT JOIN t_order o ON s.staff_id = o.staff_id AND o.deleted = 0 " +
-            "LEFT JOIN t_provider p ON s.provider_id = p.provider_id " +
-            "WHERE s.deleted = 0 " +
-            "GROUP BY s.staff_id, s.staff_name, p.provider_name " +
-            "ORDER BY orderCount DESC " +
-            "LIMIT #{limit}")
-    List<Map<String, Object>> selectTopStaffRankings(@Param("limit") int limit);
+    /**
+     * 查询服务人员排名TOP
+     */
+    List<Map<String, Object>> selectTopStaffRankings(@Param("limit") int limit, @Param("providerId") String providerId);
 
     /**
      * 查询订单地理分布（用于热力图）

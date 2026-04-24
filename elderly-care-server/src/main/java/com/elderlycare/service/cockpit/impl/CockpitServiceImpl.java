@@ -40,7 +40,7 @@ public class CockpitServiceImpl implements CockpitService {
         DashboardVO dashboard = statisticsService.getDashboardData();
         ElderStatisticsVO elderStats = statisticsService.getElderStatistics();
         ProviderStatisticsVO providerStats = statisticsService.getProviderStatistics();
-        OrderStatisticsVO orderStats = statisticsService.getOrderStatistics(null, null, "day", null);
+        OrderStatisticsVO orderStats = statisticsService.getOrderStatistics(null, null, null, "day", null);
         FinancialStatisticsVO financialStats = statisticsService.getFinancialStatistics();
         QualityStatisticsVO qualityStats = statisticsService.getQualityStatistics();
 
@@ -118,7 +118,7 @@ public class CockpitServiceImpl implements CockpitService {
 
     @Override
     public List<OrderStatisticsVO.TrendData> getOrderTrend(String type) {
-        OrderStatisticsVO orderStats = statisticsService.getOrderStatistics(null, null, type, null);
+        OrderStatisticsVO orderStats = statisticsService.getOrderStatistics(null, null, null, type, null);
         if (orderStats != null && orderStats.getOrderTrend() != null) {
             return orderStats.getOrderTrend();
         }
@@ -237,7 +237,7 @@ public class CockpitServiceImpl implements CockpitService {
         List<CockpitOverviewVO.StaffRanking> result = new ArrayList<>();
         try {
             int actualLimit = limit != null ? limit : 10;
-            List<Map<String, Object>> topStaff = statisticsMapper.selectTopStaffRankings(actualLimit);
+            List<Map<String, Object>> topStaff = statisticsMapper.selectTopStaffRankings(actualLimit, null);
             if (topStaff != null && !topStaff.isEmpty()) {
                 result = topStaff.stream()
                         .map(m -> {

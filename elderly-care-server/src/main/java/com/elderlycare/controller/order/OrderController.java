@@ -188,11 +188,12 @@ public class OrderController {
     /**
      * 获取订单统计
      * GET /api/orders/statistics
-     * 注意：当前统计接口未按providerId/staffId隔离，统计层隔离待后续完善
+     * 数据隔离：PROVIDER用户强制只看自己服务商
      */
     @GetMapping("/statistics")
     public Result<OrderStatisticsVO> getOrderStatistics() {
-        OrderStatisticsVO statistics = statisticsService.getOrderStatistics(null, null, null, null);
+        String providerId = UserContext.getProviderId();
+        OrderStatisticsVO statistics = statisticsService.getOrderStatistics(providerId, null, null, null, null);
         return Result.success(statistics);
     }
 }

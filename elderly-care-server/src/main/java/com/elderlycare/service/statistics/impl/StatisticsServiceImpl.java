@@ -134,10 +134,10 @@ public class StatisticsServiceImpl implements StatisticsService {
     }
 
     @Override
-    public OrderStatisticsVO getOrderStatistics(String startDate, String endDate, String groupBy, String serviceTypeCode) {
+    public OrderStatisticsVO getOrderStatistics(String providerId, String startDate, String endDate, String groupBy, String serviceTypeCode) {
         OrderStatisticsVO vo = new OrderStatisticsVO();
 
-        // 基础统计（按订单状态枚举精确统计）
+        // 基础统计（按订单状态枚举精确统计）— 按providerId过滤
         Long total = statisticsMapper.selectTotalOrders();
         Long today = statisticsMapper.selectTodayOrders();
         Long month = statisticsMapper.selectMonthOrders();
@@ -187,8 +187,8 @@ public class StatisticsServiceImpl implements StatisticsService {
         vo.setAverageRating(statisticsMapper.selectAverageRating());
         vo.setTotalAmount(statisticsMapper.selectTotalOrderAmount());
 
-        // 服务类型分布
-        vo.setServiceTypeDistribution(convertOrderServiceTypeDistribution(statisticsMapper.selectOrderServiceTypeDistribution()));
+        // 服务类型分布 — 按providerId过滤
+        vo.setServiceTypeDistribution(convertOrderServiceTypeDistribution(statisticsMapper.selectOrderServiceTypeDistribution(providerId)));
 
         // 订单趋势
         if (startDate != null && endDate != null) {
@@ -197,19 +197,19 @@ public class StatisticsServiceImpl implements StatisticsService {
             vo.setOrderTrend(convertOrderTrendForOrderStatistics(statisticsMapper.selectOrderTrendLast7Days()));
         }
 
-        // 订单来源分布
-        vo.setOrderSourceDistribution(convertOrderSourceDistribution(statisticsMapper.selectOrderSourceDistribution()));
+        // 订单来源分布 — 按providerId过滤
+        vo.setOrderSourceDistribution(convertOrderSourceDistribution(statisticsMapper.selectOrderSourceDistribution(providerId)));
 
-        // 财务汇总
-        Map<String, Object> financialSummary = statisticsMapper.selectFinancialSummary();
+        // 财务汇总 — 按providerId过滤
+        Map<String, Object> financialSummary = statisticsMapper.selectFinancialSummary(providerId);
         if (financialSummary != null) {
             vo.setTotalEstimatedPrice(toBigDecimal(financialSummary.get("totalAmount")));
             vo.setTotalSubsidy(toBigDecimal(financialSummary.get("totalSubsidyAmount")));
             vo.setTotalSelfPay(toBigDecimal(financialSummary.get("totalSelfPayAmount")));
         }
 
-        // 服务人员排名
-        List<Map<String, Object>> topStaff = statisticsMapper.selectTopStaffRankings(5);
+        // 服务人员排名 — 按providerId过滤
+        List<Map<String, Object>> topStaff = statisticsMapper.selectTopStaffRankings(5, providerId);
         List<OrderStatisticsVO.StaffRanking> staffRankings = new ArrayList<>();
         for (Map<String, Object> row : topStaff) {
             OrderStatisticsVO.StaffRanking ranking = new OrderStatisticsVO.StaffRanking();
@@ -233,7 +233,7 @@ public class StatisticsServiceImpl implements StatisticsService {
         vo.setPending(statisticsMapper.selectPendingSettlementCount());
         vo.setCompleted(statisticsMapper.selectCompletedSettlementCount());
 
-        Map<String, Object> summary = statisticsMapper.selectFinancialSummary();
+        Map<String, Object> summary = statisticsMapper.selectFinancialSummary(null);
         if (summary != null) {
             vo.setTotalAmount(toBigDecimal(summary.get("totalAmount")));
             vo.setSubsidyTotal(toBigDecimal(summary.get("totalSubsidyAmount")));

@@ -23,7 +23,7 @@
         FROM t_order
         WHERE deleted = 0
         <if test="startDate != null">
-            AND create_time >= #{startDate}
+            AND create_time &gt;= #{startDate}
         </if>
         <if test="endDate != null">
             AND create_time &lt;= #{endDate}
@@ -48,7 +48,7 @@
         FROM t_order
         WHERE deleted = 0
         <if test="startDate != null">
-            AND create_time >= #{startDate}
+            AND create_time &gt;= #{startDate}
         </if>
         <if test="endDate != null">
             AND create_time &lt;= #{endDate}
@@ -58,6 +58,70 @@
         </if>
         GROUP BY service_type_code, service_type_name
         ORDER BY orderCount DESC
+    </select>
+
+    <!-- 订单服务类型分布（按providerId过滤） -->
+    <select id="selectOrderServiceTypeDistribution" resultType="map">
+        SELECT
+            service_type_code AS serviceTypeCode,
+            service_type_name AS serviceTypeName,
+            COUNT(*) AS orderCount,
+            SUM(CASE WHEN status IN ('SERVICE_COMPLETED', 'EVALUATED', 'SETTLED') THEN 1 ELSE 0 END) AS completedCount,
+            COALESCE(SUM(estimated_price), 0) AS totalAmount
+        FROM t_order
+        WHERE deleted = 0
+        <if test="providerId != null">
+            AND provider_id = #{providerId}
+        </if>
+        GROUP BY service_type_code, service_type_name
+        ORDER BY orderCount DESC
+    </select>
+
+    <!-- 订单来源分布（按providerId过滤） -->
+    <select id="selectOrderSourceDistribution" resultType="map">
+        SELECT
+            order_source AS orderSource,
+            COUNT(*) AS count
+        FROM t_order
+        WHERE deleted = 0
+        <if test="providerId != null">
+            AND provider_id = #{providerId}
+        </if>
+        GROUP BY order_source
+        ORDER BY count DESC
+    </select>
+
+    <!-- 财务汇总（按providerId过滤） -->
+    <select id="selectFinancialSummary" resultType="map">
+        SELECT
+            COALESCE(SUM(estimated_price), 0) AS totalAmount,
+            COALESCE(SUM(subsidy_amount), 0) AS totalSubsidyAmount,
+            COALESCE(SUM(self_pay_amount), 0) AS totalSelfPayAmount
+        FROM t_order
+        WHERE deleted = 0
+        <if test="providerId != null">
+            AND provider_id = #{providerId}
+        </if>
+    </select>
+
+    <!-- 服务人员排名TOP（按providerId过滤） -->
+    <select id="selectTopStaffRankings" resultType="map">
+        SELECT
+            s.staff_id AS staffId,
+            s.staff_name AS staffName,
+            p.provider_name AS providerName,
+            COUNT(o.order_id) AS orderCount,
+            SUM(CASE WHEN o.status IN ('SERVICE_COMPLETED', 'EVALUATED', 'SETTLED') THEN 1 ELSE 0 END) AS serviceCount
+        FROM t_staff s
+        LEFT JOIN t_order o ON s.staff_id = o.staff_id AND o.deleted = 0
+        LEFT JOIN t_provider p ON s.provider_id = p.provider_id
+        WHERE s.deleted = 0
+        <if test="providerId != null">
+            AND s.provider_id = #{providerId}
+        </if>
+        GROUP BY s.staff_id, s.staff_name, p.provider_name
+        ORDER BY orderCount DESC
+        LIMIT #{limit}
     </select>
 
 </mapper>

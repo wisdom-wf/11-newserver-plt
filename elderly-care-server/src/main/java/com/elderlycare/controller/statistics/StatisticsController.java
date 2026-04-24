@@ -1,6 +1,7 @@
 package com.elderlycare.controller.statistics;
 
 import com.elderlycare.common.Result;
+import com.elderlycare.common.UserContext;
 import com.elderlycare.service.statistics.StatisticsService;
 import com.elderlycare.vo.statistics.*;
 import lombok.RequiredArgsConstructor;
@@ -72,7 +73,9 @@ public class StatisticsController {
             @RequestParam(required = false) String serviceTypeCode) {
         String start = startDate != null ? startDate.toString() : null;
         String end = endDate != null ? endDate.toString() : null;
-        OrderStatisticsVO data = statisticsService.getOrderStatistics(start, end, groupBy, serviceTypeCode);
+        // 数据隔离：PROVIDER用户强制只看自己服务商
+        String providerId = UserContext.getProviderId();
+        OrderStatisticsVO data = statisticsService.getOrderStatistics(providerId, start, end, groupBy, serviceTypeCode);
         return Result.success(data);
     }
 

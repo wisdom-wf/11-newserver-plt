@@ -25,12 +25,13 @@ public interface StatisticsService {
     /**
      * 获取订单统计数据
      *
-     * @param startDate  开始日期
-     * @param endDate    结束日期
-     * @param groupBy    分组维度：day, week, month
+     * @param providerId      服务商ID，null表示全平台（仅SYSTEM/ADMIN可见）
+     * @param startDate      开始日期
+     * @param endDate        结束日期
+     * @param groupBy        分组维度：day, week, month
      * @param serviceTypeCode 服务类型编码
      */
-    OrderStatisticsVO getOrderStatistics(String startDate, String endDate, String groupBy, String serviceTypeCode);
+    OrderStatisticsVO getOrderStatistics(String providerId, String startDate, String endDate, String groupBy, String serviceTypeCode);
 
     /**
      * 获取财务统计数据
