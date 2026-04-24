@@ -61,7 +61,7 @@ test.describe('QualityCheck API Tests', () => {
   });
 
   test('TC-QC-002: 质检列表（admin全量）- POST /quality-check/list', async ({ request: req }) => {
-    const res = await req.get(`${API_BASE}/quality-check/page?page=1&pageSize=20`, {
+    const res = await req.get(`${API_BASE}/quality-check/list?page=1&pageSize=20`, {
       headers: { Authorization: `Bearer ${adminToken}` }
     });
     expect(res.ok()).toBeTruthy();
@@ -72,7 +72,7 @@ test.describe('QualityCheck API Tests', () => {
 
   test('TC-QC-003: 质检列表（PROVIDER只看到自己）- POST', async ({ request: req }) => {
     if (!providerToken) { test.skip(); return; }
-    const res = await req.get(`${API_BASE}/quality-check/page?page=1&pageSize=50`, {
+    const res = await req.get(`${API_BASE}/quality-check/list?page=1&pageSize=50`, {
       headers: { Authorization: `Bearer ${providerToken}` }
     });
     expect(res.ok()).toBeTruthy();
@@ -83,7 +83,7 @@ test.describe('QualityCheck API Tests', () => {
 
   test('TC-QC-004: 质检列表（STAFF只看到自己）- POST', async ({ request: req }) => {
     if (!staffToken) { test.skip(); return; }
-    const res = await req.get(`${API_BASE}/quality-check/page?page=1&pageSize=50`, {
+    const res = await req.get(`${API_BASE}/quality-check/list?page=1&pageSize=50`, {
       headers: { Authorization: `Bearer ${staffToken}` }
     });
     expect(res.ok()).toBeTruthy();
@@ -101,7 +101,7 @@ test.describe('QualityCheck API Tests', () => {
   });
 
   test('TC-QC-006: 质检详情（admin）', async ({ request: req }) => {
-    const listRes = await req.get(`${API_BASE}/quality-check/page?page=1&pageSize=1`, {
+    const listRes = await req.get(`${API_BASE}/quality-check/list?page=1&pageSize=1`, {
       headers: { Authorization: `Bearer ${adminToken}` }
     });
     if (!listRes.ok()) { test.skip(); return; }
@@ -109,7 +109,7 @@ test.describe('QualityCheck API Tests', () => {
     const records: any[] = body.data?.records || [];
     if (records.length === 0) { test.skip(); return; }
 
-    const qcId = records[0].qcId || records[0].id;
+    const qcId = records[0].qualityCheckId;
     const detailRes = await req.get(`${API_BASE}/quality-check/${qcId}`, {
       headers: { Authorization: `Bearer ${adminToken}` }
     });
@@ -119,7 +119,7 @@ test.describe('QualityCheck API Tests', () => {
   });
 
   test('TC-QC-007: 更新质检（admin）', async ({ request: req }) => {
-    const listRes = await req.get(`${API_BASE}/quality-check/page?page=1&pageSize=1`, {
+    const listRes = await req.get(`${API_BASE}/quality-check/list?page=1&pageSize=1`, {
       headers: { Authorization: `Bearer ${adminToken}` }
     });
     if (!listRes.ok()) { test.skip(); return; }
@@ -127,7 +127,7 @@ test.describe('QualityCheck API Tests', () => {
     const records: any[] = body.data?.records || [];
     if (records.length === 0) { test.skip(); return; }
 
-    const qcId = records[0].qcId || records[0].id;
+    const qcId = records[0].qualityCheckId;
     const updateRes = await req.put(`${API_BASE}/quality-check/${qcId}`, {
       headers: { Authorization: `Bearer ${adminToken}` },
       data: { checkScore: 98, remark: '自动化更新' }

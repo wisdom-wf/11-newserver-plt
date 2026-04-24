@@ -1,6 +1,6 @@
 <script setup lang="ts">
 import { ref, h, onMounted, watch } from 'vue';
-import { useRoute } from 'vue-router';
+import { useRoute, useRouter } from 'vue-router';
 import {
   NButton,
   NCard,
@@ -53,6 +53,7 @@ const MAX_IMAGE_COUNT = 6;
 const MAX_IMAGE_SIZE = 3 * 1024 * 1024; // 3M
 
 const route = useRoute();
+const router = useRouter();
 
 // Statistics
 const statistics = ref<Api.ServiceLog.Statistics>({
@@ -258,6 +259,23 @@ const columns: DataTableColumns<Api.ServiceLog.ServiceLog> = [
             NButton,
             { size: 'small', type: 'warning', onClick: () => showReviewModal(row) },
             { default: () => '审核' }
+          )
+        );
+      }
+      // 已审核通过的服务日志可发起质检和评价
+      if (row.auditStatus === 'APPROVED' || row.auditStatus === 'COMPLETED') {
+        buttons.push(
+          h(
+            NButton,
+            { size: 'small', type: 'info', onClick: () => goToQualityCheck(row), style: { marginLeft: '4px' } },
+            { default: () => '去质检' }
+          )
+        );
+        buttons.push(
+          h(
+            NButton,
+            { size: 'small', type: 'success', onClick: () => goToEvaluation(row), style: { marginLeft: '4px' } },
+            { default: () => '去评价' }
           )
         );
       }
@@ -514,6 +532,14 @@ function showReviewModal(row: Api.ServiceLog.ServiceLog) {
   qualityReviewResult.value = 'APPROVED';
   qualityReviewComment.value = '';
   qualityReviewModalVisible.value = true;
+}
+
+function goToQualityCheck(row: Api.ServiceLog.ServiceLog) {
+  router.push({ path: '/business/quality', query: { orderNo: row.orderNo || '' } });
+}
+
+function goToEvaluation(row: Api.ServiceLog.ServiceLog) {
+  router.push({ path: '/business/evaluation', query: { orderNo: row.orderNo || '' } });
 }
 
 async function handleQualityReview() {

@@ -1,5 +1,6 @@
 <script setup lang="ts">
-import { ref, h, onMounted, watch } from 'vue';
+import { ref, h, onMounted, watch, nextTick } from 'vue';
+import { useRouter, useRoute } from 'vue-router';
 import {
   NButton,
   NCard,
@@ -18,7 +19,11 @@ import {
   NImage,
   NImageGroup,
   NDrawer,
-  NDrawerContent
+  NDrawerContent,
+  NInputNumber,
+  NRate,
+  NText,
+  NSpin
 } from 'naive-ui';
 import type { DataTableColumns } from 'naive-ui';
 import {
@@ -27,7 +32,9 @@ import {
   fetchGetElder,
   fetchGetStaff,
   fetchGetEvaluation,
-  fetchReplyEvaluation
+  fetchReplyEvaluation,
+  fetchCreateEvaluation,
+  fetchGetQualityCheckByOrderId
 } from '@/service/api';
 import { useNaivePaginatedTable, defaultTransform } from '@/hooks/common/table';
 import { useAuth } from '@/hooks/business/auth';
@@ -38,6 +45,66 @@ defineOptions({
 });
 
 const message = useMessage();
+const router = useRouter();
+const route = useRoute();
+
+// Create dialog state
+const createDialogVisible = ref(false);
+const createLoading = ref(false);
+const createForm = ref<Api.Evaluation.EvaluationForm>({
+  orderId: '',
+  serviceScore: 5,
+  attitudeScore: 5,
+  skillScore: 5,
+  punctualityScore: 5,
+  overallScore: 5,
+  content: '',
+  images: []
+});
+
+// Satisfaction level options
+const satisfactionOptions = [
+  { label: '非常满意', value: 'VERY_SATISFIED' },
+  { label: '满意', value: 'SATISFIED' },
+  { label: '一般', value: 'NEUTRAL' },
+  { label: '不满意', value: 'DISSATISFIED' },
+  { label: '非常不满意', value: 'VERY_DISSATISFIED' }
+];
+
+function openCreateDialog() {
+  createForm.value = {
+    orderId: '',
+    serviceScore: 5,
+    attitudeScore: 5,
+    skillScore: 5,
+    punctualityScore: 5,
+    overallScore: 5,
+    content: '',
+    images: []
+  };
+  createDialogVisible.value = true;
+}
+
+async function handleCreateSubmit() {
+  if (!createForm.value.orderId) {
+    message.warning('请输入订单ID');
+    return;
+  }
+  createLoading.value = true;
+  try {
+    const { error } = await fetchCreateEvaluation(createForm.value);
+    if (error) {
+      message.error(error.message || '创建评价失败');
+      return;
+    }
+    message.success('创建评价成功');
+    createDialogVisible.value = false;
+    getData();
+    getStatistics();
+  } finally {
+    createLoading.value = false;
+  }
+}
 
 // Statistics
 const { hasAuth } = useAuth();
@@ -101,6 +168,8 @@ const evalDetailDrawerVisible = ref(false);
 const evalDetailData = ref<Api.Evaluation.Evaluation | null>(null);
 const replyContent = ref('');
 const replyLoading = ref(false);
+const relatedQualityCheck = ref<Api.Quality.QualityCheck | null>(null);
+const relatedQualityLoading = ref(false);
 
 async function showEvalDetail(row: any) {
   try {
@@ -113,6 +182,18 @@ async function showEvalDetail(row: any) {
       evalDetailData.value = data;
       replyContent.value = '';
       evalDetailDrawerVisible.value = true;
+      // 加载关联质检记录
+      if (data.orderId) {
+        relatedQualityLoading.value = true;
+        try {
+          const { data: qcData } = await fetchGetQualityCheckByOrderId(data.orderId);
+          relatedQualityCheck.value = qcData || null;
+        } catch {
+          relatedQualityCheck.value = null;
+        } finally {
+          relatedQualityLoading.value = false;
+        }
+      }
     }
   } catch (e) {
     console.error('Failed to get evaluation detail', e);
@@ -272,6 +353,15 @@ function handleResetSearch() {
 }
 
 onMounted(() => {
+  // 接收质检详情跳转来的订单编号，自动搜索并打开新建评价对话框
+  if (route.query.orderNo) {
+    searchOrderNo.value = String(route.query.orderNo);
+    createForm.value.orderId = String(route.query.orderNo); // orderId与orderNo相同，方便快速填写
+    nextTick(() => {
+      getData();
+      createDialogVisible.value = true;
+    });
+  }
   getStatistics();
   getData();
 });
@@ -331,9 +421,10 @@ onMounted(() => {
         </NSpace>
       </div>
       <TableHeaderOperation
+      <TableHeaderOperation
         v-model:columns="columnChecks"
-        :disabled-delete="checkedRowKeys.length === 0"
         :loading="loading"
+        @add="openCreateDialog"
         @refresh="getData"
       />
       <NDataTable
@@ -432,6 +523,21 @@ onMounted(() => {
             {{ evalDetailData.replyTime }}
           </NFormItem>
           <NFormItem label="评价时间">{{ evalDetailData.createTime }}</NFormItem>
+          <!-- 关联质检记录 -->
+          <NFormItem label="关联质检">
+            <NSpin :show="relatedQualityLoading">
+              <template v-if="relatedQualityCheck">
+                <NTag type="info" size="small">质检编号：{{ relatedQualityCheck.checkNo }}</NTag>
+                <NTag type="warning" size="small" style="margin-left: 8px">
+                  {{ relatedQualityCheck.checkType === 'ROUTINE' ? '日常巡检' : relatedQualityCheck.checkType === 'SPOT' ? '突击检查' : '专项检查' }}
+                </NTag>
+                <NTag :type="relatedQualityCheck.checkResult === 'PASS' ? 'success' : 'error'" size="small" style="margin-left: 8px">
+                  {{ relatedQualityCheck.checkResult === 'PASS' ? '合格' : '不合格' }}
+                </NTag>
+              </template>
+              <NText v-else depth="3" italic>暂无关联质检记录</NText>
+            </NSpin>
+          </NFormItem>
         </NForm>
         <template #footer>
           <NSpace vertical align="stretch" style="width: 100%">
@@ -451,6 +557,52 @@ onMounted(() => {
         </template>
       </NDrawerContent>
     </NDrawer>
+
+    <!-- Create Evaluation Dialog -->
+    <NModal
+      v-model:show="createDialogVisible"
+      preset="card"
+      title="新建满意度评价"
+      style="width: 560px"
+      :segmented="{ content: true, footer: true }"
+    >
+      <NForm label-placement="left" label-width="100">
+        <NFormItem label="订单ID" required>
+          <NInput v-model:value="createForm.orderId" placeholder="请输入订单ID" />
+        </NFormItem>
+        <NFormItem label="服务评分">
+          <NInputNumber v-model:value="createForm.serviceScore" :min="1" :max="5" style="width: 100px" />
+        </NFormItem>
+        <NFormItem label="态度评分">
+          <NInputNumber v-model:value="createForm.attitudeScore" :min="1" :max="5" style="width: 100px" />
+        </NFormItem>
+        <NFormItem label="技能评分">
+          <NInputNumber v-model:value="createForm.skillScore" :min="1" :max="5" style="width: 100px" />
+        </NFormItem>
+        <NFormItem label="准时评分">
+          <NInputNumber v-model:value="createForm.punctualityScore" :min="1" :max="5" style="width: 100px" />
+        </NFormItem>
+        <NFormItem label="综合评分">
+          <NInputNumber v-model:value="createForm.overallScore" :min="1" :max="5" style="width: 100px" />
+        </NFormItem>
+        <NFormItem label="评价内容">
+          <NInput
+            v-model:value="createForm.content"
+            type="textarea"
+            placeholder="请输入评价内容"
+            :rows="3"
+          />
+        </NFormItem>
+      </NForm>
+      <template #footer>
+        <NSpace justify="end">
+          <NButton @click="createDialogVisible = false">取消</NButton>
+          <NButton type="primary" :loading="createLoading" @click="handleCreateSubmit">
+            提交
+          </NButton>
+        </NSpace>
+      </template>
+    </NModal>
   </div>
 </template>
 

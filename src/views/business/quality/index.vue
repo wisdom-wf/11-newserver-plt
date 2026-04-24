@@ -1,5 +1,6 @@
 <script setup lang="ts">
 import { ref, h, onMounted, watch } from 'vue';
+import { useRouter, useRoute } from 'vue-router';
 import {
   NButton,
   NCard,
@@ -18,7 +19,9 @@ import {
   useMessage,
   NPopconfirm,
   NDrawer,
-  NDrawerContent
+  NDrawerContent,
+  NInputNumber,
+  NSwitch
 } from 'naive-ui';
 import type { DataTableColumns } from 'naive-ui';
 import {
@@ -27,7 +30,8 @@ import {
   fetchGetStaff,
   fetchGetQualityCheck,
   fetchSubmitRectify,
-  fetchRecheck
+  fetchRecheck,
+  fetchCreateQualityCheck
 } from '@/service/api';
 import { useNaivePaginatedTable, defaultTransform } from '@/hooks/common/table';
 import { useAuth } from '@/hooks/business/auth';
@@ -38,6 +42,24 @@ defineOptions({
 });
 
 const message = useMessage();
+const router = useRouter();
+const route = useRoute();
+
+// Create dialog state
+const createDialogVisible = ref(false);
+const createLoading = ref(false);
+const createForm = ref<Api.Quality.QualityCheckForm>({
+  orderId: '',
+  checkType: 'RANDOM',
+  checkMethod: 'PHOTO_REVIEW',
+  checkScore: 100,
+  checkResult: 'QUALIFIED',
+  checkPhotos: [],
+  checkRemark: '',
+  needRectify: false,
+  rectifyNotice: '',
+  rectifyDeadline: ''
+});
 
 // Statistics
 const { hasAuth } = useAuth();
@@ -91,6 +113,47 @@ async function showQualityDetail(row: Api.Quality.QualityCheck) {
     }
   } catch (e) {
     console.error('Failed to get quality check detail', e);
+  }
+
+// Create dialog
+function openCreateDialog() {
+  createForm.value = {
+    orderId: '',
+    checkType: 'RANDOM',
+    checkMethod: 'PHOTO_REVIEW',
+    checkScore: 100,
+    checkResult: 'QUALIFIED',
+    checkPhotos: [],
+    checkRemark: '',
+    needRectify: false,
+    rectifyNotice: '',
+    rectifyDeadline: ''
+  };
+  createDialogVisible.value = true;
+}
+
+async function handleCreateSubmit() {
+  if (!createForm.value.orderId) {
+    message.warning('请输入订单ID');
+    return;
+  }
+  createLoading.value = true;
+  try {
+    const payload = { ...createForm.value };
+    if (payload.rectifyDeadline) {
+      payload.rectifyDeadline = new Date(payload.rectifyDeadline).toISOString().split('T')[0];
+    }
+    const { error } = await fetchCreateQualityCheck(payload);
+    if (error) {
+      message.error(error.message || '创建质检失败');
+      return;
+    }
+    message.success('创建质检成功');
+    createDialogVisible.value = false;
+    getData();
+    getStatistics();
+  } finally {
+    createLoading.value = false;
   }
 }
 
@@ -359,6 +422,10 @@ function handleResetSearch() {
 }
 
 onMounted(() => {
+  // 接收服务日志跳转来的订单ID参数
+  if (route.query.orderNo) {
+    searchOrderNo.value = String(route.query.orderNo);
+  }
   getStatistics();
   getData();
 });
@@ -424,6 +491,7 @@ onMounted(() => {
       <TableHeaderOperation
         v-model:columns="columnChecks"
         :loading="loading"
+        @add="openCreateDialog"
         @refresh="getData"
       />
 
@@ -512,6 +580,17 @@ onMounted(() => {
           </NFormItem>
           <NFormItem label="创建时间">{{ qualityDetailData.createTime }}</NFormItem>
         </NForm>
+        <template #footer>
+          <NSpace justify="end">
+            <NButton @click="qualityDetailDrawerVisible = false">关闭</NButton>
+            <NButton
+              type="success"
+              @click="router.push({ path: '/business/evaluation', query: { orderNo: qualityDetailData?.orderNo || '' } })"
+            >
+              发起满意度评价
+            </NButton>
+          </NSpace>
+        </template>
       </NDrawerContent>
     </NDrawer>
 
@@ -575,6 +654,72 @@ onMounted(() => {
         </template>
       </NDrawerContent>
     </NDrawer>
+
+    <!-- Create Quality Check Dialog -->
+    <NModal
+      v-model:show="createDialogVisible"
+      preset="card"
+      title="新建质检"
+      style="width: 560px"
+      :segmented="{ content: true, footer: true }"
+    >
+      <NForm label-placement="left" label-width="100">
+        <NFormItem label="订单ID" required>
+          <NInput v-model:value="createForm.orderId" placeholder="请输入订单ID" />
+        </NFormItem>
+        <NFormItem label="质检类型">
+          <NSelect
+            v-model:value="createForm.checkType"
+            :options="checkTypeOptions"
+            style="width: 200px"
+          />
+        </NFormItem>
+        <NFormItem label="质检方式">
+          <NSelect
+            v-model:value="createForm.checkMethod"
+            :options="checkMethodOptions"
+            style="width: 200px"
+          />
+        </NFormItem>
+        <NFormItem label="综合评分">
+          <NInputNumber v-model:value="createForm.checkScore" :min="0" :max="100" style="width: 120px" />
+        </NFormItem>
+        <NFormItem label="质检结果">
+          <NSelect
+            v-model:value="createForm.checkResult"
+            :options="resultOptions"
+            style="width: 200px"
+          />
+        </NFormItem>
+        <NFormItem label="质检备注">
+          <NInput
+            v-model:value="createForm.checkRemark"
+            type="textarea"
+            placeholder="请输入质检备注"
+            :rows="3"
+          />
+        </NFormItem>
+        <NFormItem label="需要整改">
+          <NSwitch v-model:value="createForm.needRectify" />
+        </NFormItem>
+        <template v-if="createForm.needRectify">
+          <NFormItem label="整改通知">
+            <NInput v-model:value="createForm.rectifyNotice" placeholder="请输入整改通知" />
+          </NFormItem>
+          <NFormItem label="整改期限">
+            <NDatePicker v-model:value="createForm.rectifyDeadline" type="date" style="width: 200px" />
+          </NFormItem>
+        </template>
+      </NForm>
+      <template #footer>
+        <NSpace justify="end">
+          <NButton @click="createDialogVisible = false">取消</NButton>
+          <NButton type="primary" :loading="createLoading" @click="handleCreateSubmit">
+            提交
+          </NButton>
+        </NSpace>
+      </template>
+    </NModal>
   </div>
 </template>
 
