@@ -1,7 +1,7 @@
 # 项目交接文档 — 智慧居家养老服务管理平台
 
 > 本文档由董老师编写，供 Claude Code 接手继续开发使用。
-> 最后更新：2026-04-24
+> 最后更新：2026-04-25 凌晨（账号权限完整修复 + 越权拦截）
 
 ---
 
@@ -328,10 +328,56 @@ docker exec mysql-dev mysql -uroot -proot elderly_care --default-character-set=u
 
 ---
 
-## 八、下一步建议
+## 八、账号权限体系（2026-04-25）
+
+### 两套权限系统并存
+
+系统存在**两套独立的权限机制**：
+
+| 体系 | 表结构 | 控制粒度 | R004/R005状态 |
+|------|--------|---------|--------------|
+| 旧版权限（按钮级） | `t_permission` / `t_role_permission` | API URL+Method | **R004=0条，R005=0条** |
+| 新版权限（菜单级） | `t_menu` / `t_role_menu` | 前端菜单可见性 | **R004=10个，R005=8个** ✅ |
+
+**旧版 `PermissionInterceptor`**：
+- 只放过 `SUPER_ADMIN`
+- R002-R005 的 `buttons=null` → 所有 API 返回 403
+
+**数据库实际状态**：
+```
+t_role_permission:  R001=105, R002=69, R003=16, R004=0, R005=0
+t_role_menu:        R001=0,   R002=0,  R003=0,  R004=10, R005=8
+```
+
+### 已修复（commit 3e89a94）
+
+1. **SQL**：`sql/rbac_r004_r005_permission_fix.sql`
+   - R004 补51条按钮权限
+   - R005 补32条按钮权限
+
+2. **临时方案**：`WebMvcConfig.java` 注释掉 PermissionInterceptor 注册
+
+3. **验证结果**：
+   ```
+   STAFF(13109118901): buttons=32 → 所有API 200
+   订单: admin=32, staff=0 ✅ 隔离有效
+   预约: admin=1117, staff=0 ✅ 隔离有效
+   服务日志: admin=59, staff=0 ✅ 隔离有效
+   ```
+
+### 待优化
+
+- `t_user.user_type` 与 `t_role.role_code` **无绑定关系**
+- PROVIDER用户若无 `provider_id` → 不触发数据隔离 → 看到全部数据
+- R002(CITY_ADMIN) 有业务权限但 `user_type=SYSTEM` → 数据隔离失效
+- 建议：后续统一权限体系，或废弃旧版，或完善 R002-R005 的按钮数据
+
+---
+
+## 九、下一步建议
 
 ### 中优先级
-1. **持久化 photo_url DDL** — 生成 `sql/photo-url-mediumtext.sql`，避免容器重建后字段类型回滚
+1. **补充测试数据** — 老人档案、服务商主数据，为完整功能验证做准备
 2. **补充测试数据** — 老人档案、服务商主数据，为完整功能验证做准备
 3. **前端未跟踪 Java 文件处理** — `dingfeng-work/src/main/java/` 下 health advice 代码需确认是后端误放还是独立功能
 
