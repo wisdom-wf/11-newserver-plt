@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { ref, h, onMounted, watch, nextTick } from 'vue';
+import { ref, h, onMounted, watch, nextTick, computed } from 'vue';
 import { useRouter, useRoute } from 'vue-router';
 import {
   NButton,
@@ -39,6 +39,7 @@ import {
 import { useNaivePaginatedTable, defaultTransform } from '@/hooks/common/table';
 import { useAuth } from '@/hooks/business/auth';
 import TableHeaderOperation from '@/components/advanced/table-header-operation.vue';
+import FlowIndicator from '@/components/business/FlowIndicator.vue';
 
 defineOptions({
   name: 'BusinessEvaluation'
@@ -69,6 +70,25 @@ const satisfactionOptions = [
   { label: '一般', value: 'NEUTRAL' },
   { label: '不满意', value: 'DISSATISFIED' },
   { label: '非常不满意', value: 'VERY_DISSATISFIED' }
+];
+
+// 计算当前流程步骤
+const currentFlowStep = computed(() => {
+  // 如果有已评价的，进入已完成评价阶段
+  if (statistics.value.total > 0) {
+    return 'evaluated';
+  }
+  // 默认是服务完成阶段
+  return 'service_completed';
+});
+
+// 流程步骤配置
+const flowSteps = [
+  { key: 'service_started', label: '服务开始' },
+  { key: 'log_submitted', label: '日志提交' },
+  { key: 'quality_check', label: '质检审核' },
+  { key: 'service_completed', label: '服务完成' },
+  { key: 'evaluated', label: '已完成评价' }
 ];
 
 function openCreateDialog() {
@@ -403,6 +423,15 @@ onMounted(() => {
       </div>
     </NCard>
 
+    <!-- 流程指示器 -->
+    <NCard :bordered="false" style="margin-bottom: 16px">
+      <FlowIndicator
+        :current-step="currentFlowStep"
+        :steps="flowSteps"
+        style="border-radius: 12px"
+      />
+    </NCard>
+
     <!-- Table -->
     <NCard :bordered="false" style="margin-bottom: 16px">
       <template #header>
@@ -420,7 +449,6 @@ onMounted(() => {
           <NButton @click="handleResetSearch">重置</NButton>
         </NSpace>
       </div>
-      <TableHeaderOperation
       <TableHeaderOperation
         v-model:columns="columnChecks"
         :loading="loading"

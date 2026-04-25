@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { ref, h, onMounted, watch } from 'vue';
+import { ref, h, onMounted, watch, computed } from 'vue';
 import { useRoute, useRouter } from 'vue-router';
 import {
   NButton,
@@ -41,6 +41,7 @@ import {
 import { useNaivePaginatedTable, useTableOperate, defaultTransform } from '@/hooks/common/table';
 import { useAuth } from '@/hooks/business/auth';
 import TableHeaderOperation from '@/components/advanced/table-header-operation.vue';
+import FlowIndicator from '@/components/business/FlowIndicator.vue';
 
 defineOptions({
   name: 'BusinessServiceLog'
@@ -73,6 +74,29 @@ const statistics = ref<Api.ServiceLog.Statistics>({
   avgReviewTime: 0,
   staffRankings: []
 });
+
+// 计算当前流程步骤：基于统计数据中最紧急的待处理项
+const currentFlowStep = computed(() => {
+  // 如果有待审核的日志，当前是日志审核阶段
+  if (statistics.value.pendingCount > 0) {
+    return 'log_submitted';
+  }
+  // 如果有待整改的，当前是服务完成阶段
+  if (statistics.value.approvedCount > 0) {
+    return 'log_approved';
+  }
+  // 默认是服务开始
+  return 'service_started';
+});
+
+// 流程步骤配置
+const flowSteps = [
+  { key: 'service_started', label: '服务开始' },
+  { key: 'log_submitted', label: '日志待审核' },
+  { key: 'log_approved', label: '审核通过' },
+  { key: 'service_completed', label: '服务完成' },
+  { key: 'evaluated', label: '已完成评价' }
+];
 
 // Search
 const searchOrderNo = ref('');
@@ -251,19 +275,22 @@ const columns: DataTableColumns<Api.ServiceLog.ServiceLog> = [
           )
         );
       }
-      // 已审核通过的服务日志可发起质检和评价
-      if (row.auditStatus === 'APPROVED' || row.auditStatus === 'COMPLETED') {
+      // 审核通过后可完成服务（质检已在提交审核时自动创建）
+      if (row.auditStatus === 'APPROVED') {
         buttons.push(
           h(
             NButton,
-            { size: 'small', type: 'info', onClick: () => goToQualityCheck(row), style: { marginLeft: '4px' } },
-            { default: () => '去质检' }
+            { size: 'small', type: 'success', onClick: () => goToCompleteService(row), style: { marginLeft: '4px' } },
+            { default: () => '去完成服务' }
           )
         );
+      }
+      // 服务已完成可发起满意度评价（可选）
+      if (row.auditStatus === 'COMPLETED') {
         buttons.push(
           h(
             NButton,
-            { size: 'small', type: 'success', onClick: () => goToEvaluation(row), style: { marginLeft: '4px' } },
+            { size: 'small', type: 'info', onClick: () => goToEvaluation(row), style: { marginLeft: '4px' } },
             { default: () => '去评价' }
           )
         );
@@ -543,6 +570,10 @@ function goToEvaluation(row: Api.ServiceLog.ServiceLog) {
   router.push({ path: '/business/evaluation', query: { orderNo: row.orderNo || '' } });
 }
 
+function goToCompleteService(row: Api.ServiceLog.ServiceLog) {
+  router.push({ path: '/business/order', query: { orderNo: row.orderNo || '' } });
+}
+
 async function handleQualityReview() {
   if (!qualityReviewData.value) return;
   try {
@@ -764,6 +795,15 @@ onMounted(() => {
           </div>
         </div>
       </div>
+    </NCard>
+
+    <!-- 流程指示器 -->
+    <NCard :bordered="false" style="margin-bottom: 16px">
+      <FlowIndicator
+        :current-step="currentFlowStep"
+        :steps="flowSteps"
+        style="border-radius: 12px"
+      />
     </NCard>
 
     <!-- Table -->

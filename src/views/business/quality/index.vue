@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { ref, h, onMounted, watch } from 'vue';
+import { ref, h, onMounted, watch, computed } from 'vue';
 import { useRouter, useRoute } from 'vue-router';
 import {
   NButton,
@@ -36,6 +36,7 @@ import {
 import { useNaivePaginatedTable, defaultTransform } from '@/hooks/common/table';
 import { useAuth } from '@/hooks/business/auth';
 import TableHeaderOperation from '@/components/advanced/table-header-operation.vue';
+import FlowIndicator from '@/components/business/FlowIndicator.vue';
 
 defineOptions({
   name: 'BusinessQuality'
@@ -71,6 +72,33 @@ const statistics = ref<Api.Quality.Statistics>({
   qualifiedRate: 0,
   avgScore: 0
 });
+
+// 计算当前流程步骤
+const currentFlowStep = computed(() => {
+  // 如果有待质检的，当前是质检审核阶段
+  if (statistics.value.total > 0 && statistics.value.qualifiedCount === 0 && statistics.value.unqualifiedCount === 0) {
+    return 'quality_check';
+  }
+  // 如果有合格的且有待整改的，进入整改阶段
+  if (statistics.value.needRectifyCount > 0) {
+    return 'service_completed';
+  }
+  // 如果全部合格，进入服务完成阶段
+  if (statistics.value.qualifiedCount > 0 && statistics.value.needRectifyCount === 0) {
+    return 'service_completed';
+  }
+  // 默认是日志提交阶段
+  return 'log_submitted';
+});
+
+// 流程步骤配置
+const flowSteps = [
+  { key: 'service_started', label: '服务开始' },
+  { key: 'log_submitted', label: '日志提交' },
+  { key: 'quality_check', label: '质检审核' },
+  { key: 'service_completed', label: '服务完成' },
+  { key: 'evaluated', label: '已完成评价' }
+];
 
 // Search
 const searchOrderNo = ref('');
@@ -114,6 +142,7 @@ async function showQualityDetail(row: Api.Quality.QualityCheck) {
   } catch (e) {
     console.error('Failed to get quality check detail', e);
   }
+}
 
 // Create dialog
 function openCreateDialog() {
@@ -130,6 +159,10 @@ function openCreateDialog() {
     rectifyDeadline: ''
   };
   createDialogVisible.value = true;
+}
+
+function goToCompleteService(row: Api.Quality.QualityCheck) {
+  router.push({ path: '/business/order', query: { orderNo: row.orderNo || '' } });
 }
 
 async function handleCreateSubmit() {
@@ -347,6 +380,16 @@ const columns: DataTableColumns<Api.Quality.QualityCheck> = [
           )
         );
       }
+      // 质检合格后可完成服务
+      if (row.checkResult === 'QUALIFIED') {
+        actions.push(
+          h(
+            NButton,
+            { size: 'small', type: 'info', onClick: () => goToCompleteService(row), style: { marginRight: '8px' } },
+            () => '去完成服务'
+          )
+        );
+      }
       return h(NSpace, null, () => actions);
     }
   }
@@ -461,6 +504,15 @@ onMounted(() => {
           <div class="stat-value">{{ Number(statistics.avgScore || 0).toFixed(1) }}</div>
         </div>
       </div>
+    </NCard>
+
+    <!-- 流程指示器 -->
+    <NCard :bordered="false" style="margin-bottom: 16px">
+      <FlowIndicator
+        :current-step="currentFlowStep"
+        :steps="flowSteps"
+        style="border-radius: 12px"
+      />
     </NCard>
 
     <!-- Table -->
