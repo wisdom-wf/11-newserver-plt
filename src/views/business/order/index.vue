@@ -965,6 +965,7 @@ async function handleCreateEvaluation() {
   try {
     const evaluationData: Api.Evaluation.EvaluationForm = {
       orderId: order.orderId,
+      staffId: staffId,
       serviceScore: 5,
       attitudeScore: 5,
       skillScore: 5,
