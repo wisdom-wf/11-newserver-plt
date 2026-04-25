@@ -176,8 +176,6 @@ interface OrderTimelineItem {
   // 关联的评价信息
   evaluation?: {
     overallScore: number;
-    satisfactionLevel: string;
-    satisfactionLabel: string;
     evaluationContent?: string;
     evaluationTime?: string;
   };
@@ -218,18 +216,6 @@ function getQualityResultType(result: string): 'warning' | 'success' | 'error' |
     NEED_RECTIFY: 'warning'
   };
   return map[result] || 'default';
-}
-
-// 满意度类型映射
-function getSatisfactionType(level: string): 'success' | 'warning' | 'error' | 'info' | 'default' {
-  const map: Record<string, 'success' | 'warning' | 'error' | 'info' | 'default'> = {
-    VERY_SATISFIED: 'success',
-    SATISFIED: 'success',
-    NEUTRAL: 'warning',
-    DISSATISFIED: 'error',
-    VERY_DISSATISFIED: 'error'
-  };
-  return map[level] || 'default';
 }
 
 function isCurrentNode(node: OrderTimelineItem): boolean {
@@ -823,15 +809,6 @@ function generateOrderTimeline(order: Api.Order.Order, relations?: TimelineRelat
     NEED_RECTIFY: '需整改'
   };
 
-  // 满意度等级映射
-  const satisfactionMap: Record<string, string> = {
-    VERY_SATISFIED: '非常满意',
-    SATISFIED: '满意',
-    NEUTRAL: '一般',
-    DISSATISFIED: '不满意',
-    VERY_DISSATISFIED: '非常不满意'
-  };
-
   if (order.createTime) {
     const details: { label: string; value: string }[] = [
       { label: '客户姓名', value: order.elderName || '-' },
@@ -905,10 +882,8 @@ function generateOrderTimeline(order: Api.Order.Order, relations?: TimelineRelat
     // 评价详情
     const evaluationInfo = evaluation ? {
       overallScore: evaluation.overallScore || 0,
-      satisfactionLevel: evaluation.satisfactionLevel || '',
-      satisfactionLabel: satisfactionMap[evaluation.satisfactionLevel] || evaluation.satisfactionLevel || '-',
-      evaluationContent: evaluation.evaluationContent,
-      evaluationTime: evaluation.evaluationTime
+      evaluationContent: evaluation.content || evaluation.evaluationContent,
+      evaluationTime: evaluation.createTime || evaluation.evaluationTime
     } : undefined;
 
     timeline.push({
@@ -1482,10 +1457,9 @@ onMounted(() => {
                       满意度评价
                     </div>
                     <div class="timeline-eval-info">
-                      <NTag :type="getSatisfactionType(node.evaluation.satisfactionLevel)" size="small">
-                        {{ node.evaluation.satisfactionLabel }}
+                      <NTag type="success" size="small">
+                        评分: {{ node.evaluation.overallScore }}分
                       </NTag>
-                      <span class="timeline-eval-score">评分: {{ node.evaluation.overallScore }}分</span>
                     </div>
                     <div v-if="node.evaluation.evaluationContent" class="timeline-eval-content">
                       {{ node.evaluation.evaluationContent }}
