@@ -227,7 +227,7 @@ async function handleReply() {
   }
   replyLoading.value = true;
   try {
-    const { error } = await fetchReplyEvaluation(evalDetailData.value.id, { reply: replyContent.value });
+    const { error } = await fetchReplyEvaluation(evalDetailData.value.evaluationId, { reply: replyContent.value });
     if (error) {
       message.error(error.message || '回复失败');
       return;
