@@ -111,6 +111,28 @@ public class ProviderController {
     }
 
     /**
+     * 服务商批量删除
+     * DELETE /api/providers/batch
+     */
+    @DeleteMapping("/batch")
+    public Result<Void> batchDeleteProvider(@RequestBody List<String> providerIds) {
+        String userType = UserContext.getUserType();
+        String autoPid = UserContext.getProviderId();
+        if ("PROVIDER".equals(userType) && autoPid != null) {
+            // PROVIDER用户只能批量删除自己
+            for (String pid : providerIds) {
+                if (!autoPid.equals(pid)) {
+                    throw BusinessException.fail("无权删除其他服务商");
+                }
+            }
+        }
+        for (String providerId : providerIds) {
+            providerService.deleteProvider(providerId);
+        }
+        return Result.success("批量删除成功");
+    }
+
+    /**
      * 服务商服务区域管理
      */
     @PutMapping("/{providerId}/service-areas")

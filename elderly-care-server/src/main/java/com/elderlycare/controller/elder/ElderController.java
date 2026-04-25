@@ -101,6 +101,18 @@ public class ElderController {
     }
 
     /**
+     * 老人档案批量删除
+     * DELETE /api/elderly/batch
+     */
+    @DeleteMapping("/batch")
+    public Result<Void> batchDeleteElder(@RequestBody List<String> elderIds) {
+        for (String elderId : elderIds) {
+            elderService.deleteElder(elderId);
+        }
+        return Result.success("批量删除成功");
+    }
+
+    /**
      * 老人档案状态变更
      */
     @PutMapping("/{elderId}/status")

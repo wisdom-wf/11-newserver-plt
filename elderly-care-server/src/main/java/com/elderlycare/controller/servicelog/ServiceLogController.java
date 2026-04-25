@@ -11,6 +11,7 @@ import com.elderlycare.vo.servicelog.ServiceLogVO;
 import lombok.RequiredArgsConstructor;
 import org.springframework.web.bind.annotation.*;
 
+import java.util.List;
 import java.util.Map;
 
 /**
@@ -158,5 +159,17 @@ public class ServiceLogController {
     public Result<Void> deleteServiceLog(@PathVariable String id) {
         serviceLogService.deleteServiceLog(id);
         return Result.success("删除成功");
+    }
+
+    /**
+     * 服务日志批量删除
+     * DELETE /api/service-log/batch
+     */
+    @DeleteMapping("/batch")
+    public Result<Void> batchDeleteServiceLog(@RequestBody List<String> ids) {
+        for (String id : ids) {
+            serviceLogService.deleteServiceLog(id);
+        }
+        return Result.success("批量删除成功");
     }
 }

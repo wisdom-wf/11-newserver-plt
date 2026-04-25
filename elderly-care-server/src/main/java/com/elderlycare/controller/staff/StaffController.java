@@ -113,6 +113,18 @@ public class StaffController {
     }
 
     /**
+     * 服务人员批量删除
+     * DELETE /api/staff/batch
+     */
+    @DeleteMapping("/batch")
+    public Result<Void> batchDeleteStaff(@RequestBody List<String> staffIds) {
+        for (String staffId : staffIds) {
+            staffService.deleteStaff(staffId);
+        }
+        return Result.success("批量删除成功");
+    }
+
+    /**
      * 变更服务人员状态
      */
     @PutMapping("/{staffId}/status")
