@@ -77,7 +77,6 @@ const statistics = ref<Api.ServiceLog.Statistics>({
 const searchOrderNo = ref('');
 const searchElderName = ref('');
 const searchStaffName = ref('');
-const searchServiceCategory = ref('');
 const searchDateRange = ref<[number, number] | null>(null);
 
 // Add/Edit Modal state
@@ -121,12 +120,6 @@ const detailData = ref<Api.ServiceLog.ServiceLog | null>(null);
 const previewVisible = ref(false);
 const previewImages = ref<string[]>([]);
 
-// Service category options
-const categoryOptions = [
-  { label: '养老服务', value: 'ELDER_CARE' },
-  { label: '家政服务', value: 'HOME_CARE' }
-];
-
 // Log status options
 const statusOptions = [
   { label: '草稿', value: 'DRAFT' },
@@ -135,11 +128,6 @@ const statusOptions = [
   { label: '已驳回', value: 'REJECTED' },
   { label: '已完成', value: 'COMPLETED' }
 ];
-
-function getCategoryLabel(category?: string): string {
-  const option = categoryOptions.find(o => o.value === category);
-  return option?.label || category || '';
-}
 
 function getStatusType(status: Api.ServiceLog.LogStatus): 'warning' | 'success' | 'info' | 'error' | 'default' {
   const map: Record<string, 'warning' | 'success' | 'info' | 'error' | 'default'> = {
@@ -179,7 +167,6 @@ const columns: DataTableColumns<Api.ServiceLog.ServiceLog> = [
   },
   { title: '联系电话', key: 'staffPhone', width: 120 },
   { title: '服务商', key: 'providerName', width: 120 },
-  { title: '服务类别', key: 'serviceCategory', width: 100, render: row => getCategoryLabel(row.serviceCategory) },
   { title: '服务类型', key: 'serviceType', width: 120 },
   {
     title: '服务时长',
@@ -297,7 +284,6 @@ const tableHookResult = useNaivePaginatedTable<
     if (searchOrderNo.value) queryParams.orderNo = searchOrderNo.value;
     if (searchElderName.value) queryParams.elderName = searchElderName.value;
     if (searchStaffName.value) queryParams.staffName = searchStaffName.value;
-    if (searchServiceCategory.value) queryParams.serviceType = searchServiceCategory.value;
     if (searchDateRange.value) {
       queryParams.startDate = new Date(searchDateRange.value[0]).toISOString().split('T')[0];
       queryParams.endDate = new Date(searchDateRange.value[1]).toISOString().split('T')[0];
@@ -400,7 +386,6 @@ function handleResetSearch() {
   searchOrderNo.value = '';
   searchElderName.value = '';
   searchStaffName.value = '';
-  searchServiceCategory.value = '';
   searchDateRange.value = null;
   getDataByPage(1);
 }
@@ -775,13 +760,6 @@ onMounted(() => {
           <NInput v-model:value="searchOrderNo" placeholder="订单号" clearable style="width: 150px" />
           <NInput v-model:value="searchElderName" placeholder="客户姓名" clearable style="width: 100px" />
           <NInput v-model:value="searchStaffName" placeholder="服务人员" clearable style="width: 100px" />
-          <NSelect
-            v-model:value="searchServiceCategory"
-            :options="categoryOptions"
-            placeholder="服务类别"
-            clearable
-            style="width: 120px"
-          />
           <NDatePicker v-model:value="searchDateRange" type="daterange" clearable style="width: 260px" />
           <NButton type="primary" @click="getData">搜索</NButton>
           <NButton @click="handleResetSearch">重置</NButton>
@@ -1014,10 +992,6 @@ onMounted(() => {
           <div style="background: #f8f9fa; border-radius: 12px; padding: 20px; margin-bottom: 16px">
             <div style="color: #667eea; font-size: 13px; font-weight: 600; margin-bottom: 12px">服务信息</div>
             <div style="display: grid; grid-template-columns: repeat(4, 1fr); gap: 16px">
-              <div>
-                <div style="color: #999; font-size: 12px; margin-bottom: 4px">服务类别</div>
-                <div style="font-weight: 500">{{ getCategoryLabel(detailData.serviceCategory) }}</div>
-              </div>
               <div>
                 <div style="color: #999; font-size: 12px; margin-bottom: 4px">服务类型</div>
                 <div style="font-weight: 500">{{ detailData.serviceType || '-' }}</div>
