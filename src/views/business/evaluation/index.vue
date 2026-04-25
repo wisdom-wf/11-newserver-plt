@@ -193,7 +193,7 @@ const relatedQualityLoading = ref(false);
 
 async function showEvalDetail(row: any) {
   try {
-    const { data, error } = await fetchGetEvaluation(row.id);
+    const { data, error } = await fetchGetEvaluation(row.evaluationId);
     if (error) {
       message.error(error.message || '获取评价详情失败');
       return;
