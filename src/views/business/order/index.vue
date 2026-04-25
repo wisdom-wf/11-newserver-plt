@@ -36,7 +36,9 @@ import {
   fetchGetElder,
   fetchGetStaff,
   fetchGetProviderOptions,
-  fetchGetStaffList
+  fetchGetStaffList,
+  fetchGetServiceLogByOrderId,
+  fetchGetEvaluationByOrderId
 } from '@/service/api';
 import { useRouterPush } from '@/hooks/common/router';
 import { useNaivePaginatedTable, defaultTransform } from '@/hooks/common/table';
@@ -157,6 +159,28 @@ interface OrderTimelineItem {
     icon: string;
     onClick: () => void;
   };
+  // 关联的服务日志信息
+  serviceLog?: {
+    auditStatus: string;
+    auditStatusLabel: string;
+    reviewComment?: string;
+    reviewerName?: string;
+    reviewTime?: string;
+    // 质检信息
+    qualityCheck?: {
+      checkResult: string;
+      checkResultLabel: string;
+      checkRemark?: string;
+    };
+  };
+  // 关联的评价信息
+  evaluation?: {
+    overallScore: number;
+    satisfactionLevel: string;
+    satisfactionLabel: string;
+    evaluationContent?: string;
+    evaluationTime?: string;
+  };
 }
 
 function getNodeIcon(node: OrderTimelineItem): string {
@@ -171,6 +195,41 @@ function getNodeColor(node: OrderTimelineItem): string {
   if (node.status === 'CANCELLED') return '#f5576c';
   if (isCurrentNode(node)) return '#4facfe';
   return '#999';
+}
+
+// 审核状态类型映射
+function getAuditStatusType(status: string): 'warning' | 'success' | 'error' | 'info' | 'default' {
+  const map: Record<string, 'warning' | 'success' | 'error' | 'info' | 'default'> = {
+    DRAFT: 'warning',
+    SUBMITTED: 'info',
+    APPROVED: 'success',
+    REJECTED: 'error',
+    COMPLETED: 'success'
+  };
+  return map[status] || 'default';
+}
+
+// 质检结果类型映射
+function getQualityResultType(result: string): 'warning' | 'success' | 'error' | 'info' | 'default' {
+  const map: Record<string, 'warning' | 'success' | 'error' | 'info' | 'default'> = {
+    PENDING: 'warning',
+    QUALIFIED: 'success',
+    UNQUALIFIED: 'error',
+    NEED_RECTIFY: 'warning'
+  };
+  return map[result] || 'default';
+}
+
+// 满意度类型映射
+function getSatisfactionType(level: string): 'success' | 'warning' | 'error' | 'info' | 'default' {
+  const map: Record<string, 'success' | 'warning' | 'error' | 'info' | 'default'> = {
+    VERY_SATISFIED: 'success',
+    SATISFIED: 'success',
+    NEUTRAL: 'warning',
+    DISSATISFIED: 'error',
+    VERY_DISSATISFIED: 'error'
+  };
+  return map[level] || 'default';
 }
 
 function isCurrentNode(node: OrderTimelineItem): boolean {
@@ -738,8 +797,40 @@ function handleResetSearch() {
 }
 
 // 生成订单时间轴数据 - 参考预约单设计，添加详情信息
-function generateOrderTimeline(order: Api.Order.Order): OrderTimelineItem[] {
+interface TimelineRelations {
+  serviceLog?: Api.ServiceLog.ServiceLog | null;
+  evaluation?: Api.Evaluation.Evaluation | null;
+}
+
+function generateOrderTimeline(order: Api.Order.Order, relations?: TimelineRelations): OrderTimelineItem[] {
   const timeline: OrderTimelineItem[] = [];
+  const { serviceLog, evaluation } = relations || {};
+
+  // 审核状态映射
+  const auditStatusMap: Record<string, string> = {
+    DRAFT: '草稿',
+    SUBMITTED: '已提交',
+    APPROVED: '已通过',
+    REJECTED: '已驳回',
+    COMPLETED: '已完成'
+  };
+
+  // 质检结果映射
+  const checkResultMap: Record<string, string> = {
+    PENDING: '待质检',
+    QUALIFIED: '合格',
+    UNQUALIFIED: '不合格',
+    NEED_RECTIFY: '需整改'
+  };
+
+  // 满意度等级映射
+  const satisfactionMap: Record<string, string> = {
+    VERY_SATISFIED: '非常满意',
+    SATISFIED: '满意',
+    NEUTRAL: '一般',
+    DISSATISFIED: '不满意',
+    VERY_DISSATISFIED: '非常不满意'
+  };
 
   if (order.createTime) {
     const details: { label: string; value: string }[] = [
@@ -786,11 +877,21 @@ function generateOrderTimeline(order: Api.Order.Order): OrderTimelineItem[] {
   }
 
   if (order.startTime) {
+    // 服务日志详情
+    const serviceLogInfo = serviceLog ? {
+      auditStatus: serviceLog.auditStatus || '',
+      auditStatusLabel: auditStatusMap[serviceLog.auditStatus] || serviceLog.auditStatus || '-',
+      reviewComment: serviceLog.reviewComment,
+      reviewerName: serviceLog.reviewerName,
+      reviewTime: serviceLog.reviewTime
+    } : undefined;
+
     timeline.push({
       status: 'SERVICE_STARTED',
       time: order.startTime,
       description: '服务人员开始服务',
-      operator: order.staffName
+      operator: order.staffName,
+      serviceLog: serviceLogInfo
     });
   }
 
@@ -800,12 +901,23 @@ function generateOrderTimeline(order: Api.Order.Order): OrderTimelineItem[] {
       { label: '自付金额', value: `¥${order.selfPayAmount || 0}` },
       { label: '补贴金额', value: `¥${order.subsidyAmount || 0}` }
     ];
+
+    // 评价详情
+    const evaluationInfo = evaluation ? {
+      overallScore: evaluation.overallScore || 0,
+      satisfactionLevel: evaluation.satisfactionLevel || '',
+      satisfactionLabel: satisfactionMap[evaluation.satisfactionLevel] || evaluation.satisfactionLevel || '-',
+      evaluationContent: evaluation.evaluationContent,
+      evaluationTime: evaluation.evaluationTime
+    } : undefined;
+
     timeline.push({
       status: 'SERVICE_COMPLETED',
       time: order.completeTime,
       description: '服务已完成',
       operator: order.staffName,
-      details
+      details,
+      evaluation: evaluationInfo
     });
   }
 
@@ -823,12 +935,21 @@ function generateOrderTimeline(order: Api.Order.Order): OrderTimelineItem[] {
 
 async function handleDetail(row: Api.Order.Order) {
   try {
-    const { data } = await fetchGetOrder(row.orderId);
-    if (data) {
-      orderDetailData.value = data;
-      orderTimelineData.value = generateOrderTimeline(data);
-      orderDetailVisible.value = true;
-    }
+    const { data: orderData } = await fetchGetOrder(row.orderId);
+    if (!orderData) return;
+
+    // 并行获取关联的服务日志和评价
+    const [serviceLogRes, evaluationRes] = await Promise.all([
+      fetchGetServiceLogByOrderId(row.orderId).catch(() => null),
+      fetchGetEvaluationByOrderId(row.orderId).catch(() => null)
+    ]);
+
+    const serviceLog = serviceLogRes?.data;
+    const evaluation = evaluationRes?.data;
+
+    orderDetailData.value = orderData;
+    orderTimelineData.value = generateOrderTimeline(orderData, { serviceLog, evaluation });
+    orderDetailVisible.value = true;
   } catch (e) {
     console.error('Failed to get order detail', e);
     message.error('获取订单详情失败');
@@ -1324,15 +1445,63 @@ onMounted(() => {
                     <span class="operator-label">操作人:</span>
                     <span class="operator-name">{{ node.operator }}</span>
                   </div>
-                  <!-- 服务中节点：快速查看服务日志 -->
+
+                  <!-- 服务中节点：服务日志审核记录 -->
+                  <div v-if="node.status === 'SERVICE_STARTED' && node.serviceLog" class="timeline-service-log">
+                    <div class="timeline-section-title">
+                      <icon:material-symbols:description-outline />
+                      服务日志审核
+                    </div>
+                    <div class="timeline-log-info">
+                      <NTag :type="getAuditStatusType(node.serviceLog.auditStatus)" size="small">
+                        {{ node.serviceLog.auditStatusLabel }}
+                      </NTag>
+                      <span v-if="node.serviceLog.reviewerName" class="timeline-log-reviewer">
+                        {{ node.serviceLog.reviewerName }}
+                        <span v-if="node.serviceLog.reviewTime">{{ formatTimelineTime(node.serviceLog.reviewTime) }}</span>
+                      </span>
+                    </div>
+                    <div v-if="node.serviceLog.reviewComment" class="timeline-log-comment">
+                      {{ node.serviceLog.reviewComment }}
+                    </div>
+                    <!-- 质检信息 -->
+                    <div v-if="node.serviceLog.qualityCheck" class="timeline-quality-info">
+                      <NTag :type="getQualityResultType(node.serviceLog.qualityCheck.checkResult)" size="small">
+                        质检{{ node.serviceLog.qualityCheck.checkResultLabel }}
+                      </NTag>
+                      <span v-if="node.serviceLog.qualityCheck.checkRemark" class="timeline-quality-remark">
+                        {{ node.serviceLog.qualityCheck.checkRemark }}
+                      </span>
+                    </div>
+                  </div>
+
+                  <!-- 服务完成节点：满意度评价 -->
+                  <div v-if="node.status === 'SERVICE_COMPLETED' && node.evaluation" class="timeline-evaluation">
+                    <div class="timeline-section-title">
+                      <icon:material-symbols:star-outline />
+                      满意度评价
+                    </div>
+                    <div class="timeline-eval-info">
+                      <NTag :type="getSatisfactionType(node.evaluation.satisfactionLevel)" size="small">
+                        {{ node.evaluation.satisfactionLabel }}
+                      </NTag>
+                      <span class="timeline-eval-score">评分: {{ node.evaluation.overallScore }}分</span>
+                    </div>
+                    <div v-if="node.evaluation.evaluationContent" class="timeline-eval-content">
+                      {{ node.evaluation.evaluationContent }}
+                    </div>
+                  </div>
+
+                  <!-- 服务中节点：快速查看服务日志按钮 -->
                   <div v-if="node.status === 'SERVICE_STARTED'" class="timeline-node-actions">
                     <NButton text type="primary" size="small" @click.stop="goToServiceLog(orderDetailData.orderNo)">
                       <template #icon>
                         <icon:material-symbols:description-outline />
                       </template>
-                      查看服务日志
+                      查看详情
                     </NButton>
                   </div>
+
                   <div
                     v-if="node.details && node.details.length > 0"
                     class="timeline-node-details"
@@ -1684,6 +1853,100 @@ onMounted(() => {
   margin-top: 8px;
   padding-top: 8px;
   border-top: 1px dashed #eee;
+}
+
+/* 服务日志审核记录样式 */
+.timeline-service-log {
+  margin-top: 12px;
+  padding: 12px;
+  background: linear-gradient(135deg, #f8f9fa 0%, #e9ecef 100%);
+  border-radius: 8px;
+  border-left: 3px solid #667eea;
+}
+
+.timeline-section-title {
+  font-size: 12px;
+  font-weight: 600;
+  color: #667eea;
+  margin-bottom: 8px;
+  display: flex;
+  align-items: center;
+  gap: 4px;
+}
+
+.timeline-log-info {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  flex-wrap: wrap;
+}
+
+.timeline-log-reviewer {
+  font-size: 12px;
+  color: #666;
+}
+
+.timeline-log-reviewer span {
+  color: #999;
+  margin-left: 4px;
+}
+
+.timeline-log-comment {
+  font-size: 12px;
+  color: #666;
+  margin-top: 6px;
+  padding: 6px 8px;
+  background: rgba(255, 255, 255, 0.6);
+  border-radius: 4px;
+  font-style: italic;
+}
+
+.timeline-quality-info {
+  margin-top: 8px;
+  display: flex;
+  align-items: flex-start;
+  gap: 8px;
+  flex-wrap: wrap;
+}
+
+.timeline-quality-remark {
+  font-size: 12px;
+  color: #666;
+  background: rgba(255, 255, 255, 0.6);
+  padding: 4px 8px;
+  border-radius: 4px;
+}
+
+/* 满意度评价样式 */
+.timeline-evaluation {
+  margin-top: 12px;
+  padding: 12px;
+  background: linear-gradient(135deg, #fff9e6 0%, #fff3cd 100%);
+  border-radius: 8px;
+  border-left: 3px solid #ffc107;
+}
+
+.timeline-eval-info {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  flex-wrap: wrap;
+}
+
+.timeline-eval-score {
+  font-size: 12px;
+  color: #856404;
+  font-weight: 500;
+}
+
+.timeline-eval-content {
+  font-size: 12px;
+  color: #666;
+  margin-top: 8px;
+  padding: 8px;
+  background: rgba(255, 255, 255, 0.6);
+  border-radius: 4px;
+  line-height: 1.5;
 }
 
 .timeline-empty {
