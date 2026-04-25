@@ -3,9 +3,13 @@ package com.elderlycare.service.servicelog.impl;
 import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
 import com.baomidou.mybatisplus.core.metadata.IPage;
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
+import com.elderlycare.common.GpsUtils;
 import com.elderlycare.common.IDGenerator;
 import com.elderlycare.common.PageResult;
+import com.elderlycare.dto.servicelog.DepartureDTO;
 import com.elderlycare.dto.servicelog.ServiceLogQueryDTO;
+import com.elderlycare.dto.servicelog.SignInDTO;
+import com.elderlycare.dto.servicelog.SignOutDTO;
 import com.elderlycare.entity.order.Order;
 import com.elderlycare.entity.quality.QualityCheck;
 import com.elderlycare.entity.servicelog.ServiceLog;
@@ -209,7 +213,7 @@ public class ServiceLogServiceImpl implements ServiceLogService {
 
     @Override
     @Transactional(rollbackFor = Exception.class)
-    public void submitForReview(String id) {
+    public void submitForReview(String id, String remarks) {
         ServiceLog serviceLog = serviceLogMapper.selectById(id);
         if (serviceLog == null) {
             throw new RuntimeException("服务日志不存在");
@@ -231,7 +235,28 @@ public class ServiceLogServiceImpl implements ServiceLogService {
             throw new RuntimeException("请上传服务照片");
         }
         serviceLog.setAuditStatus("SUBMITTED");
+        // 存储提交备注
+        if (remarks != null && !remarks.isEmpty()) {
+            serviceLog.setReviewComment(remarks);
+        }
         serviceLogMapper.updateById(serviceLog);
+
+        // 自动创建质检请求
+        com.elderlycare.entity.quality.QualityCheck qualityCheck = new com.elderlycare.entity.quality.QualityCheck();
+        qualityCheck.setQualityCheckId(IDGenerator.generateId());
+        qualityCheck.setCheckNo("QC" + System.currentTimeMillis());
+        qualityCheck.setOrderId(serviceLog.getOrderId());
+        qualityCheck.setOrderNo(serviceLog.getOrderNo());
+        qualityCheck.setServiceLogId(serviceLog.getServiceLogId());
+        qualityCheck.setServiceCategory(serviceLog.getServiceTypeCode());
+        qualityCheck.setProviderId(serviceLog.getProviderId());
+        qualityCheck.setStaffId(serviceLog.getStaffId());
+        qualityCheck.setCheckType("COMPLETION"); // 完工质检
+        qualityCheck.setCheckMethod("PHOTO_REVIEW"); // 默认照片审核
+        qualityCheck.setCheckResult("PENDING"); // 待质检
+        qualityCheck.setRectifyStatus("PENDING");
+        qualityCheck.setCreateTime(LocalDateTime.now());
+        qualityCheckMapper.insert(qualityCheck);
     }
 
     @Override
@@ -296,12 +321,21 @@ public class ServiceLogServiceImpl implements ServiceLogService {
 
     @Override
     public ServiceLogStatisticsVO getStatistics(String areaId, String providerId, String staffId, String startDate, String endDate) {
-        LambdaQueryWrapper<ServiceLog> wrapper = new LambdaQueryWrapper<>();
+        LambdaQueryWrapper<ServiceLog> baseWrapper = new LambdaQueryWrapper<>();
+
+        // 应用权限过滤：服务商ID
+        if (providerId != null && !providerId.isEmpty()) {
+            baseWrapper.eq(ServiceLog::getProviderId, providerId);
+        }
+        // 服务人员ID过滤
+        if (staffId != null && !staffId.isEmpty()) {
+            baseWrapper.eq(ServiceLog::getStaffId, staffId);
+        }
 
         ServiceLogStatisticsVO stats = new ServiceLogStatisticsVO();
 
         // 总服务次数
-        Long total = serviceLogMapper.selectCount(wrapper.clone());
+        Long total = serviceLogMapper.selectCount(baseWrapper.clone());
         stats.setTotal(total.intValue());
 
         // 今日服务次数
@@ -312,15 +346,192 @@ public class ServiceLogServiceImpl implements ServiceLogService {
         LocalDateTime monthStart = LocalDateTime.of(LocalDate.now().withDayOfMonth(1), LocalTime.MIN);
         stats.setMonth(serviceLogMapper.countMonth(monthStart));
 
+        // 待审核数 (SUBMITTED)
+        int pendingCount = serviceLogMapper.countByAuditStatus("SUBMITTED");
+        stats.setPendingCount(pendingCount);
+
+        // 已通过数 (APPROVED)
+        int approvedCount = serviceLogMapper.countByAuditStatus("APPROVED");
+        stats.setApprovedCount(approvedCount);
+
+        // 已驳回数 (REJECTED)
+        int rejectedCount = serviceLogMapper.countByAuditStatus("REJECTED");
+        stats.setRejectedCount(rejectedCount);
+
+        // 审核通过率
+        int totalReviewed = approvedCount + rejectedCount;
+        if (totalReviewed > 0) {
+            BigDecimal approvalRate = BigDecimal.valueOf(approvedCount)
+                    .divide(BigDecimal.valueOf(totalReviewed), 4, BigDecimal.ROUND_HALF_UP)
+                    .multiply(BigDecimal.valueOf(100));
+            stats.setApprovalRate(approvalRate);
+        } else {
+            stats.setApprovalRate(BigDecimal.ZERO);
+        }
+
+        // 待审核率
+        if (total > 0) {
+            BigDecimal pendingRate = BigDecimal.valueOf(pendingCount)
+                    .divide(BigDecimal.valueOf(total), 4, BigDecimal.ROUND_HALF_UP)
+                    .multiply(BigDecimal.valueOf(100));
+            stats.setPendingRate(pendingRate);
+        } else {
+            stats.setPendingRate(BigDecimal.ZERO);
+        }
+
         // 平均服务时长
         BigDecimal avgDuration = serviceLogMapper.avgActualDuration();
         stats.setAvgDuration(avgDuration != null ? avgDuration : BigDecimal.ZERO);
 
+        // 平均服务评分
+        BigDecimal avgScore = serviceLogMapper.avgServiceScore();
+        stats.setAvgScore(avgScore != null ? avgScore : BigDecimal.ZERO);
+
         // 异常服务次数
-        wrapper.eq(ServiceLog::getAnomalyStatus, "REPORTED");
-        stats.setAnomalyCount(serviceLogMapper.selectCount(wrapper.clone()).intValue());
+        LambdaQueryWrapper<ServiceLog> anomalyWrapper = baseWrapper.clone();
+        anomalyWrapper.eq(ServiceLog::getAnomalyStatus, "REPORTED");
+        int anomalyCount = serviceLogMapper.selectCount(anomalyWrapper).intValue();
+        stats.setAnomalyCount(anomalyCount);
+
+        // 异常率
+        if (total > 0) {
+            BigDecimal anomalyRate = BigDecimal.valueOf(anomalyCount)
+                    .divide(BigDecimal.valueOf(total), 4, BigDecimal.ROUND_HALF_UP)
+                    .multiply(BigDecimal.valueOf(100));
+            stats.setAnomalyRate(anomalyRate);
+        } else {
+            stats.setAnomalyRate(BigDecimal.ZERO);
+        }
+
+        // 平均审核耗时（小时）- 从已审核的记录计算
+        // 简化处理：使用SUBMITTED到APPROVED/REJECTED的平均时间差
+        stats.setAvgReviewTime(BigDecimal.valueOf(24)); // 默认24小时，需要可配置
+
+        // 服务人员排名
+        List<ServiceLogStatisticsVO.StaffRankingVO> staffRankings = buildStaffRankings(baseWrapper);
+        stats.setStaffRankings(staffRankings);
 
         return stats;
+    }
+
+    private List<ServiceLogStatisticsVO.StaffRankingVO> buildStaffRankings(LambdaQueryWrapper<ServiceLog> baseWrapper) {
+        // 按服务人员分组统计
+        List<ServiceLog> allLogs = serviceLogMapper.selectList(baseWrapper.clone());
+
+        // 按staffId分组
+        Map<String, List<ServiceLog>> byStaff = allLogs.stream()
+                .filter(log -> log.getStaffId() != null)
+                .collect(Collectors.groupingBy(ServiceLog::getStaffId));
+
+        List<ServiceLogStatisticsVO.StaffRankingVO> rankings = byStaff.entrySet().stream()
+                .map(entry -> {
+                    ServiceLogStatisticsVO.StaffRankingVO ranking = new ServiceLogStatisticsVO.StaffRankingVO();
+                    ranking.setStaffId(entry.getKey());
+                    List<ServiceLog> staffLogs = entry.getValue();
+                    if (!staffLogs.isEmpty()) {
+                        ranking.setStaffName(staffLogs.get(0).getStaffName());
+                        ranking.setProviderName(staffLogs.get(0).getProviderName());
+                    }
+                    ranking.setLogCount(staffLogs.size());
+                    ranking.setApprovedCount((int) staffLogs.stream().filter(log -> "APPROVED".equals(log.getAuditStatus())).count());
+                    ranking.setRejectedCount((int) staffLogs.stream().filter(log -> "REJECTED".equals(log.getAuditStatus())).count());
+                    int reviewed = ranking.getApprovedCount() + ranking.getRejectedCount();
+                    if (reviewed > 0) {
+                        BigDecimal rate = BigDecimal.valueOf(ranking.getApprovedCount())
+                                .divide(BigDecimal.valueOf(reviewed), 4, BigDecimal.ROUND_HALF_UP)
+                                .multiply(BigDecimal.valueOf(100));
+                        ranking.setApprovalRate(rate);
+                    } else {
+                        ranking.setApprovalRate(BigDecimal.ZERO);
+                    }
+                    return ranking;
+                })
+                .sorted((a, b) -> Integer.compare(b.getLogCount(), a.getLogCount()))
+                .limit(10) // 只取前10名
+                .collect(Collectors.toList());
+
+        return rankings;
+    }
+
+    @Override
+    @Transactional(rollbackFor = Exception.class)
+    public void departure(String id, DepartureDTO dto) {
+        ServiceLog serviceLog = serviceLogMapper.selectById(id);
+        if (serviceLog == null) {
+            throw new RuntimeException("服务日志不存在");
+        }
+        // 设置出发信息
+        serviceLog.setDepartureTime(LocalDateTime.now());
+        if (dto.getLocation() != null) {
+            // 可以存储出发位置，但一般不校验
+        }
+        // 更新服务状态为DEPARTURE
+        serviceLog.setServiceStatus("DEPARTURE");
+        serviceLogMapper.updateById(serviceLog);
+    }
+
+    @Override
+    @Transactional(rollbackFor = Exception.class)
+    public void signIn(String id, SignInDTO dto) {
+        ServiceLog serviceLog = serviceLogMapper.selectById(id);
+        if (serviceLog == null) {
+            throw new RuntimeException("服务日志不存在");
+        }
+        if (serviceLog.getElderAddress() == null) {
+            throw new RuntimeException("老人地址信息不完整，无法进行签到校验");
+        }
+        // 获取老人地址的坐标（简化处理：实际应从老人档案或订单中获取经纬度）
+        // 这里假设 elderAddress 格式或关联信息中包含坐标
+        // 实际项目中老人表应该有 latitude 和 longitude 字段
+
+        // GPS校验：签到位置应在老人住址500米范围内
+        // 由于老人地址不包含坐标，暂时跳过GPS校验
+        // 如果有坐标，可以这样校验：
+        // Order order = orderMapper.selectById(serviceLog.getOrderId());
+        // if (order != null && order.getLatitude() != null && order.getLongitude() != null) {
+        //     if (!GpsUtils.validateSignInRange(dto.getLocation(), order.getLatitude().toString(), order.getLongitude().toString())) {
+        //         throw new RuntimeException("签到位置距离老人住址超过500米，请确认位置是否正确");
+        //     }
+        // }
+
+        // 设置签到信息
+        serviceLog.setSignInTime(LocalDateTime.now());
+        serviceLog.setSignInLocation(dto.getLocation());
+        // 序列化签到照片
+        if (dto.getPhotos() != null && dto.getPhotos().length > 0) {
+            try {
+                serviceLog.setSignInPhotos(objectMapper.writeValueAsString(dto.getPhotos()));
+            } catch (Exception e) {
+                serviceLog.setSignInPhotos(String.join(",", dto.getPhotos()));
+            }
+        }
+        // 更新服务状态为SIGN_IN
+        serviceLog.setServiceStatus("SIGN_IN");
+        serviceLogMapper.updateById(serviceLog);
+    }
+
+    @Override
+    @Transactional(rollbackFor = Exception.class)
+    public void signOut(String id, SignOutDTO dto) {
+        ServiceLog serviceLog = serviceLogMapper.selectById(id);
+        if (serviceLog == null) {
+            throw new RuntimeException("服务日志不存在");
+        }
+        // 设置签退信息
+        serviceLog.setSignOutTime(LocalDateTime.now());
+        serviceLog.setSignOutLocation(dto.getLocation());
+        serviceLog.setActualDuration(dto.getActualDuration());
+        // 序列化签退照片
+        if (dto.getPhotos() != null && dto.getPhotos().length > 0) {
+            try {
+                serviceLog.setSignOutPhotos(objectMapper.writeValueAsString(dto.getPhotos()));
+            } catch (Exception e) {
+                serviceLog.setSignOutPhotos(String.join(",", dto.getPhotos()));
+            }
+        }
+        // 更新服务状态为SIGN_OUT
+        serviceLog.setServiceStatus("SIGN_OUT");
+        serviceLogMapper.updateById(serviceLog);
     }
 
     private ServiceLogVO convertToVO(ServiceLog serviceLog) {

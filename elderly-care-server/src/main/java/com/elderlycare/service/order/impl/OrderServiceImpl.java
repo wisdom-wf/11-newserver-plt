@@ -459,22 +459,7 @@ public class OrderServiceImpl implements OrderService {
         serviceLog.setCreateTime(LocalDateTime.now());
         serviceLogMapper.insert(serviceLog);
 
-        // 自动生成质检单（待质检状态）
-        QualityCheck qualityCheck = new QualityCheck();
-        qualityCheck.setQualityCheckId(IDGenerator.generateId());
-        qualityCheck.setCheckNo("QC" + System.currentTimeMillis());
-        qualityCheck.setOrderId(orderId);
-        qualityCheck.setOrderNo(order.getOrderNo());
-        qualityCheck.setServiceLogId(serviceLog.getServiceLogId());
-        qualityCheck.setServiceCategory(order.getServiceTypeCode());
-        qualityCheck.setProviderId(order.getProviderId());
-        qualityCheck.setStaffId(staffId);
-        qualityCheck.setCheckType("COMPLETION"); // 完工质检
-        qualityCheck.setCheckMethod("PHOTO_REVIEW"); // 默认照片审核
-        qualityCheck.setCheckResult("PENDING"); // 待质检
-        qualityCheck.setRectifyStatus("PENDING");
-        qualityCheck.setCreateTime(LocalDateTime.now());
-        qualityCheckMapper.insert(qualityCheck);
+        // 注意：质检单将在服务日志提交审核时自动创建
 
         // 更新订单状态
         order.setStatus(OrderStatus.SERVICE_STARTED.getCode());
