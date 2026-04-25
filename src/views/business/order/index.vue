@@ -152,6 +152,11 @@ interface OrderTimelineItem {
   description: string;
   operator?: string;
   details?: { label: string; value: string }[];
+  action?: {
+    label: string;
+    icon: string;
+    onClick: () => void;
+  };
 }
 
 function getNodeIcon(node: OrderTimelineItem): string {
@@ -830,6 +835,11 @@ async function handleDetail(row: Api.Order.Order) {
   }
 }
 
+function goToServiceLog(orderNo: string | undefined) {
+  if (!orderNo) return;
+  routerPushByKey('business_service-log', { query: { orderNo } });
+}
+
 onMounted(() => {
   if (route.query.elderName) {
     searchElderName.value = route.query.elderName as string;
@@ -1314,6 +1324,15 @@ onMounted(() => {
                     <span class="operator-label">操作人:</span>
                     <span class="operator-name">{{ node.operator }}</span>
                   </div>
+                  <!-- 服务中节点：快速查看服务日志 -->
+                  <div v-if="node.status === 'SERVICE_STARTED'" class="timeline-node-actions">
+                    <NButton text type="primary" size="small" @click.stop="goToServiceLog(orderDetailData.orderNo)">
+                      <template #icon>
+                        <icon:material-symbols:description-outline />
+                      </template>
+                      查看服务日志
+                    </NButton>
+                  </div>
                   <div
                     v-if="node.details && node.details.length > 0"
                     class="timeline-node-details"
@@ -1659,6 +1678,12 @@ onMounted(() => {
   color: #999;
   margin-top: 8px;
   text-align: right;
+}
+
+.timeline-node-actions {
+  margin-top: 8px;
+  padding-top: 8px;
+  border-top: 1px dashed #eee;
 }
 
 .timeline-empty {
