@@ -18,10 +18,12 @@ import com.elderlycare.mapper.order.ServiceRecordMapper;
 import com.elderlycare.mapper.provider.ProviderMapper;
 import com.elderlycare.mapper.servicelog.ServiceLogMapper;
 import com.elderlycare.mapper.staff.StaffMapper;
+import com.elderlycare.mapper.config.ConfigServiceTypeMapper;
 import com.elderlycare.entity.provider.Provider;
 import com.elderlycare.entity.servicelog.ServiceLog;
 import com.elderlycare.entity.staff.Staff;
 import com.elderlycare.entity.quality.QualityCheck;
+import com.elderlycare.entity.config.ConfigServiceType;
 import com.elderlycare.mapper.quality.QualityCheckMapper;
 import com.elderlycare.service.order.OrderService;
 import com.elderlycare.vo.order.*;
@@ -51,6 +53,7 @@ public class OrderServiceImpl implements OrderService {
     private final ProviderMapper providerMapper;
     private final StaffMapper staffMapper;
     private final QualityCheckMapper qualityCheckMapper;
+    private final ConfigServiceTypeMapper configServiceTypeMapper;
 
     // ==================== 订单管理 ====================
 
@@ -398,7 +401,7 @@ public class OrderServiceImpl implements OrderService {
     @Override
     @Transactional(rollbackFor = Exception.class)
     public void startService(String orderId, StartServiceDTO dto) {
-        Order order = orderMapper.selectById(orderId);
+        Order order = orderMapper.selectByIdWithNames(orderId);
         if (order == null) {
             throw new BusinessException(404, "订单不存在");
         }
@@ -434,9 +437,21 @@ public class OrderServiceImpl implements OrderService {
         serviceLog.setElderName(order.getElderName());
         serviceLog.setElderPhone(order.getElderPhone());
         serviceLog.setStaffId(staffId);
+        serviceLog.setStaffName(order.getStaffName());
+        serviceLog.setStaffPhone(order.getStaffPhone());
         serviceLog.setProviderId(order.getProviderId());
+        serviceLog.setProviderName(order.getProviderName());
         serviceLog.setServiceTypeCode(order.getServiceTypeCode());
-        serviceLog.setServiceTypeName(order.getServiceTypeName());
+        // 从服务类型字典表查中文名称
+        String serviceTypeName = order.getServiceTypeName();
+        if (StringUtils.isBlank(serviceTypeName) && StringUtils.isNotBlank(order.getServiceTypeCode())) {
+            ConfigServiceType st = configServiceTypeMapper.selectOne(
+                new com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper<ConfigServiceType>()
+                    .eq(ConfigServiceType::getServiceTypeCode, order.getServiceTypeCode())
+            );
+            if (st != null) serviceTypeName = st.getServiceTypeName();
+        }
+        serviceLog.setServiceTypeName(serviceTypeName);
         serviceLog.setServiceDate(order.getServiceDate() != null ? order.getServiceDate().toString() : null);
         serviceLog.setServiceStartTime(LocalDateTime.now());
         serviceLog.setServiceStatus("IN_PROGRESS"); // 服务中
