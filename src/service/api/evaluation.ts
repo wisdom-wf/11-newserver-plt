@@ -33,12 +33,29 @@ export function fetchGetEvaluationByOrderId(orderId: string) {
 
 /**
  * 创建评价
+ * 前端字段名与后端不一致，需要映射:
+ * serviceScore -> rating (总体评分)
+ * skillScore -> qualityScore (质量评分)
+ * punctualityScore -> efficiencyScore (效率评分)
  */
 export function fetchCreateEvaluation(data: Api.Evaluation.EvaluationForm) {
+  // 转换为后端期望的字段名
+  const backendData = {
+    orderId: data.orderId,
+    staffId: data.staffId || '', // 后端需要staffId，前端form可能没有
+    rating: data.serviceScore, // 总体评分
+    attitudeScore: data.attitudeScore,
+    qualityScore: data.skillScore, // 质量评分
+    efficiencyScore: data.punctualityScore, // 效率评分
+    environmentScore: data.environmentScore, // 环境评分
+    content: data.content,
+    tags: data.tags,
+    anonymous: data.anonymous
+  };
   return request({
     url: '/api/evaluations',
     method: 'post',
-    data
+    data: backendData
   });
 }
 

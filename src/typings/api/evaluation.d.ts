@@ -34,7 +34,7 @@ declare namespace Api {
       id?: string;
       /** 订单ID */
       orderId: string;
-      /** 服务评分 */
+      /** 服务评分（总体评分） */
       serviceScore: number;
       /** 态度评分 */
       attitudeScore: number;
@@ -42,6 +42,8 @@ declare namespace Api {
       skillScore: number;
       /** 准时评分 */
       punctualityScore: number;
+      /** 环境评分 */
+      environmentScore: number;
       /** 综合评分 */
       overallScore: number;
       /** 评价内容 */

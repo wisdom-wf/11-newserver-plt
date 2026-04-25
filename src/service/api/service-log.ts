@@ -70,10 +70,11 @@ export function fetchReportAnomaly(
 /**
  * 提交审核
  */
-export function fetchSubmitServiceLogForReview(id: string) {
+export function fetchSubmitServiceLogForReview(id: string, remarks?: string) {
   return request({
     url: `/api/service-log/${id}/submit-review`,
-    method: 'put'
+    method: 'put',
+    params: remarks ? { remarks } : undefined
   });
 }
 
@@ -123,5 +124,41 @@ export function fetchGetServiceLogStatistics(params?: {
     url: '/api/service-log/statistics',
     method: 'get',
     params
+  });
+}
+
+/**
+ * 出发
+ */
+export function fetchDeparture(id: string, data: { location?: string; remark?: string }) {
+  return request({
+    url: `/api/service-log/${id}/departure`,
+    method: 'put',
+    data
+  });
+}
+
+/**
+ * 签到
+ */
+export function fetchSignIn(id: string, data: { location: string; photos?: string[]; remark?: string }) {
+  return request({
+    url: `/api/service-log/${id}/sign-in`,
+    method: 'put',
+    data
+  });
+}
+
+/**
+ * 签退
+ */
+export function fetchSignOut(
+  id: string,
+  data: { location: string; photos?: string[]; actualDuration?: number; remark?: string }
+) {
+  return request({
+    url: `/api/service-log/${id}/sign-out`,
+    method: 'put',
+    data
   });
 }
