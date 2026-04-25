@@ -8,6 +8,7 @@ import {
   fetchCreateElder,
   fetchUpdateElder,
   fetchDeleteElder,
+  fetchBatchDeleteElder,
   fetchGetElderStatistics,
   fetchGetElder
 } from '@/service/api';
@@ -175,6 +176,7 @@ function getCareLevelLabel(level?: string): string {
 
 // Table columns
 const columns: DataTableColumns<Api.Elder.Elder> = [
+  { type: 'selection' },
   { title: '姓名', key: 'name', width: 100 },
   { title: '性别', key: 'gender', width: 60, render: row => getGenderLabel(row.gender) },
   { title: '年龄', key: 'age', width: 60 },
@@ -358,6 +360,18 @@ async function handleDelete(id: string) {
   }
 }
 
+async function handleBatchDelete() {
+  if (!checkedRowKeys.value.length) return;
+  try {
+    await fetchBatchDeleteElder(checkedRowKeys.value);
+    message.success('批量删除成功');
+    await onBatchDeleted();
+    await getStatistics();
+  } catch (e) {
+    console.error('Failed to batch delete', e);
+  }
+}
+
 async function handleSubmit() {
   try {
     await validate();
@@ -465,6 +479,7 @@ onMounted(() => {
         :disabled-delete="checkedRowKeys.length === 0"
         :loading="loading"
         @refresh="getData"
+        @delete="handleBatchDelete"
       >
         <template #default>
           <NButton v-if="hasAuth('elder:list:add')" size="small" ghost type="primary" @click="handleOpenAdd">

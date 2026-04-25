@@ -8,7 +8,8 @@ import {
   fetchCreateProvider,
   fetchUpdateProvider,
   fetchDeleteProvider,
-  fetchGetProviderStatistics
+  fetchGetProviderStatistics,
+  fetchBatchDeleteProvider
 } from '@/service/api';
 import { useNaivePaginatedTable, useTableOperate, defaultTransform } from '@/hooks/common/table';
 import { useNaiveForm } from '@/hooks/common/form';
@@ -79,6 +80,7 @@ function getCategoryLabel(category?: string): string {
 
 // Table columns
 const columns: DataTableColumns<Api.Provider.Provider> = [
+  { type: 'selection' },
   { title: '服务商名称', key: 'providerName', width: 200 },
   { title: '信用代码', key: 'creditCode', width: 180 },
   { title: '服务类别', key: 'serviceCategory', width: 100, render: row => getCategoryLabel(row.serviceCategory) },
@@ -249,6 +251,18 @@ async function handleDelete(providerId: string) {
   }
 }
 
+async function handleBatchDelete() {
+  if (!checkedRowKeys.value.length) return;
+  try {
+    await fetchBatchDeleteProvider(checkedRowKeys.value);
+    message.success('批量删除成功');
+    await onBatchDeleted();
+    await getStatistics();
+  } catch (e) {
+    console.error('Failed to batch delete', e);
+  }
+}
+
 async function handleSubmit() {
   try {
     await validate();
@@ -342,6 +356,7 @@ onMounted(() => {
         :disabled-delete="checkedRowKeys.length === 0"
         :loading="loading"
         @refresh="getData"
+        @delete="handleBatchDelete"
       >
         <template #default>
           <NButton v-if="hasAuth('provider:list:add')" size="small" ghost type="primary" @click="handleOpenAdd">

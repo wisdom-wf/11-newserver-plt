@@ -13,6 +13,7 @@ import {
   fetchCreateStaff,
   fetchUpdateStaff,
   fetchDeleteStaff,
+  fetchBatchDeleteStaff,
   fetchGetStaffStatistics,
   fetchGetProviderOptions,
   fetchGetStaff,
@@ -169,6 +170,7 @@ function getStatusLabel(status?: string): string {
 }
 
 const columns: DataTableColumns<Api.Staff.Staff> = [
+  { type: 'selection' },
   { title: '工号', key: 'staffNo', width: 110 },
   { title: '姓名', key: 'staffName', width: 90 },
   { title: '性别', key: 'gender', width: 60, render: row => getGenderLabel(row.gender) },
@@ -363,6 +365,18 @@ async function handleDelete(staffId: string) {
   }
 }
 
+async function handleBatchDelete() {
+  if (!checkedRowKeys.value.length) return;
+  try {
+    await fetchBatchDeleteStaff(checkedRowKeys.value);
+    message.success('批量删除成功');
+    await getData();
+    await getStatistics();
+  } catch (e) {
+    console.error('Failed to batch delete', e);
+  }
+}
+
 // 照片上传处理
 async function handlePhotoUpload(staffId: string, file: File) {
   const reader = new FileReader();
@@ -546,6 +560,7 @@ onMounted(() => {
         :disabled-delete="checkedRowKeys.length === 0"
         :loading="loading"
         @refresh="getData"
+        @delete="handleBatchDelete"
       >
         <template #default>
           <NButton v-if="hasAuth('staff:list:add')" size="small" ghost type="primary" @click="handleAdd">

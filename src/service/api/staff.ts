@@ -54,6 +54,17 @@ export function fetchDeleteStaff(id: string) {
 }
 
 /**
+ * 批量删除服务人员
+ */
+export function fetchBatchDeleteStaff(ids: string[]) {
+  return request({
+    url: '/api/staff/batch',
+    method: 'delete',
+    data: ids
+  });
+}
+
+/**
  * 更新服务人员状态
  */
 export function fetchUpdateStaffStatus(id: string, status: Api.Common.EnableStatus) {

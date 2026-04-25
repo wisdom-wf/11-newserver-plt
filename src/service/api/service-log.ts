@@ -99,6 +99,17 @@ export function fetchDeleteServiceLog(id: string) {
 }
 
 /**
+ * 批量删除服务日志
+ */
+export function fetchBatchDeleteServiceLog(ids: string[]) {
+  return request({
+    url: '/api/service-log/batch',
+    method: 'delete',
+    data: ids
+  });
+}
+
+/**
  * 获取服务日志统计
  */
 export function fetchGetServiceLogStatistics(params?: {

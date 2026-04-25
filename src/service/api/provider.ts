@@ -150,6 +150,17 @@ export function fetchGetProviderAdminAccount(providerId: string) {
 }
 
 /**
+ * 批量删除服务商
+ */
+export function fetchBatchDeleteProvider(ids: string[]) {
+  return request({
+    url: '/api/providers/batch',
+    method: 'delete',
+    data: ids
+  });
+}
+
+/**
  * 重置服务商管理员密码
  */
 export function fetchResetProviderAdminPassword(providerId: string) {

@@ -54,6 +54,17 @@ export function fetchDeleteElder(id: string) {
 }
 
 /**
+ * 批量删除客户
+ */
+export function fetchBatchDeleteElder(ids: string[]) {
+  return request({
+    url: '/api/elders/batch',
+    method: 'delete',
+    data: ids
+  });
+}
+
+/**
  * 获取最近更新的客户列表（用于健康卡片展示）
  */
 export function fetchGetRecentUpdatedElders(limit: number = 10) {

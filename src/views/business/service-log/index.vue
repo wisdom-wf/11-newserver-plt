@@ -35,9 +35,10 @@ import {
   fetchUpdateServiceLog,
   fetchSubmitServiceLogForReview,
   fetchDeleteServiceLog,
+  fetchBatchDeleteServiceLog,
   fetchReviewServiceLog
 } from '@/service/api';
-import { useNaivePaginatedTable, defaultTransform } from '@/hooks/common/table';
+import { useNaivePaginatedTable, useTableOperate, defaultTransform } from '@/hooks/common/table';
 import { useAuth } from '@/hooks/business/auth';
 import TableHeaderOperation from '@/components/advanced/table-header-operation.vue';
 
@@ -147,6 +148,7 @@ function getStatusLabel(status: string): string {
 }
 
 const columns: DataTableColumns<Api.ServiceLog.ServiceLog> = [
+  { type: 'selection' },
   { title: '日志编号', key: 'logNo', width: 160 },
   { title: '订单号', key: 'orderNo', width: 160 },
   {
@@ -312,6 +314,8 @@ const {
   columnChecks: rawColumnChecks
 } = tableHookResult;
 
+const { checkedRowKeys, onBatchDeleted } = useTableOperate();
+
 // Ensure columnChecks is always an array (writable ref for v-model)
 const columnChecks = ref<Array<{ prop: string; label: string; checked: boolean }>>([]);
 
@@ -397,6 +401,18 @@ async function handleDelete(row: Api.ServiceLog.ServiceLog) {
     getData();
   } catch (e: any) {
     message.error(e.message || '删除失败');
+  }
+}
+
+async function handleBatchDelete() {
+  if (!checkedRowKeys.value.length) return;
+  try {
+    await fetchBatchDeleteServiceLog(checkedRowKeys.value);
+    message.success('批量删除成功');
+    checkedRowKeys.value = [];
+    getData();
+  } catch (e: any) {
+    message.error(e.message || '批量删除失败');
   }
 }
 
@@ -766,7 +782,14 @@ onMounted(() => {
         </NSpace>
       </div>
 
-      <TableHeaderOperation v-model:columns="columnChecks" :loading="loading" @add="showAddModal" @refresh="getData" />
+      <TableHeaderOperation
+        v-model:columns="columnChecks"
+        :loading="loading"
+        :disabled-delete="checkedRowKeys.length === 0"
+        @add="showAddModal"
+        @refresh="getData"
+        @delete="handleBatchDelete"
+      />
 
       <NDataTable
         :columns="columns"
@@ -774,6 +797,7 @@ onMounted(() => {
         :loading="loading"
         :scroll-x="1400"
         :row-key="(row: Api.ServiceLog.ServiceLog) => row.serviceLogId"
+        v-model:checked-row-keys="checkedRowKeys"
         remote
         :pagination="mobilePagination"
       />
