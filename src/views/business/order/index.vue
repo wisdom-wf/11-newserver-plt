@@ -38,7 +38,8 @@ import {
   fetchGetProviderOptions,
   fetchGetStaffList,
   fetchGetServiceLogByOrderId,
-  fetchGetEvaluationByOrderId
+  fetchGetEvaluationByOrderId,
+  fetchGetQualityCheckByOrderId
 } from '@/service/api';
 import { useRouterPush } from '@/hooks/common/router';
 import { useNaivePaginatedTable, defaultTransform } from '@/hooks/common/table';
@@ -786,11 +787,12 @@ function handleResetSearch() {
 interface TimelineRelations {
   serviceLog?: Api.ServiceLog.ServiceLog | null;
   evaluation?: Api.Evaluation.Evaluation | null;
+  qualityCheck?: Api.Quality.QualityCheck | null;
 }
 
 function generateOrderTimeline(order: Api.Order.Order, relations?: TimelineRelations): OrderTimelineItem[] {
   const timeline: OrderTimelineItem[] = [];
-  const { serviceLog, evaluation } = relations || {};
+  const { serviceLog, evaluation, qualityCheck } = relations || {};
 
   // 审核状态映射
   const auditStatusMap: Record<string, string> = {
@@ -860,7 +862,13 @@ function generateOrderTimeline(order: Api.Order.Order, relations?: TimelineRelat
       auditStatusLabel: auditStatusMap[serviceLog.auditStatus] || serviceLog.auditStatus || '-',
       reviewComment: serviceLog.reviewComment,
       reviewerName: serviceLog.reviewerName,
-      reviewTime: serviceLog.reviewTime
+      reviewTime: serviceLog.reviewTime,
+      // 质检信息
+      qualityCheck: qualityCheck ? {
+        checkResult: qualityCheck.checkResult || '',
+        checkResultLabel: checkResultMap[qualityCheck.checkResult] || qualityCheck.checkResult || '-',
+        checkRemark: qualityCheck.checkRemark
+      } : undefined
     } : undefined;
 
     timeline.push({
@@ -914,16 +922,18 @@ async function handleDetail(row: Api.Order.Order) {
     if (!orderData) return;
 
     // 并行获取关联的服务日志和评价
-    const [serviceLogRes, evaluationRes] = await Promise.all([
+    const [serviceLogRes, evaluationRes, qualityCheckRes] = await Promise.all([
       fetchGetServiceLogByOrderId(row.orderId).catch(() => null),
-      fetchGetEvaluationByOrderId(row.orderId).catch(() => null)
+      fetchGetEvaluationByOrderId(row.orderId).catch(() => null),
+      fetchGetQualityCheckByOrderId(row.orderId).catch(() => null)
     ]);
 
     const serviceLog = serviceLogRes?.data;
     const evaluation = evaluationRes?.data;
+    const qualityCheck = qualityCheckRes?.data;
 
     orderDetailData.value = orderData;
-    orderTimelineData.value = generateOrderTimeline(orderData, { serviceLog, evaluation });
+    orderTimelineData.value = generateOrderTimeline(orderData, { serviceLog, evaluation, qualityCheck });
     orderDetailVisible.value = true;
   } catch (e) {
     console.error('Failed to get order detail', e);
