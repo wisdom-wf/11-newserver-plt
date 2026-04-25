@@ -12,6 +12,8 @@ import com.elderlycare.entity.servicelog.ServiceLog;
 import com.elderlycare.mapper.order.OrderMapper;
 import com.elderlycare.mapper.quality.QualityCheckMapper;
 import com.elderlycare.mapper.servicelog.ServiceLogMapper;
+import com.elderlycare.mapper.staff.StaffMapper;
+import com.elderlycare.entity.staff.Staff;
 import com.elderlycare.service.servicelog.ServiceLogService;
 import java.util.List;
 import com.elderlycare.vo.servicelog.ServiceLogStatisticsVO;
@@ -39,6 +41,7 @@ public class ServiceLogServiceImpl implements ServiceLogService {
     private final ServiceLogMapper serviceLogMapper;
     private final QualityCheckMapper qualityCheckMapper;
     private final OrderMapper orderMapper;
+    private final StaffMapper staffMapper;
     private final ObjectMapper objectMapper = new ObjectMapper();
 
     @Override
@@ -118,7 +121,13 @@ public class ServiceLogServiceImpl implements ServiceLogService {
         serviceLog.setElderPhone(vo.getElderPhone() != null ? vo.getElderPhone() : (order != null ? order.getElderPhone() : null));
         serviceLog.setStaffId(vo.getStaffId() != null ? vo.getStaffId() : (order != null ? order.getStaffId() : null));
         serviceLog.setStaffName(vo.getStaffName() != null ? vo.getStaffName() : (order != null ? order.getStaffName() : null));
-        serviceLog.setStaffPhone(order != null ? order.getStaffPhone() : null);
+        // 从 t_staff 表查询员工手机号
+        String staffPhone = null;
+        if (serviceLog.getStaffId() != null) {
+            Staff staff = staffMapper.selectById(serviceLog.getStaffId());
+            if (staff != null) staffPhone = staff.getPhone();
+        }
+        serviceLog.setStaffPhone(staffPhone);
         serviceLog.setProviderId(vo.getProviderId() != null ? vo.getProviderId() : (order != null ? order.getProviderId() : null));
         serviceLog.setProviderName(order != null ? order.getProviderName() : null);
         serviceLog.setElderAddress(order != null ? order.getServiceAddress() : null);
