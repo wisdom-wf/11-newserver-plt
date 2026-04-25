@@ -253,8 +253,8 @@ function getSatisfactionLabel(level: string): string {
 }
 
 const columns: DataTableColumns<any> = [
-  { title: '评价编号', key: 'evalNo', width: 160 },
-  { title: '订单号', key: 'orderNo', width: 160 },
+  { title: '评价编号', key: 'evaluationId', width: 160 },
+  { title: '订单号', key: 'orderId', width: 160 },
   {
     title: '客户姓名',
     key: 'elderName',
@@ -517,8 +517,8 @@ onMounted(() => {
     <NDrawer v-model:show="evalDetailDrawerVisible" :width="560" placement="right" closable>
       <NDrawerContent title="评价详情" closable>
         <NForm v-if="evalDetailData" label-placement="left" label-width="100">
-          <NFormItem label="评价编号">{{ evalDetailData.evalNo }}</NFormItem>
-          <NFormItem label="订单号">{{ evalDetailData.orderNo || '-' }}</NFormItem>
+          <NFormItem label="评价编号">{{ evalDetailData.evaluationId }}</NFormItem>
+          <NFormItem label="订单号">{{ evalDetailData.orderId || '-' }}</NFormItem>
           <NFormItem label="服务商">{{ evalDetailData.providerName || '-' }}</NFormItem>
           <NFormItem label="服务人员">{{ evalDetailData.staffName || '-' }}</NFormItem>
           <NFormItem label="评价人">{{ evalDetailData.elderName }}</NFormItem>
