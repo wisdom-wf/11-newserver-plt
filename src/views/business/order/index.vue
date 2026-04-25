@@ -39,7 +39,8 @@ import {
   fetchGetStaffList,
   fetchGetServiceLogByOrderId,
   fetchGetEvaluationByOrderId,
-  fetchGetQualityCheckByOrderId
+  fetchGetQualityCheckByOrderId,
+  fetchCreateEvaluation
 } from '@/service/api';
 import { useRouterPush } from '@/hooks/common/router';
 import { useNaivePaginatedTable, defaultTransform } from '@/hooks/common/table';
@@ -946,6 +947,44 @@ function goToServiceLog(orderNo: string | undefined) {
   routerPushByKey('business_service-log', { query: { orderNo } });
 }
 
+// 满意度调查 - 创建评价记录
+async function handleCreateEvaluation() {
+  const order = orderDetailData.value;
+  if (!order || !order.orderId) {
+    message.warning('订单信息不完整');
+    return;
+  }
+
+  // 获取服务人员ID（从订单或服务日志中获取）
+  const staffId = order.staffId;
+  if (!staffId) {
+    message.warning('无法获取服务人员信息');
+    return;
+  }
+
+  try {
+    const evaluationData: Api.Evaluation.EvaluationForm = {
+      orderId: order.orderId,
+      serviceScore: 5,
+      attitudeScore: 5,
+      skillScore: 5,
+      punctualityScore: 5,
+      environmentScore: 5,
+      overallScore: 5,
+      content: '系统自动创建的满意度评价记录'
+    };
+
+    await fetchCreateEvaluation(evaluationData);
+    message.success('满意度评价记录已创建');
+
+    // 刷新详情数据
+    await handleDetail(order);
+  } catch (e: any) {
+    console.error('Failed to create evaluation', e);
+    message.error(e.message || '创建满意度评价失败');
+  }
+}
+
 onMounted(() => {
   if (route.query.elderName) {
     searchElderName.value = route.query.elderName as string;
@@ -1461,19 +1500,34 @@ onMounted(() => {
                   </div>
 
                   <!-- 服务完成节点：满意度评价 -->
-                  <div v-if="node.status === 'SERVICE_COMPLETED' && node.evaluation" class="timeline-evaluation">
+                  <div v-if="node.status === 'SERVICE_COMPLETED'" class="timeline-evaluation">
                     <div class="timeline-section-title">
                       <icon:material-symbols:star-outline />
                       满意度评价
                     </div>
-                    <div class="timeline-eval-info">
-                      <NTag type="success" size="small">
-                        评分: {{ node.evaluation.overallScore }}分
-                      </NTag>
-                    </div>
-                    <div v-if="node.evaluation.evaluationContent" class="timeline-eval-content">
-                      {{ node.evaluation.evaluationContent }}
-                    </div>
+                    <!-- 有评价时显示评价内容 -->
+                    <template v-if="node.evaluation">
+                      <div class="timeline-eval-info">
+                        <NTag type="success" size="small">
+                          评分: {{ node.evaluation.overallScore }}分
+                        </NTag>
+                      </div>
+                      <div v-if="node.evaluation.evaluationContent" class="timeline-eval-content">
+                        {{ node.evaluation.evaluationContent }}
+                      </div>
+                    </template>
+                    <!-- 无评价时显示满意度调查按钮 -->
+                    <template v-else>
+                      <div class="timeline-no-evaluation">
+                        <span class="timeline-no-eval-text">暂无评价记录</span>
+                        <NButton type="warning" size="small" @click.stop="handleCreateEvaluation">
+                          <template #icon>
+                            <icon:material-symbols:edit-note />
+                          </template>
+                          满意度调查
+                        </NButton>
+                      </div>
+                    </template>
                   </div>
 
                   <!-- 服务中节点：快速查看服务日志按钮 -->
@@ -1931,6 +1985,18 @@ onMounted(() => {
   background: rgba(255, 255, 255, 0.6);
   border-radius: 4px;
   line-height: 1.5;
+}
+
+.timeline-no-evaluation {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+}
+
+.timeline-no-eval-text {
+  font-size: 12px;
+  color: #999;
 }
 
 .timeline-empty {
