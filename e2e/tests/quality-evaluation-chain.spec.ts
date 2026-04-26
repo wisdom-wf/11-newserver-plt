@@ -150,8 +150,10 @@ test.describe('质检-评价完整链路', () => {
     });
     const status = resp.status();
     const body = await resp.json();
-    // 期望 400 或 403
+    // 期望 HTTP 403（无权为他方订单创建质检）
     console.log(`✅ TC-LEC-05 FWS1创建FWS2质检: HTTP ${status}, code=${body.code}`);
+    expect(status).toBe(403);
+    expect(body.code).toBe(403);
   });
 
   // TC-LEC-06: 隔离 - FWS1 无法为 FWS2 订单创建评价
@@ -171,7 +173,10 @@ test.describe('质检-评价完整链路', () => {
     });
     const status = resp.status();
     const body = await resp.json();
+    // 期望 HTTP 200 但 body.code=400（无权为他方订单创建评价）
     console.log(`✅ TC-LEC-06 FWS1创建FWS2评价: HTTP ${status}, code=${body.code}`);
+    expect(status).toBe(200);
+    expect(body.code).toBe(400);
   });
 
   // TC-LEC-07: 评价列表数据隔离
