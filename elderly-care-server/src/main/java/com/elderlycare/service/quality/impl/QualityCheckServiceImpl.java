@@ -97,6 +97,16 @@ public class QualityCheckServiceImpl implements QualityCheckService {
     }
 
     @Override
+    public QualityCheckVO getQualityCheckByServiceLogId(String serviceLogId) {
+        LambdaQueryWrapper<QualityCheck> wrapper = new LambdaQueryWrapper<>();
+        wrapper.eq(QualityCheck::getServiceLogId, serviceLogId);
+        wrapper.orderByDesc(QualityCheck::getCreateTime);
+        wrapper.last("LIMIT 1");
+        QualityCheck qualityCheck = qualityCheckMapper.selectOne(wrapper);
+        return convertToVO(qualityCheck);
+    }
+
+    @Override
     public void createQualityCheck(QualityCheckVO vo) {
         QualityCheck qualityCheck = new QualityCheck();
         qualityCheck.setCheckNo("QC" + System.currentTimeMillis());

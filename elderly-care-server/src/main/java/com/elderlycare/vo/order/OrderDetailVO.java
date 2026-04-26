@@ -71,6 +71,15 @@ public class OrderDetailVO implements Serializable {
 
     private String cancelReason;
 
+    /** 关联的预约单ID */
+    private String appointmentId;
+
+    /** 关联的预约单号 */
+    private String appointmentNo;
+
+    /** 关联的预约时间 */
+    private String appointmentTime;
+
     private LocalDateTime dispatchTime;
 
     private LocalDateTime receiveTime;

@@ -77,4 +77,14 @@ public class CreateEvaluationDTO implements Serializable {
      * 是否匿名(0-否,1-是)
      */
     private Integer anonymous = 0;
+
+    /**
+     * 关联质检单ID（可选，从质检详情跳转时带入）
+     */
+    private String qualityCheckId;
+
+    /**
+     * 关联服务日志ID（可选）
+     */
+    private String serviceLogId;
 }

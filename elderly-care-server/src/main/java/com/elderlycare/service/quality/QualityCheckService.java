@@ -28,6 +28,11 @@ public interface QualityCheckService {
     QualityCheckVO getQualityCheckByOrderId(String orderId);
 
     /**
+     * 根据服务日志ID获取质检
+     */
+    QualityCheckVO getQualityCheckByServiceLogId(String serviceLogId);
+
+    /**
      * 创建质检
      */
     void createQualityCheck(QualityCheckVO vo);

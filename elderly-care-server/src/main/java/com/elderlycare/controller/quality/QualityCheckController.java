@@ -84,6 +84,16 @@ public class QualityCheckController {
     }
 
     /**
+     * GET /api/quality-check/service-log/{serviceLogId}
+     * 根据服务日志ID获取质检（用于判断该日志是否已有质检）
+     */
+    @GetMapping("/service-log/{serviceLogId}")
+    public Result<QualityCheckVO> getQualityCheckByServiceLogId(@PathVariable String serviceLogId) {
+        QualityCheckVO vo = qualityCheckService.getQualityCheckByServiceLogId(serviceLogId);
+        return Result.success(vo);
+    }
+
+    /**
      * 创建质检
      * POST /api/quality-check
      * 隔离：PROVIDER只能为自己公司的订单创建质检

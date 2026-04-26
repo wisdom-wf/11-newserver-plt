@@ -39,6 +39,16 @@ public class ServiceEvaluation implements Serializable {
     private String elderId;
 
     /**
+     * 关联质检单ID
+     */
+    private String qualityCheckId;
+
+    /**
+     * 关联服务日志ID
+     */
+    private String serviceLogId;
+
+    /**
      * 老人姓名(联表)
      */
     @TableField(exist = false)

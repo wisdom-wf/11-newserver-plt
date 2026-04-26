@@ -434,6 +434,35 @@ dingfeng-work:              main    ✅ 已推送（测试文件更新）
 - `EvaluationController.createEvaluation()`：PROVIDER 用户创建评价前校验订单归属，非己方抛 400
 - TC-LEC-05 返回 HTTP 403，TC-LEC-06 返回 HTTP 200 + code=400
 
+### 18. ✅ 预约→订单→服务日志→质检→评价 业务链路串联（2026-04-27）
+
+**目标**：让各环节互相引用、互相关联，用户在任意环节都能顺畅流转到下一步。
+
+**已完成的改进**：
+
+| 改进项 | 文件 | 说明 |
+|--------|------|------|
+| 日志提交审核成功弹窗提示创建质检 | service-log/index.vue | NModal 提示"是否立即创建质检单"，跳转时带 orderNo + serviceLogId |
+| 订单详情页跳转服务日志参数修复 | service-log/index.vue | 原检查 route.query.orderId → 改为 route.query.orderNo（字段名对齐） |
+| 评价表加关联字段 | t_service_evaluation | DDL 加 quality_check_id、service_log_id 两列 |
+| ServiceEvaluation Entity/VO/DTO 扩展 | ServiceEvaluation.java 等 | 加 qualityCheckId、serviceLogId 字段 |
+| 质检页接收 serviceLogId 参数 | quality/index.vue | onMounted 读取 route.query.serviceLogId 预填创建表单 |
+| 质检详情评价按钮扩展传参 | quality/index.vue | 跳转评价页时带 qualityCheckId + serviceLogId |
+| 评价页接收跳转参数 | evaluation/index.vue | onMounted 读取 qualityCheckId + serviceLogId 预填表单 |
+
+**业务链路示意**：
+```
+订单详情 → [查看服务日志] → 服务日志列表（按订单号筛选）
+  → [提交审核] → 弹窗提示"是否创建质检单"
+    → [立即创建] → 质检页（orderNo + serviceLogId 预填）
+      → [提交质检] → 质检详情 → [发起满意度评价]
+        → 评价页（qualityCheckId + serviceLogId + orderNo 预填）
+```
+
+**遗留优化点**：
+- 质检列表暂不支持按 serviceLogId 筛选（一个订单通常只有一条，影响小）
+- 评价列表页暂不支持按 qualityCheckId/serviceLogId 筛选
+
 ---
 
 ## 六、开发规范（重要）

@@ -28,6 +28,16 @@ public class EvaluationVO implements Serializable {
 
     private String elderName;
 
+    /**
+     * 关联质检单ID
+     */
+    private String qualityCheckId;
+
+    /**
+     * 关联服务日志ID
+     */
+    private String serviceLogId;
+
     private String serviceTypeCode;
 
     private String serviceTypeName;

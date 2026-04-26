@@ -12,9 +12,11 @@ import com.elderlycare.entity.order.Order;
 import com.elderlycare.entity.order.OrderDispatch;
 import com.elderlycare.entity.order.OrderStatus;
 import com.elderlycare.entity.order.ServiceRecord;
+import com.elderlycare.entity.appointment.Appointment;
 import com.elderlycare.mapper.order.OrderDispatchMapper;
 import com.elderlycare.mapper.order.OrderMapper;
 import com.elderlycare.mapper.order.ServiceRecordMapper;
+import com.elderlycare.mapper.appointment.AppointmentMapper;
 import com.elderlycare.mapper.provider.ProviderMapper;
 import com.elderlycare.mapper.servicelog.ServiceLogMapper;
 import com.elderlycare.mapper.staff.StaffMapper;
@@ -54,6 +56,7 @@ public class OrderServiceImpl implements OrderService {
     private final StaffMapper staffMapper;
     private final QualityCheckMapper qualityCheckMapper;
     private final ConfigServiceTypeMapper configServiceTypeMapper;
+    private final AppointmentMapper appointmentMapper;
 
     // ==================== 订单管理 ====================
 
@@ -148,6 +151,19 @@ public class OrderServiceImpl implements OrderService {
         vo.setStaffName(order.getStaffName());
         vo.setStaffPhone(order.getStaffPhone());
         vo.setCancelReason(order.getCancelReason());
+
+        // 查询关联的预约单（按订单号匹配）
+        com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper<Appointment> apptWrapper =
+                new com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper<>();
+        apptWrapper.eq(Appointment::getOrderNo, order.getOrderNo());
+        apptWrapper.orderByDesc(Appointment::getCreateTime).last("LIMIT 1");
+        Appointment appt = appointmentMapper.selectOne(apptWrapper);
+        if (appt != null) {
+            vo.setAppointmentId(appt.getAppointmentId());
+            vo.setAppointmentNo(appt.getAppointmentNo());
+            vo.setAppointmentTime(appt.getAppointmentTime());
+        }
+
         vo.setDispatchTime(order.getDispatchTime());
         vo.setReceiveTime(order.getReceiveTime());
         vo.setStartTime(order.getStartTime());
