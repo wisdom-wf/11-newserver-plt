@@ -183,6 +183,7 @@ const routeMap: RouteMap = {
   "public": "/public",
   "public_dashboard": "/public/dashboard",
   "public_mobile": "/public/mobile",
+  "public_survey": "/public/survey",
   "system": "/system",
   "system_dict": "/system/dict",
   "system_menu": "/system/menu",

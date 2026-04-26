@@ -85,3 +85,50 @@ export function fetchGetEvaluationStatistics(params?: {
     params
   });
 }
+
+/**
+ * 生成评价邀请链接
+ */
+export function fetchGenerateEvaluationLink(params: {
+  orderId: string;
+  elderId: string;
+  elderName: string;
+  expireHours?: number;
+}) {
+  return request<Api.Evaluation.EvaluationInvite>({
+    url: '/api/evaluations/generate-link',
+    method: 'post',
+    params
+  });
+}
+
+/**
+ * 获取问卷信息（验证Token）
+ */
+export function fetchGetSurveyInfo(token: string) {
+  return request<Api.Evaluation.EvaluationInvite>({
+    url: `/api/evaluations/survey/${token}`,
+    method: 'get'
+  });
+}
+
+/**
+ * 提交问卷评价
+ */
+export function fetchSubmitSurvey(token: string, data: Api.Evaluation.SurveyForm) {
+  return request({
+    url: `/api/evaluations/survey/${token}/submit`,
+    method: 'post',
+    data
+  });
+}
+
+/**
+ * 作废评价邀请链接
+ */
+export function fetchInvalidateInvite(token: string) {
+  return request({
+    url: `/api/evaluations/invite/${token}/invalidate`,
+    method: 'put'
+  });
+}

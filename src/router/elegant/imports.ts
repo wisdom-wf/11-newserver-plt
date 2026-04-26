@@ -33,6 +33,7 @@ export const views: Record<LastLevelRouteKey, RouteComponent | (() => Promise<Ro
   provider: () => import("@/views/provider/index.vue"),
   public_dashboard: () => import("@/views/public/dashboard/index.vue"),
   public_mobile: () => import("@/views/public/mobile/index.vue"),
+  public_survey: () => import("@/views/public/survey/index.vue"),
   system_dict: () => import("@/views/system/dict/index.vue"),
   system_menu: () => import("@/views/system/menu/index.vue"),
   system_role: () => import("@/views/system/role/index.vue"),

@@ -55,53 +55,57 @@ declare namespace Api {
     /** 评价详情 */
     interface Evaluation {
       /** 评价ID */
-      id: string;
-      /** 评价编号 */
-      evalNo: string;
+      evaluationId: string;
       /** 订单ID */
       orderId: string;
-      /** 订单号 */
-      orderNo?: string;
-      /** 服务日志ID */
-      serviceLogId?: string;
-      /** 服务类别 */
-      serviceCategory: ServiceCategory;
-      /** 服务商ID */
-      providerId: string;
-      /** 服务商名称 */
-      providerName?: string;
       /** 服务人员ID */
       staffId: string;
       /** 服务人员姓名 */
       staffName?: string;
+      /** 服务商ID */
+      providerId: string;
+      /** 服务商名称 */
+      providerName?: string;
       /** 评价人ID */
       elderId: string;
       /** 评价人姓名 */
       elderName: string;
-      /** 评价人手机号 */
-      elderPhone?: string;
-      /** 服务评分 */
-      serviceScore: number;
+      /** 服务类型编码 */
+      serviceTypeCode?: string;
+      /** 服务类型名称 */
+      serviceTypeName?: string;
       /** 态度评分 */
-      attitudeScore: number;
-      /** 技能评分 */
-      skillScore: number;
-      /** 准时评分 */
-      punctualityScore: number;
+      attitudeScore?: number;
+      /** 质量评分 */
+      qualityScore?: number;
+      /** 效率评分 */
+      efficiencyScore?: number;
+      /** 环境评分 */
+      environmentScore?: number;
       /** 综合评分 */
-      overallScore: number;
-      /** 满意度等级 */
-      satisfactionLevel: SatisfactionLevel;
+      overallScore?: number;
+      /** 平均评分 */
+      averageScore?: number;
       /** 评价内容 */
       content?: string;
-      /** 评价图片 */
-      images?: string[];
-      /** 机构回复 */
-      reply?: string;
+      /** 评价标签 */
+      tags?: string;
+      /** 是否匿名 */
+      anonymous?: number;
+      /** 评价时间 */
+      evaluationTime?: string;
+      /** 回复内容 */
+      replyContent?: string;
       /** 回复时间 */
       replyTime?: string;
+      /** 机构回复 */
+      reply?: string;
+      /** 回复人ID */
+      replyerId?: string;
+      /** 回复人姓名 */
+      replyerName?: string;
       /** 创建时间 */
-      createTime: string;
+      createTime?: string;
     }
 
     /** 满意度等级 */
@@ -133,6 +137,62 @@ declare namespace Api {
       veryDissatisfiedCount: number;
       /** 满意率 */
       satisfactionRate: number;
+    }
+
+    /** 评价邀请信息 */
+    interface EvaluationInvite {
+      /** 评价ID */
+      evaluationId: string;
+      /** 评价邀请Token */
+      token: string;
+      /** 评价邀请链接 */
+      surveyUrl: string;
+      /** 订单ID */
+      orderId: string;
+      /** 老人ID */
+      elderId: string;
+      /** 老人姓名 */
+      elderName: string;
+      /** 服务商ID */
+      providerId: string;
+      /** 服务商名称 */
+      providerName: string;
+      /** 服务人员ID */
+      staffId: string;
+      /** 服务人员姓名 */
+      staffName: string;
+      /** 服务类型 */
+      serviceType: string;
+      /** Token状态 */
+      tokenStatus: 'PENDING' | 'COMPLETED' | 'EXPIRED' | 'INVALID';
+      /** Token过期时间 */
+      tokenExpireTime: string;
+      /** 创建时间 */
+      createTime: string;
+    }
+
+    /** 问卷表单提交 */
+    interface SurveyForm {
+      /** 服务评分(1-5) */
+      serviceScore: number;
+      /** 态度评分(1-5) */
+      attitudeScore: number;
+      /** 技能评分(1-5) */
+      skillScore: number;
+      /** 准时评分(1-5) */
+      punctualityScore: number;
+      /** 环境评分(1-5) */
+      environmentScore?: number;
+      /** 满意度等级 */
+      satisfactionLevel?: string;
+      /** 评价内容 */
+      content?: string;
+      /** 评价标签 */
+      tags?: string[];
+      /** 评价图片 */
+      images?: string[];
+      /** 是否匿名 */
+      anonymous?: boolean;
     }
   }
 }

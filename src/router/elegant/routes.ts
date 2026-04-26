@@ -224,6 +224,15 @@ export const generatedRoutes: GeneratedRoute[] = [
           title: 'public_mobile',
           i18nKey: 'route.public_mobile'
         }
+      },
+      {
+        name: 'public_survey',
+        path: '/public/survey',
+        component: 'view.public_survey',
+        meta: {
+          title: 'public_survey',
+          i18nKey: 'route.public_survey'
+        }
       }
     ]
   },

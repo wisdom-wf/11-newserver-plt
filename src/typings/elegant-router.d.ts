@@ -37,6 +37,7 @@ declare module "@elegant-router/types" {
     "public": "/public";
     "public_dashboard": "/public/dashboard";
     "public_mobile": "/public/mobile";
+    "public_survey": "/public/survey";
     "system": "/system";
     "system_dict": "/system/dict";
     "system_menu": "/system/menu";
@@ -118,6 +119,7 @@ declare module "@elegant-router/types" {
     | "provider"
     | "public_dashboard"
     | "public_mobile"
+    | "public_survey"
     | "system_dict"
     | "system_menu"
     | "system_role"

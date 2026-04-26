@@ -36,6 +36,15 @@ const customRoutes: CustomRoute[] = [
           constant: true,
           hideInMenu: true
         }
+      },
+      {
+        name: 'public_survey',
+        path: '/public/survey',
+        component: 'view.public_survey',
+        meta: {
+          constant: true,
+          hideInMenu: true
+        }
       }
     ]
   }

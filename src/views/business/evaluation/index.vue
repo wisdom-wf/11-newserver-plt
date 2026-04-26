@@ -34,7 +34,9 @@ import {
   fetchGetEvaluation,
   fetchReplyEvaluation,
   fetchCreateEvaluation,
-  fetchGetQualityCheckByOrderId
+  fetchGetQualityCheckByOrderId,
+  fetchGenerateEvaluationLink,
+  fetchInvalidateInvite
 } from '@/service/api';
 import { useNaivePaginatedTable, defaultTransform } from '@/hooks/common/table';
 import { useAuth } from '@/hooks/business/auth';
@@ -62,6 +64,18 @@ const createForm = ref<Api.Evaluation.EvaluationForm>({
   content: '',
   images: []
 });
+
+// Invite dialog state
+const inviteDialogVisible = ref(false);
+const inviteLoading = ref(false);
+const inviteForm = ref({
+  orderId: '',
+  elderId: '',
+  elderName: '',
+  expireHours: 72
+});
+const inviteResult = ref<Api.Evaluation.EvaluationInvite | null>(null);
+const generatedLink = ref('');
 
 // Satisfaction level options
 const satisfactionOptions = [
@@ -123,6 +137,63 @@ async function handleCreateSubmit() {
     getStatistics();
   } finally {
     createLoading.value = false;
+  }
+}
+
+// Open invite dialog
+function openInviteDialog(row: any) {
+  inviteForm.value = {
+    orderId: row.orderId,
+    elderId: row.elderId,
+    elderName: row.elderName,
+    expireHours: 72
+  };
+  inviteResult.value = null;
+  generatedLink.value = '';
+  inviteDialogVisible.value = true;
+}
+
+// Generate evaluation link
+async function handleGenerateLink() {
+  if (!inviteForm.value.orderId) {
+    message.warning('请输入订单ID');
+    return;
+  }
+  if (!inviteForm.value.elderId) {
+    message.warning('请输入老人ID');
+    return;
+  }
+  if (!inviteForm.value.elderName) {
+    message.warning('请输入老人姓名');
+    return;
+  }
+  inviteLoading.value = true;
+  try {
+    const { data, error } = await fetchGenerateEvaluationLink({
+      orderId: inviteForm.value.orderId,
+      elderId: inviteForm.value.elderId,
+      elderName: inviteForm.value.elderName,
+      expireHours: inviteForm.value.expireHours
+    });
+    if (error) {
+      message.error(error.message || '生成邀请链接失败');
+      return;
+    }
+    if (data) {
+      inviteResult.value = data;
+      generatedLink.value = data.surveyUrl || window.location.origin + '/public/survey?token=' + data.token;
+      message.success('生成成功');
+    }
+  } finally {
+    inviteLoading.value = false;
+  }
+}
+
+// Copy link to clipboard
+function copyLink() {
+  if (generatedLink.value) {
+    navigator.clipboard.writeText(generatedLink.value);
+    message.success('链接已复制到剪贴板');
   }
 }
 
@@ -293,14 +364,13 @@ const columns: DataTableColumns<any> = [
   {
     title: '操作',
     key: 'actions',
-    width: 100,
+    width: 160,
     fixed: 'right',
     render: row =>
-      h(
-        NButton,
-        { size: 'small', type: 'primary', onClick: () => showEvalDetail(row) },
-        () => '查看'
-      )
+      h(NSpace, { size: 'small' }, () => [
+        h(NButton, { size: 'small', type: 'primary', onClick: () => showEvalDetail(row) }, () => '查看'),
+        h(NButton, { size: 'small', type: 'info', onClick: () => openInviteDialog(row) }, () => '邀请')
+      ])
   }
 ];
 
@@ -522,16 +592,16 @@ onMounted(() => {
           <NFormItem label="服务商">{{ evalDetailData.providerName || '-' }}</NFormItem>
           <NFormItem label="服务人员">{{ evalDetailData.staffName || '-' }}</NFormItem>
           <NFormItem label="评价人">{{ evalDetailData.elderName }}</NFormItem>
-          <NFormItem label="服务评分">{{ evalDetailData.serviceScore }}分</NFormItem>
+          <NFormItem label="服务评分">{{ evalDetailData.overallScore }}分</NFormItem>
           <NFormItem label="态度评分">{{ evalDetailData.attitudeScore }}分</NFormItem>
-          <NFormItem label="技能评分">{{ evalDetailData.skillScore }}分</NFormItem>
-          <NFormItem label="准时评分">{{ evalDetailData.punctualityScore }}分</NFormItem>
+          <NFormItem label="技能评分">{{ evalDetailData.qualityScore }}分</NFormItem>
+          <NFormItem label="准时评分">{{ evalDetailData.efficiencyScore }}分</NFormItem>
           <NFormItem label="综合评分">
             <NTag type="success" size="small">{{ evalDetailData.overallScore }}分</NTag>
           </NFormItem>
           <NFormItem label="满意度">
-            <NTag :type="evalDetailData.satisfactionLevel === 'VERY_SATISFIED' || evalDetailData.satisfactionLevel === 'SATISFIED' ? 'success' : 'warning'" size="small">
-              {{ getSatisfactionLabel(evalDetailData.satisfactionLevel) }}
+            <NTag :type="evalDetailData.overallScore >= 4 ? 'success' : 'warning'" size="small">
+              {{ evalDetailData.overallScore >= 5 ? '非常满意' : evalDetailData.overallScore >= 4 ? '满意' : evalDetailData.overallScore >= 3 ? '一般' : '不满意' }}
             </NTag>
           </NFormItem>
           <NFormItem label="评价内容">{{ evalDetailData.content || '-' }}</NFormItem>
@@ -544,8 +614,8 @@ onMounted(() => {
               </NSpace>
             </NImageGroup>
           </NFormItem>
-          <NFormItem label="机构回复" v-if="evalDetailData.reply">
-            {{ evalDetailData.reply }}
+          <NFormItem label="机构回复" v-if="evalDetailData.replyContent">
+            {{ evalDetailData.replyContent }}
           </NFormItem>
           <NFormItem label="回复时间" v-if="evalDetailData.replyTime">
             {{ evalDetailData.replyTime }}
@@ -631,6 +701,46 @@ onMounted(() => {
         </NSpace>
       </template>
     </NModal>
+
+    <!-- Invite Drawer -->
+    <NDrawer v-model:show="inviteDialogVisible" :width="420" placement="right" closable>
+      <NDrawerContent title="生成评价邀请链接" closable>
+        <NForm label-placement="left" label-width="90">
+          <NFormItem label="订单ID">
+            <NText>{{ inviteForm.orderId || '-' }}</NText>
+          </NFormItem>
+          <NFormItem label="老人ID">
+            <NText>{{ inviteForm.elderId || '-' }}</NText>
+          </NFormItem>
+          <NFormItem label="老人姓名">
+            <NText>{{ inviteForm.elderName || '-' }}</NText>
+          </NFormItem>
+          <NFormItem label="有效期">
+            <NInputNumber v-model:value="inviteForm.expireHours" :min="1" :max="720" style="width: 120px" />
+            <NText depth="3" style="margin-left: 8px">小时</NText>
+          </NFormItem>
+        </NForm>
+
+        <NSpace vertical style="width: 100%; margin-top: 16px" v-if="!generatedLink">
+          <NButton type="primary" :loading="inviteLoading" style="width: 100%" @click="handleGenerateLink">
+            生成邀请链接
+          </NButton>
+        </NSpace>
+
+        <div v-if="generatedLink" style="margin-top: 16px">
+          <NText depth="3" style="margin-bottom: 8px; display: block">邀请链接：</NText>
+          <NSpace vertical style="width: 100%">
+            <NInput :value="generatedLink" readonly />
+            <NButton type="primary" @click="copyLink" style="width: 100%">
+              复制链接
+            </NButton>
+          </NSpace>
+        </div>
+        <template #footer>
+          <NButton @click="inviteDialogVisible = false">关闭</NButton>
+        </template>
+      </NDrawerContent>
+    </NDrawer>
   </div>
 </template>
 
