@@ -145,7 +145,9 @@ public class AppointmentController {
             @RequestParam(required = false) String areaId,
             @RequestParam(required = false) String startDate,
             @RequestParam(required = false) String endDate) {
-        AppointmentStatisticsVO result = appointmentService.getStatistics(areaId, startDate, endDate);
+        // 数据隔离：PROVIDER用户强制只看自己服务商
+        String providerId = UserContext.getProviderId();
+        AppointmentStatisticsVO result = appointmentService.getStatistics(providerId, areaId, startDate, endDate);
         return Result.success(result);
     }
 

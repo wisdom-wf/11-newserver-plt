@@ -137,55 +137,45 @@ public class StatisticsServiceImpl implements StatisticsService {
     public OrderStatisticsVO getOrderStatistics(String providerId, String startDate, String endDate, String groupBy, String serviceTypeCode) {
         OrderStatisticsVO vo = new OrderStatisticsVO();
 
-        // 基础统计（按订单状态枚举精确统计）— 按providerId过滤
-        Long total = statisticsMapper.selectTotalOrders();
-        Long today = statisticsMapper.selectTodayOrders();
-        Long month = statisticsMapper.selectMonthOrders();
-        Long created = statisticsMapper.selectCreatedOrders();        // 待派单
-        Long dispatched = statisticsMapper.selectDispatchedOrders();   // 已派单
-        Long received = statisticsMapper.selectReceivedOrders();       // 已接单
-        Long serviceStarted = statisticsMapper.selectServiceStartedOrders(); // 服务中
-        Long completed = statisticsMapper.selectAllCompletedOrders();  // 已完成
-        Long cancelled = statisticsMapper.selectCancelledOrders();     // 已取消
-
-        vo.setTotal(total);
-        vo.setToday(today);
-        vo.setMonth(month);
-        vo.setPendingDispatch(created);
-        vo.setDispatched(dispatched);
-        vo.setReceived(received);
-        vo.setInService(serviceStarted);
-        vo.setCompleted(completed);
-        vo.setCancelled(cancelled);
-
-        // 额外统计
-        Long totalOrders = statisticsMapper.selectTotalOrders();
-        Long completedOrders = statisticsMapper.selectCompletedOrders();
-
-        // 计算完成率
-        if (totalOrders != null && totalOrders > 0 && completedOrders != null) {
-            BigDecimal completionRate = BigDecimal.valueOf(completedOrders)
-                    .divide(BigDecimal.valueOf(totalOrders), 4, RoundingMode.HALF_UP)
-                    .multiply(BigDecimal.valueOf(100))
-                    .setScale(2, RoundingMode.HALF_UP);
-            vo.setCompletionRate(completionRate);
-        } else {
-            vo.setCompletionRate(BigDecimal.ZERO);
+        // 基础统计 — 一次聚合查询，支持providerId过滤
+        Map<String, Object> summary = statisticsMapper.selectOrderSummary(providerId);
+        if (summary != null) {
+            Long total = toLong(summary.get("total"));
+            Long completedOrders = toLong(summary.get("completed"));
+            Long cancelled = toLong(summary.get("cancelled"));
+            vo.setTotal(total);
+            vo.setToday(toLong(summary.get("today")));
+            vo.setMonth(toLong(summary.get("month")));
+            vo.setPendingDispatch(toLong(summary.get("created")));
+            vo.setDispatched(toLong(summary.get("dispatched")));
+            vo.setReceived(toLong(summary.get("received")));
+            vo.setInService(toLong(summary.get("serviceStarted")));
+            vo.setCompleted(completedOrders);
+            vo.setCancelled(cancelled);
+            // 完成率
+            if (total != null && total > 0 && completedOrders != null) {
+                vo.setCompletionRate(BigDecimal.valueOf(completedOrders)
+                        .divide(BigDecimal.valueOf(total), 4, RoundingMode.HALF_UP)
+                        .multiply(BigDecimal.valueOf(100))
+                        .setScale(2, RoundingMode.HALF_UP));
+            } else {
+                vo.setCompletionRate(null);
+            }
+            // 取消率
+            if (total != null && total > 0 && cancelled != null) {
+                vo.setCancelRate(BigDecimal.valueOf(cancelled)
+                        .divide(BigDecimal.valueOf(total), 4, RoundingMode.HALF_UP)
+                        .multiply(BigDecimal.valueOf(100))
+                        .setScale(2, RoundingMode.HALF_UP));
+            } else {
+                vo.setCancelRate(null);
+            }
+            // 评分/金额（已完成订单口径）
+            Object avgR = summary.get("avgRating");
+            if (avgR != null) vo.setAverageRating(((Number) avgR).doubleValue());
+            Object amt = summary.get("completedAmount");
+            if (amt != null) vo.setTotalAmount(toBigDecimal(amt));
         }
-
-        // 计算取消率
-        if (totalOrders != null && totalOrders > 0 && cancelled != null) {
-            BigDecimal cancelRate = BigDecimal.valueOf(cancelled)
-                    .divide(BigDecimal.valueOf(totalOrders), 4, RoundingMode.HALF_UP)
-                    .multiply(BigDecimal.valueOf(100))
-                    .setScale(2, RoundingMode.HALF_UP);
-            vo.setCancelRate(cancelRate);
-        } else {
-            vo.setCancelRate(BigDecimal.ZERO);
-        }
-
-        vo.setAverageRating(statisticsMapper.selectAverageRating());
-        vo.setTotalAmount(statisticsMapper.selectTotalOrderAmount());
 
         // 服务类型分布 — 按providerId过滤
         vo.setServiceTypeDistribution(convertOrderServiceTypeDistribution(statisticsMapper.selectOrderServiceTypeDistribution(providerId)));

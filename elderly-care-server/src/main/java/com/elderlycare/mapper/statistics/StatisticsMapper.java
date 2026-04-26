@@ -472,7 +472,7 @@ public interface StatisticsMapper {
         ORDER BY orderCount DESC
         LIMIT 20
         """)
-    List<Map<String, Object>> selectOrderGeoDistribution();
+    List<Map<String, Object>> selectOrderGeoDistribution(@Param("providerId") String providerId);
 
     /**
      * 查询投诉类型分布（基于差评的服务类型分布）
@@ -506,4 +506,9 @@ public interface StatisticsMapper {
         GROUP BY care_level
         """)
     List<Map<String, Object>> selectCareLevelStats();
+
+    /**
+     * 订单汇总统计（按providerId过滤）
+     */
+    Map<String, Object> selectOrderSummary(@Param("providerId") String providerId);
 }

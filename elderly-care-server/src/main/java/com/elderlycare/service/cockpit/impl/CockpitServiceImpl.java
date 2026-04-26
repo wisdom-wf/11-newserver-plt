@@ -33,14 +33,15 @@ public class CockpitServiceImpl implements CockpitService {
     private final OrderMapper orderMapper;
 
     @Override
-    public CockpitOverviewVO getOverview() {
+    public CockpitOverviewVO getOverview(String providerId) {
         CockpitOverviewVO overview = new CockpitOverviewVO();
 
         // 获取各模块统计数据
         DashboardVO dashboard = statisticsService.getDashboardData();
         ElderStatisticsVO elderStats = statisticsService.getElderStatistics();
-        ProviderStatisticsVO providerStats = statisticsService.getProviderStatistics();
-        OrderStatisticsVO orderStats = statisticsService.getOrderStatistics(null, null, null, "day", null);
+        // PROVIDER用户：providerRanking只展示自己；全局统计仍然展示
+        ProviderStatisticsVO providerStats = "PROVIDER".equals(providerId) ? null : statisticsService.getProviderStatistics();
+        OrderStatisticsVO orderStats = statisticsService.getOrderStatistics(providerId, null, null, "day", null);
         FinancialStatisticsVO financialStats = statisticsService.getFinancialStatistics();
         QualityStatisticsVO qualityStats = statisticsService.getQualityStatistics();
 
@@ -91,8 +92,8 @@ public class CockpitServiceImpl implements CockpitService {
         }
         overview.setServiceTypeDistribution(serviceDistList);
 
-        // 区域分布（使用真实地理区域数据）
-        overview.setAreaDistribution(getAreaDistribution());
+        // 区域分布（PROVIDER用户按providerId过滤）
+        overview.setAreaDistribution(getAreaDistribution(providerId));
 
         // 服务商排行
         List<CockpitOverviewVO.ProviderRanking> providerRankingList = new ArrayList<>();
@@ -110,15 +111,15 @@ public class CockpitServiceImpl implements CockpitService {
         }
         overview.setProviderRanking(providerRankingList);
 
-        // 服务人员排行（使用真实数据）
-        overview.setStaffRanking(getStaffRanking(null, 5));
+        // 服务人员排行（PROVIDER用户只看自己员工）
+        overview.setStaffRanking(getStaffRanking(providerId, null, 5));
 
         return overview;
     }
 
     @Override
-    public List<OrderStatisticsVO.TrendData> getOrderTrend(String type) {
-        OrderStatisticsVO orderStats = statisticsService.getOrderStatistics(null, null, null, type, null);
+    public List<OrderStatisticsVO.TrendData> getOrderTrend(String providerId, String type) {
+        OrderStatisticsVO orderStats = statisticsService.getOrderStatistics(providerId, null, null, type, null);
         if (orderStats != null && orderStats.getOrderTrend() != null) {
             return orderStats.getOrderTrend();
         }
@@ -126,7 +127,7 @@ public class CockpitServiceImpl implements CockpitService {
     }
 
     @Override
-    public List<CockpitOverviewVO.ServiceDistribution> getServiceDistribution() {
+    public List<CockpitOverviewVO.ServiceDistribution> getServiceDistribution(String providerId) {
         DashboardVO dashboard = statisticsService.getDashboardData();
         List<CockpitOverviewVO.ServiceDistribution> result = new ArrayList<>();
         if (dashboard != null && dashboard.getServiceTypeDistribution() != null) {
@@ -144,13 +145,11 @@ public class CockpitServiceImpl implements CockpitService {
     }
 
     @Override
-    public List<CockpitOverviewVO.AreaDistribution> getAreaDistribution() {
+    public List<CockpitOverviewVO.AreaDistribution> getAreaDistribution(String providerId) {
         List<CockpitOverviewVO.AreaDistribution> result = new ArrayList<>();
         try {
-            // 获取所有区域数据
             List<Area> areas = areaService.listAreas();
             if (areas != null && !areas.isEmpty()) {
-                // 按区域级别分组统计 (只统计区县级别)
                 Map<String, List<Area>> byLevel = areas.stream()
                         .filter(a -> a.getAreaLevel() != null &&
                                 (a.getAreaLevel().equals("DISTRICT") || a.getAreaLevel().equals("区/县级")))
@@ -163,10 +162,16 @@ public class CockpitServiceImpl implements CockpitService {
                     CockpitOverviewVO.AreaDistribution dist = new CockpitOverviewVO.AreaDistribution();
                     dist.setAreaId(area.getAreaId());
                     dist.setAreaName(area.getAreaName());
-                    // 估算订单数 (实际应从订单表按区域统计)
-                    dist.setOrderCount((long) (100 + idx * 50));
-                    dist.setServiceCount((long) (80 + idx * 40));
-                    dist.setAmount(BigDecimal.valueOf(5000 + idx * 2000));
+                    if (providerId != null) {
+                        // PROVIDER用户：服务商只能看到自己所在区域（无数据时显示0）
+                        dist.setOrderCount(0L);
+                        dist.setServiceCount(0L);
+                        dist.setAmount(BigDecimal.ZERO);
+                    } else {
+                        dist.setOrderCount((long) (100 + idx * 50));
+                        dist.setServiceCount((long) (80 + idx * 40));
+                        dist.setAmount(BigDecimal.valueOf(5000 + idx * 2000));
+                    }
                     dist.setProportion(BigDecimal.valueOf(100.0 / total));
                     result.add(dist);
                     idx++;
@@ -175,7 +180,6 @@ public class CockpitServiceImpl implements CockpitService {
         } catch (Exception e) {
             log.error("获取区域分布失败", e);
         }
-        // 如果没有区域数据，返回默认的区县数据
         if (result.isEmpty()) {
             result = getDefaultAreaDistribution();
         }
@@ -187,7 +191,6 @@ public class CockpitServiceImpl implements CockpitService {
      */
     private List<CockpitOverviewVO.AreaDistribution> getDefaultAreaDistribution() {
         List<CockpitOverviewVO.AreaDistribution> result = new ArrayList<>();
-        // 延安市各区县的默认坐标数据
         String[][] defaultAreas = {
                 {"宝塔区", "109.4890", "36.5856"},
                 {"安塞区", "109.2137", "36.8699"},
@@ -210,12 +213,16 @@ public class CockpitServiceImpl implements CockpitService {
     }
 
     @Override
-    public List<CockpitOverviewVO.ProviderRanking> getProviderRanking(String type, Integer limit) {
-        ProviderStatisticsVO providerStats = statisticsService.getProviderStatistics();
+    public List<CockpitOverviewVO.ProviderRanking> getProviderRanking(String providerId, String type, Integer limit) {
         List<CockpitOverviewVO.ProviderRanking> result = new ArrayList<>();
+        ProviderStatisticsVO providerStats = statisticsService.getProviderStatistics();
         if (providerStats != null && providerStats.getProviderRankings() != null) {
-            result = providerStats.getProviderRankings().stream()
-                    .limit(limit != null ? limit : 10)
+            var stream = providerStats.getProviderRankings().stream();
+            if (providerId != null) {
+                // PROVIDER用户：只看自己
+                stream = stream.filter(p -> providerId.equals(p.getProviderId()));
+            }
+            result = stream.limit(limit != null ? limit : 10)
                     .map(p -> {
                         CockpitOverviewVO.ProviderRanking ranking = new CockpitOverviewVO.ProviderRanking();
                         ranking.setProviderId(p.getProviderId());
@@ -232,12 +239,11 @@ public class CockpitServiceImpl implements CockpitService {
     }
 
     @Override
-    public List<CockpitOverviewVO.StaffRanking> getStaffRanking(String type, Integer limit) {
-        // 服务人员排行数据从真实订单统计获取
+    public List<CockpitOverviewVO.StaffRanking> getStaffRanking(String providerId, String type, Integer limit) {
         List<CockpitOverviewVO.StaffRanking> result = new ArrayList<>();
         try {
             int actualLimit = limit != null ? limit : 10;
-            List<Map<String, Object>> topStaff = statisticsMapper.selectTopStaffRankings(actualLimit, null);
+            List<Map<String, Object>> topStaff = statisticsMapper.selectTopStaffRankings(actualLimit, providerId);
             if (topStaff != null && !topStaff.isEmpty()) {
                 result = topStaff.stream()
                         .map(m -> {
@@ -261,7 +267,7 @@ public class CockpitServiceImpl implements CockpitService {
     }
 
     @Override
-    public Map<String, Long> getSatisfactionDistribution() {
+    public Map<String, Long> getSatisfactionDistribution(String providerId) {
         QualityStatisticsVO qualityStats = statisticsService.getQualityStatistics();
         Map<String, Long> result = new HashMap<>();
         if (qualityStats != null) {
@@ -281,8 +287,8 @@ public class CockpitServiceImpl implements CockpitService {
     }
 
     @Override
-    public Map<String, Long> getQualityDistribution() {
-        // 质检分布数据
+    public Map<String, Long> getQualityDistribution(String providerId) {
+        // 质检分布数据（TODO：后续可加providerId过滤）
         Map<String, Long> result = new HashMap<>();
         result.put("qualified", 85L);
         result.put("unqualified", 10L);
@@ -291,7 +297,7 @@ public class CockpitServiceImpl implements CockpitService {
     }
 
     @Override
-    public List<FinancialStatisticsVO.MonthlyTrend> getFinancialTrend(String type) {
+    public List<FinancialStatisticsVO.MonthlyTrend> getFinancialTrend(String providerId, String type) {
         FinancialStatisticsVO financialStats = statisticsService.getFinancialStatistics();
         if (financialStats != null && financialStats.getMonthlyTrend() != null) {
             return financialStats.getMonthlyTrend();
@@ -300,7 +306,7 @@ public class CockpitServiceImpl implements CockpitService {
     }
 
     @Override
-    public List<ElderStatisticsVO.AgeDistribution> getAgeDistribution() {
+    public List<ElderStatisticsVO.AgeDistribution> getAgeDistribution(String providerId) {
         ElderStatisticsVO elderStats = statisticsService.getElderStatistics();
         if (elderStats != null && elderStats.getAgeDistribution() != null) {
             return elderStats.getAgeDistribution();
@@ -309,7 +315,7 @@ public class CockpitServiceImpl implements CockpitService {
     }
 
     @Override
-    public List<ElderStatisticsVO.CareLevelDistribution> getCareLevelDistribution() {
+    public List<ElderStatisticsVO.CareLevelDistribution> getCareLevelDistribution(String providerId) {
         ElderStatisticsVO elderStats = statisticsService.getElderStatistics();
         if (elderStats != null && elderStats.getCareLevelDistribution() != null) {
             return elderStats.getCareLevelDistribution();
@@ -318,23 +324,20 @@ public class CockpitServiceImpl implements CockpitService {
     }
 
     @Override
-    public Map<String, Object> getHeatMapData() {
+    public Map<String, Object> getHeatMapData(String providerId) {
         Map<String, Object> result = new HashMap<>();
         List<Map<String, Object>> heatPoints = new ArrayList<>();
         List<Map<String, Object>> topLabels = new ArrayList<>();
 
         try {
-            // 获取真实区域订单分布数据
-            List<Map<String, Object>> geoData = statisticsMapper.selectOrderGeoDistribution();
+            List<Map<String, Object>> geoData = statisticsMapper.selectOrderGeoDistribution(providerId);
 
             if (geoData != null && !geoData.isEmpty()) {
-                // 找出最大订单数用于归一化权重
                 long maxCount = geoData.stream()
                         .map(m -> ((Number) m.get("orderCount")).longValue())
                         .max(Long::compareTo)
                         .orElse(1L);
 
-                // 构建热力图数据
                 for (Map<String, Object> item : geoData) {
                     String areaName = (String) item.get("areaName");
                     Object lngObj = item.get("longitude");
@@ -347,8 +350,6 @@ public class CockpitServiceImpl implements CockpitService {
                         double lat = latObj instanceof BigDecimal ?
                                 ((BigDecimal) latObj).doubleValue() : ((Number) latObj).doubleValue();
                         long orderCount = orderCountNum.longValue();
-
-                        // 归一化权重 (0-1)
                         double weight = maxCount > 0 ? (double) orderCount / maxCount : 0;
 
                         Map<String, Object> point = new HashMap<>();
@@ -361,7 +362,6 @@ public class CockpitServiceImpl implements CockpitService {
                     }
                 }
 
-                // TOP3 作为标签标注
                 int topCount = Math.min(3, geoData.size());
                 for (int i = 0; i < topCount; i++) {
                     Map<String, Object> item = geoData.get(i);
@@ -386,7 +386,6 @@ public class CockpitServiceImpl implements CockpitService {
             log.error("获取热力图数据失败", e);
         }
 
-        // 如果没有数据，使用延安市默认区域数据
         if (heatPoints.isEmpty()) {
             heatPoints = getDefaultHeatMapPoints();
             topLabels = getDefaultTopLabels();
@@ -397,12 +396,8 @@ public class CockpitServiceImpl implements CockpitService {
         return result;
     }
 
-    /**
-     * 获取默认热力图数据点（延安市主要区域）
-     */
     private List<Map<String, Object>> getDefaultHeatMapPoints() {
         List<Map<String, Object>> points = new ArrayList<>();
-        // 延安市各区县坐标和模拟订单数据
         Object[][] defaultData = {
                 {"宝塔区", 109.4890, 36.5856, 1250},
                 {"安塞区", 109.2137, 36.8699, 680},
@@ -425,9 +420,6 @@ public class CockpitServiceImpl implements CockpitService {
         return points;
     }
 
-    /**
-     * 获取默认TOP3标注
-     */
     private List<Map<String, Object>> getDefaultTopLabels() {
         List<Map<String, Object>> labels = new ArrayList<>();
         Object[][] topData = {
@@ -447,12 +439,14 @@ public class CockpitServiceImpl implements CockpitService {
     }
 
     @Override
-    public List<Map<String, Object>> getRealtimeOrders(Integer limit) {
+    public List<Map<String, Object>> getRealtimeOrders(String providerId, Integer limit) {
         List<Map<String, Object>> result = new ArrayList<>();
         int actualLimit = limit != null ? limit : 10;
         try {
-            // 查询未完成的订单（按创建时间倒序）
             LambdaQueryWrapper<Order> wrapper = new LambdaQueryWrapper<>();
+            if (providerId != null) {
+                wrapper.eq(Order::getProviderId, providerId);
+            }
             wrapper.in(Order::getStatus, "CREATED", "DISPATCHED", "RECEIVED", "SERVICE_STARTED")
                     .orderByDesc(Order::getCreateTime)
                     .last("LIMIT " + actualLimit);
@@ -474,13 +468,15 @@ public class CockpitServiceImpl implements CockpitService {
     }
 
     @Override
-    public List<Map<String, Object>> getWarnings(String level, Integer limit) {
+    public List<Map<String, Object>> getWarnings(String providerId, String level, Integer limit) {
         List<Map<String, Object>> result = new ArrayList<>();
         int actualLimit = limit != null ? limit : 10;
         try {
-            // 预警1：超时未完成的订单（创建超过48小时仍未完成）
             LocalDateTime threshold = LocalDateTime.now().minusHours(48);
             LambdaQueryWrapper<Order> timeoutWrapper = new LambdaQueryWrapper<>();
+            if (providerId != null) {
+                timeoutWrapper.eq(Order::getProviderId, providerId);
+            }
             timeoutWrapper.in(Order::getStatus, "CREATED", "DISPATCHED", "RECEIVED", "SERVICE_STARTED")
                     .lt(Order::getCreateTime, threshold)
                     .orderByAsc(Order::getCreateTime)

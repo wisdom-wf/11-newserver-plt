@@ -578,42 +578,56 @@ public class AppointmentServiceImpl implements AppointmentService {
     }
 
     @Override
-    public AppointmentStatisticsVO getStatistics(String areaId, String startDate, String endDate) {
-        LambdaQueryWrapper<Appointment> wrapper = new LambdaQueryWrapper<>();
-
+    public AppointmentStatisticsVO getStatistics(String providerId, String areaId, String startDate, String endDate) {
         AppointmentStatisticsVO stats = new AppointmentStatisticsVO();
 
+        // 构建基础过滤条件
+        LambdaQueryWrapper<Appointment> baseWrapper = new LambdaQueryWrapper<>();
+        if (providerId != null) {
+            baseWrapper.eq(Appointment::getProviderId, providerId);
+        }
+        if (areaId != null && !areaId.isEmpty()) {
+            baseWrapper.eq(Appointment::getElderAreaId, areaId);
+        }
+        if (startDate != null && !startDate.isEmpty()) {
+            baseWrapper.ge(Appointment::getCreateTime, LocalDateTime.parse(startDate + "T00:00:00"));
+        }
+        if (endDate != null && !endDate.isEmpty()) {
+            baseWrapper.le(Appointment::getCreateTime, LocalDateTime.parse(endDate + "T23:59:59"));
+        }
+
         // 总数
-        stats.setTotal(appointmentMapper.selectCount(wrapper.clone()).intValue());
+        stats.setTotal(appointmentMapper.selectCount(baseWrapper.clone()).intValue());
 
         // 待处理
-        wrapper.eq(Appointment::getStatus, "PENDING");
-        stats.setPending(appointmentMapper.selectCount(wrapper.clone()).intValue());
-        wrapper.clear();
+        LambdaQueryWrapper<Appointment> w1 = baseWrapper.clone();
+        w1.eq(Appointment::getStatus, "PENDING");
+        stats.setPending(appointmentMapper.selectCount(w1).intValue());
 
         // 已确认
-        wrapper.eq(Appointment::getStatus, "CONFIRMED");
-        stats.setConfirmed(appointmentMapper.selectCount(wrapper.clone()).intValue());
-        wrapper.clear();
+        LambdaQueryWrapper<Appointment> w2 = baseWrapper.clone();
+        w2.eq(Appointment::getStatus, "CONFIRMED");
+        stats.setConfirmed(appointmentMapper.selectCount(w2).intValue());
 
         // 已分配
-        wrapper.eq(Appointment::getStatus, "ASSIGNED");
-        stats.setAssigned(appointmentMapper.selectCount(wrapper.clone()).intValue());
-        wrapper.clear();
+        LambdaQueryWrapper<Appointment> w3 = baseWrapper.clone();
+        w3.eq(Appointment::getStatus, "ASSIGNED");
+        stats.setAssigned(appointmentMapper.selectCount(w3).intValue());
 
         // 已完成
-        wrapper.eq(Appointment::getStatus, "COMPLETED");
-        stats.setCompleted(appointmentMapper.selectCount(wrapper.clone()).intValue());
-        wrapper.clear();
+        LambdaQueryWrapper<Appointment> w4 = baseWrapper.clone();
+        w4.eq(Appointment::getStatus, "COMPLETED");
+        stats.setCompleted(appointmentMapper.selectCount(w4).intValue());
 
         // 已取消
-        wrapper.eq(Appointment::getStatus, "CANCELLED");
-        stats.setCancelled(appointmentMapper.selectCount(wrapper.clone()).intValue());
-        wrapper.clear();
+        LambdaQueryWrapper<Appointment> w5 = baseWrapper.clone();
+        w5.eq(Appointment::getStatus, "CANCELLED");
+        stats.setCancelled(appointmentMapper.selectCount(w5).intValue());
 
         // 已作废
-        wrapper.eq(Appointment::getStatus, "INVALID");
-        stats.setInvalid(appointmentMapper.selectCount(wrapper.clone()).intValue());
+        LambdaQueryWrapper<Appointment> w6 = baseWrapper.clone();
+        w6.eq(Appointment::getStatus, "INVALID");
+        stats.setInvalid(appointmentMapper.selectCount(w6).intValue());
 
         return stats;
     }

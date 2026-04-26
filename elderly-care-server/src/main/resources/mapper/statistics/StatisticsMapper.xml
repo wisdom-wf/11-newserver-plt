@@ -124,4 +124,43 @@
         LIMIT #{limit}
     </select>
 
+    <!-- 订单地理分布（按providerId过滤） -->
+    <select id="selectOrderGeoDistribution" resultType="map">
+        SELECT
+            a.area_name AS areaName,
+            a.longitude,
+            a.latitude,
+            COUNT(o.order_id) AS orderCount
+        FROM t_order o
+        LEFT JOIN t_area a ON o.area_id = a.area_id
+        WHERE o.deleted = 0
+        <if test="providerId != null">
+            AND o.provider_id = #{providerId}
+        </if>
+        GROUP BY a.area_name, a.longitude, a.latitude
+        ORDER BY orderCount DESC
+    </select>
+
+    <!-- 订单汇总统计（按providerId过滤，一次查询） -->
+    <select id="selectOrderSummary" resultType="map">
+        SELECT
+            COUNT(*) AS total,
+            SUM(CASE WHEN DATE(o.create_time) = CURDATE() THEN 1 ELSE 0 END) AS today,
+            SUM(CASE WHEN o.create_time &gt;= DATE_SUB(CURDATE(), INTERVAL 1 MONTH) THEN 1 ELSE 0 END) AS month,
+            SUM(CASE WHEN o.status = 'CREATED' THEN 1 ELSE 0 END) AS created,
+            SUM(CASE WHEN o.status = 'DISPATCHED' THEN 1 ELSE 0 END) AS dispatched,
+            SUM(CASE WHEN o.status = 'RECEIVED' THEN 1 ELSE 0 END) AS received,
+            SUM(CASE WHEN o.status = 'SERVICE_STARTED' THEN 1 ELSE 0 END) AS serviceStarted,
+            SUM(CASE WHEN o.status IN ('SERVICE_COMPLETED','EVALUATED','SETTLED') THEN 1 ELSE 0 END) AS completed,
+            SUM(CASE WHEN o.status = 'CANCELLED' THEN 1 ELSE 0 END) AS cancelled,
+            COALESCE(SUM(CASE WHEN o.status IN ('SERVICE_COMPLETED','EVALUATED','SETTLED') THEN o.estimated_price ELSE 0 END), 0) AS completedAmount,
+            COALESCE(AVG(e.overall_score), 0) AS avgRating
+        FROM t_order o
+        LEFT JOIN t_service_evaluation e ON o.order_id = e.order_id AND e.deleted = 0
+        WHERE o.deleted = 0
+        <if test="providerId != null">
+            AND o.provider_id = #{providerId}
+        </if>
+    </select>
+
 </mapper>

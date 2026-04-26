@@ -68,7 +68,7 @@ public class PublicCockpitController {
             @RequestParam(required = false) @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate startDate,
             @RequestParam(required = false) @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate endDate) {
         validateTokenIfPresent(token);
-        CockpitOverviewVO overview = cockpitService.getOverview();
+        CockpitOverviewVO overview = cockpitService.getOverview(null);
         return Result.success(overview);
     }
 
@@ -80,7 +80,7 @@ public class PublicCockpitController {
             @RequestParam(required = false) String token,
             @RequestParam(required = false, defaultValue = "day") String type) {
         validateTokenIfPresent(token);
-        List<OrderStatisticsVO.TrendData> trend = cockpitService.getOrderTrend(type);
+        List<OrderStatisticsVO.TrendData> trend = cockpitService.getOrderTrend(null, type);
         return Result.success(trend);
     }
 
@@ -93,7 +93,7 @@ public class PublicCockpitController {
             @RequestParam(required = false, defaultValue = "order") String type,
             @RequestParam(required = false, defaultValue = "10") Integer limit) {
         validateTokenIfPresent(token);
-        List<CockpitOverviewVO.ProviderRanking> ranking = cockpitService.getProviderRanking(type, limit);
+        List<CockpitOverviewVO.ProviderRanking> ranking = cockpitService.getProviderRanking(null, type, limit);
         return Result.success(ranking);
     }
 
@@ -104,7 +104,7 @@ public class PublicCockpitController {
     public Result<List<CockpitOverviewVO.ServiceDistribution>> getServiceDistribution(
             @RequestParam(required = false) String token) {
         validateTokenIfPresent(token);
-        List<CockpitOverviewVO.ServiceDistribution> distribution = cockpitService.getServiceDistribution();
+        List<CockpitOverviewVO.ServiceDistribution> distribution = cockpitService.getServiceDistribution(null);
         return Result.success(distribution);
     }
 
@@ -115,7 +115,7 @@ public class PublicCockpitController {
     public Result<List<CockpitOverviewVO.AreaDistribution>> getAreaDistribution(
             @RequestParam(required = false) String token) {
         validateTokenIfPresent(token);
-        List<CockpitOverviewVO.AreaDistribution> distribution = cockpitService.getAreaDistribution();
+        List<CockpitOverviewVO.AreaDistribution> distribution = cockpitService.getAreaDistribution(null);
         return Result.success(distribution);
     }
 
@@ -126,7 +126,7 @@ public class PublicCockpitController {
     public Result<List<ElderStatisticsVO.AgeDistribution>> getAgeDistribution(
             @RequestParam(required = false) String token) {
         validateTokenIfPresent(token);
-        List<ElderStatisticsVO.AgeDistribution> distribution = cockpitService.getAgeDistribution();
+        List<ElderStatisticsVO.AgeDistribution> distribution = cockpitService.getAgeDistribution(null);
         return Result.success(distribution);
     }
 
@@ -137,7 +137,7 @@ public class PublicCockpitController {
     public Result<List<ElderStatisticsVO.CareLevelDistribution>> getCareLevelDistribution(
             @RequestParam(required = false) String token) {
         validateTokenIfPresent(token);
-        List<ElderStatisticsVO.CareLevelDistribution> distribution = cockpitService.getCareLevelDistribution();
+        List<ElderStatisticsVO.CareLevelDistribution> distribution = cockpitService.getCareLevelDistribution(null);
         return Result.success(distribution);
     }
 
@@ -149,7 +149,7 @@ public class PublicCockpitController {
             @RequestParam(required = false) String token,
             @RequestParam(required = false, defaultValue = "10") Integer limit) {
         validateTokenIfPresent(token);
-        return Result.success(cockpitService.getRealtimeOrders(limit));
+        return Result.success(cockpitService.getRealtimeOrders(null, limit));
     }
 
     private void validateTokenIfPresent(String token) {

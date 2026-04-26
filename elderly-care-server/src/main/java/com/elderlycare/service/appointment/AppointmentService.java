@@ -63,7 +63,7 @@ public interface AppointmentService {
     /**
      * 获取预约统计
      */
-    AppointmentStatisticsVO getStatistics(String areaId, String startDate, String endDate);
+    AppointmentStatisticsVO getStatistics(String providerId, String areaId, String startDate, String endDate);
 
     /**
      * 根据手机号获取预约列表

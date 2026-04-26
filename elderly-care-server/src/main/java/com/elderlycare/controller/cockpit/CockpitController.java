@@ -34,14 +34,8 @@ public class CockpitController {
             @RequestParam(required = false) String providerId,
             @RequestParam(required = false) @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate startDate,
             @RequestParam(required = false) @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate endDate) {
-        String userType = UserContext.getUserType();
-        String autoPid = UserContext.getProviderId();
-        // PROVIDER用户：强制只看自己服务商数据（注意：驾驶舱底层统计暂不支持provider过滤，这是已知限制）
-        if ("PROVIDER".equals(userType) && autoPid != null) {
-            // effectivePid = autoPid; // TODO: 驾驶舱service层需支持providerId过滤
-        }
-        CockpitOverviewVO overview = cockpitService.getOverview();
-        return Result.success(overview);
+        String effectivePid = resolveProviderId(providerId);
+        return Result.success(cockpitService.getOverview(effectivePid));
     }
 
     /**
@@ -54,8 +48,8 @@ public class CockpitController {
             @RequestParam(required = false) @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate startDate,
             @RequestParam(required = false) @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate endDate,
             @RequestParam(required = false, defaultValue = "day") String type) {
-        List<OrderStatisticsVO.TrendData> trend = cockpitService.getOrderTrend(type);
-        return Result.success(trend);
+        String effectivePid = resolveProviderId(providerId);
+        return Result.success(cockpitService.getOrderTrend(effectivePid, type));
     }
 
     /**
@@ -65,8 +59,8 @@ public class CockpitController {
     public Result<List<CockpitOverviewVO.ServiceDistribution>> getServiceDistribution(
             @RequestParam(required = false) String areaId,
             @RequestParam(required = false) String providerId) {
-        List<CockpitOverviewVO.ServiceDistribution> distribution = cockpitService.getServiceDistribution();
-        return Result.success(distribution);
+        String effectivePid = resolveProviderId(providerId);
+        return Result.success(cockpitService.getServiceDistribution(effectivePid));
     }
 
     /**
@@ -76,8 +70,8 @@ public class CockpitController {
     public Result<List<CockpitOverviewVO.AreaDistribution>> getAreaDistribution(
             @RequestParam(required = false) String areaId,
             @RequestParam(required = false) String providerId) {
-        List<CockpitOverviewVO.AreaDistribution> distribution = cockpitService.getAreaDistribution();
-        return Result.success(distribution);
+        String effectivePid = resolveProviderId(providerId);
+        return Result.success(cockpitService.getAreaDistribution(effectivePid));
     }
 
     /**
@@ -89,8 +83,8 @@ public class CockpitController {
             @RequestParam(required = false) String providerId,
             @RequestParam(required = false, defaultValue = "order") String type,
             @RequestParam(required = false, defaultValue = "10") Integer limit) {
-        List<CockpitOverviewVO.ProviderRanking> ranking = cockpitService.getProviderRanking(type, limit);
-        return Result.success(ranking);
+        String effectivePid = resolveProviderId(providerId);
+        return Result.success(cockpitService.getProviderRanking(effectivePid, type, limit));
     }
 
     /**
@@ -102,8 +96,8 @@ public class CockpitController {
             @RequestParam(required = false) String providerId,
             @RequestParam(required = false, defaultValue = "order") String type,
             @RequestParam(required = false, defaultValue = "10") Integer limit) {
-        List<CockpitOverviewVO.StaffRanking> ranking = cockpitService.getStaffRanking(type, limit);
-        return Result.success(ranking);
+        String effectivePid = resolveProviderId(providerId);
+        return Result.success(cockpitService.getStaffRanking(effectivePid, type, limit));
     }
 
     /**
@@ -113,8 +107,8 @@ public class CockpitController {
     public Result<Map<String, Long>> getSatisfactionDistribution(
             @RequestParam(required = false) String areaId,
             @RequestParam(required = false) String providerId) {
-        Map<String, Long> distribution = cockpitService.getSatisfactionDistribution();
-        return Result.success(distribution);
+        String effectivePid = resolveProviderId(providerId);
+        return Result.success(cockpitService.getSatisfactionDistribution(effectivePid));
     }
 
     /**
@@ -124,8 +118,8 @@ public class CockpitController {
     public Result<Map<String, Long>> getQualityDistribution(
             @RequestParam(required = false) String areaId,
             @RequestParam(required = false) String providerId) {
-        Map<String, Long> distribution = cockpitService.getQualityDistribution();
-        return Result.success(distribution);
+        String effectivePid = resolveProviderId(providerId);
+        return Result.success(cockpitService.getQualityDistribution(effectivePid));
     }
 
     /**
@@ -136,8 +130,8 @@ public class CockpitController {
             @RequestParam(required = false) String areaId,
             @RequestParam(required = false) String providerId,
             @RequestParam(required = false, defaultValue = "day") String type) {
-        List<FinancialStatisticsVO.MonthlyTrend> trend = cockpitService.getFinancialTrend(type);
-        return Result.success(trend);
+        String effectivePid = resolveProviderId(providerId);
+        return Result.success(cockpitService.getFinancialTrend(effectivePid, type));
     }
 
     /**
@@ -147,8 +141,8 @@ public class CockpitController {
     public Result<List<ElderStatisticsVO.AgeDistribution>> getAgeDistribution(
             @RequestParam(required = false) String areaId,
             @RequestParam(required = false) String providerId) {
-        List<ElderStatisticsVO.AgeDistribution> distribution = cockpitService.getAgeDistribution();
-        return Result.success(distribution);
+        String effectivePid = resolveProviderId(providerId);
+        return Result.success(cockpitService.getAgeDistribution(effectivePid));
     }
 
     /**
@@ -158,8 +152,8 @@ public class CockpitController {
     public Result<List<ElderStatisticsVO.CareLevelDistribution>> getCareLevelDistribution(
             @RequestParam(required = false) String areaId,
             @RequestParam(required = false) String providerId) {
-        List<ElderStatisticsVO.CareLevelDistribution> distribution = cockpitService.getCareLevelDistribution();
-        return Result.success(distribution);
+        String effectivePid = resolveProviderId(providerId);
+        return Result.success(cockpitService.getCareLevelDistribution(effectivePid));
     }
 
     /**
@@ -167,8 +161,10 @@ public class CockpitController {
      */
     @GetMapping("/realtimeOrders")
     public Result<Object> getRealtimeOrders(
+            @RequestParam(required = false) String providerId,
             @RequestParam(required = false, defaultValue = "10") Integer limit) {
-        return Result.success(cockpitService.getRealtimeOrders(limit));
+        String effectivePid = resolveProviderId(providerId);
+        return Result.success(cockpitService.getRealtimeOrders(effectivePid, limit));
     }
 
     /**
@@ -176,9 +172,11 @@ public class CockpitController {
      */
     @GetMapping("/warnings")
     public Result<Object> getWarnings(
+            @RequestParam(required = false) String providerId,
             @RequestParam(required = false) String level,
             @RequestParam(required = false, defaultValue = "10") Integer limit) {
-        return Result.success(cockpitService.getWarnings(level, limit));
+        String effectivePid = resolveProviderId(providerId);
+        return Result.success(cockpitService.getWarnings(effectivePid, level, limit));
     }
 
     /**
@@ -188,7 +186,21 @@ public class CockpitController {
     public Result<Map<String, Object>> getHeatMapData(
             @RequestParam(required = false) String areaId,
             @RequestParam(required = false) String providerId) {
-        Map<String, Object> data = cockpitService.getHeatMapData();
-        return Result.success(data);
+        String effectivePid = resolveProviderId(providerId);
+        return Result.success(cockpitService.getHeatMapData(effectivePid));
+    }
+
+    /**
+     * 解析effectiveProviderId。
+     * - PROVIDER用户：强制使用UserContext中的providerId（防止前端伪造）
+     * - ADMIN/CITY_ADMIN：使用前端传入的providerId参数（可选过滤）
+     */
+    private String resolveProviderId(String paramProviderId) {
+        String userType = UserContext.getUserType();
+        String autoPid = UserContext.getProviderId();
+        if ("PROVIDER".equals(userType) && autoPid != null) {
+            return autoPid; // 强制使用自己的providerId
+        }
+        return paramProviderId; // ADMIN/CITY_ADMIN可指定过滤
     }
 }
