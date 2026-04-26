@@ -6,6 +6,7 @@ import com.elderlycare.common.Result;
 import com.elderlycare.common.UserContext;
 import com.elderlycare.entity.order.Order;
 import com.elderlycare.mapper.order.OrderMapper;
+import com.elderlycare.dto.quality.InspectionDTO;
 import com.elderlycare.dto.quality.QualityCheckQueryDTO;
 import com.elderlycare.service.quality.QualityCheckService;
 import com.elderlycare.vo.quality.QualityCheckStatisticsVO;
@@ -132,6 +133,18 @@ public class QualityCheckController {
     public Result<Void> recheck(@PathVariable String id, @RequestBody Map<String, Object> params) {
         qualityCheckService.recheck(id, params);
         return Result.success("复检成功");
+    }
+
+    /**
+     * 执行质检（质检员提交质检结论）
+     * PUT /api/quality-check/{id}/inspect
+     * QUALIFIED → 日志→APPROVED，订单→COMPLETED
+     * UNQUALIFIED/NEED_RECTIFY → 开启整改流程
+     */
+    @PutMapping("/{id}/inspect")
+    public Result<Void> inspect(@PathVariable String id, @RequestBody InspectionDTO dto) {
+        qualityCheckService.inspect(id, dto);
+        return Result.success("质检执行完成");
     }
 
     /**

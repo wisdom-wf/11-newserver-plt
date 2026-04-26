@@ -8,6 +8,7 @@ import com.elderlycare.dto.servicelog.SignOutDTO;
 import com.elderlycare.vo.servicelog.ServiceLogStatisticsVO;
 import com.elderlycare.vo.servicelog.ServiceLogVO;
 
+import java.util.List;
 import java.util.Map;
 
 /**
@@ -69,6 +70,18 @@ public interface ServiceLogService {
      * 删除服务日志
      */
     void deleteServiceLog(String id);
+
+    /**
+     * 复制服务日志（创建新草稿日志，预填原日志信息，清空时间/照片/签名/异常字段）
+     * @param id 原日志ID
+     * @return 新日志ID
+     */
+    String duplicateServiceLog(String id);
+
+    /**
+     * 根据订单ID获取所有服务日志（摘要列表）
+     */
+    List<ServiceLogVO> getAllServiceLogsByOrderId(String orderId);
 
     /**
      * 出发

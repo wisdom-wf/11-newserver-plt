@@ -165,6 +165,26 @@ public class ServiceLogController {
     }
 
     /**
+     * 复制服务日志（创建新草稿）
+     * POST /api/service-log/{id}/duplicate
+     */
+    @PostMapping("/{id}/duplicate")
+    public Result<String> duplicateServiceLog(@PathVariable String id) {
+        String newId = serviceLogService.duplicateServiceLog(id);
+        return Result.success(newId);
+    }
+
+    /**
+     * 根据订单ID获取所有服务日志
+     * GET /api/service-log/order/{orderId}/all
+     */
+    @GetMapping("/order/{orderId}/all")
+    public Result<List<ServiceLogVO>> getAllServiceLogsByOrderId(@PathVariable String orderId) {
+        List<ServiceLogVO> logs = serviceLogService.getAllServiceLogsByOrderId(orderId);
+        return Result.success(logs);
+    }
+
+    /**
      * 服务日志批量删除
      * DELETE /api/service-log/batch
      */

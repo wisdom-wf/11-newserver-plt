@@ -6,6 +6,8 @@ import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import com.elderlycare.common.GpsUtils;
 import com.elderlycare.common.IDGenerator;
 import com.elderlycare.common.PageResult;
+import com.elderlycare.common.UserContext;
+import com.elderlycare.common.BusinessException;
 import com.elderlycare.dto.servicelog.DepartureDTO;
 import com.elderlycare.dto.servicelog.ServiceLogQueryDTO;
 import com.elderlycare.dto.servicelog.SignInDTO;
@@ -240,25 +242,7 @@ public class ServiceLogServiceImpl implements ServiceLogService {
             serviceLog.setReviewComment(remarks);
         }
         serviceLogMapper.updateById(serviceLog);
-
-        // 自动创建质检请求
-        com.elderlycare.entity.quality.QualityCheck qualityCheck = new com.elderlycare.entity.quality.QualityCheck();
-        qualityCheck.setQualityCheckId(IDGenerator.generateId());
-        qualityCheck.setCheckNo("QC" + System.currentTimeMillis());
-        qualityCheck.setOrderId(serviceLog.getOrderId());
-        qualityCheck.setOrderNo(serviceLog.getOrderNo());
-        qualityCheck.setServiceLogId(serviceLog.getServiceLogId());
-        qualityCheck.setServiceCategory(serviceLog.getServiceTypeCode());
-        qualityCheck.setProviderId(serviceLog.getProviderId());
-        qualityCheck.setProviderName(serviceLog.getProviderName());
-        qualityCheck.setStaffId(serviceLog.getStaffId());
-        qualityCheck.setStaffName(serviceLog.getStaffName());
-        qualityCheck.setCheckType("COMPLETION"); // 完工质检
-        qualityCheck.setCheckMethod("PHOTO_REVIEW"); // 默认照片审核
-        qualityCheck.setCheckResult("PENDING"); // 待质检
-        qualityCheck.setRectifyStatus("PENDING");
-        qualityCheck.setCreateTime(LocalDateTime.now());
-        qualityCheckMapper.insert(qualityCheck);
+        // 质检单已在 submitServiceLog() 创建日志时一并创建，无需重复创建
     }
 
     @Override
@@ -274,26 +258,39 @@ public class ServiceLogServiceImpl implements ServiceLogService {
         if (result == null || (!"APPROVED".equals(result) && !"REJECTED".equals(result))) {
             throw new RuntimeException("审核结果只能是APPROVED或REJECTED");
         }
-        // 获取审核人信息（简化处理，实际应从UserContext获取）
+        // 获取审核人信息
         serviceLog.setAuditStatus(result);
         serviceLog.setReviewComment(reviewComment);
         serviceLog.setReviewTime(LocalDateTime.now());
+        serviceLog.setReviewerId(com.elderlycare.common.UserContext.getUserId());
+        serviceLog.setReviewerName(com.elderlycare.common.UserContext.getUsername());
         serviceLogMapper.updateById(serviceLog);
 
-        // 更新关联质检单状态
-        LambdaQueryWrapper<com.elderlycare.entity.quality.QualityCheck> wrapper = new LambdaQueryWrapper<>();
-        wrapper.eq(com.elderlycare.entity.quality.QualityCheck::getServiceLogId, id);
-        com.elderlycare.entity.quality.QualityCheck qualityCheck = qualityCheckMapper.selectOne(wrapper);
-        if (qualityCheck != null) {
-            qualityCheck.setCheckResult("APPROVED".equals(result) ? "QUALIFIED" : "UNQUALIFIED");
-            qualityCheck.setCheckRemark(reviewComment);
-            qualityCheck.setCheckTime(LocalDateTime.now());
-            if ("REJECTED".equals(result)) {
-                qualityCheck.setNeedRectify(true);
-                qualityCheck.setRectifyStatus("PENDING");
+        // APPROVED 时自动创建质检单（checkResult=PENDING，等待质检员执行 inspect）
+        if ("APPROVED".equals(result)) {
+            // 查订单信息填充质检单
+            Order order = null;
+            if (serviceLog.getOrderId() != null) {
+                order = orderMapper.selectById(serviceLog.getOrderId());
             }
-            qualityCheckMapper.updateById(qualityCheck);
+            QualityCheck qc = new QualityCheck();
+            qc.setCheckNo("QC" + System.currentTimeMillis());
+            qc.setOrderId(serviceLog.getOrderId());
+            qc.setOrderNo(serviceLog.getOrderNo());
+            qc.setServiceLogId(serviceLog.getServiceLogId());
+            qc.setServiceCategory(serviceLog.getServiceTypeName());
+            qc.setProviderId(serviceLog.getProviderId());
+            qc.setProviderName(serviceLog.getProviderName());
+            qc.setStaffId(serviceLog.getStaffId());
+            qc.setStaffName(serviceLog.getStaffName());
+            qc.setCheckType("COMPLETION"); // 完工抽检
+            qc.setCheckResult("PENDING");  // 待质检，等质检员执行 inspect
+            qc.setNeedRectify(false);
+            qc.setRectifyStatus(null);
+            qc.setCreateTime(LocalDateTime.now());
+            qualityCheckMapper.insert(qc);
         }
+        // REJECTED 仅更新日志审核状态
     }
 
     @Override
@@ -307,6 +304,63 @@ public class ServiceLogServiceImpl implements ServiceLogService {
             throw new RuntimeException("只有草稿状态才能删除");
         }
         serviceLogMapper.deleteById(id);
+    }
+
+    @Override
+    @Transactional(rollbackFor = Exception.class)
+    public String duplicateServiceLog(String id) {
+        ServiceLog original = serviceLogMapper.selectById(id);
+        if (original == null) {
+            throw new RuntimeException("服务日志不存在");
+        }
+        if (!"DRAFT".equals(original.getAuditStatus())) {
+            throw new BusinessException(400, "仅支持复制草稿状态的日志");
+        }
+
+        ServiceLog copy = new ServiceLog();
+        copy.setLogNo(IDGenerator.generateId()); // 简化：直接用 UUID 前缀
+        copy.setOrderId(original.getOrderId());
+        copy.setOrderNo(original.getOrderNo());
+        copy.setElderId(original.getElderId());
+        copy.setElderName(original.getElderName());
+        copy.setElderPhone(original.getElderPhone());
+        copy.setElderAddress(original.getElderAddress());
+        copy.setStaffId(original.getStaffId());
+        copy.setStaffName(original.getStaffName());
+        copy.setStaffPhone(original.getStaffPhone());
+        copy.setProviderId(original.getProviderId());
+        copy.setProviderName(original.getProviderName());
+        copy.setServiceTypeCode(original.getServiceTypeCode());
+        copy.setServiceTypeName(original.getServiceTypeName());
+        // 清空字段：时间/照片/签名/异常/审核相关
+        copy.setServiceDate(null);
+        copy.setServiceStartTime(null);
+        copy.setServiceEndTime(null);
+        copy.setServiceDuration(null);
+        copy.setActualDuration(null);
+        copy.setServicePhotos(null);
+        copy.setElderSignature(null);
+        copy.setAnomalyType(null);
+        copy.setAnomalyDesc(null);
+        copy.setAnomalyPhotos(null);
+        copy.setAnomalyStatus(null);
+        copy.setServiceComment(null);
+        copy.setServiceScore(null);
+        copy.setHealthObservations(original.getHealthObservations()); // 健康观察可保留
+        copy.setMedicationGiven(original.getMedicationGiven());        // 给药记录可保留
+        copy.setAuditStatus("DRAFT");
+        copy.setCreateTime(LocalDateTime.now());
+        serviceLogMapper.insert(copy);
+        return copy.getServiceLogId();
+    }
+
+    @Override
+    public List<ServiceLogVO> getAllServiceLogsByOrderId(String orderId) {
+        LambdaQueryWrapper<ServiceLog> wrapper = new LambdaQueryWrapper<>();
+        wrapper.eq(ServiceLog::getOrderId, orderId);
+        wrapper.orderByDesc(ServiceLog::getCreateTime);
+        List<ServiceLog> logs = serviceLogMapper.selectList(wrapper);
+        return logs.stream().map(this::convertToVO).collect(Collectors.toList());
     }
 
     @Override

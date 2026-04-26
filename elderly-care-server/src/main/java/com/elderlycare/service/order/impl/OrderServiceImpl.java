@@ -157,6 +157,57 @@ public class OrderServiceImpl implements OrderService {
         // 构建时间线
         vo.setTimeline(buildOrderTimeline(order));
 
+        // 填充关联的服务日志列表（摘要，不含照片等大字段）
+        com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper<ServiceLog> slWrapper =
+                new com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper<>();
+        slWrapper.eq(ServiceLog::getOrderId, orderId);
+        slWrapper.orderByAsc(ServiceLog::getCreateTime);
+        List<ServiceLog> logs = serviceLogMapper.selectList(slWrapper);
+        List<com.elderlycare.vo.servicelog.ServiceLogSummaryVO> logSummaries =
+                logs.stream().map(log -> {
+                    com.elderlycare.vo.servicelog.ServiceLogSummaryVO s = new com.elderlycare.vo.servicelog.ServiceLogSummaryVO();
+                    s.setServiceLogId(log.getServiceLogId());
+                    s.setLogNo(log.getLogNo());
+                    s.setAuditStatus(log.getAuditStatus());
+                    s.setServiceStatus(log.getServiceStatus());
+                    s.setServiceDate(log.getServiceDate());
+                    s.setServiceStartTime(log.getServiceStartTime() != null ? log.getServiceStartTime().toString() : null);
+                    s.setServiceEndTime(log.getServiceEndTime() != null ? log.getServiceEndTime().toString() : null);
+                    s.setServiceDuration(log.getServiceDuration());
+                    s.setStaffName(log.getStaffName());
+                    s.setElderName(log.getElderName());
+                    s.setServiceTypeName(log.getServiceTypeName());
+                    s.setCreateTime(log.getCreateTime() != null ? log.getCreateTime().toString() : null);
+                    s.setCompletionTime(log.getReviewTime() != null ? log.getReviewTime().toString() : null);
+                    s.setReviewComment(log.getReviewComment());
+                    return s;
+                }).collect(java.util.stream.Collectors.toList());
+        vo.setServiceLogs(logSummaries);
+
+        // 填充关联的质检单列表
+        com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper<QualityCheck> qcWrapper =
+                new com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper<>();
+        qcWrapper.eq(QualityCheck::getOrderId, orderId);
+        qcWrapper.orderByAsc(QualityCheck::getCreateTime);
+        List<QualityCheck> qcs = qualityCheckMapper.selectList(qcWrapper);
+        List<com.elderlycare.vo.quality.QualityCheckSummaryVO> qcSummaries =
+                qcs.stream().map(qc -> {
+                    com.elderlycare.vo.quality.QualityCheckSummaryVO s = new com.elderlycare.vo.quality.QualityCheckSummaryVO();
+                    s.setQualityCheckId(qc.getQualityCheckId());
+                    s.setCheckNo(qc.getCheckNo());
+                    s.setCheckResult(qc.getCheckResult());
+                    s.setCheckType(qc.getCheckType());
+                    s.setServiceLogId(qc.getServiceLogId());
+                    s.setStaffName(qc.getStaffName());
+                    s.setCheckerName(qc.getCheckerName());
+                    s.setNeedRectify(qc.getNeedRectify());
+                    s.setRectifyStatus(qc.getRectifyStatus());
+                    s.setCreateTime(qc.getCreateTime() != null ? qc.getCreateTime().toString() : null);
+                    s.setCheckTime(qc.getCheckTime() != null ? qc.getCheckTime().toString() : null);
+                    return s;
+                }).collect(java.util.stream.Collectors.toList());
+        vo.setQualityChecks(qcSummaries);
+
         return vo;
     }
 

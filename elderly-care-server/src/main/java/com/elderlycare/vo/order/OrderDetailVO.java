@@ -6,6 +6,8 @@ import java.math.BigDecimal;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.List;
+import com.elderlycare.vo.servicelog.ServiceLogSummaryVO;
+import com.elderlycare.vo.quality.QualityCheckSummaryVO;
 
 /**
  * 订单详情VO
@@ -80,4 +82,10 @@ public class OrderDetailVO implements Serializable {
     private LocalDateTime createTime;
 
     private List<OrderTimelineVO> timeline;
+
+    /** 关联的服务日志列表 */
+    private List<ServiceLogSummaryVO> serviceLogs;
+
+    /** 关联的质检单列表 */
+    private List<QualityCheckSummaryVO> qualityChecks;
 }

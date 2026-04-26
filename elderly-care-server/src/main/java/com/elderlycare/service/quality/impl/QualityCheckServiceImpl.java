@@ -4,14 +4,22 @@ import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
 import com.baomidou.mybatisplus.core.metadata.IPage;
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import com.elderlycare.common.PageResult;
+import com.elderlycare.common.UserContext;
+import com.elderlycare.common.BusinessException;
+import com.elderlycare.dto.quality.InspectionDTO;
 import com.elderlycare.dto.quality.QualityCheckQueryDTO;
 import com.elderlycare.entity.quality.QualityCheck;
+import com.elderlycare.entity.servicelog.ServiceLog;
+import com.elderlycare.entity.order.Order;
 import com.elderlycare.mapper.quality.QualityCheckMapper;
+import com.elderlycare.mapper.servicelog.ServiceLogMapper;
+import com.elderlycare.mapper.order.OrderMapper;
 import com.elderlycare.service.quality.QualityCheckService;
 import com.elderlycare.vo.quality.QualityCheckStatisticsVO;
 import com.elderlycare.vo.quality.QualityCheckVO;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.math.BigDecimal;
 import java.time.LocalDateTime;
@@ -26,6 +34,8 @@ import java.util.stream.Collectors;
 public class QualityCheckServiceImpl implements QualityCheckService {
 
     private final QualityCheckMapper qualityCheckMapper;
+    private final ServiceLogMapper serviceLogMapper;
+    private final OrderMapper orderMapper;
 
     @Override
     public PageResult<QualityCheckVO> getQualityCheckList(QualityCheckQueryDTO query) {
@@ -101,7 +111,9 @@ public class QualityCheckServiceImpl implements QualityCheckService {
         qualityCheck.setCheckType(vo.getCheckType());
         qualityCheck.setCheckMethod(vo.getCheckMethod());
         qualityCheck.setCheckScore(vo.getCheckScore());
-        qualityCheck.setCheckResult(vo.getCheckResult());
+        // 手动创建的质检单也默认 PENDING，统一由质检员通过 inspect 接口给出结论
+        qualityCheck.setCheckResult(vo.getCheckResult() != null && !vo.getCheckResult().isEmpty()
+                ? vo.getCheckResult() : "PENDING");
         qualityCheck.setCheckPhotos(vo.getCheckPhotos());
         qualityCheck.setCheckRemark(vo.getCheckRemark());
         qualityCheck.setCheckTime(LocalDateTime.now());
@@ -134,6 +146,7 @@ public class QualityCheckServiceImpl implements QualityCheckService {
     }
 
     @Override
+    @Transactional(rollbackFor = Exception.class)
     public void recheck(String id, Map<String, Object> params) {
         QualityCheck qualityCheck = qualityCheckMapper.selectById(id);
         if (qualityCheck != null) {
@@ -141,6 +154,22 @@ public class QualityCheckServiceImpl implements QualityCheckService {
             qualityCheck.setRecheckTime(LocalDateTime.now());
             if ("PASSED".equals(params.get("result"))) {
                 qualityCheck.setRectifyStatus("VERIFIED");
+                // 复检合格：联动日志→COMPLETED + 订单→COMPLETED
+                if (qualityCheck.getServiceLogId() != null) {
+                    ServiceLog sl = serviceLogMapper.selectById(qualityCheck.getServiceLogId());
+                    if (sl != null) {
+                        sl.setAuditStatus("COMPLETED");
+                        serviceLogMapper.updateById(sl);
+                    }
+                }
+                if (qualityCheck.getOrderId() != null) {
+                    Order order = orderMapper.selectById(qualityCheck.getOrderId());
+                    if (order != null) {
+                        order.setStatus("COMPLETED");
+                        order.setCompleteTime(LocalDateTime.now());
+                        orderMapper.updateById(order);
+                    }
+                }
             } else {
                 qualityCheck.setRectifyStatus("FAILED");
             }
@@ -187,6 +216,75 @@ public class QualityCheckServiceImpl implements QualityCheckService {
         stats.setAvgScore(qualityCheckMapper.avgCheckScore());  // null则保持null
 
         return stats;
+    }
+
+    /**
+     * 执行质检（质检员提交质检结论）
+     * QUALIFIED → 日志状态→APPROVED，订单状态→COMPLETED（联动完成）
+     * UNQUALIFIED / NEED_RECTIFY → 开启整改流程（不联动日志/订单）
+     */
+    @Override
+    @Transactional(rollbackFor = Exception.class)
+    public void inspect(String id, InspectionDTO dto) {
+        QualityCheck qc = qualityCheckMapper.selectById(id);
+        if (qc == null) {
+            throw new RuntimeException("质检单不存在");
+        }
+        if (!"PENDING".equals(qc.getCheckResult())) {
+            throw new BusinessException(400, "只有待质检状态才能执行质检");
+        }
+        if (dto.getCheckResult() == null || dto.getCheckResult().isEmpty()) {
+            throw new BusinessException(400, "质检结论不能为空");
+        }
+        // 质检结果只能是 QUALIFIED / UNQUALIFIED / NEED_RECTIFY
+        if (!"QUALIFIED".equals(dto.getCheckResult())
+                && !"UNQUALIFIED".equals(dto.getCheckResult())
+                && !"NEED_RECTIFY".equals(dto.getCheckResult())) {
+            throw new BusinessException(400, "质检结论必须是 QUALIFIED / UNQUALIFIED / NEED_RECTIFY");
+        }
+
+        // 填充质检信息
+        qc.setCheckResult(dto.getCheckResult());
+        qc.setCheckScore(dto.getCheckScore());
+        qc.setCheckRemark(dto.getCheckRemark());
+        qc.setCheckPhotos(dto.getCheckPhotos());
+        qc.setCheckTime(LocalDateTime.now());
+        qc.setCheckerId(UserContext.getUserId());
+        qc.setCheckerName(UserContext.getUsername());
+
+        if ("QUALIFIED".equals(dto.getCheckResult())) {
+            // 合格：联动日志+订单状态
+            if (qc.getServiceLogId() != null) {
+                ServiceLog sl = serviceLogMapper.selectById(qc.getServiceLogId());
+                if (sl != null) {
+                    sl.setAuditStatus("APPROVED");
+                    sl.setReviewTime(LocalDateTime.now());
+                    sl.setReviewerId(UserContext.getUserId());
+                    sl.setReviewComment("质检合格，自动审核通过");
+                    sl.setServiceEndTime(LocalDateTime.now());
+                    serviceLogMapper.updateById(sl);
+                }
+            }
+            if (qc.getOrderId() != null) {
+                Order order = orderMapper.selectById(qc.getOrderId());
+                if (order != null) {
+                    order.setStatus("COMPLETED");
+                    order.setCompleteTime(LocalDateTime.now());
+                    orderMapper.updateById(order);
+                }
+            }
+            qc.setRectifyStatus(null); // 无需整改
+        } else {
+            // 不合格/需整改：开启整改流程
+            qc.setNeedRectify(true);
+            qc.setRectifyStatus("PENDING");
+            qc.setRectifyNotice(dto.getRectifyNotice());
+            if (dto.getRectifyDeadline() != null) {
+                qc.setRectifyDeadline(dto.getRectifyDeadline());
+            }
+        }
+
+        qualityCheckMapper.updateById(qc);
     }
 
     private QualityCheckVO convertToVO(QualityCheck qualityCheck) {
