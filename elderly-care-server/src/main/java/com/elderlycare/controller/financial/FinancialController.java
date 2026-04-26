@@ -2,6 +2,7 @@ package com.elderlycare.controller.financial;
 
 import com.elderlycare.common.PageResult;
 import com.elderlycare.common.Result;
+import com.elderlycare.common.UserContext;
 import com.elderlycare.dto.financial.*;
 import com.elderlycare.service.financial.*;
 import com.elderlycare.vo.financial.*;
@@ -13,6 +14,7 @@ import java.util.List;
 
 /**
  * 财务结算管理Controller
+ * 所有查询自动注入当前用户的providerId进行数据隔离
  */
 @RestController
 @RequestMapping("/api/financial")
@@ -31,6 +33,10 @@ public class FinancialController {
      */
     @PostMapping("/prices")
     public Result<String> createPrice(@Validated @RequestBody ServicePriceCreateDTO dto) {
+        String autoPid = UserContext.getProviderId();
+        if (autoPid != null) {
+            dto.setProviderId(autoPid);
+        }
         String priceId = servicePriceService.createPrice(dto);
         return Result.success(priceId);
     }
@@ -40,6 +46,10 @@ public class FinancialController {
      */
     @GetMapping("/prices")
     public Result<PageResult<ServicePriceVO>> queryPrices(ServicePriceQueryDTO dto) {
+        String autoPid = UserContext.getProviderId();
+        if (autoPid != null) {
+            dto.setProviderId(autoPid);
+        }
         PageResult<ServicePriceVO> result = servicePriceService.queryPrices(dto);
         return Result.success(result);
     }
@@ -80,6 +90,10 @@ public class FinancialController {
      */
     @PostMapping("/settlements/calculate")
     public Result<SettlementCalculateVO> calculateSettlement(@Validated @RequestBody SettlementCalculateDTO dto) {
+        String autoPid = UserContext.getProviderId();
+        if (autoPid != null) {
+            dto.setProviderId(autoPid);
+        }
         SettlementCalculateVO result = settlementService.calculateSettlement(dto);
         return Result.success(result);
     }
@@ -98,6 +112,10 @@ public class FinancialController {
      */
     @GetMapping("/settlements")
     public Result<PageResult<SettlementVO>> querySettlements(SettlementQueryDTO dto) {
+        String autoPid = UserContext.getProviderId();
+        if (autoPid != null) {
+            dto.setProviderId(autoPid);
+        }
         PageResult<SettlementVO> result = settlementService.querySettlements(dto);
         return Result.success(result);
     }
@@ -116,6 +134,10 @@ public class FinancialController {
      */
     @PostMapping("/settlements/batch")
     public Result<List<String>> batchSettlement(@Validated @RequestBody BatchSettlementDTO dto) {
+        String autoPid = UserContext.getProviderId();
+        if (autoPid != null) {
+            dto.setProviderId(autoPid);
+        }
         List<String> settlementIds = settlementService.batchSettlement(dto);
         return Result.success(settlementIds);
     }
@@ -127,6 +149,10 @@ public class FinancialController {
      */
     @PostMapping("/refunds")
     public Result<String> createRefund(@Validated @RequestBody RefundCreateDTO dto) {
+        String autoPid = UserContext.getProviderId();
+        if (autoPid != null) {
+            dto.setProviderId(autoPid);
+        }
         String refundId = refundService.createRefund(dto);
         return Result.success(refundId);
     }
@@ -136,6 +162,10 @@ public class FinancialController {
      */
     @GetMapping("/refunds")
     public Result<PageResult<RefundVO>> queryRefunds(RefundQueryDTO dto) {
+        String autoPid = UserContext.getProviderId();
+        if (autoPid != null) {
+            dto.setProviderId(autoPid);
+        }
         PageResult<RefundVO> result = refundService.queryRefunds(dto);
         return Result.success(result);
     }
@@ -167,6 +197,10 @@ public class FinancialController {
      */
     @GetMapping("/reports")
     public Result<PageResult<FinancialReportVO>> queryReports(FinancialReportQueryDTO dto) {
+        String autoPid = UserContext.getProviderId();
+        if (autoPid != null) {
+            dto.setProviderId(autoPid);
+        }
         PageResult<FinancialReportVO> result = financialReportService.queryReports(dto);
         return Result.success(result);
     }
