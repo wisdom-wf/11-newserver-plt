@@ -40,6 +40,8 @@ public class EvaluationVO implements Serializable {
 
     private Integer efficiencyScore;
 
+    private Integer environmentScore;
+
     private String content;
 
     private String tags;

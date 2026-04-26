@@ -57,6 +57,13 @@ public class CreateEvaluationDTO implements Serializable {
     private Integer efficiencyScore;
 
     /**
+     * 环境评分(1-5)
+     */
+    @Min(value = 1, message = "环境评分最小为1")
+    @Max(value = 5, message = "环境评分最大为5")
+    private Integer environmentScore;
+
+    /**
      * 评价内容
      */
     private String content;

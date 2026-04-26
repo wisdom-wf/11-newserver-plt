@@ -84,6 +84,11 @@ public class ServiceEvaluation implements Serializable {
     private Integer efficiencyScore;
 
     /**
+     * 环境评分(1-5)
+     */
+    private Integer environmentScore;
+
+    /**
      * 总体评分(1-5)
      */
     private Integer overallScore;
@@ -116,6 +121,51 @@ public class ServiceEvaluation implements Serializable {
      */
     @TableField("evaluation_time")
     private LocalDateTime evaluationTime;
+
+    /**
+     * 回复内容
+     */
+    private String replyContent;
+
+    /**
+     * 回复时间
+     */
+    private LocalDateTime replyTime;
+
+    /**
+     * 回复人ID
+     */
+    private String replyerId;
+
+    /**
+     * 回复人姓名
+     */
+    private String replyerName;
+
+    /**
+     * 评价邀请Token
+     */
+    private String evaluationToken;
+
+    /**
+     * Token状态：PENDING-待评价，COMPLETED-已评价，EXPIRED-已过期
+     */
+    private String tokenStatus;
+
+    /**
+     * Token过期时间
+     */
+    private LocalDateTime tokenExpireTime;
+
+    /**
+     * Token使用时间（提交评价时间）
+     */
+    private LocalDateTime tokenUsedTime;
+
+    /**
+     * 提交评价时的IP地址
+     */
+    private String tokenUsedIp;
 
     @TableField(fill = FieldFill.INSERT)
     private LocalDateTime createTime;

@@ -17,6 +17,12 @@
         <result column="evaluation_tags" property="tags"/>
         <result column="is_anonymous" property="anonymous"/>
         <result column="evaluation_time" property="evaluationTime"/>
+        <result column="reply_content" property="replyContent"/>
+        <result column="reply_time" property="replyTime"/>
+        <result column="evaluation_token" property="evaluationToken"/>
+        <result column="token_status" property="tokenStatus"/>
+        <result column="token_expire_time" property="tokenExpireTime"/>
+        <result column="token_used_time" property="tokenUsedTime"/>
         <result column="create_time" property="createTime"/>
     </resultMap>
 
@@ -29,7 +35,7 @@
             se.provider_id,
             p.provider_name,
             se.elder_id,
-            e.name AS elder_name,
+            e.elder_name AS elder_name,
             o.service_type_code,
             o.service_type_name,
             se.attitude_score,
@@ -85,6 +91,72 @@
             AND DATE(se.create_time) &lt;= #{query.endDate}
         </if>
         ORDER BY se.create_time DESC
+    </select>
+
+    <select id="selectEvaluationDetail" resultMap="BaseResultMap">
+        SELECT
+            se.evaluation_id,
+            se.order_id,
+            se.staff_id,
+            s.staff_name AS staff_name,
+            se.provider_id,
+            p.provider_name AS provider_name,
+            se.elder_id,
+            e.elder_name AS elder_name,
+            o.service_type_code,
+            o.service_type_name,
+            se.attitude_score,
+            se.quality_score,
+            se.efficiency_score,
+            se.overall_score,
+            se.average_score,
+            se.evaluation_content,
+            se.evaluation_tags,
+            se.is_anonymous,
+            se.evaluation_time,
+            se.create_time
+        FROM t_service_evaluation se
+        LEFT JOIN t_staff s ON se.staff_id = s.staff_id
+        LEFT JOIN t_provider p ON se.provider_id = p.provider_id
+        LEFT JOIN t_elder e ON se.elder_id = e.elder_id
+        LEFT JOIN t_order o ON se.order_id = o.order_id
+        WHERE se.evaluation_id = #{evaluationId}
+    </select>
+
+    <select id="selectByToken" resultMap="BaseResultMap">
+        SELECT
+            se.evaluation_id,
+            se.order_id,
+            se.staff_id,
+            s.staff_name AS staff_name,
+            se.provider_id,
+            p.provider_name AS provider_name,
+            se.elder_id,
+            e.elder_name AS elder_name,
+            o.service_type_code,
+            o.service_type_name,
+            se.attitude_score,
+            se.quality_score,
+            se.efficiency_score,
+            se.overall_score,
+            se.average_score,
+            se.evaluation_content,
+            se.evaluation_tags,
+            se.is_anonymous,
+            se.evaluation_time,
+            se.reply_content,
+            se.reply_time,
+            se.evaluation_token,
+            se.token_status,
+            se.token_expire_time,
+            se.token_used_time,
+            se.create_time
+        FROM t_service_evaluation se
+        LEFT JOIN t_staff s ON se.staff_id = s.staff_id
+        LEFT JOIN t_provider p ON se.provider_id = p.provider_id
+        LEFT JOIN t_elder e ON se.elder_id = e.elder_id
+        LEFT JOIN t_order o ON se.order_id = o.order_id
+        WHERE se.evaluation_token = #{token}
     </select>
 
 </mapper>

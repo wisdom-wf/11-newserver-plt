@@ -125,6 +125,27 @@ public class ServiceLog implements Serializable {
     /** 本次给药记录 */
     private String medicationGiven;
 
+    /** 出发时间 */
+    private LocalDateTime departureTime;
+
+    /** 签到时间 */
+    private LocalDateTime signInTime;
+
+    /** 签到位置(经纬度) */
+    private String signInLocation;
+
+    /** 签到照片 */
+    private String signInPhotos;
+
+    /** 签退时间 */
+    private LocalDateTime signOutTime;
+
+    /** 签退位置(经纬度) */
+    private String signOutLocation;
+
+    /** 签退照片 */
+    private String signOutPhotos;
+
     /** 创建时间 */
     @TableField(fill = FieldFill.INSERT)
     private LocalDateTime createTime;

@@ -4,7 +4,10 @@ import com.elderlycare.common.BusinessException;
 import com.elderlycare.common.PageResult;
 import com.elderlycare.common.Result;
 import com.elderlycare.common.UserContext;
+import com.elderlycare.dto.servicelog.DepartureDTO;
 import com.elderlycare.dto.servicelog.ServiceLogQueryDTO;
+import com.elderlycare.dto.servicelog.SignInDTO;
+import com.elderlycare.dto.servicelog.SignOutDTO;
 import com.elderlycare.service.servicelog.ServiceLogService;
 import com.elderlycare.vo.servicelog.ServiceLogStatisticsVO;
 import com.elderlycare.vo.servicelog.ServiceLogVO;
@@ -133,8 +136,8 @@ public class ServiceLogController {
      * PUT /api/service-log/{id}/submit-review
      */
     @PutMapping("/{id}/submit-review")
-    public Result<Void> submitForReview(@PathVariable String id) {
-        serviceLogService.submitForReview(id);
+    public Result<Void> submitForReview(@PathVariable String id, @RequestParam(required = false) String remarks) {
+        serviceLogService.submitForReview(id, remarks);
         return Result.success("提交审核成功");
     }
 
@@ -171,5 +174,35 @@ public class ServiceLogController {
             serviceLogService.deleteServiceLog(id);
         }
         return Result.success("批量删除成功");
+    }
+
+    /**
+     * 出发
+     * PUT /api/service-log/{id}/departure
+     */
+    @PutMapping("/{id}/departure")
+    public Result<Void> departure(@PathVariable String id, @RequestBody DepartureDTO dto) {
+        serviceLogService.departure(id, dto);
+        return Result.success("出发登记成功");
+    }
+
+    /**
+     * 签到
+     * PUT /api/service-log/{id}/sign-in
+     */
+    @PutMapping("/{id}/sign-in")
+    public Result<Void> signIn(@PathVariable String id, @RequestBody SignInDTO dto) {
+        serviceLogService.signIn(id, dto);
+        return Result.success("签到成功");
+    }
+
+    /**
+     * 签退
+     * PUT /api/service-log/{id}/sign-out
+     */
+    @PutMapping("/{id}/sign-out")
+    public Result<Void> signOut(@PathVariable String id, @RequestBody SignOutDTO dto) {
+        serviceLogService.signOut(id, dto);
+        return Result.success("签退成功");
     }
 }

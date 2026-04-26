@@ -16,4 +16,14 @@ public interface ServiceEvaluationMapper extends BaseMapper<ServiceEvaluation> {
      * 分页查询评价
      */
     IPage<ServiceEvaluation> selectEvaluationPage(Page<?> page, @Param("query") EvaluationQueryDTO query);
+
+    /**
+     * 根据ID查询评价详情（包含关联表名称）
+     */
+    ServiceEvaluation selectEvaluationDetail(String evaluationId);
+
+    /**
+     * 根据Token查询评价
+     */
+    ServiceEvaluation selectByToken(@Param("token") String token);
 }

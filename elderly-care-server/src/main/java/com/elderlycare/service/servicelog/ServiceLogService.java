@@ -1,7 +1,10 @@
 package com.elderlycare.service.servicelog;
 
 import com.elderlycare.common.PageResult;
+import com.elderlycare.dto.servicelog.DepartureDTO;
 import com.elderlycare.dto.servicelog.ServiceLogQueryDTO;
+import com.elderlycare.dto.servicelog.SignInDTO;
+import com.elderlycare.dto.servicelog.SignOutDTO;
 import com.elderlycare.vo.servicelog.ServiceLogStatisticsVO;
 import com.elderlycare.vo.servicelog.ServiceLogVO;
 
@@ -49,8 +52,10 @@ public interface ServiceLogService {
 
     /**
      * 提交服务日志审核
+     * @param id 服务日志ID
+     * @param remarks 提交备注
      */
-    void submitForReview(String id);
+    void submitForReview(String id, String remarks);
 
     /**
      * 审核服务日志
@@ -64,4 +69,25 @@ public interface ServiceLogService {
      * 删除服务日志
      */
     void deleteServiceLog(String id);
+
+    /**
+     * 出发
+     * @param id 服务日志ID
+     * @param dto 出发信息
+     */
+    void departure(String id, DepartureDTO dto);
+
+    /**
+     * 签到
+     * @param id 服务日志ID
+     * @param dto 签到信息
+     */
+    void signIn(String id, SignInDTO dto);
+
+    /**
+     * 签退
+     * @param id 服务日志ID
+     * @param dto 签退信息
+     */
+    void signOut(String id, SignOutDTO dto);
 }

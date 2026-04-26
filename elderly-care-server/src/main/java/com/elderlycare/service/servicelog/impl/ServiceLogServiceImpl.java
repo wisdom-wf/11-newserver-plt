@@ -250,7 +250,9 @@ public class ServiceLogServiceImpl implements ServiceLogService {
         qualityCheck.setServiceLogId(serviceLog.getServiceLogId());
         qualityCheck.setServiceCategory(serviceLog.getServiceTypeCode());
         qualityCheck.setProviderId(serviceLog.getProviderId());
+        qualityCheck.setProviderName(serviceLog.getProviderName());
         qualityCheck.setStaffId(serviceLog.getStaffId());
+        qualityCheck.setStaffName(serviceLog.getStaffName());
         qualityCheck.setCheckType("COMPLETION"); // 完工质检
         qualityCheck.setCheckMethod("PHOTO_REVIEW"); // 默认照片审核
         qualityCheck.setCheckResult("PENDING"); // 待质检

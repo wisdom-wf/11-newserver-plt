@@ -117,7 +117,8 @@ public class EvaluationController {
     @PutMapping("/{evaluationId}/reply")
     public Result<Void> replyEvaluation(
             @PathVariable String evaluationId,
-            @RequestBody String replyContent) {
+            @RequestBody java.util.Map<String, String> body) {
+        String replyContent = body.get("reply");
         evaluationService.replyEvaluation(evaluationId, replyContent);
         return Result.success();
     }
@@ -164,6 +165,57 @@ public class EvaluationController {
             @PathVariable String feedbackId,
             @Validated @RequestBody HandleFeedbackDTO dto) {
         feedbackService.handleFeedback(feedbackId, dto);
+        return Result.success();
+    }
+
+    // ==================== 问卷邀请接口（公开） ====================
+
+    /**
+     * 生成评价邀请链接
+     */
+    @PostMapping("/generate-link")
+    public Result<com.elderlycare.vo.evaluation.EvaluationInviteVO> generateEvaluationLink(
+            @RequestParam String orderId,
+            @RequestParam String elderId,
+            @RequestParam String elderName,
+            @RequestParam(required = false, defaultValue = "72") Integer expireHours) {
+        com.elderlycare.vo.evaluation.EvaluationInviteVO vo = evaluationService.generateEvaluationLink(
+            orderId, elderId, elderName, expireHours);
+        return Result.success(vo);
+    }
+
+    /**
+     * 验证Token获取问卷信息（公开接口）
+     */
+    @GetMapping("/survey/{token}")
+    public Result<com.elderlycare.vo.evaluation.EvaluationInviteVO> getSurveyInfo(@PathVariable String token) {
+        com.elderlycare.vo.evaluation.EvaluationInviteVO vo = evaluationService.validateToken(token);
+        return Result.success(vo);
+    }
+
+    /**
+     * 提交问卷评价（公开接口）
+     */
+    @PostMapping("/survey/{token}/submit")
+    public Result<Void> submitSurvey(
+            @PathVariable String token,
+            @Validated @RequestBody SubmitSurveyDTO dto,
+            @RequestHeader(value = "X-Forwarded-For", required = false) String forwardedFor,
+            jakarta.servlet.http.HttpServletRequest request) {
+        String ipAddress = forwardedFor;
+        if (ipAddress == null || ipAddress.isEmpty()) {
+            ipAddress = request.getRemoteAddr();
+        }
+        evaluationService.submitSurveyByToken(token, dto, ipAddress);
+        return Result.success();
+    }
+
+    /**
+     * 作废评价邀请链接
+     */
+    @PutMapping("/invite/{token}/invalidate")
+    public Result<Void> invalidateInvite(@PathVariable String token) {
+        evaluationService.invalidateInvite(token);
         return Result.success();
     }
 }

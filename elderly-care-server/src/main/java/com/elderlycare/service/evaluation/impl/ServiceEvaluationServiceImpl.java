@@ -5,6 +5,7 @@ import com.baomidou.mybatisplus.core.metadata.IPage;
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
 import com.elderlycare.common.BusinessException;
+import com.elderlycare.common.IDGenerator;
 import com.elderlycare.common.PageResult;
 import com.elderlycare.dto.evaluation.*;
 import com.elderlycare.entity.evaluation.ServiceEvaluation;
@@ -12,6 +13,7 @@ import com.elderlycare.entity.order.Order;
 import com.elderlycare.mapper.evaluation.ServiceEvaluationMapper;
 import com.elderlycare.mapper.order.OrderMapper;
 import com.elderlycare.service.evaluation.ServiceEvaluationService;
+import com.elderlycare.vo.evaluation.EvaluationInviteVO;
 import com.elderlycare.vo.evaluation.EvaluationStatisticsVO;
 import com.elderlycare.vo.evaluation.EvaluationVO;
 import com.elderlycare.vo.evaluation.ProviderScoreVO;
@@ -63,6 +65,7 @@ public class ServiceEvaluationServiceImpl extends ServiceImpl<ServiceEvaluationM
         // 设置订单相关信息
         evaluation.setElderId(order.getElderId());
         evaluation.setProviderId(order.getProviderId());
+        evaluation.setStaffId(order.getStaffId());
 
         // 设置总体评分
         evaluation.setOverallScore(dto.getRating());
@@ -92,7 +95,7 @@ public class ServiceEvaluationServiceImpl extends ServiceImpl<ServiceEvaluationM
 
     @Override
     public EvaluationVO getEvaluationById(String evaluationId) {
-        ServiceEvaluation evaluation = evaluationMapper.selectById(evaluationId);
+        ServiceEvaluation evaluation = evaluationMapper.selectEvaluationDetail(evaluationId);
         if (evaluation == null) {
             throw BusinessException.notFound("评价不存在");
         }
@@ -306,7 +309,187 @@ public class ServiceEvaluationServiceImpl extends ServiceImpl<ServiceEvaluationM
             throw BusinessException.notFound("评价不存在");
         }
 
-        // Reply fields not in database table - reply functionality disabled
+        // 设置回复内容
+        evaluation.setReplyContent(replyContent);
+        evaluation.setReplyTime(LocalDateTime.now());
+        // 从UserContext获取回复人信息
+        evaluation.setReplyerId(com.elderlycare.common.UserContext.getUserId());
+        evaluation.setReplyerName(com.elderlycare.common.UserContext.getUsername());
         evaluationMapper.updateById(evaluation);
+    }
+
+    @Override
+    @Transactional(rollbackFor = Exception.class)
+    public EvaluationInviteVO generateEvaluationLink(String orderId, String elderId, String elderName, Integer expireHours) {
+        // 查询订单信息
+        Order order = orderMapper.selectById(orderId);
+        if (order == null) {
+            throw BusinessException.notFound("订单不存在");
+        }
+
+        // 生成Token
+        String token = generateSecureToken();
+
+        // 创建评价记录（待评价状态）
+        ServiceEvaluation evaluation = new ServiceEvaluation();
+        evaluation.setEvaluationId(IDGenerator.generateId());
+        evaluation.setOrderId(orderId);
+        evaluation.setElderId(elderId);
+        evaluation.setElderName(elderName);
+        evaluation.setProviderId(order.getProviderId());
+        evaluation.setProviderName(order.getProviderName());
+        evaluation.setStaffId(order.getStaffId());
+        evaluation.setStaffName(order.getStaffName());
+        evaluation.setServiceTypeCode(order.getServiceTypeCode());
+        evaluation.setServiceTypeName(order.getServiceTypeName());
+        evaluation.setEvaluationToken(token);
+        evaluation.setTokenStatus("PENDING");
+        evaluation.setTokenExpireTime(LocalDateTime.now().plusHours(expireHours != null ? expireHours : 72));
+        evaluation.setCreateTime(LocalDateTime.now());
+        evaluationMapper.insert(evaluation);
+
+        // 构建返回VO
+        EvaluationInviteVO vo = new EvaluationInviteVO();
+        vo.setEvaluationId(evaluation.getEvaluationId());
+        vo.setToken(token);
+        vo.setSurveyUrl("/public/survey?token=" + token);
+        vo.setOrderId(orderId);
+        vo.setElderId(elderId);
+        vo.setElderName(elderName);
+        vo.setProviderId(order.getProviderId());
+        vo.setProviderName(order.getProviderName());
+        vo.setStaffId(order.getStaffId());
+        vo.setStaffName(order.getStaffName());
+        vo.setServiceType(order.getServiceTypeName());
+        vo.setTokenStatus("PENDING");
+        vo.setTokenExpireTime(evaluation.getTokenExpireTime());
+        vo.setCreateTime(evaluation.getCreateTime());
+        return vo;
+    }
+
+    @Override
+    public EvaluationInviteVO validateToken(String token) {
+        ServiceEvaluation evaluation = evaluationMapper.selectByToken(token);
+        if (evaluation == null) {
+            throw BusinessException.notFound("评价链接不存在");
+        }
+
+        // 检查Token状态
+        String status = evaluation.getTokenStatus();
+        if ("COMPLETED".equals(status)) {
+            throw BusinessException.fail("该评价链接已被使用");
+        }
+        if ("EXPIRED".equals(status)) {
+            throw BusinessException.fail("该评价链接已过期");
+        }
+        if (!"PENDING".equals(status)) {
+            throw BusinessException.fail("该评价链接已失效");
+        }
+
+        // 检查是否过期
+        if (evaluation.getTokenExpireTime() != null && evaluation.getTokenExpireTime().isBefore(LocalDateTime.now())) {
+            // 更新状态为过期
+            evaluation.setTokenStatus("EXPIRED");
+            evaluationMapper.updateById(evaluation);
+            throw BusinessException.fail("该评价链接已过期");
+        }
+
+        EvaluationInviteVO vo = new EvaluationInviteVO();
+        vo.setEvaluationId(evaluation.getEvaluationId());
+        vo.setToken(token);
+        vo.setSurveyUrl("/public/survey?token=" + token);
+        vo.setOrderId(evaluation.getOrderId());
+        vo.setElderId(evaluation.getElderId());
+        vo.setElderName(evaluation.getElderName());
+        vo.setProviderId(evaluation.getProviderId());
+        vo.setProviderName(evaluation.getProviderName());
+        vo.setStaffId(evaluation.getStaffId());
+        vo.setStaffName(evaluation.getStaffName());
+        vo.setTokenStatus(evaluation.getTokenStatus());
+        vo.setTokenExpireTime(evaluation.getTokenExpireTime());
+        return vo;
+    }
+
+    @Override
+    @Transactional(rollbackFor = Exception.class)
+    public void submitSurveyByToken(String token, SubmitSurveyDTO form, String ipAddress) {
+        ServiceEvaluation evaluation = evaluationMapper.selectByToken(token);
+        if (evaluation == null) {
+            throw BusinessException.notFound("评价链接不存在");
+        }
+
+        // 检查Token状态
+        String status = evaluation.getTokenStatus();
+        if (!"PENDING".equals(status)) {
+            throw BusinessException.fail("该评价链接已失效，无法提交");
+        }
+
+        // 检查是否过期
+        if (evaluation.getTokenExpireTime() != null && evaluation.getTokenExpireTime().isBefore(LocalDateTime.now())) {
+            evaluation.setTokenStatus("EXPIRED");
+            evaluationMapper.updateById(evaluation);
+            throw BusinessException.fail("该评价链接已过期");
+        }
+
+        // 设置评分
+        evaluation.setOverallScore(form.getServiceScore());
+        evaluation.setAttitudeScore(form.getAttitudeScore());
+        evaluation.setQualityScore(form.getSkillScore());
+        evaluation.setEfficiencyScore(form.getPunctualityScore());
+        evaluation.setEnvironmentScore(form.getEnvironmentScore());
+
+        // 计算平均评分
+        BigDecimal avgScore = BigDecimal.valueOf(
+            (form.getServiceScore() + form.getAttitudeScore() + form.getSkillScore() + form.getPunctualityScore()) / 4.0
+        );
+        evaluation.setAverageScore(avgScore);
+
+        // 设置评价内容
+        evaluation.setContent(form.getContent());
+        if (form.getTags() != null && !form.getTags().isEmpty()) {
+            evaluation.setTags(String.join(",", form.getTags()));
+        }
+        if (form.getImages() != null && !form.getImages().isEmpty()) {
+            evaluation.setTags(String.join(",", form.getImages()));
+        }
+        evaluation.setAnonymous(form.getAnonymous() != null && form.getAnonymous() ? 1 : 0);
+        evaluation.setEvaluationTime(LocalDateTime.now());
+
+        // 更新Token状态
+        evaluation.setTokenStatus("COMPLETED");
+        evaluation.setTokenUsedTime(LocalDateTime.now());
+        evaluation.setTokenUsedIp(ipAddress);
+
+        evaluationMapper.updateById(evaluation);
+    }
+
+    @Override
+    @Transactional(rollbackFor = Exception.class)
+    public void invalidateInvite(String token) {
+        ServiceEvaluation evaluation = evaluationMapper.selectByToken(token);
+        if (evaluation == null) {
+            throw BusinessException.notFound("评价链接不存在");
+        }
+
+        if (!"PENDING".equals(evaluation.getTokenStatus())) {
+            throw BusinessException.fail("该链接已无法作废");
+        }
+
+        evaluation.setTokenStatus("INVALID");
+        evaluationMapper.updateById(evaluation);
+    }
+
+    /**
+     * 生成安全的随机Token
+     */
+    private String generateSecureToken() {
+        java.security.SecureRandom random = new java.security.SecureRandom();
+        byte[] bytes = new byte[24];
+        random.nextBytes(bytes);
+        StringBuilder token = new StringBuilder();
+        for (byte b : bytes) {
+            token.append(String.format("%02X", b));
+        }
+        return token.toString();
     }
 }

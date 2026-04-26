@@ -25,5 +25,11 @@ public interface ServiceLogMapper extends BaseMapper<ServiceLog> {
     @Select("SELECT AVG(actual_duration) FROM service_log WHERE deleted = 0 AND actual_duration IS NOT NULL")
     BigDecimal avgActualDuration();
 
+    @Select("SELECT AVG(service_score) FROM service_log WHERE deleted = 0 AND service_score IS NOT NULL")
+    BigDecimal avgServiceScore();
+
+    @Select("SELECT COUNT(*) FROM service_log WHERE deleted = 0 AND audit_status = #{status}")
+    int countByAuditStatus(@Param("status") String status);
+
     List<ServiceLog> selectServiceLogsByStaffId(@Param("staffId") String staffId, @Param("limit") int limit);
 }
