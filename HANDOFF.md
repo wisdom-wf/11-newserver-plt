@@ -1,7 +1,7 @@
 # 项目交接文档 — 智慧居家养老服务管理平台
 
 > 本文档由董老师编写，供 Claude Code 接手继续开发使用。
-> 最后更新：2026-04-25凌晨（ServiceType隔离修复 + 评价/质检接口完善）
+> 最后更新：2026-04-25（订单统计接口providerId隔离修复）
 
 ---
 
@@ -200,19 +200,20 @@ docker start mysql-dev
 
 ### Git 当前状态（2026-04-25）
 ```
-根仓库 (11-newserver-plt):  master  待提交  ← ServiceType隔离+评价接口
-  elderly-care-server:      master  待提交
-  dingfeng-work:            main    待提交
+根仓库 (11-newserver-plt):  master  ✅ 已推送 eb64bd6
+  elderly-care-server:      master  ✅ 已推送 eb64bd6
+  dingfeng-work:            main    ✅ 已推送 f356518d
 ```
 
 ### 测试基线（2026-04-25）
 ```
-44 passed / 4 skipped / 0 failed
+49 passed / 4 skipped / 0 failed
 ├── 隔离测试              17 passed
-├── 质检 API               8 passed (TC-QC-001~008)
+├── 质检 API               7 passed (TC-QC-001~007)
 ├── 满意度评价 TDD         5 passed (T01~T04, T07)
-├── 评价 API               7 passed
+├── 评价 API               8 passed (TC-LEC-001~008)
 ├── 链路 E2E               8 passed (TC-LEC-01~08)
+├── 订单统计隔离           5 passed (TC-OS-01~05)  ← 新增
 └── skipped: T05/T06 等数据就绪后解除
 ```
 
