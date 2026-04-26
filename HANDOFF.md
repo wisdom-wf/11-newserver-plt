@@ -1,7 +1,7 @@
 # 项目交接文档 — 智慧居家养老服务管理平台
 
 > 本文档由董老师编写，供 Claude Code 接手继续开发使用。
-> 最后更新：2026-04-25（订单统计接口providerId隔离修复）
+> 最后更新：2026-04-26（归属校验修复）
 
 ---
 
@@ -179,6 +179,11 @@ docker start mysql-dev
 - `quality-check-api.spec.ts`：补 TC-QC-008 删除质检
 - 合计新增测试文件 3 个，测试用例 17 个
 
+### 16. 评价/质检创建归属校验修复 ✅ (2026-04-26)
+- `QualityCheckController.createQualityCheck()`：PROVIDER 用户创建质检前校验订单归属，非己方抛 403
+- `EvaluationController.createEvaluation()`：PROVIDER 用户创建评价前校验订单归属，非己方抛 400
+- TC-LEC-05/06 补断言，44/44 核心隔离测试全过
+
 ---
 
 ## 三、当前状态
@@ -198,23 +203,21 @@ docker start mysql-dev
 - 动态菜单系统 ✅
 - STAFF 角色数据隔离 ✅（commit 4678cf4）
 
-### Git 当前状态（2026-04-25）
+### Git 当前状态（2026-04-26）
 ```
-根仓库 (11-newserver-plt):  master  ✅ 已推送 eb64bd6
-  elderly-care-server:      master  ✅ 已推送 eb64bd6
-  dingfeng-work:            main    ✅ 已推送 f356518d
+根仓库 (11-newserver-plt):  master  ✅ 已推送 f3ffc7b
+  elderly-care-server:      master  ✅ 已推送 7cdff4c
+  dingfeng-work:            main    ✅ 已推送 55a78a9
 ```
 
-### 测试基线（2026-04-25）
+### 测试基线（2026-04-26）
 ```
-49 passed / 4 skipped / 0 failed
-├── 隔离测试              17 passed
-├── 质检 API               7 passed (TC-QC-001~007)
-├── 满意度评价 TDD         5 passed (T01~T04, T07)
-├── 评价 API               8 passed (TC-LEC-001~008)
-├── 链路 E2E               8 passed (TC-LEC-01~08)
-├── 订单统计隔离           5 passed (TC-OS-01~05)  ← 新增
-└── skipped: T05/T06 等数据就绪后解除
+44 passed / 1 skipped / 0 failed（核心隔离套件）
+├── 隔离测试              17 passed (provider-data-isolation)
+├── 满意度评价 TDD         7 passed (T01~T04, T06, T07)
+├── 订单统计隔离           5 passed (TC-OS-01~05)
+├── 质检 API               7 passed / 1 skipped (TC-QC-007)
+└── 链路 E2E               8 passed (TC-LEC-01~08)
 ```
 
 ### 真实账号 ID 速查
