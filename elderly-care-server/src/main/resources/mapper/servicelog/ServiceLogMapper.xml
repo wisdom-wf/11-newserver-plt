@@ -101,7 +101,7 @@
         SELECT *
         FROM t_service_log
         WHERE staff_id = #{staffId} AND deleted = 0
-        ORDER BY service_date DESC, create_time DESC
+        ORDER BY create_time DESC
         LIMIT #{limit}
     </select>
 
