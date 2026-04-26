@@ -36,8 +36,10 @@ import {
   fetchSubmitServiceLogForReview,
   fetchDeleteServiceLog,
   fetchBatchDeleteServiceLog,
-  fetchReviewServiceLog
+  fetchReviewServiceLog,
+  fetchDuplicateServiceLog
 } from '@/service/api';
+import { fetchGetQualityCheckByServiceLogId } from '@/service/api/quality';
 import { useNaivePaginatedTable, useTableOperate, defaultTransform } from '@/hooks/common/table';
 import { useAuth } from '@/hooks/business/auth';
 import TableHeaderOperation from '@/components/advanced/table-header-operation.vue';
@@ -138,6 +140,11 @@ const qualityReviewModalVisible = ref(false);
 const qualityReviewData = ref<Api.ServiceLog.ServiceLog | null>(null);
 const qualityReviewResult = ref<'APPROVED' | 'REJECTED'>('APPROVED');
 const qualityReviewComment = ref('');
+
+// 日志提交审核后提示创建质检
+const qualityPromptVisible = ref(false);
+const qualityPromptLogId = ref('');
+const qualityPromptOrderNo = ref('');
 
 // Detail modal state
 const detailDrawerVisible = ref(false);
@@ -292,6 +299,16 @@ const columns: DataTableColumns<Api.ServiceLog.ServiceLog> = [
             NButton,
             { size: 'small', type: 'info', onClick: () => goToEvaluation(row), style: { marginLeft: '4px' } },
             { default: () => '去评价' }
+          )
+        );
+      }
+      // 已审核通过的日志可以复制（服务人员复用模板）
+      if (row.auditStatus === 'APPROVED') {
+        buttons.push(
+          h(
+            NButton,
+            { size: 'small', type: 'default', onClick: () => handleDuplicate(row), style: { marginLeft: '4px' } },
+            { default: () => '复制' }
           )
         );
       }
@@ -555,6 +572,14 @@ function handleSubmitReview(row: Api.ServiceLog.ServiceLog) {
   reviewDialogVisible.value = true;
 }
 
+function goToCreateQuality() {
+  qualityPromptVisible.value = false;
+  // 跳转到质检页，并带上 orderNo 和 serviceLogId 参数预填
+  const query: Record<string, string> = { serviceLogId: qualityPromptLogId.value };
+  if (qualityPromptOrderNo.value) query.orderNo = qualityPromptOrderNo.value;
+  router.push({ name: 'QualityCheck', query });
+}
+
 function showReviewModal(row: Api.ServiceLog.ServiceLog) {
   qualityReviewData.value = row;
   qualityReviewResult.value = 'APPROVED';
@@ -574,6 +599,16 @@ function goToCompleteService(row: Api.ServiceLog.ServiceLog) {
   router.push({ path: '/business/order', query: { orderNo: row.orderNo || '' } });
 }
 
+async function handleDuplicate(row: Api.ServiceLog.ServiceLog) {
+  const { error } = await fetchDuplicateServiceLog(row.serviceLogId);
+  if (error) {
+    message.error('复制失败');
+    return;
+  }
+  message.success('日志已复制');
+  getDataByPage(1);
+}
+
 async function handleQualityReview() {
   if (!qualityReviewData.value) return;
   try {
@@ -591,7 +626,17 @@ async function submitReview() {
     await fetchSubmitServiceLogForReview(reviewLogId.value, reviewRemarks.value);
     message.success('提交审核成功');
     reviewDialogVisible.value = false;
+
+    // 审核通过后：检查是否已有质检单，没有则弹窗提示
+    const { data: qcData } = await fetchGetQualityCheckByServiceLogId(reviewLogId.value);
     getData();
+    if (!qcData) {
+      // 从表格行数据中捞 orderNo
+      const row = tableData.value.find((r) => r.serviceLogId === reviewLogId.value);
+      qualityPromptLogId.value = reviewLogId.value;
+      qualityPromptOrderNo.value = row?.orderNo || '';
+      qualityPromptVisible.value = true;
+    }
   } catch (e: any) {
     message.error(e.message || '提交审核失败');
   }
@@ -653,9 +698,9 @@ function closeReviewDialog() {
 }
 
 onMounted(() => {
-  // Handle query parameters from other pages
-  if (route.query.orderId) {
-    searchOrderNo.value = (route.query.orderNo as string) || (route.query.orderId as string);
+  // Handle query parameters from other pages (orderNo from order detail page, serviceLogId from quality page)
+  if (route.query.orderNo) {
+    searchOrderNo.value = route.query.orderNo as string;
   }
   getData();
 });
@@ -1251,6 +1296,52 @@ onMounted(() => {
         <div style="display: flex; justify-content: flex-end; gap: 12px">
           <NButton @click="closeReviewDialog">取消</NButton>
           <NButton type="primary" @click="submitReview">确认提交</NButton>
+        </div>
+      </template>
+    </NModal>
+
+    <!-- 日志提交审核成功后 → 提示创建质检单 -->
+    <NModal
+      v-model:show="qualityPromptVisible"
+      preset="card"
+      style="width: 480px"
+      :mask-closable="false"
+    >
+      <template #header>
+        <div style="display: flex; align-items: center; gap: 12px">
+          <div
+            style="
+              width: 4px;
+              height: 24px;
+              background: #2080f0;
+              border-radius: 2px;
+            "
+          />
+          <span style="font-size: 18px; font-weight: 600">创建质检单</span>
+        </div>
+      </template>
+      <div style="padding: 12px 0; line-height: 1.8; color: #555; font-size: 14px">
+        <p>服务日志已提交审核，是否立即为此日志创建质检单？</p>
+        <div
+          style="
+            margin-top: 12px;
+            background: #f0f5ff;
+            border-radius: 8px;
+            padding: 12px 16px;
+            font-size: 13px;
+            color: #333;
+          "
+        >
+          <div v-if="qualityPromptOrderNo">
+            关联订单：<strong>{{ qualityPromptOrderNo }}</strong>
+          </div>
+          <div>关联日志：<strong>{{ qualityPromptLogId }}</strong></div>
+        </div>
+      </div>
+      <template #footer>
+        <div style="display: flex; gap: 12px; justify-content: flex-end">
+          <NButton @click="qualityPromptVisible = false">稍后再说</NButton>
+          <NButton type="primary" @click="goToCreateQuality">去创建质检单</NButton>
         </div>
       </template>
     </NModal>

@@ -19,7 +19,8 @@ import {
   NDescriptionsItem,
   NDrawer,
   NDrawerContent,
-  NPopconfirm
+  NPopconfirm,
+  NBadge
 } from 'naive-ui';
 import type { DataTableColumns } from 'naive-ui';
 import {
@@ -149,6 +150,50 @@ function getStatusLabel(status: string): string {
   return option?.label || status;
 }
 
+// 审核状态标签
+function getAuditStatusLabel(status: string): string {
+  const map: Record<string, string> = {
+    DRAFT: '草稿',
+    SUBMITTED: '已提交',
+    APPROVED: '已通过',
+    REJECTED: '已驳回'
+  };
+  return map[status] || status;
+}
+
+// 审核状态颜色
+function getAuditStatusType(status: string): 'warning' | 'success' | 'info' | 'error' | 'default' {
+  const map: Record<string, 'warning' | 'success' | 'info' | 'error' | 'default'> = {
+    DRAFT: 'default',
+    SUBMITTED: 'warning',
+    APPROVED: 'success',
+    REJECTED: 'error'
+  };
+  return map[status] || 'default';
+}
+
+// 质检结果标签
+function getQualityResultLabel(result: string): string {
+  const map: Record<string, string> = {
+    PENDING: '待质检',
+    QUALIFIED: '合格',
+    UNQUALIFIED: '不合格',
+    NEED_RECTIFY: '需整改'
+  };
+  return map[result] || result;
+}
+
+// 质检结果颜色
+function getQualityResultType(result: string): 'warning' | 'success' | 'error' | 'info' | 'default' {
+  const map: Record<string, 'warning' | 'success' | 'error' | 'info' | 'default'> = {
+    PENDING: 'warning',
+    QUALIFIED: 'success',
+    UNQUALIFIED: 'error',
+    NEED_RECTIFY: 'error'
+  };
+  return map[result] || 'default';
+}
+
 // 时间轴相关函数 - 参考预约单设计
 interface OrderTimelineItem {
   status: string;
@@ -197,8 +242,8 @@ function getNodeColor(node: OrderTimelineItem): string {
   return '#999';
 }
 
-// 审核状态类型映射
-function getAuditStatusType(status: string): 'warning' | 'success' | 'error' | 'info' | 'default' {
+// 服务日志审核状态类型映射
+function getServiceLogAuditStatusType(status: string): 'warning' | 'success' | 'error' | 'info' | 'default' {
   const map: Record<string, 'warning' | 'success' | 'error' | 'info' | 'default'> = {
     DRAFT: 'warning',
     SUBMITTED: 'info',
@@ -209,8 +254,8 @@ function getAuditStatusType(status: string): 'warning' | 'success' | 'error' | '
   return map[status] || 'default';
 }
 
-// 质检结果类型映射
-function getQualityResultType(result: string): 'warning' | 'success' | 'error' | 'info' | 'default' {
+// 服务日志质检结果类型映射
+function getServiceLogQualityResultType(result: string): 'warning' | 'success' | 'error' | 'info' | 'default' {
   const map: Record<string, 'warning' | 'success' | 'error' | 'info' | 'default'> = {
     PENDING: 'warning',
     QUALIFIED: 'success',
@@ -919,22 +964,16 @@ function generateOrderTimeline(order: Api.Order.Order, relations?: TimelineRelat
 
 async function handleDetail(row: Api.Order.Order) {
   try {
+    // fetchGetOrder 返回 OrderDetailVO，已包含 serviceLogs + qualityChecks 数组
     const { data: orderData } = await fetchGetOrder(row.orderId);
     if (!orderData) return;
 
-    // 并行获取关联的服务日志和评价
-    const [serviceLogRes, evaluationRes, qualityCheckRes] = await Promise.all([
-      fetchGetServiceLogByOrderId(row.orderId).catch(() => null),
-      fetchGetEvaluationByOrderId(row.orderId).catch(() => null),
-      fetchGetQualityCheckByOrderId(row.orderId).catch(() => null)
-    ]);
-
-    const serviceLog = serviceLogRes?.data;
+    // 只单独查评价（OrderDetailVO 不含评价字段）
+    const evaluationRes = await fetchGetEvaluationByOrderId(row.orderId).catch(() => null);
     const evaluation = evaluationRes?.data;
-    const qualityCheck = qualityCheckRes?.data;
 
     orderDetailData.value = orderData;
-    orderTimelineData.value = generateOrderTimeline(orderData, { serviceLog, evaluation, qualityCheck });
+    orderTimelineData.value = generateOrderTimeline(orderData, { evaluation });
     orderDetailVisible.value = true;
   } catch (e) {
     console.error('Failed to get order detail', e);
@@ -945,6 +984,11 @@ async function handleDetail(row: Api.Order.Order) {
 function goToServiceLog(orderNo: string | undefined) {
   if (!orderNo) return;
   routerPushByKey('business_service-log', { query: { orderNo } });
+}
+
+function goToAppointment(appointmentId: string | undefined) {
+  if (!appointmentId) return;
+  routerPushByKey('appointment', { query: { id: appointmentId } });
 }
 
 // 满意度调查 - 创建评价记录
@@ -1404,6 +1448,16 @@ onMounted(() => {
           >
             时间轴
           </NButton>
+          <NButton
+            :type="activeDetailTab === 'links' ? 'primary' : 'default'"
+            size="small"
+            @click="activeDetailTab = 'links'"
+          >
+            关联信息
+            <template v-if="(orderDetailData as any)?.serviceLogs?.length || (orderDetailData as any)?.qualityChecks?.length">
+              <NBadge :value="((orderDetailData as any)?.serviceLogs?.length || 0) + ((orderDetailData as any)?.qualityChecks?.length || 0)" :max="99" />
+            </template>
+          </NButton>
         </div>
 
         <!-- Basic Info Tab -->
@@ -1478,7 +1532,7 @@ onMounted(() => {
                       服务日志审核
                     </div>
                     <div class="timeline-log-info">
-                      <NTag :type="getAuditStatusType(node.serviceLog.auditStatus)" size="small">
+                      <NTag :type="getServiceLogAuditStatusType(node.serviceLog.auditStatus)" size="small">
                         {{ node.serviceLog.auditStatusLabel }}
                       </NTag>
                       <span v-if="node.serviceLog.reviewerName" class="timeline-log-reviewer">
@@ -1491,7 +1545,7 @@ onMounted(() => {
                     </div>
                     <!-- 质检信息 -->
                     <div v-if="node.serviceLog.qualityCheck" class="timeline-quality-info">
-                      <NTag :type="getQualityResultType(node.serviceLog.qualityCheck.checkResult)" size="small">
+                      <NTag :type="getServiceLogQualityResultType(node.serviceLog.qualityCheck.checkResult)" size="small">
                         质检{{ node.serviceLog.qualityCheck.checkResultLabel }}
                       </NTag>
                       <span v-if="node.serviceLog.qualityCheck.checkRemark" class="timeline-quality-remark">
@@ -1563,6 +1617,132 @@ onMounted(() => {
           <div v-else class="timeline-empty">
             <div class="timeline-empty-icon">📋</div>
             <div class="timeline-empty-text">暂无时间轴数据</div>
+          </div>
+        </div>
+
+        <!-- Linked Info Tab: 服务日志 + 质检单列表 -->
+        <div v-if="activeDetailTab === 'links' && orderDetailData">
+          <!-- 来源预约 -->
+          <div v-if="orderDetailData.appointmentNo" style="margin-bottom: 16px">
+            <div style="font-weight: 600; font-size: 14px; margin-bottom: 8px">来源预约</div>
+            <NCard size="small" :bordered="true" hoverable style="cursor: pointer" @click="goToAppointment(orderDetailData.appointmentId)">
+              <div style="display: flex; justify-content: space-between; align-items: center">
+                <div>
+                  <div style="font-weight: 500; font-size: 13px">{{ orderDetailData.appointmentNo }}</div>
+                  <div style="color: #666; font-size: 12px; margin-top: 2px">预约时间: {{ orderDetailData.appointmentTime || '-' }}</div>
+                </div>
+                <NButton size="tiny" type="primary" quaternary>
+                  <template #icon><icon:material-symbols:open-in-new /></template>
+                  查看预约
+                </NButton>
+              </div>
+            </NCard>
+          </div>
+
+          <!-- 服务日志列表 -->
+          <div style="margin-bottom: 20px">
+            <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 10px">
+              <div style="font-weight: 600; font-size: 14px">
+                服务日志
+                <NTag size="small" type="info" style="margin-left: 6px">
+                  {{ orderDetailData.serviceLogs?.length || 0 }} 条
+                </NTag>
+              </div>
+              <NButton
+                type="primary"
+                size="tiny"
+                @click="router.push({ path: '/business/service-log', query: { orderNo: orderDetailData.orderNo } })"
+              >
+                <template #icon><icon:material-symbols:add /></template>
+                新建日志
+              </NButton>
+            </div>
+            <div v-if="orderDetailData.serviceLogs && orderDetailData.serviceLogs.length > 0">
+              <NCard
+                v-for="log in orderDetailData.serviceLogs"
+                :key="log.serviceLogId"
+                size="small"
+                style="margin-bottom: 8px; cursor: pointer"
+                :bordered="true"
+                hoverable
+                @click="router.push({ path: '/business/service-log', query: { logId: log.serviceLogId } })"
+              >
+                <div style="display: flex; justify-content: space-between; align-items: center">
+                  <div>
+                    <div style="display: flex; align-items: center; gap: 8px; margin-bottom: 4px">
+                      <span style="font-weight: 500; font-size: 13px">{{ log.logNo || log.serviceLogId }}</span>
+                      <NTag :type="getServiceLogAuditStatusType(log.auditStatus)" size="small">
+                        {{ getAuditStatusLabel(log.auditStatus) }}
+                      </NTag>
+                    </div>
+                    <div style="font-size: 12px; color: #666">
+                      <span v-if="log.serviceDate">{{ log.serviceDate }}</span>
+                      <span v-if="log.serviceDuration"> · {{ log.serviceDuration }}分钟</span>
+                      <span v-if="log.staffName"> · {{ log.staffName }}</span>
+                    </div>
+                    <div v-if="log.reviewComment" style="font-size: 12px; color: #888; margin-top: 2px">
+                      审核意见：{{ log.reviewComment }}
+                    </div>
+                  </div>
+                  <icon:material-symbols:chevron-right style="color: #ccc; font-size: 18px" />
+                </div>
+              </NCard>
+            </div>
+            <div v-else style="text-align: center; padding: 24px 0; color: #999; font-size: 13px">
+              暂无服务日志
+            </div>
+          </div>
+
+          <!-- 质检单列表 -->
+          <div>
+            <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 10px">
+              <div style="font-weight: 600; font-size: 14px">
+                质检单
+                <NTag size="small" type="warning" style="margin-left: 6px">
+                  {{ orderDetailData.qualityChecks?.length || 0 }} 条
+                </NTag>
+              </div>
+              <NButton
+                type="warning"
+                size="tiny"
+                @click="router.push({ path: '/business/quality', query: { orderNo: orderDetailData.orderNo } })"
+              >
+                <template #icon><icon:material-symbols:add /></template>
+                新建质检
+              </NButton>
+            </div>
+            <div v-if="orderDetailData.qualityChecks && orderDetailData.qualityChecks.length > 0">
+              <NCard
+                v-for="qc in orderDetailData.qualityChecks"
+                :key="qc.qualityCheckId"
+                size="small"
+                style="margin-bottom: 8px; cursor: pointer"
+                :bordered="true"
+                hoverable
+                @click="router.push({ path: '/business/quality', query: { qcId: qc.qualityCheckId } })"
+              >
+                <div style="display: flex; justify-content: space-between; align-items: center">
+                  <div>
+                    <div style="display: flex; align-items: center; gap: 8px; margin-bottom: 4px">
+                      <span style="font-weight: 500; font-size: 13px">{{ qc.checkNo }}</span>
+                      <NTag :type="getServiceLogQualityResultType(qc.checkResult)" size="small">
+                        {{ getQualityResultLabel(qc.checkResult) }}
+                      </NTag>
+                      <NTag v-if="qc.needRectify" type="error" size="small">需整改</NTag>
+                    </div>
+                    <div style="font-size: 12px; color: #666">
+                      <span>{{ { RANDOM: '随机抽检', SCHEDULED: '计划质检', COMPLAINT: '投诉质检', COMPLETION: '完工质检' }[qc.checkType || ''] || qc.checkType || '-' }}</span>
+                      <span v-if="qc.checkerName"> · 质检员：{{ qc.checkerName }}</span>
+                      <span v-if="qc.checkTime"> · {{ qc.checkTime }}</span>
+                    </div>
+                  </div>
+                  <icon:material-symbols:chevron-right style="color: #ccc; font-size: 18px" />
+                </div>
+              </NCard>
+            </div>
+            <div v-else style="text-align: center; padding: 24px 0; color: #999; font-size: 13px">
+              暂无质检单
+            </div>
           </div>
         </div>
       </NDrawerContent>

@@ -452,6 +452,13 @@ onMounted(() => {
       createDialogVisible.value = true;
     });
   }
+  // 接收质检跳转时带入的质检单ID和服务日志ID
+  if (route.query.qualityCheckId) {
+    createForm.value.qualityCheckId = String(route.query.qualityCheckId);
+  }
+  if (route.query.serviceLogId) {
+    createForm.value.serviceLogId = String(route.query.serviceLogId);
+  }
   getStatistics();
   getData();
 });

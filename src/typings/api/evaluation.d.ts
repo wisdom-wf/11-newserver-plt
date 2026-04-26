@@ -50,6 +50,10 @@ declare namespace Api {
       content?: string;
       /** 评价图片 */
       images?: string[];
+      /** 关联质检单ID（从质检详情跳转时带入） */
+      qualityCheckId?: string;
+      /** 关联服务日志ID */
+      serviceLogId?: string;
     }
 
     /** 评价详情 */
@@ -58,6 +62,10 @@ declare namespace Api {
       evaluationId: string;
       /** 订单ID */
       orderId: string;
+      /** 关联质检单ID */
+      qualityCheckId?: string;
+      /** 关联服务日志ID */
+      serviceLogId?: string;
       /** 服务人员ID */
       staffId: string;
       /** 服务人员姓名 */

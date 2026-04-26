@@ -21,7 +21,9 @@ import {
   NDrawer,
   NDrawerContent,
   NInputNumber,
-  NSwitch
+  NSwitch,
+  NDivider,
+  NAlert
 } from 'naive-ui';
 import type { DataTableColumns } from 'naive-ui';
 import {
@@ -31,7 +33,8 @@ import {
   fetchGetQualityCheck,
   fetchSubmitRectify,
   fetchRecheck,
-  fetchCreateQualityCheck
+  fetchCreateQualityCheck,
+  fetchInspect
 } from '@/service/api';
 import { useNaivePaginatedTable, defaultTransform } from '@/hooks/common/table';
 import { useAuth } from '@/hooks/business/auth';
@@ -148,6 +151,7 @@ async function showQualityDetail(row: Api.Quality.QualityCheck) {
 function openCreateDialog() {
   createForm.value = {
     orderId: '',
+    serviceLogId: '',
     checkType: 'RANDOM',
     checkMethod: 'PHOTO_REVIEW',
     checkScore: 100,
@@ -233,10 +237,76 @@ const recheckData = ref({
 });
 const recheckLoading = ref(false);
 
+// Inspect drawer（质检员执行质检，给出结论）
+const inspectDrawerVisible = ref(false);
+const inspectData = ref({
+  checkScore: 100 as number | undefined,
+  checkMethod: 'PHOTO_REVIEW',
+  checkResult: 'QUALIFIED',
+  checkRemark: '',
+  checkPhotos: [] as string[],
+  rectifyNotice: '',
+  rectifyDeadline: null as number | null
+});
+const inspectLoading = ref(false);
+
 function showRecheckModal(row: Api.Quality.QualityCheck) {
   qualityDetailData.value = row;
   recheckData.value = { result: 'PASSED', remark: '' };
   recheckDrawerVisible.value = true;
+}
+
+// 显示执行质检抽屉
+function showInspectModal(row: Api.Quality.QualityCheck) {
+  qualityDetailData.value = row;
+  inspectData.value = {
+    checkScore: row.checkScore || 100,
+    checkMethod: row.checkMethod || 'PHOTO_REVIEW',
+    checkResult: 'QUALIFIED',
+    checkRemark: '',
+    checkPhotos: [],
+    rectifyNotice: '',
+    rectifyDeadline: null
+  };
+  inspectDrawerVisible.value = true;
+}
+
+// 执行质检
+async function handleInspect() {
+  if (!qualityDetailData.value) return;
+  inspectLoading.value = true;
+  try {
+    const payload: any = {
+      checkScore: inspectData.value.checkScore,
+      checkMethod: inspectData.value.checkMethod,
+      checkResult: inspectData.value.checkResult,
+      checkRemark: inspectData.value.checkRemark,
+      // checkPhotos 后端是 string，前端传逗号分隔
+      checkPhotos: inspectData.value.checkPhotos.join(',') || ''
+    };
+    if (inspectData.value.checkResult === 'NEED_RECTIFY') {
+      if (!inspectData.value.rectifyNotice) {
+        message.warning('需整改时，整改通知必填');
+        return;
+      }
+      payload.rectifyNotice = inspectData.value.rectifyNotice;
+      if (inspectData.value.rectifyDeadline) {
+        payload.rectifyDeadline = new Date(inspectData.value.rectifyDeadline).toISOString();
+      }
+    }
+    const { error } = await fetchInspect(qualityDetailData.value.qualityCheckId, payload);
+    if (error) {
+      message.error(error.message || '执行质检失败');
+      return;
+    }
+    message.success('执行质检成功');
+    inspectDrawerVisible.value = false;
+    qualityDetailDrawerVisible.value = false;
+    getData();
+    getStatistics();
+  } finally {
+    inspectLoading.value = false;
+  }
 }
 
 async function handleRecheck() {
@@ -262,6 +332,7 @@ async function handleRecheck() {
 
 // Check result options
 const resultOptions = [
+  { label: '待质检', value: 'PENDING' },
   { label: '合格', value: 'QUALIFIED' },
   { label: '不合格', value: 'UNQUALIFIED' },
   { label: '需整改', value: 'NEED_RECTIFY' }
@@ -390,6 +461,16 @@ const columns: DataTableColumns<Api.Quality.QualityCheck> = [
           )
         );
       }
+      // 待质检状态：显示执行质检按钮
+      if (row.checkResult === 'PENDING') {
+        actions.push(
+          h(
+            NButton,
+            { size: 'small', type: 'warning', onClick: () => showInspectModal(row), style: { marginRight: '8px' } },
+            () => '执行质检'
+          )
+        );
+      }
       return h(NSpace, null, () => actions);
     }
   }
@@ -465,9 +546,13 @@ function handleResetSearch() {
 }
 
 onMounted(() => {
-  // 接收服务日志跳转来的订单ID参数
+  // 接收服务日志跳转来的订单号参数
   if (route.query.orderNo) {
     searchOrderNo.value = String(route.query.orderNo);
+  }
+  // 接收服务日志跳转来的serviceLogId（预填创建表单）
+  if (route.query.serviceLogId) {
+    createForm.value.serviceLogId = String(route.query.serviceLogId);
   }
   getStatistics();
   getData();
@@ -635,9 +720,17 @@ onMounted(() => {
         <template #footer>
           <NSpace justify="end">
             <NButton @click="qualityDetailDrawerVisible = false">关闭</NButton>
+            <!-- 待质检状态：显示执行质检按钮 -->
+            <NButton
+              v-if="qualityDetailData?.checkResult === 'PENDING'"
+              type="warning"
+              @click="showInspectModal(qualityDetailData)"
+            >
+              执行质检
+            </NButton>
             <NButton
               type="success"
-              @click="router.push({ path: '/business/evaluation', query: { orderNo: qualityDetailData?.orderNo || '' } })"
+              @click="router.push({ path: '/business/evaluation', query: { orderNo: qualityDetailData?.orderNo || '', qualityCheckId: qualityDetailData?.qualityCheckId || '', serviceLogId: qualityDetailData?.serviceLogId || '' } })"
             >
               发起满意度评价
             </NButton>
@@ -701,6 +794,96 @@ onMounted(() => {
             <NButton @click="recheckDrawerVisible = false">取消</NButton>
             <NButton type="primary" :loading="recheckLoading" @click="handleRecheck">
               提交
+            </NButton>
+          </NSpace>
+        </template>
+      </NDrawerContent>
+    </NDrawer>
+
+    <!-- Inspect Drawer：质检员执行质检，给出合格/不合格/需整改结论 -->
+    <NDrawer v-model:show="inspectDrawerVisible" :width="520" placement="right" closable>
+      <NDrawerContent title="执行质检" closable>
+        <NForm label-placement="left" label-width="90">
+          <!-- 质检单基本信息（只读） -->
+          <NFormItem label="质检编号">{{ qualityDetailData?.checkNo }}</NFormItem>
+          <NFormItem label="订单号">{{ qualityDetailData?.orderNo }}</NFormItem>
+          <NFormItem label="服务类别">{{ qualityDetailData?.serviceCategory }}</NFormItem>
+
+          <NDivider title-placement="left">质检结论</NDivider>
+
+          <NFormItem label="质检方式" required>
+            <NSelect
+              v-model:value="inspectData.checkMethod"
+              :options="checkMethodOptions"
+              style="width: 200px"
+            />
+          </NFormItem>
+
+          <NFormItem label="综合评分" required>
+            <NInputNumber
+              v-model:value="inspectData.checkScore"
+              :min="0"
+              :max="100"
+              style="width: 120px"
+            />
+            <span style="margin-left: 8px; color: #888">分（0-100）</span>
+          </NFormItem>
+
+          <NFormItem label="质检结论" required>
+            <NSelect
+              v-model:value="inspectData.checkResult"
+              :options="resultOptions"
+              style="width: 200px"
+            />
+          </NFormItem>
+
+          <NFormItem label="质检备注">
+            <NInput
+              v-model:value="inspectData.checkRemark"
+              type="textarea"
+              placeholder="请输入质检备注，说明检查依据"
+              :rows="3"
+            />
+          </NFormItem>
+
+          <!-- 需整改时显示整改信息 -->
+          <template v-if="inspectData.checkResult === 'NEED_RECTIFY'">
+            <NDivider title-placement="left">整改通知</NDivider>
+            <NFormItem label="整改通知" required>
+              <NInput
+                v-model:value="inspectData.rectifyNotice"
+                type="textarea"
+                placeholder="请输入整改要求，告知服务商需要整改的内容"
+                :rows="3"
+              />
+            </NFormItem>
+            <NFormItem label="整改期限">
+              <NDatePicker
+                v-model:value="inspectData.rectifyDeadline"
+                type="date"
+                style="width: 200px"
+                clearable
+              />
+            </NFormItem>
+          </template>
+
+          <NAlert type="info" style="margin-top: 8px">
+            <template v-if="inspectData.checkResult === 'QUALIFIED'">
+              合格：服务日志→已通过，订单→已完成
+            </template>
+            <template v-else-if="inspectData.checkResult === 'UNQUALIFIED'">
+              不合格：服务终止，进入整改流程
+            </template>
+            <template v-else>
+              需整改：开启整改流程，服务商提交整改后需复检
+            </template>
+          </NAlert>
+        </NForm>
+        <template #footer>
+          <NSpace justify="end">
+            <NButton @click="inspectDrawerVisible = false">取消</NButton>
+            <NButton type="primary" :loading="inspectLoading" @click="handleInspect">
+              确认提交
             </NButton>
           </NSpace>
         </template>

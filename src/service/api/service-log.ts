@@ -150,6 +150,16 @@ export function fetchSignIn(id: string, data: { location: string; photos?: strin
 }
 
 /**
+ * 复制服务日志
+ */
+export function fetchDuplicateServiceLog(id: string) {
+  return request<string>({
+    url: `/api/service-log/${id}/duplicate`,
+    method: 'post'
+  });
+}
+
+/**
  * 签退
  */
 export function fetchSignOut(

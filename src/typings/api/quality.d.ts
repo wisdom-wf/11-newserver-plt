@@ -34,6 +34,8 @@ declare namespace Api {
       id?: string;
       /** 订单ID */
       orderId: string;
+      /** 服务日志ID（可选，从服务日志跳转创建时带入） */
+      serviceLogId?: string;
       /** 质检类型 */
       checkType: CheckType;
       /** 质检方式 */
@@ -121,7 +123,7 @@ declare namespace Api {
     type CheckMethod = 'PHOTO_REVIEW' | 'PHONE_REVIEW' | 'ON_SITE';
 
     /** 质检结果 */
-    type CheckResult = 'QUALIFIED' | 'UNQUALIFIED' | 'NEED_RECTIFY';
+    type CheckResult = 'PENDING' | 'QUALIFIED' | 'UNQUALIFIED' | 'NEED_RECTIFY';
 
     /** 整改状态 */
     type RectifyStatus = 'PENDING' | 'IN_PROGRESS' | 'RECHECK' | 'COMPLETED' | 'VERIFIED' | 'FAILED';

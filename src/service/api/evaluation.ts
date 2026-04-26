@@ -50,7 +50,9 @@ export function fetchCreateEvaluation(data: Api.Evaluation.EvaluationForm) {
     environmentScore: data.environmentScore, // 环境评分
     content: data.content,
     tags: data.tags,
-    anonymous: data.anonymous
+    anonymous: data.anonymous,
+    qualityCheckId: data.qualityCheckId,
+    serviceLogId: data.serviceLogId
   };
   return request({
     url: '/api/evaluations',
