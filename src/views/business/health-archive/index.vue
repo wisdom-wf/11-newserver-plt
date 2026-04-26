@@ -585,7 +585,7 @@ onMounted(() => {
         <NTabPane name="measurements" tab="健康测量">
           <div style="margin-bottom: 16px">
             <NSpace>
-              <NButton type="primary" @click="measurementDrawerVisible = true">添加测量记录</NButton>
+              <NButton type="primary" @click="measurementDrawerVisible = true">新增测量记录</NButton>
             </NSpace>
           </div>
 
@@ -720,7 +720,7 @@ onMounted(() => {
 
     <!-- Add Measurement Drawer -->
     <NDrawer v-model:show="measurementDrawerVisible" :width="400" placement="right" closable>
-      <NDrawerContent title="添加测量记录" closable>
+      <NDrawerContent title="新增测量记录" closable>
         <div style="padding: 0 8px">
           <div style="margin-bottom: 16px">
             <div style="color: #999; font-size: 13px; margin-bottom: 8px">测量类型</div>

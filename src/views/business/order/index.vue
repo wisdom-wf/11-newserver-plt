@@ -1178,7 +1178,7 @@ onMounted(() => {
     </NCard>
 
     <!-- Add Modal -->
-    <NModal v-model:show="addModalVisible" title="添加订单" preset="card" style="width: 600px">
+    <NModal v-model:show="addModalVisible" title="新增订单" preset="card" style="width: 600px">
       <NForm :model="addForm" label-placement="left" label-width="100">
         <NFormItem label="客户姓名" required>
           <NInput v-model:value="addForm.elderName" placeholder="请输入客户姓名" />

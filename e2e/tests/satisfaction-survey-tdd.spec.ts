@@ -130,14 +130,13 @@ test.describe('满意度评价 TDD 测试', () => {
     });
     console.log(`FWS1访问其他评价${evalId} → HTTP ${res.status()}`);
     // 预期：400（隔离拒绝）
-    expect([200, 400, 403]).toContain(res.status());
+    expect(res.status()).toBe(400);
   });
 
   // ============================================================
-  // T06: 更新评价（admin）
+  // T06: 回复评价（admin）
   // ============================================================
-  test('T06: 更新评价（admin）', async ({ request: req }) => {
-    // 拿第一条评价
+  test('T06: 回复评价（admin）', async ({ request: req }) => {
     const listRes = await req.get(`${API_BASE}/evaluations?page=1&pageSize=1`, {
       headers: { Authorization: `Bearer ${adminToken}` }
     });
@@ -145,11 +144,11 @@ test.describe('满意度评价 TDD 测试', () => {
     const evalId = records[0]?.evaluationId;
     if (!evalId) { test.skip(); return; }
 
-    const res = await req.put(`${API_BASE}/evaluations/${evalId}`, {
+    const res = await req.put(`${API_BASE}/evaluations/${evalId}/reply`, {
       headers: { Authorization: `Bearer ${adminToken}`, 'Content-Type': 'application/json' },
-      data: { content: '更新：已回访确认' }
+      data: { reply: '感谢您的评价，我们会继续努力' }
     });
-    console.log(`更新评价 → HTTP ${res.status()}`);
+    console.log(`回复评价 → HTTP ${res.status()}`);
     expect([200, 400]).toContain(res.status());
   });
 

@@ -43,6 +43,39 @@ export function fetchConfirmSettlement(id: string) {
 }
 
 /**
+ * 计算结算（预览）
+ */
+export function fetchCalculateSettlement(data: {
+  providerId?: string;
+  staffId?: string;
+  settlementPeriodStart?: string;
+  settlementPeriodEnd?: string;
+}) {
+  return request({
+    url: '/api/financial/settlements/calculate',
+    method: 'post',
+    data
+  });
+}
+
+/**
+ * 批量结算（实际生成结算单）
+ */
+export function fetchBatchSettlement(data: {
+  settlementType: 'STAFF' | 'PROVIDER';
+  providerId?: string;
+  staffId?: string;
+  settlementPeriodStart?: string;
+  settlementPeriodEnd?: string;
+}) {
+  return request({
+    url: '/api/financial/settlements/batch',
+    method: 'post',
+    data
+  });
+}
+
+/**
  * 取消结算
  */
 export function fetchCancelSettlement(id: string, reason?: string) {

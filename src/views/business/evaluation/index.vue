@@ -660,7 +660,7 @@ onMounted(() => {
     <NModal
       v-model:show="createDialogVisible"
       preset="card"
-      title="新建满意度评价"
+      title="新增满意度评价"
       style="width: 560px"
       :segmented="{ content: true, footer: true }"
     >

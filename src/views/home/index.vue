@@ -561,9 +561,9 @@ function initMockData() {
 
 // ============ 工具函数 ============
 function formatNumber(num: number | string | undefined | null): string {
-  if (num == null) return '0';
+  if (num == null) return '--';
   const n = typeof num === 'string' ? parseFloat(num) : num;
-  if (isNaN(n)) return '0';
+  if (isNaN(n)) return '--';
   if (n >= 10000) return (n / 10000).toFixed(1) + '万';
   return n.toString();
 }

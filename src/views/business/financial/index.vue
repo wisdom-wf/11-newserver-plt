@@ -25,8 +25,13 @@ import type { DataTableColumns } from 'naive-ui';
 import {
   fetchGetSettlementList,
   fetchGetSettlementStatistics,
+  fetchCalculateSettlement,
+  fetchBatchSettlement,
+  fetchConfirmSettlement,
+  fetchCancelSettlement,
   fetchGetElder,
   fetchGetStaff,
+  fetchGetProviderList,
   fetchGetServicePriceList,
   fetchCreateServicePrice,
   fetchUpdateServicePrice,
@@ -340,6 +345,143 @@ async function handleDeletePrice(row: Api.Financial.ServicePrice) {
   loadPriceData();
 }
 
+// ========== Settlement Modal ==========
+const settlementModalVisible = ref(false);
+const settlementStep = ref<'form' | 'preview'>('form');
+const settlementLoading = ref(false);
+const settlementForm = ref({
+  settlementType: 'PROVIDER' as 'STAFF' | 'PROVIDER',
+  providerId: '' as string,
+  staffId: '' as string,
+  settlementPeriodStart: null as number | null,
+  settlementPeriodEnd: null as number | null
+});
+const settlementPreview = ref<any>(null);
+
+// 下拉选项
+const providerOptions = ref<{ label: string; value: string }[]>([]);
+const staffOptions = ref<{ label: string; value: string }[]>([]);
+
+async function loadProviderOptions() {
+  try {
+    const { data } = await fetchGetProviderList({ page: 1, pageSize: 200 });
+    if (data?.records) {
+      providerOptions.value = data.records
+        .map((p: any) => ({ label: p.providerName || p.name, value: p.providerId || p.id }))
+        .filter((p: any) => p.label);
+    }
+  } catch {}
+}
+
+async function loadStaffOptions(providerId?: string) {
+  try {
+    const { data } = await fetchGetStaff({ providerId, page: 1, pageSize: 200 });
+    if (data?.records) {
+      staffOptions.value = data.records
+        .map((s: any) => ({ label: s.staffName || s.name, value: s.staffId || s.id }))
+        .filter((s: any) => s.label);
+    }
+  } catch {}
+}
+
+const settlementTypeOptions = [
+  { label: '服务商结算', value: 'PROVIDER' },
+  { label: '服务人员结算', value: 'STAFF' }
+];
+
+async function handleSettlementCalculate() {
+  settlementLoading.value = true;
+  try {
+    const params: any = {
+      settlementPeriodStart: settlementForm.value.settlementPeriodStart
+        ? new Date(settlementForm.value.settlementPeriodStart).toISOString().split('T')[0]
+        : undefined,
+      settlementPeriodEnd: settlementForm.value.settlementPeriodEnd
+        ? new Date(settlementForm.value.settlementPeriodEnd).toISOString().split('T')[0]
+        : undefined
+    };
+    if (settlementForm.value.settlementType === 'PROVIDER') {
+      params.providerId = settlementForm.value.providerId || undefined;
+    } else {
+      params.staffId = settlementForm.value.staffId || undefined;
+    }
+    const { data, error } = await fetchCalculateSettlement(params);
+    if (error) {
+      message.error(error.message || '计算失败');
+      return;
+    }
+    settlementPreview.value = data;
+    settlementStep.value = 'preview';
+  } finally {
+    settlementLoading.value = false;
+  }
+}
+
+async function handleSettlementConfirm() {
+  settlementLoading.value = true;
+  try {
+    const params: any = {
+      settlementType: settlementForm.value.settlementType,
+      settlementPeriodStart: settlementForm.value.settlementPeriodStart
+        ? new Date(settlementForm.value.settlementPeriodStart).toISOString().split('T')[0]
+        : undefined,
+      settlementPeriodEnd: settlementForm.value.settlementPeriodEnd
+        ? new Date(settlementForm.value.settlementPeriodEnd).toISOString().split('T')[0]
+        : undefined
+    };
+    if (settlementForm.value.settlementType === 'PROVIDER') {
+      params.providerId = settlementForm.value.providerId || undefined;
+    } else {
+      params.staffId = settlementForm.value.staffId || undefined;
+    }
+    const { data, error } = await fetchBatchSettlement(params);
+    if (error) {
+      message.error(error.message || '结算失败');
+      return;
+    }
+    message.success('结算成功');
+    settlementModalVisible.value = false;
+    settlementStep.value = 'form';
+    getData();
+    getStatistics();
+  } finally {
+    settlementLoading.value = false;
+  }
+}
+
+function resetSettlementModal() {
+  settlementForm.value = {
+    settlementType: 'PROVIDER',
+    providerId: '',
+    staffId: '',
+    settlementPeriodStart: null,
+    settlementPeriodEnd: null
+  };
+  settlementPreview.value = null;
+  settlementStep.value = 'form';
+  providerOptions.value = [];
+  staffOptions.value = [];
+  loadProviderOptions();
+  loadStaffOptions();
+}
+
+// 结算类型切换时加载对应下拉
+watch(() => settlementForm.value.settlementType, async (type) => {
+  if (type === 'PROVIDER') {
+    loadProviderOptions();
+  } else {
+    loadStaffOptions(settlementForm.value.providerId);
+  }
+});
+
+// 打开弹窗时加载数据
+watch(settlementModalVisible, (val) => {
+  if (val) {
+    loadProviderOptions();
+    loadStaffOptions();
+  }
+});
+
 // ========== Refund Tab ==========
 // Refund list
 const refundLoading = ref(false);
@@ -557,6 +699,7 @@ onMounted(() => {
               <NDatePicker v-model:value="searchDateRange" type="daterange" clearable style="width: 260px" />
               <NButton type="primary" @click="getData">搜索</NButton>
               <NButton @click="handleResetSearch">重置</NButton>
+              <NButton type="success" @click="settlementModalVisible = true; resetSettlementModal()">发起结算</NButton>
             </NSpace>
           </div>
 
@@ -760,6 +903,93 @@ onMounted(() => {
           <NButton type="primary" :loading="refundAuditLoading" @click="handleRefundAudit">提交</NButton>
         </NSpace>
       </template>
+    </NModal>
+
+    <!-- Settlement Modal (两步: 表单 → 预览 → 确认) -->
+    <NModal
+      v-model:show="settlementModalVisible"
+      :title="settlementStep === 'form' ? '发起结算' : '结算预览'"
+      preset="card"
+      style="width: 560px"
+      @update:show="(v: boolean) => { if (!v) { settlementStep = 'form'; } }"
+    >
+      <!-- Step 1: 表单 -->
+      <div v-if="settlementStep === 'form'">
+        <NForm label-placement="left" label-width="100">
+          <NFormItem label="结算类型" required>
+            <NSelect
+              v-model:value="settlementForm.settlementType"
+              :options="settlementTypeOptions"
+              style="width: 100%"
+            />
+          </NFormItem>
+          <NFormItem v-if="settlementForm.settlementType === 'PROVIDER'" label="服务商">
+            <NSelect
+              v-model:value="settlementForm.providerId"
+              :options="providerOptions"
+              placeholder="全部服务商（可选）"
+              clearable
+              filterable
+              style="width: 100%"
+            />
+          </NFormItem>
+          <NFormItem v-else label="服务人员">
+            <NSelect
+              v-model:value="settlementForm.staffId"
+              :options="staffOptions"
+              placeholder="全部服务人员（可选）"
+              clearable
+              filterable
+              style="width: 100%"
+            />
+          </NFormItem>
+          <NFormItem label="结算周期" required>
+            <NDatePicker
+              v-model:value="settlementForm.settlementPeriodStart"
+              type="date"
+              placeholder="开始日期"
+              style="width: 45%"
+            />
+            <span style="padding: 0 8px; color: #999">至</span>
+            <NDatePicker
+              v-model:value="settlementForm.settlementPeriodEnd"
+              type="date"
+              placeholder="结束日期"
+              style="width: 45%"
+            />
+          </NFormItem>
+        </NForm>
+        <div style="margin-top: 16px; text-align: right">
+          <NButton @click="settlementModalVisible = false">取消</NButton>
+          <NButton type="primary" :loading="settlementLoading" @click="handleSettlementCalculate" style="margin-left: 8px">
+            计算预览
+          </NButton>
+        </div>
+      </div>
+
+      <!-- Step 2: 预览 -->
+      <div v-else-if="settlementStep === 'preview' && settlementPreview">
+        <NAlert type="info" style="margin-bottom: 16px">
+          结算金额 = 补贴金额（政府结算给服务商）
+        </NAlert>
+        <NForm label-placement="left" label-width="110">
+          <NFormItem label="订单总数">{{ settlementPreview.totalOrderCount }} 单</NFormItem>
+          <NFormItem label="总服务费">¥{{ Number(settlementPreview.totalServiceAmount || 0).toFixed(2) }}</NFormItem>
+          <NFormItem label="总补贴金额" style="color: #18a058; font-weight: bold">
+            ¥{{ Number(settlementPreview.totalSubsidyAmount || 0).toFixed(2) }}
+          </NFormItem>
+          <NFormItem label="总自付金额">¥{{ Number(settlementPreview.totalSelfPayAmount || 0).toFixed(2) }}</NFormItem>
+          <NFormItem label="结算周期">
+            {{ settlementPreview.settlementPeriodStart }} ~ {{ settlementPreview.settlementPeriodEnd }}
+          </NFormItem>
+        </NForm>
+        <div style="margin-top: 16px; text-align: right">
+          <NButton @click="settlementStep = 'form'">重新选择</NButton>
+          <NButton type="primary" :loading="settlementLoading" @click="handleSettlementConfirm" style="margin-left: 8px">
+            确认结算
+          </NButton>
+        </div>
+      </div>
     </NModal>
   </div>
 </template>
