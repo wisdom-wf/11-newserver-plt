@@ -4,6 +4,8 @@ import com.elderlycare.common.BusinessException;
 import com.elderlycare.common.PageResult;
 import com.elderlycare.common.Result;
 import com.elderlycare.common.UserContext;
+import com.elderlycare.entity.order.Order;
+import com.elderlycare.mapper.order.OrderMapper;
 import com.elderlycare.dto.quality.QualityCheckQueryDTO;
 import com.elderlycare.service.quality.QualityCheckService;
 import com.elderlycare.vo.quality.QualityCheckStatisticsVO;
@@ -22,6 +24,7 @@ import java.util.Map;
 public class QualityCheckController {
 
     private final QualityCheckService qualityCheckService;
+    private final OrderMapper orderMapper;
 
     /**
      * 获取质检列表
@@ -82,9 +85,21 @@ public class QualityCheckController {
     /**
      * 创建质检
      * POST /api/quality-check
+     * 隔离：PROVIDER只能为自己公司的订单创建质检
      */
     @PostMapping
     public Result<Void> createQualityCheck(@RequestBody QualityCheckVO vo) {
+        String userType = UserContext.getUserType();
+        String autoPid = UserContext.getProviderId();
+        if ("PROVIDER".equals(userType) && autoPid != null) {
+            Order order = orderMapper.selectById(vo.getOrderId());
+            if (order == null) {
+                throw BusinessException.notFound("订单不存在");
+            }
+            if (!autoPid.equals(order.getProviderId())) {
+                throw BusinessException.forbidden("无权为他方订单创建质检");
+            }
+        }
         qualityCheckService.createQualityCheck(vo);
         return Result.success("质检创建成功");
     }

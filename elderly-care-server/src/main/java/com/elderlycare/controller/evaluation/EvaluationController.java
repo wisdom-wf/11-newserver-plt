@@ -7,6 +7,8 @@ import com.elderlycare.common.UserContext;
 import com.elderlycare.dto.evaluation.*;
 import com.elderlycare.entity.evaluation.CustomerFeedback;
 import com.elderlycare.entity.evaluation.ServiceEvaluation;
+import com.elderlycare.entity.order.Order;
+import com.elderlycare.mapper.order.OrderMapper;
 import com.elderlycare.service.evaluation.CustomerFeedbackService;
 import com.elderlycare.service.evaluation.ServiceEvaluationService;
 import com.elderlycare.vo.evaluation.EvaluationStatisticsVO;
@@ -30,14 +32,24 @@ public class EvaluationController {
 
     private final ServiceEvaluationService evaluationService;
     private final CustomerFeedbackService feedbackService;
+    private final OrderMapper orderMapper;
 
     // ==================== 服务评价接口 ====================
 
     /**
      * 评价提交
+     * 隔离：PROVIDER只能为自己公司的订单创建评价
      */
     @PostMapping("")
     public Result<String> createEvaluation(@Validated @RequestBody CreateEvaluationDTO dto) {
+        String userType = UserContext.getUserType();
+        String autoPid = UserContext.getProviderId();
+        if ("PROVIDER".equals(userType) && autoPid != null) {
+            Order order = orderMapper.selectById(dto.getOrderId());
+            if (order != null && !autoPid.equals(order.getProviderId())) {
+                throw BusinessException.forbidden("无权为他方订单创建评价");
+            }
+        }
         String evaluationId = evaluationService.createEvaluation(dto);
         return Result.success(evaluationId);
     }
