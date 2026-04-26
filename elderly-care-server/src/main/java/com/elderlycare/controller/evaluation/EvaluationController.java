@@ -1,5 +1,6 @@
 package com.elderlycare.controller.evaluation;
 
+import com.elderlycare.common.BusinessException;
 import com.elderlycare.common.PageResult;
 import com.elderlycare.common.Result;
 import com.elderlycare.common.UserContext;
@@ -63,10 +64,19 @@ public class EvaluationController {
 
     /**
      * 评价详情
+     * 隔离规则：PROVIDER只能查自己公司的评价
      */
     @GetMapping("/{evaluationId}")
     public Result<EvaluationVO> getEvaluationById(@PathVariable String evaluationId) {
         EvaluationVO vo = evaluationService.getEvaluationById(evaluationId);
+        // 隔离校验：PROVIDER用户只能看自己公司的评价
+        String userType = UserContext.getUserType();
+        String myProviderId = UserContext.getProviderId();
+        if ("PROVIDER".equals(userType) && myProviderId != null && vo != null) {
+            if (!myProviderId.equals(vo.getProviderId())) {
+                throw BusinessException.fail("无权访问其他公司的评价信息");
+            }
+        }
         return Result.success(vo);
     }
 
