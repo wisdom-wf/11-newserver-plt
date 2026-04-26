@@ -37,7 +37,7 @@ public class CockpitServiceImpl implements CockpitService {
         CockpitOverviewVO overview = new CockpitOverviewVO();
 
         // 获取各模块统计数据
-        DashboardVO dashboard = statisticsService.getDashboardData();
+        DashboardVO dashboard = statisticsService.getDashboardData(providerId);
         ElderStatisticsVO elderStats = statisticsService.getElderStatistics();
         // PROVIDER用户：providerRanking只展示自己；全局统计仍然展示
         ProviderStatisticsVO providerStats = "PROVIDER".equals(providerId) ? null : statisticsService.getProviderStatistics();
@@ -46,28 +46,21 @@ public class CockpitServiceImpl implements CockpitService {
         QualityStatisticsVO qualityStats = statisticsService.getQualityStatistics();
 
         // 设置基础数据（处理空值）
-        Long todayOrders = dashboard.getTodayOrders() != null ? dashboard.getTodayOrders() : 0L;
-        Long totalOrders = dashboard.getTotalOrders() != null ? dashboard.getTotalOrders() : 0L;
-        Long totalProviders = dashboard.getTotalProviders() != null ? dashboard.getTotalProviders() : 0L;
-        Long totalStaff = dashboard.getTotalStaff() != null ? dashboard.getTotalStaff() : 0L;
-        Long totalElders = dashboard.getTotalElders() != null ? dashboard.getTotalElders() : 0L;
-        Long todayCompleted = dashboard.getTodayCompletedOrders() != null ? dashboard.getTodayCompletedOrders() : 0L;
-
-        overview.setTodayOrders(todayOrders);
-        overview.setMonthOrders(todayOrders * 30L); // 估算
-        overview.setTotalOrders(totalOrders);
-        overview.setProviderCount(totalProviders);
-        overview.setStaffCount(totalStaff);
-        overview.setElderCount(totalElders);
+        overview.setTodayOrders(dashboard.getTodayOrders());
+        overview.setMonthOrders(dashboard.getTodayOrders() != null ? dashboard.getTodayOrders() * 30L : null); // 估算
+        overview.setTotalOrders(dashboard.getTotalOrders());
+        overview.setProviderCount(dashboard.getTotalProviders());
+        overview.setStaffCount(dashboard.getTotalStaff());
+        overview.setElderCount(dashboard.getTotalElders());
 
         // 服务人次
-        overview.setTodayServices(todayCompleted);
-        overview.setMonthServices(todayCompleted * 30L);
-        overview.setTotalServices(totalOrders);
+        overview.setTodayServices(dashboard.getTodayCompletedOrders());
+        overview.setMonthServices(dashboard.getTodayCompletedOrders() != null ? dashboard.getTodayCompletedOrders() * 30L : null);
+        overview.setTotalServices(dashboard.getTotalOrders());
 
         // 营收
-        overview.setMonthRevenue(financialStats.getMonthAmount() != null ? financialStats.getMonthAmount() : BigDecimal.ZERO);
-        overview.setTotalRevenue(financialStats.getTotalAmount() != null ? financialStats.getTotalAmount() : BigDecimal.ZERO);
+        overview.setMonthRevenue(financialStats.getMonthAmount());
+        overview.setTotalRevenue(financialStats.getTotalAmount());
 
         // 满意度和合格率（无数据时返回null，前端formatter处理）
         if (qualityStats.getPositiveRate() != null) {
@@ -128,7 +121,7 @@ public class CockpitServiceImpl implements CockpitService {
 
     @Override
     public List<CockpitOverviewVO.ServiceDistribution> getServiceDistribution(String providerId) {
-        DashboardVO dashboard = statisticsService.getDashboardData();
+        DashboardVO dashboard = statisticsService.getDashboardData(providerId);
         List<CockpitOverviewVO.ServiceDistribution> result = new ArrayList<>();
         if (dashboard != null && dashboard.getServiceTypeDistribution() != null) {
             result = dashboard.getServiceTypeDistribution().stream()

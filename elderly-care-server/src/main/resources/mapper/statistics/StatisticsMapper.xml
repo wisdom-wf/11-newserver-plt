@@ -22,6 +22,9 @@
             SUM(CASE WHEN status = 'COMPLETED' THEN 1 ELSE 0 END) AS completedCount
         FROM t_order
         WHERE deleted = 0
+        <if test="providerId != null">
+            AND provider_id = #{providerId}
+        </if>
         <if test="startDate != null">
             AND create_time &gt;= #{startDate}
         </if>
@@ -37,6 +40,19 @@
         ORDER BY date
     </select>
 
+    <!-- 按providerId查询订单汇总（用于驾驶舱） -->
+    <select id="selectOrderSummaryByProvider" resultType="map">
+        SELECT
+            COUNT(*) AS total,
+            COALESCE(SUM(CASE WHEN DATE(create_time) = CURDATE() THEN 1 ELSE 0 END), 0) AS todayOrders,
+            COALESCE(SUM(CASE WHEN DATE(create_time) = CURDATE() AND status IN ('SERVICE_COMPLETED','EVALUATED','SETTLED') THEN 1 ELSE 0 END), 0) AS todayCompletedOrders
+        FROM t_order
+        WHERE deleted = 0
+        <if test="providerId != null">
+            AND provider_id = #{providerId}
+        </if>
+    </select>
+
     <select id="selectOrderStatisticsByDateRange" resultType="map">
         SELECT
             service_type_code AS serviceTypeCode,
@@ -44,9 +60,12 @@
             COUNT(*) AS orderCount,
             SUM(CASE WHEN status = 'COMPLETED' THEN 1 ELSE 0 END) AS completedCount,
             COALESCE(SUM(estimated_price), 0) AS totalAmount,
-            COALESCE(AVG(rating), 0) AS averageRating
+            COALESCE(AVG(e.overall_score), 0) AS averageRating
         FROM t_order
         WHERE deleted = 0
+        <if test="providerId != null">
+            AND provider_id = #{providerId}
+        </if>
         <if test="startDate != null">
             AND create_time &gt;= #{startDate}
         </if>

@@ -271,8 +271,9 @@ public interface StatisticsMapper {
     Double selectAverageRating();
 
     /**
-     * 查询订单总额
+     * 按providerId查询订单汇总（用于驾驶舱）
      */
+    Map<String, Object> selectOrderSummaryByProvider(@Param("providerId") String providerId);
     @Select("""
         SELECT COALESCE(SUM(estimated_price), 0) FROM t_order WHERE deleted = 0
         """)

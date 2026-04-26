@@ -36,7 +36,7 @@
     </resultMap>
 
     <select id="selectQualityCheckPage" resultMap="BaseResultMap">
-        SELECT * FROM quality_check
+        SELECT * FROM t_quality_check
         WHERE deleted = 0
         <if test="dto.orderNo != null and dto.orderNo != ''">
             AND order_no LIKE CONCAT('%', #{dto.orderNo}, '%')

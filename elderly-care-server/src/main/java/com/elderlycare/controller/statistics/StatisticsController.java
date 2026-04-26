@@ -27,8 +27,9 @@ public class StatisticsController {
      * 服务类型分布、趋势数据、TOP服务商
      */
     @GetMapping("/dashboard")
-    public Result<DashboardVO> getDashboardData() {
-        DashboardVO data = statisticsService.getDashboardData();
+    public Result<DashboardVO> getDashboardData(
+            @RequestParam(required = false) String providerId) {
+        DashboardVO data = statisticsService.getDashboardData(providerId);
         return Result.success(data);
     }
 

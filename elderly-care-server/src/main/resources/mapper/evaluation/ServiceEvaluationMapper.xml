@@ -121,6 +121,7 @@
         LEFT JOIN t_elder e ON se.elder_id = e.elder_id
         LEFT JOIN t_order o ON se.order_id = o.order_id
         WHERE se.evaluation_id = #{evaluationId}
+        AND se.deleted = 0
     </select>
 
     <select id="selectByToken" resultMap="BaseResultMap">

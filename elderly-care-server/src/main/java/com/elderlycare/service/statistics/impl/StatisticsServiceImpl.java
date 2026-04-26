@@ -22,18 +22,26 @@ public class StatisticsServiceImpl implements StatisticsService {
     private final StatisticsMapper statisticsMapper;
 
     @Override
-    public DashboardVO getDashboardData() {
+    public DashboardVO getDashboardData(String providerId) {
         DashboardVO vo = new DashboardVO();
 
-        // 基本统计数据
+        // 订单汇总（支持providerId过滤）
+        if (providerId != null) {
+            Map<String, Object> orderSummary = statisticsMapper.selectOrderSummaryByProvider(providerId);
+            vo.setTotalOrders(toLong(orderSummary.get("total")));
+            vo.setTodayOrders(toLong(orderSummary.get("todayOrders")));
+            vo.setTodayCompletedOrders(toLong(orderSummary.get("todayCompletedOrders")));
+        } else {
+            // ADMIN/CITY_ADMIN：查全局
+            vo.setTotalOrders(statisticsMapper.selectTotalOrders());
+            vo.setTodayOrders(statisticsMapper.selectTodayOrders());
+            vo.setTodayCompletedOrders(statisticsMapper.selectTodayCompletedOrders());
+        }
+
+        // 老人/服务商/服务人员（全局统计，不过滤）
         vo.setTotalElders(statisticsMapper.selectTotalElders());
         vo.setTotalProviders(statisticsMapper.selectTotalProviders());
         vo.setTotalStaff(statisticsMapper.selectTotalStaff());
-        vo.setTotalOrders(statisticsMapper.selectTotalOrders());
-
-        // 今日概况
-        vo.setTodayOrders(statisticsMapper.selectTodayOrders());
-        vo.setTodayCompletedOrders(statisticsMapper.selectTodayCompletedOrders());
         vo.setTodayPendingOrders(statisticsMapper.selectTodayPendingOrders());
         vo.setTodayCancelledOrders(statisticsMapper.selectTodayCancelledOrders());
 

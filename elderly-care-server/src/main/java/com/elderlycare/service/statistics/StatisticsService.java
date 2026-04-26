@@ -9,8 +9,9 @@ public interface StatisticsService {
 
     /**
      * 获取仪表盘数据
+     * @param providerId 若提供则订单相关统计按该服务商过滤（PROVIDER用户场景）
      */
-    DashboardVO getDashboardData();
+    DashboardVO getDashboardData(String providerId);
 
     /**
      * 获取老人统计数据

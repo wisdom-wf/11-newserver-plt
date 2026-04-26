@@ -45,7 +45,7 @@
 
     <select id="selectServiceLogPage" resultMap="BaseResultMap">
         SELECT *
-        FROM service_log
+        FROM t_service_log
         WHERE deleted = 0
         <if test="query.orderNo != null and query.orderNo != ''">
             AND order_no LIKE CONCAT('%', #{query.orderNo}, '%')
@@ -85,13 +85,13 @@
 
     <select id="selectServiceLogById" resultMap="BaseResultMap">
         SELECT *
-        FROM service_log
+        FROM t_service_log
         WHERE service_log_id = #{serviceLogId} AND deleted = 0
     </select>
 
     <select id="selectServiceLogByOrderId" resultMap="BaseResultMap">
         SELECT *
-        FROM service_log
+        FROM t_service_log
         WHERE order_id = #{orderId} AND deleted = 0
         ORDER BY create_time DESC
         LIMIT 1
@@ -99,7 +99,7 @@
 
     <select id="selectServiceLogsByStaffId" resultMap="BaseResultMap">
         SELECT *
-        FROM service_log
+        FROM t_service_log
         WHERE staff_id = #{staffId} AND deleted = 0
         ORDER BY service_date DESC, create_time DESC
         LIMIT #{limit}
