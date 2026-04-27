@@ -56,7 +56,7 @@ public class ConfigController {
     @PostMapping("/dict-types")
     public Result<String> createDictType(@Validated @RequestBody DictTypeDTO dto) {
         String id = dictTypeService.createDictType(dto);
-        return Result.success(id);
+        return Result.<String>success(id);
     }
 
     /**
@@ -96,7 +96,7 @@ public class ConfigController {
     @PostMapping("/dict-items")
     public Result<String> createDictItem(@Validated @RequestBody DictItemDTO dto) {
         String id = dictItemService.createDictItem(dto);
-        return Result.success(id);
+        return Result.<String>success(id);
     }
 
     /**
@@ -145,7 +145,7 @@ public class ConfigController {
     @PostMapping("/service-types")
     public Result<String> createServiceType(@Validated @RequestBody ConfigServiceTypeDTO dto) {
         String id = configServiceTypeService.createServiceType(dto);
-        return Result.success(id);
+        return Result.<String>success(id);
     }
 
     /**

@@ -38,7 +38,7 @@ public class FinancialController {
             dto.setProviderId(autoPid);
         }
         String priceId = servicePriceService.createPrice(dto);
-        return Result.success(priceId);
+        return Result.<String>success(priceId);
     }
 
     /**
@@ -154,7 +154,7 @@ public class FinancialController {
             dto.setProviderId(autoPid);
         }
         String refundId = refundService.createRefund(dto);
-        return Result.success(refundId);
+        return Result.<String>success(refundId);
     }
 
     /**

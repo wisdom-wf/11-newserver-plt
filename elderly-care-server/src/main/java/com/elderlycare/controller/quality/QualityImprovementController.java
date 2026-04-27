@@ -26,7 +26,7 @@ public class QualityImprovementController {
     @PostMapping("")
     public Result<String> createImprovement(@RequestBody QualityImprovement improvement) {
         String improvementId = improvementService.createImprovement(improvement);
-        return Result.success(improvementId);
+        return Result.<String>success(improvementId);
     }
 
     /**
@@ -63,7 +63,7 @@ public class QualityImprovementController {
     public Result<Void> updateImprovement(@PathVariable String improvementId, @RequestBody QualityImprovement improvement) {
         improvement.setImprovementId(improvementId);
         improvementService.updateImprovement(improvement);
-        return Result.success("更新成功");
+        return Result.successMsg("更新成功");
     }
 
     /**
@@ -72,7 +72,7 @@ public class QualityImprovementController {
     @PutMapping("/{improvementId}/start")
     public Result<Void> startExecution(@PathVariable String improvementId) {
         improvementService.startExecution(improvementId);
-        return Result.success("已开始执行");
+        return Result.successMsg("已开始执行");
     }
 
     /**
@@ -81,7 +81,7 @@ public class QualityImprovementController {
     @PutMapping("/{improvementId}/complete")
     public Result<Void> complete(@PathVariable String improvementId) {
         improvementService.complete(improvementId);
-        return Result.success("已标记完成");
+        return Result.successMsg("已标记完成");
     }
 
     /**
@@ -92,6 +92,6 @@ public class QualityImprovementController {
         String effectEvaluation = params.get("effectEvaluation");
         String evaluationResult = params.get("evaluationResult");
         improvementService.evaluate(improvementId, effectEvaluation, evaluationResult);
-        return Result.success("评估完成");
+        return Result.successMsg("评估完成");
     }
 }

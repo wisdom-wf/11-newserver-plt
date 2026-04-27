@@ -112,7 +112,7 @@ public class QualityCheckController {
             }
         }
         qualityCheckService.createQualityCheck(vo);
-        return Result.success("质检创建成功");
+        return Result.successMsg("质检创建成功");
     }
 
     /**
@@ -122,7 +122,7 @@ public class QualityCheckController {
     @PutMapping("/{id}")
     public Result<Void> updateQualityCheck(@PathVariable String id, @RequestBody QualityCheckVO vo) {
         qualityCheckService.updateQualityCheck(id, vo);
-        return Result.success("质检更新成功");
+        return Result.successMsg("质检更新成功");
     }
 
     /**
@@ -132,7 +132,7 @@ public class QualityCheckController {
     @PutMapping("/{id}/rectify")
     public Result<Void> submitRectify(@PathVariable String id, @RequestBody Map<String, Object> params) {
         qualityCheckService.submitRectify(id, params);
-        return Result.success("整改提交成功");
+        return Result.successMsg("整改提交成功");
     }
 
     /**
@@ -142,7 +142,7 @@ public class QualityCheckController {
     @PutMapping("/{id}/recheck")
     public Result<Void> recheck(@PathVariable String id, @RequestBody Map<String, Object> params) {
         qualityCheckService.recheck(id, params);
-        return Result.success("复检成功");
+        return Result.successMsg("复检成功");
     }
 
     /**
@@ -154,7 +154,7 @@ public class QualityCheckController {
     @PutMapping("/{id}/inspect")
     public Result<Void> inspect(@PathVariable String id, @RequestBody InspectionDTO dto) {
         qualityCheckService.inspect(id, dto);
-        return Result.success("质检执行完成");
+        return Result.successMsg("质检执行完成");
     }
 
     /**

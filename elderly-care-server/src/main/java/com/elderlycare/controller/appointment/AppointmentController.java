@@ -59,7 +59,7 @@ public class AppointmentController {
     @PostMapping
     public Result<String> createAppointment(@Validated @RequestBody AppointmentCreateDTO dto) {
         String appointmentId = appointmentService.createAppointment(dto);
-        return Result.success(appointmentId);
+        return Result.<String>success(appointmentId);
     }
 
     /**
@@ -79,7 +79,7 @@ public class AppointmentController {
     @PutMapping("/{id}/confirm")
     public Result<Void> confirmAppointment(@PathVariable String id, @RequestBody Map<String, String> params) {
         appointmentService.confirmAppointment(id, params.get("providerId"), params.get("appointmentTime"));
-        return Result.success("预约确认成功");
+        return Result.successMsg("预约确认成功");
     }
 
     /**
@@ -89,7 +89,7 @@ public class AppointmentController {
     @PutMapping("/{id}/assign")
     public Result<Void> assignAppointment(@PathVariable String id, @RequestBody Map<String, String> params) {
         appointmentService.assignAppointment(id, params.get("providerId"));
-        return Result.success("预约分配成功");
+        return Result.successMsg("预约分配成功");
     }
 
     /**
@@ -99,7 +99,7 @@ public class AppointmentController {
     @PutMapping("/{id}/cancel")
     public Result<Void> cancelAppointment(@PathVariable String id, @RequestBody Map<String, String> params) {
         appointmentService.cancelAppointment(id, params.get("reason"));
-        return Result.success("预约取消成功");
+        return Result.successMsg("预约取消成功");
     }
 
     /**
@@ -109,7 +109,7 @@ public class AppointmentController {
     @PutMapping("/{id}/invalidate")
     public Result<Void> invalidateAppointment(@PathVariable String id, @RequestBody Map<String, String> params) {
         appointmentService.invalidateAppointment(id, params.get("reason"));
-        return Result.success("预约作废成功");
+        return Result.successMsg("预约作废成功");
     }
 
     /**

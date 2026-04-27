@@ -55,7 +55,7 @@ public class QualityAlertController {
     @PutMapping("/{alertId}/handle")
     public Result<Void> handleAlert(@PathVariable String alertId, @RequestBody String handleResult) {
         qualityAlertService.handleAlert(alertId, handleResult);
-        return Result.success("处理成功");
+        return Result.successMsg("处理成功");
     }
 
     /**
@@ -64,7 +64,7 @@ public class QualityAlertController {
     @PutMapping("/{alertId}/ignore")
     public Result<Void> ignoreAlert(@PathVariable String alertId) {
         qualityAlertService.ignoreAlert(alertId);
-        return Result.success("已忽略");
+        return Result.successMsg("已忽略");
     }
 
     /**
@@ -73,6 +73,6 @@ public class QualityAlertController {
     @PostMapping("/check")
     public Result<Void> checkAndGenerateAlerts() {
         qualityAlertService.checkAndGenerateAlerts();
-        return Result.success("检查完成");
+        return Result.successMsg("检查完成");
     }
 }

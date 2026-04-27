@@ -103,7 +103,7 @@ public class OrderController {
     @PutMapping("/{orderId}/cancel")
     public Result<Void> cancelOrder(@PathVariable String orderId, @RequestBody CancelOrderDTO dto) {
         orderService.cancelOrder(orderId, dto);
-        return Result.success("订单取消成功");
+        return Result.successMsg("订单取消成功");
     }
 
     // ==================== 订单派单 ====================
@@ -125,7 +125,7 @@ public class OrderController {
     @PutMapping("/{orderId}/receive")
     public Result<Void> receiveOrder(@PathVariable String orderId, @RequestBody ReceiveOrderDTO dto) {
         orderService.receiveOrder(orderId, dto);
-        return Result.success("接单成功");
+        return Result.successMsg("接单成功");
     }
 
     /**
@@ -135,7 +135,7 @@ public class OrderController {
     @PutMapping("/{orderId}/reject")
     public Result<Void> rejectOrder(@PathVariable String orderId, @RequestBody RejectOrderDTO dto) {
         orderService.rejectOrder(orderId, dto);
-        return Result.success("拒单成功");
+        return Result.successMsg("拒单成功");
     }
 
     /**
@@ -160,7 +160,7 @@ public class OrderController {
     @PutMapping("/{orderId}/start")
     public Result<Void> startService(@PathVariable String orderId, @RequestBody StartServiceDTO dto) {
         orderService.startService(orderId, dto);
-        return Result.success("开始服务成功");
+        return Result.successMsg("开始服务成功");
     }
 
     /**
@@ -170,7 +170,7 @@ public class OrderController {
     @PutMapping("/{orderId}/complete")
     public Result<Void> completeService(@PathVariable String orderId, @RequestBody CompleteServiceDTO dto) {
         orderService.completeService(orderId, dto);
-        return Result.success("完成服务成功");
+        return Result.successMsg("完成服务成功");
     }
 
     /**

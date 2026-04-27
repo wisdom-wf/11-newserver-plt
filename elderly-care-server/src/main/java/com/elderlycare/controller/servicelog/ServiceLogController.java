@@ -93,7 +93,7 @@ public class ServiceLogController {
     @PostMapping
     public Result<String> submitServiceLog(@RequestBody ServiceLogVO vo) {
         String serviceLogId = serviceLogService.submitServiceLog(vo);
-        return Result.success(serviceLogId);
+        return Result.<String>success(serviceLogId);
     }
 
     /**
@@ -103,7 +103,7 @@ public class ServiceLogController {
     @PutMapping("/{id}")
     public Result<Void> updateServiceLog(@PathVariable String id, @RequestBody ServiceLogVO vo) {
         serviceLogService.updateServiceLog(id, vo);
-        return Result.success("服务日志更新成功");
+        return Result.successMsg("服务日志更新成功");
     }
 
     /**
@@ -113,7 +113,7 @@ public class ServiceLogController {
     @PutMapping("/{id}/anomaly")
     public Result<Void> reportAnomaly(@PathVariable String id, @RequestBody Map<String, Object> params) {
         serviceLogService.reportAnomaly(id, params);
-        return Result.success("异常上报成功");
+        return Result.successMsg("异常上报成功");
     }
 
     /**
@@ -138,7 +138,7 @@ public class ServiceLogController {
     @PutMapping("/{id}/submit-review")
     public Result<Void> submitForReview(@PathVariable String id, @RequestParam(required = false) String remarks) {
         serviceLogService.submitForReview(id, remarks);
-        return Result.success("提交审核成功");
+        return Result.successMsg("提交审核成功");
     }
 
     /**
@@ -151,7 +151,7 @@ public class ServiceLogController {
             @RequestParam String result,
             @RequestParam(required = false) String reviewComment) {
         serviceLogService.reviewServiceLog(id, result, reviewComment);
-        return Result.success("审核完成");
+        return Result.successMsg("审核完成");
     }
 
     /**
@@ -161,7 +161,7 @@ public class ServiceLogController {
     @DeleteMapping("/{id}")
     public Result<Void> deleteServiceLog(@PathVariable String id) {
         serviceLogService.deleteServiceLog(id);
-        return Result.success("删除成功");
+        return Result.successMsg("删除成功");
     }
 
     /**
@@ -171,7 +171,7 @@ public class ServiceLogController {
     @PostMapping("/{id}/duplicate")
     public Result<String> duplicateServiceLog(@PathVariable String id) {
         String newId = serviceLogService.duplicateServiceLog(id);
-        return Result.success(newId);
+        return Result.<String>success(newId);
     }
 
     /**
@@ -193,7 +193,7 @@ public class ServiceLogController {
         for (String id : ids) {
             serviceLogService.deleteServiceLog(id);
         }
-        return Result.success("批量删除成功");
+        return Result.successMsg("批量删除成功");
     }
 
     /**
@@ -203,7 +203,7 @@ public class ServiceLogController {
     @PutMapping("/{id}/departure")
     public Result<Void> departure(@PathVariable String id, @RequestBody DepartureDTO dto) {
         serviceLogService.departure(id, dto);
-        return Result.success("出发登记成功");
+        return Result.successMsg("出发登记成功");
     }
 
     /**
@@ -213,7 +213,7 @@ public class ServiceLogController {
     @PutMapping("/{id}/sign-in")
     public Result<Void> signIn(@PathVariable String id, @RequestBody SignInDTO dto) {
         serviceLogService.signIn(id, dto);
-        return Result.success("签到成功");
+        return Result.successMsg("签到成功");
     }
 
     /**
@@ -223,6 +223,6 @@ public class ServiceLogController {
     @PutMapping("/{id}/sign-out")
     public Result<Void> signOut(@PathVariable String id, @RequestBody SignOutDTO dto) {
         serviceLogService.signOut(id, dto);
-        return Result.success("签退成功");
+        return Result.successMsg("签退成功");
     }
 }

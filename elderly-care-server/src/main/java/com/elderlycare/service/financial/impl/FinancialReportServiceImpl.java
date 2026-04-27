@@ -1,8 +1,7 @@
 package com.elderlycare.service.financial.impl;
 
 import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
-import com.baomidou.mybatisplus.core.metadata.IPage;
-import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
+import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import com.elderlycare.common.PageResult;
 import com.elderlycare.dto.financial.FinancialReportQueryDTO;
 import com.elderlycare.entity.financial.Refund;
@@ -21,7 +20,6 @@ import java.math.BigDecimal;
 import java.time.LocalDate;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.stream.Collectors;
 
 /**
  * 财务报表Service实现
@@ -58,7 +56,6 @@ public class FinancialReportServiceImpl implements FinancialReportService {
         if (!orders.isEmpty()) {
             Order firstOrder = orders.get(0);
             report.setProviderId(firstOrder.getProviderId());
-            // providerName需要通过providerId查询获取，此处简化处理
 
             long completedCount = orders.stream().filter(o -> "COMPLETED".equals(o.getStatus())).count();
             long cancelledCount = orders.stream().filter(o -> "CANCELLED".equals(o.getStatus())).count();
@@ -85,36 +82,35 @@ public class FinancialReportServiceImpl implements FinancialReportService {
             report.setTotalSelfPay(totalSelfPay);
         }
 
-        LambdaQueryWrapper<Settlement> settlementWrapper = new LambdaQueryWrapper<>();
+        // Settlement用QueryWrapper（避免BaseMapper SELECT不存在的列）
+        QueryWrapper<Settlement> settlementWrapper = new QueryWrapper<>();
         if (dto.getStartDate() != null) {
-            settlementWrapper.ge(Settlement::getCreateTime, dto.getStartDate());
+            settlementWrapper.ge("create_time", dto.getStartDate());
         }
         if (dto.getEndDate() != null) {
-            settlementWrapper.le(Settlement::getCreateTime, dto.getEndDate());
+            settlementWrapper.le("create_time", dto.getEndDate());
         }
         if (StringUtils.isNotBlank(dto.getProviderId())) {
-            settlementWrapper.eq(Settlement::getProviderId, dto.getProviderId());
+            settlementWrapper.eq("provider_id", dto.getProviderId());
         }
-        settlementWrapper.eq(Settlement::getStatus, "CONFIRMED");
+        settlementWrapper.eq("payment_status", "CONFIRMED");
 
         List<Settlement> settlements = settlementMapper.selectList(settlementWrapper);
         BigDecimal totalSettlementAmount = settlements.stream()
-                .map(Settlement::getSettlementAmount)
+                .map(Settlement::getTotalServiceAmount)
                 .filter(p -> p != null)
                 .reduce(BigDecimal.ZERO, BigDecimal::add);
         report.setTotalSettlementAmount(totalSettlementAmount);
 
-        LambdaQueryWrapper<Refund> refundWrapper = new LambdaQueryWrapper<>();
+        // Refund用QueryWrapper
+        QueryWrapper<Refund> refundWrapper = new QueryWrapper<>();
         if (dto.getStartDate() != null) {
-            refundWrapper.ge(Refund::getCreateTime, dto.getStartDate());
+            refundWrapper.ge("create_time", dto.getStartDate());
         }
         if (dto.getEndDate() != null) {
-            refundWrapper.le(Refund::getCreateTime, dto.getEndDate());
+            refundWrapper.le("create_time", dto.getEndDate());
         }
-        if (StringUtils.isNotBlank(dto.getProviderId())) {
-            refundWrapper.eq(Refund::getProviderId, dto.getProviderId());
-        }
-        refundWrapper.eq(Refund::getAuditStatus, "COMPLETED");
+        refundWrapper.eq("refund_status", "COMPLETED");
 
         List<Refund> refunds = refundMapper.selectList(refundWrapper);
         BigDecimal totalRefundAmount = refunds.stream()
@@ -123,7 +119,7 @@ public class FinancialReportServiceImpl implements FinancialReportService {
                 .reduce(BigDecimal.ZERO, BigDecimal::add);
         report.setTotalRefundAmount(totalRefundAmount);
 
-        BigDecimal netAmount = report.getTotalServiceAmount()
+        BigDecimal netAmount = (report.getTotalServiceAmount() != null ? report.getTotalServiceAmount() : BigDecimal.ZERO)
                 .subtract(report.getTotalRefundAmount() != null ? report.getTotalRefundAmount() : BigDecimal.ZERO);
         report.setNetAmount(netAmount);
 

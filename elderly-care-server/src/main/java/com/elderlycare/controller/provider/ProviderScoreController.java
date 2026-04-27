@@ -26,7 +26,7 @@ public class ProviderScoreController {
     @PostMapping("")
     public Result<Void> generateScore(@RequestParam String providerId, @RequestParam String periodType) {
         providerScoreService.saveOrUpdateScore(providerId, periodType);
-        return Result.success("评分生成成功");
+        return Result.successMsg("评分生成成功");
     }
 
     /**

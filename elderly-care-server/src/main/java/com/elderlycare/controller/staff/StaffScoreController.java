@@ -26,7 +26,7 @@ public class StaffScoreController {
     @PostMapping("")
     public Result<Void> generateScore(@RequestParam String staffId, @RequestParam String periodType) {
         staffScoreService.saveOrUpdateScore(staffId, periodType);
-        return Result.success("评分生成成功");
+        return Result.successMsg("评分生成成功");
     }
 
     /**

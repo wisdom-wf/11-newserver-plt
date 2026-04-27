@@ -129,7 +129,7 @@ public class ProviderController {
         for (String providerId : providerIds) {
             providerService.deleteProvider(providerId);
         }
-        return Result.success("批量删除成功");
+        return Result.successMsg("批量删除成功");
     }
 
     /**
@@ -177,7 +177,7 @@ public class ProviderController {
             throw BusinessException.fail("无权为其他服务商添加资质");
         }
         String certId = qualificationService.createQualification(providerId, dto);
-        return Result.success(certId);
+        return Result.<String>success(certId);
     }
 
     /**
@@ -249,7 +249,7 @@ public class ProviderController {
             providerId = autoPid;
         }
         String serviceTypeId = serviceTypeService.createServiceType(providerId, dto);
-        return Result.success(serviceTypeId);
+        return Result.<String>success(serviceTypeId);
     }
 
     /**

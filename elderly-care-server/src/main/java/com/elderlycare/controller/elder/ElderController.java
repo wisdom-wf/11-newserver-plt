@@ -109,7 +109,7 @@ public class ElderController {
         for (String elderId : elderIds) {
             elderService.deleteElder(elderId);
         }
-        return Result.success("批量删除成功");
+        return Result.successMsg("批量删除成功");
     }
 
     /**

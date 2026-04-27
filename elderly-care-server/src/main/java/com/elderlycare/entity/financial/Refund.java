@@ -22,41 +22,52 @@ public class Refund implements Serializable {
 
     private String orderId;
 
-    private String orderNo;
+    private String settlementId;
 
-    private String elderId;
-
-    private String elderName;
-
+    // DB无provider_id
+    @TableField(exist = false)
     private String providerId;
 
-    private String providerName;
+    private String refundType;
 
     private BigDecimal refundAmount;
 
     private String refundReason;
 
-    private String refundType;
+    private String refundStatus;
 
-    @TableField("refund_status")
-    private String auditStatus;
+    // 逻辑别名：Service层统一用auditStatus，DB层是refundStatus
+    public String getAuditStatus() { return this.refundStatus; }
+    public void setAuditStatus(String status) { this.refundStatus = status; }
 
-    private String auditComment;
+    private String applicantId;
 
-    private String auditorId;
+    private String approverId;
 
-    private String auditorName;
-
+    // 映射 DB approval_time，Service层用 getAuditTime()/setAuditTime()
+    @TableField("approval_time")
     private LocalDateTime auditTime;
 
+    private LocalDateTime refundTime;
+
+    // 联表字段
+    @TableField(exist = false)
+    private String auditComment;
+
+    @TableField(exist = false)
+    private String auditorId;
+
+    @TableField(exist = false)
+    private String auditorName;
+
+    @TableField(exist = false)
     private String remark;
 
     @TableField(fill = FieldFill.INSERT)
     private LocalDateTime createTime;
 
-    @TableField(fill = FieldFill.INSERT_UPDATE)
+    // DB无update_time列，但Service层需要
+    @TableField(exist = false)
     private LocalDateTime updateTime;
 
-    @TableLogic
-    private Integer deleted;
 }

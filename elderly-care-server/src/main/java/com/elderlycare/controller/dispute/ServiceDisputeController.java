@@ -26,7 +26,7 @@ public class ServiceDisputeController {
     @PostMapping("")
     public Result<String> createDispute(@RequestBody ServiceDispute dispute) {
         String disputeId = disputeService.createDispute(dispute);
-        return Result.success(disputeId);
+        return Result.<String>success(disputeId);
     }
 
     /**
@@ -63,7 +63,7 @@ public class ServiceDisputeController {
     @PutMapping("/{disputeId}/investigate")
     public Result<Void> startInvestigation(@PathVariable String disputeId, @RequestBody String investigationContent) {
         disputeService.startInvestigation(disputeId, investigationContent);
-        return Result.success("调查已开始");
+        return Result.successMsg("调查已开始");
     }
 
     /**
@@ -72,7 +72,7 @@ public class ServiceDisputeController {
     @PutMapping("/{disputeId}/mediate")
     public Result<Void> mediate(@PathVariable String disputeId, @RequestBody String mediationContent) {
         disputeService.mediate(disputeId, mediationContent);
-        return Result.success("调解已开始");
+        return Result.successMsg("调解已开始");
     }
 
     /**
@@ -81,7 +81,7 @@ public class ServiceDisputeController {
     @PutMapping("/{disputeId}/agree")
     public Result<Void> reachAgreement(@PathVariable String disputeId, @RequestBody String agreementContent) {
         disputeService.reachAgreement(disputeId, agreementContent);
-        return Result.success("协议已达成");
+        return Result.successMsg("协议已达成");
     }
 
     /**
@@ -90,6 +90,6 @@ public class ServiceDisputeController {
     @PutMapping("/{disputeId}/close")
     public Result<Void> closeDispute(@PathVariable String disputeId, @RequestBody String closeReason) {
         disputeService.closeDispute(disputeId, closeReason);
-        return Result.success("争议已关闭");
+        return Result.successMsg("争议已关闭");
     }
 }

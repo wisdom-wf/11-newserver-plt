@@ -121,7 +121,7 @@ public class StaffController {
         for (String staffId : staffIds) {
             staffService.deleteStaff(staffId);
         }
-        return Result.success("批量删除成功");
+        return Result.successMsg("批量删除成功");
     }
 
     /**

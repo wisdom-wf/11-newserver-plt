@@ -51,7 +51,7 @@ public class EvaluationController {
             }
         }
         String evaluationId = evaluationService.createEvaluation(dto);
-        return Result.success(evaluationId);
+        return Result.<String>success(evaluationId);
     }
 
     /**
@@ -153,7 +153,7 @@ public class EvaluationController {
     @PostMapping("/feedback")
     public Result<String> createFeedback(@Validated @RequestBody CreateFeedbackDTO dto) {
         String feedbackId = feedbackService.createFeedback(dto);
-        return Result.success(feedbackId);
+        return Result.<String>success(feedbackId);
     }
 
     /**
