@@ -7,6 +7,7 @@ import { useNaiveForm, useFormRules } from '@/hooks/common/form';
 import { useNaivePaginatedTable, useTableOperate, defaultTransform } from '@/hooks/common/table';
 import { useAuth } from '@/hooks/business/auth';
 import { useRouterPush } from '@/hooks/common/router';
+import { useRoute, useRouter } from 'vue-router';
 import TableHeaderOperation from '@/components/advanced/table-header-operation.vue';
 import {
   fetchGetStaffList,
@@ -30,6 +31,8 @@ const { formRef, validate, restoreValidation } = useNaiveForm();
 const { defaultRequiredRule } = useFormRules();
 const { hasAuth } = useAuth();
 const { routerPushByKeyWithMetaQuery } = useRouterPush();
+const route = useRoute();
+const router = useRouter();
 
 // Detail drawer state
 const detailVisible = ref(false);
@@ -471,7 +474,22 @@ async function getProviderOptions() {
   }
 }
 
-onMounted(() => {
+onMounted(async () => {
+  // 接收服务人员详情跳转参数（订单详情→服务人员详情），直接打开该服务人员详情抽屉
+  if (route.query.staffId) {
+    const staffId = String(route.query.staffId);
+    try {
+      const { data } = await fetchGetStaff(staffId);
+      if (data) {
+        detailData.value = data;
+        detailVisible.value = true;
+        detailActiveTab.value = 'basic';
+        loadServiceLogs(staffId);
+      }
+    } catch (e) {
+      console.error('Failed to load staff detail from route', e);
+    }
+  }
   getStatistics();
   getData();
   getProviderOptions();

@@ -27,6 +27,7 @@ import {
 } from 'naive-ui';
 import type { DataTableColumns } from 'naive-ui';
 import {
+  fetchGetServiceLog,
   fetchGetServiceLogList,
   fetchGetServiceLogStatistics,
   fetchGetElder,
@@ -697,10 +698,23 @@ function closeReviewDialog() {
   reviewDialogVisible.value = false;
 }
 
-onMounted(() => {
+onMounted(async () => {
   // Handle query parameters from other pages (orderNo from order detail page, serviceLogId from quality page)
   if (route.query.orderNo) {
     searchOrderNo.value = route.query.orderNo as string;
+  }
+  // 接收服务日志详情跳转参数（订单详情→服务日志详情），直接打开该日志详情抽屉
+  if (route.query.logId) {
+    const logId = String(route.query.logId);
+    try {
+      const { data } = await fetchGetServiceLog(logId);
+      if (data) {
+        detailData.value = data;
+        detailDrawerVisible.value = true;
+      }
+    } catch (e) {
+      console.error('Failed to load service log detail from route', e);
+    }
   }
   getData();
 });
