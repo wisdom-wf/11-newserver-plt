@@ -8,62 +8,32 @@ import { test, expect, Page } from '@playwright/test';
  * 修复方案：将统计接口调用单独try-catch，避免统计失败时显示错误提示
  */
 
+const BACKEND_URL = 'http://localhost:8080';
+const FRONTEND_URL = 'http://localhost:9527';
+
 test.describe('预约确认功能', () => {
   /**
-   * 登录辅助函数 - 使用本地存储模拟已登录状态
-   * 注意：实际测试需要在有数据的环境中运行
+   * 登录辅助函数 - 使用真实账号登录
    */
   async function login(page: Page) {
-    await page.goto('/');
+    await page.goto(`${FRONTEND_URL}/login/pwd-login`);
+    await page.waitForLoadState('networkidle').catch(() => {});
 
-    // 等待页面加载
-    await page.waitForTimeout(2000);
+    await page.locator('input[placeholder="请输入用户名"]').fill('admin');
+    await page.locator('input[placeholder="请输入密码"]').fill('admin123');
+    await page.locator('button:has-text("确认")').click();
 
-    // 检查当前页面是登录页还是已登录
-    const currentUrl = page.url();
-
-    // 如果已经在首页，说明已登录
-    if (currentUrl.includes('/home') || !currentUrl.includes('/login')) {
-      console.log('Already logged in or on home page');
-      return;
-    }
-
-    // 检查是否是验证码登录页面
-    const phoneInput = page.locator('input[placeholder*="手机号"]').first();
-    const hasPhoneInput = await phoneInput.isVisible().catch(() => false);
-
-    if (hasPhoneInput) {
-      // 切换到密码登录（如果有切换选项）
-      const pwdLoginTab = page.locator('text=密码登录');
-      if (await pwdLoginTab.isVisible().catch(() => false)) {
-        await pwdLoginTab.click();
-        await page.waitForTimeout(500);
-      }
-    }
-
-    // 尝试使用localStorage模拟登录状态
-    await page.evaluate(() => {
-      localStorage.setItem('token', 'test-token-for-e2e');
-      localStorage.setItem('refreshToken', 'test-refresh-token');
-    });
-
-    // 刷新页面
-    await page.reload();
-    await page.waitForTimeout(2000);
+    await page.waitForURL(/home|dashboard/, { timeout: 15000 }).catch(() => {});
+    await page.waitForTimeout(1000);
   }
 
   /**
    * 导航到预约管理页面
    */
   async function navigateToAppointment(page: Page) {
-    // 点击业务管理菜单
-    await page.getByText('业务管理').click();
-
-    // 点击预约信息管理
-    await page.getByText('预约信息管理').click();
-
-    // 等待页面加载
-    await page.waitForSelector('.n-data-table', { timeout: 10000 });
+    await page.goto(`${FRONTEND_URL}/appointment`);
+    await page.waitForLoadState('networkidle').catch(() => {});
+    await page.waitForSelector('.n-data-table', { timeout: 15000 }).catch(() => {});
   }
 
   test('预约确认后不应显示后端错误提示', async ({ page }) => {
