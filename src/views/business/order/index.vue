@@ -635,28 +635,12 @@ function toggleNode(node: OrderTimelineItem) {
 
 async function showElderDetail(row: Api.Order.Order) {
   if (!row.elderId) return;
-  try {
-    const { data } = await fetchGetElder(row.elderId);
-    if (data) {
-      elderDetailData.value = data;
-      elderDetailVisible.value = true;
-    }
-  } catch (e) {
-    console.error('Failed to get elder detail', e);
-  }
+  router.push({ path: '/business/elder', query: { elderId: row.elderId } });
 }
 
 async function showStaffDetail(row: Api.Order.Order) {
   if (!row.staffId) return;
-  try {
-    const { data } = await fetchGetStaff(row.staffId);
-    if (data) {
-      staffDetailData.value = data;
-      staffDetailVisible.value = true;
-    }
-  } catch (e) {
-    console.error('Failed to get staff detail', e);
-  }
+  router.push({ path: '/business/staff', query: { staffId: row.staffId } });
 }
 
 async function getStatistics() {

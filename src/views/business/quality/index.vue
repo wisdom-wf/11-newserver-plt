@@ -545,7 +545,7 @@ function handleResetSearch() {
   getDataByPage(1);
 }
 
-onMounted(() => {
+onMounted(async () => {
   // 接收服务日志跳转来的订单号参数
   if (route.query.orderNo) {
     searchOrderNo.value = String(route.query.orderNo);
@@ -553,6 +553,19 @@ onMounted(() => {
   // 接收服务日志跳转来的serviceLogId（预填创建表单）
   if (route.query.serviceLogId) {
     createForm.value.serviceLogId = String(route.query.serviceLogId);
+  }
+  // 接收质检详情跳转参数（订单详情→质检详情），直接打开该质检详情抽屉
+  if (route.query.qcId) {
+    const qcId = String(route.query.qcId);
+    try {
+      const { data } = await fetchGetQualityCheck(qcId);
+      if (data) {
+        qualityDetailData.value = data;
+        qualityDetailDrawerVisible.value = true;
+      }
+    } catch (e) {
+      console.error('Failed to load quality check detail from route', e);
+    }
   }
   getStatistics();
   getData();
