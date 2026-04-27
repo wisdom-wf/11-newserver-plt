@@ -177,7 +177,7 @@ public class OrderServiceImpl implements OrderService {
         com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper<ServiceLog> slWrapper =
                 new com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper<>();
         slWrapper.eq(ServiceLog::getOrderId, orderId);
-        slWrapper.orderByAsc(ServiceLog::getCreateTime);
+        slWrapper.orderByDesc(ServiceLog::getCreateTime);
         List<ServiceLog> logs = serviceLogMapper.selectList(slWrapper);
         List<com.elderlycare.vo.servicelog.ServiceLogSummaryVO> logSummaries =
                 logs.stream().map(log -> {
