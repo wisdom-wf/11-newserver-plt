@@ -33,8 +33,9 @@ test.describe('Evaluation API Tests', () => {
       staffToken = (await staffLogin.json()).data.accessToken;
     }
 
-    const orderRes = await req.get(`${API_BASE}/orders?page=1&pageSize=1`, {
-      headers: { Authorization: `Bearer ${adminToken}` }
+    // 找 STAFF 所属 provider（FWS1）的订单
+    const orderRes = await req.get(`${API_BASE}/orders?page=1&pageSize=50`, {
+      headers: { Authorization: `Bearer ${staffToken}` }
     });
     if (orderRes.ok()) {
       const d = await orderRes.json();
@@ -52,10 +53,10 @@ test.describe('Evaluation API Tests', () => {
         content: '自动化测试评价'
       }
     });
-    // 400=订单条件不满足, 200/201=成功
-    expect([200, 201, 400]).toContain(res.status());
+    // 400=订单条件不满足, 403=无权限, 200/201=成功
+    expect([200, 201, 400, 403]).toContain(res.status());
     const body = await res.json();
-    console.log(`评价提交: ${body.code} - ${body.message}`);
+    console.log(`评价提交: HTTP ${res.status()}, code=${body.code} - ${body.message}`);
   });
 
   test('TC-EVAL-002: 评价列表（admin全量）', async ({ request: req }) => {

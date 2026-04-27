@@ -201,7 +201,7 @@ test.describe('数据隔离测试 - Provider与Staff视角', () => {
   // F1.8: 客户档案隔离 - Provider只看自己
   // ============================================================
   test('T08: FWS1查看客户档案列表 → 只能看自己公司的', async ({ request: req }) => {
-    const res = await req.get(`${API_BASE}/elderly?page=1&pageSize=100`, {
+    const res = await req.get(`${API_BASE}/elders?page=1&pageSize=100`, {
       headers: { Authorization: `Bearer ${fws1Token}` }
     });
     expect(res.ok()).toBeTruthy();
