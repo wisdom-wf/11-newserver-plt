@@ -1575,7 +1575,7 @@ onMounted(() => {
                       <template #icon>
                         <icon:material-symbols:description-outline />
                       </template>
-                      查看详情
+                      查看服务日志
                     </NButton>
                   </div>
 
@@ -1635,7 +1635,7 @@ onMounted(() => {
               <NButton
                 type="primary"
                 size="tiny"
-                @click="router.push({ path: '/business/service-log', query: { orderNo: orderDetailData.orderNo } })"
+                @click="routerPushByKey('business_service-log', { query: { orderNo: orderDetailData.orderNo } })"
               >
                 <template #icon><icon:material-symbols:add /></template>
                 新建日志
@@ -1649,7 +1649,7 @@ onMounted(() => {
                 style="margin-bottom: 8px; cursor: pointer"
                 :bordered="true"
                 hoverable
-                @click="router.push({ path: '/business/service-log', query: { logId: log.serviceLogId } })"
+                @click="routerPushByKey('business_service-log', { query: { logId: log.serviceLogId } })"
               >
                 <div style="display: flex; justify-content: space-between; align-items: center">
                   <div>
@@ -1689,7 +1689,7 @@ onMounted(() => {
               <NButton
                 type="warning"
                 size="tiny"
-                @click="router.push({ path: '/business/quality', query: { orderNo: orderDetailData.orderNo } })"
+                @click="routerPushByKey('business_quality', { query: { orderNo: orderDetailData.orderNo } })"
               >
                 <template #icon><icon:material-symbols:add /></template>
                 新建质检
@@ -1703,7 +1703,7 @@ onMounted(() => {
                 style="margin-bottom: 8px; cursor: pointer"
                 :bordered="true"
                 hoverable
-                @click="router.push({ path: '/business/quality', query: { qcId: qc.qualityCheckId } })"
+                @click="routerPushByKey('business_quality', { query: { qcId: qc.qualityCheckId } })"
               >
                 <div style="display: flex; justify-content: space-between; align-items: center">
                   <div>
