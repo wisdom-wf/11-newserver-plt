@@ -5,7 +5,6 @@ import com.baomidou.mybatisplus.core.metadata.IPage;
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
 import com.elderlycare.common.BusinessException;
-import com.elderlycare.common.DateUtil;
 import com.elderlycare.common.IDGenerator;
 import com.elderlycare.common.PageResult;
 import com.elderlycare.dto.financial.BatchSettlementDTO;
@@ -47,42 +46,50 @@ public class SettlementServiceImpl extends ServiceImpl<SettlementMapper, Settlem
         vo.setSettlementPeriodStart(dto.getSettlementPeriodStart());
         vo.setSettlementPeriodEnd(dto.getSettlementPeriodEnd());
 
-        LambdaQueryWrapper<Order> wrapper = new LambdaQueryWrapper<>();
-        wrapper.eq(Order::getStatus, "COMPLETED");
+        LambdaQueryWrapper<Settlement> wrapper = new LambdaQueryWrapper<>();
+        wrapper.eq(Settlement::getPaymentStatus, "UNPAID")
+               .or().eq(Settlement::getPaymentStatus, "PENDING");
+        List<Settlement> existing = baseMapper.selectList(wrapper);
+        List<String> settledOrderIds = existing.stream()
+                .map(Settlement::getOrderId)
+                .filter(StringUtils::isNotBlank)
+                .collect(Collectors.toList());
+
+        LambdaQueryWrapper<Order> orderWrapper = new LambdaQueryWrapper<>();
+        orderWrapper.eq(Order::getStatus, "COMPLETED");
         if (StringUtils.isNotBlank(dto.getProviderId())) {
-            wrapper.eq(Order::getProviderId, dto.getProviderId());
+            orderWrapper.eq(Order::getProviderId, dto.getProviderId());
         }
         if (StringUtils.isNotBlank(dto.getStaffId())) {
-            wrapper.eq(Order::getStaffId, dto.getStaffId());
+            orderWrapper.eq(Order::getStaffId, dto.getStaffId());
         }
         if (dto.getSettlementPeriodStart() != null) {
-            wrapper.ge(Order::getServiceDate, dto.getSettlementPeriodStart());
+            orderWrapper.ge(Order::getServiceDate, dto.getSettlementPeriodStart());
         }
         if (dto.getSettlementPeriodEnd() != null) {
-            wrapper.le(Order::getServiceDate, dto.getSettlementPeriodEnd());
+            orderWrapper.le(Order::getServiceDate, dto.getSettlementPeriodEnd());
         }
 
-        List<Order> orders = orderMapper.selectList(wrapper);
+        List<Order> orders = orderMapper.selectList(orderWrapper);
+        List<Order> billable = orders.stream()
+                .filter(o -> !settledOrderIds.contains(o.getOrderId()))
+                .collect(Collectors.toList());
 
-        vo.setTotalOrderCount(orders.size());
-        BigDecimal totalServiceAmount = orders.stream()
-                .map(Order::getEstimatedPrice)
-                .filter(p -> p != null)
+        vo.setTotalOrderCount(billable.size());
+        BigDecimal totalServiceAmount = billable.stream()
+                .map(Order::getEstimatedPrice).filter(p -> p != null)
                 .reduce(BigDecimal.ZERO, BigDecimal::add);
-        BigDecimal totalSubsidyAmount = orders.stream()
-                .map(Order::getSubsidyAmount)
-                .filter(p -> p != null)
+        BigDecimal totalSubsidyAmount = billable.stream()
+                .map(Order::getSubsidyAmount).filter(p -> p != null)
                 .reduce(BigDecimal.ZERO, BigDecimal::add);
-        BigDecimal totalSelfPayAmount = orders.stream()
-                .map(Order::getSelfPayAmount)
-                .filter(p -> p != null)
+        BigDecimal totalSelfPayAmount = billable.stream()
+                .map(Order::getSelfPayAmount).filter(p -> p != null)
                 .reduce(BigDecimal.ZERO, BigDecimal::add);
 
         vo.setTotalServiceAmount(totalServiceAmount);
         vo.setTotalSubsidyAmount(totalSubsidyAmount);
         vo.setTotalSelfPayAmount(totalSelfPayAmount);
         vo.setCalculatedSettlementAmount(totalSubsidyAmount);
-
         return vo;
     }
 
@@ -93,29 +100,23 @@ public class SettlementServiceImpl extends ServiceImpl<SettlementMapper, Settlem
         if (settlement == null) {
             throw BusinessException.notFound("结算单不存在");
         }
-        String status = settlement.getStatus();
-        if (!"PENDING".equals(status) && !"UNPAID".equals(status)) {
+        String status = settlement.getPaymentStatus();
+        if (!"UNPAID".equals(status) && !"PENDING".equals(status)) {
             throw BusinessException.fail("该结算单已确认或已取消，无法重复确认");
         }
-
-        settlement.setStatus("CONFIRMED");
-        settlement.setConfirmTime(LocalDateTime.now().format(java.time.format.DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss")));
-        settlement.setUpdateTime(LocalDateTime.now());
-
+        settlement.setPaymentStatus("CONFIRMED");
+        settlement.setPaymentTime(LocalDateTime.now());
         baseMapper.updateById(settlement);
     }
 
     @Override
     public PageResult<SettlementVO> querySettlements(SettlementQueryDTO dto) {
         Page<Settlement> page = new Page<>(dto.getPage(), dto.getPageSize());
-        IPage<Settlement> result = baseMapper.selectSettlementPage(page, dto);
-
-        List<Settlement> records = result.getRecords();
-        long total = result.getTotal();
-
-        List<SettlementVO> voList = records.stream().map(this::convertToVO).collect(Collectors.toList());
-
-        return PageResult.of(total, dto.getPage(), dto.getPageSize(), voList);
+        @SuppressWarnings("unchecked")
+        IPage<Settlement> result = ((SettlementMapper) baseMapper).selectSettlementPage(page, dto);
+        List<SettlementVO> voList = result.getRecords().stream()
+                .map(this::convertToVO).collect(Collectors.toList());
+        return PageResult.of(result.getTotal(), dto.getPage(), dto.getPageSize(), voList);
     }
 
     @Override
@@ -132,56 +133,54 @@ public class SettlementServiceImpl extends ServiceImpl<SettlementMapper, Settlem
     public List<String> batchSettlement(BatchSettlementDTO dto) {
         List<String> settlementIds = new ArrayList<>();
 
-        if ("STAFF".equals(dto.getSettlementType()) && StringUtils.isNotBlank(dto.getStaffId())) {
-            SettlementCalculateDTO calculateDTO = new SettlementCalculateDTO();
-            BeanUtils.copyProperties(dto, calculateDTO);
-            SettlementCalculateVO calculateResult = calculateSettlement(calculateDTO);
+        LambdaQueryWrapper<Settlement> settleWrapper = new LambdaQueryWrapper<>();
+        settleWrapper.select(Settlement::getOrderId)
+                .isNotNull(Settlement::getOrderId);
+        List<String> existingOrderIds = baseMapper.selectList(settleWrapper).stream()
+                .map(Settlement::getOrderId)
+                .collect(Collectors.toList());
 
+        LambdaQueryWrapper<Order> orderWrapper = new LambdaQueryWrapper<>();
+        orderWrapper.eq(Order::getStatus, "COMPLETED");
+        if (StringUtils.isNotBlank(dto.getProviderId())) {
+            orderWrapper.eq(Order::getProviderId, dto.getProviderId());
+        }
+        if (StringUtils.isNotBlank(dto.getStaffId())) {
+            orderWrapper.eq(Order::getStaffId, dto.getStaffId());
+        }
+        if (dto.getSettlementPeriodStart() != null) {
+            orderWrapper.ge(Order::getServiceDate, dto.getSettlementPeriodStart());
+        }
+        if (dto.getSettlementPeriodEnd() != null) {
+            orderWrapper.le(Order::getServiceDate, dto.getSettlementPeriodEnd());
+        }
+
+        List<Order> orders = orderMapper.selectList(orderWrapper);
+        if (orders.isEmpty()) {
+            return settlementIds;
+        }
+
+        for (Order order : orders) {
+            if (existingOrderIds.contains(order.getOrderId())) {
+                continue;
+            }
             Settlement settlement = new Settlement();
             settlement.setSettlementId(IDGenerator.generateId());
             settlement.setSettlementNo(generateSettlementNo());
-            settlement.setSettlementType(dto.getSettlementType());
-            settlement.setProviderId(dto.getProviderId());
-            settlement.setStaffId(dto.getStaffId());
-            settlement.setStaffName(calculateResult.getStaffName());
-            settlement.setSettlementPeriodStart(dto.getSettlementPeriodStart());
-            settlement.setSettlementPeriodEnd(dto.getSettlementPeriodEnd());
-            settlement.setTotalOrderCount(calculateResult.getTotalOrderCount());
-            settlement.setTotalServiceAmount(calculateResult.getTotalServiceAmount());
-            settlement.setTotalSubsidyAmount(calculateResult.getTotalSubsidyAmount());
-            settlement.setTotalSelfPayAmount(calculateResult.getTotalSelfPayAmount());
-            settlement.setSettlementAmount(calculateResult.getCalculatedSettlementAmount());
-            settlement.setStatus("PENDING");
+            settlement.setProviderId(order.getProviderId());
+            settlement.setStaffId(order.getStaffId());
+            settlement.setOrderId(order.getOrderId());
+            settlement.setServiceDate(order.getServiceDate());
+            settlement.setElderId(order.getElderId());
+            settlement.setTotalServiceAmount(order.getEstimatedPrice());
+            settlement.setTotalSubsidyAmount(order.getSubsidyAmount());
+            settlement.setTotalSelfPayAmount(order.getSelfPayAmount());
+            settlement.setUnitPrice(order.getEstimatedPrice());
+            settlement.setPaymentStatus("UNPAID");
             settlement.setCreateTime(LocalDateTime.now());
-            settlement.setUpdateTime(LocalDateTime.now());
-
-            baseMapper.insert(settlement);
-            settlementIds.add(settlement.getSettlementId());
-        } else if ("PROVIDER".equals(dto.getSettlementType()) && StringUtils.isNotBlank(dto.getProviderId())) {
-            SettlementCalculateDTO calculateDTO = new SettlementCalculateDTO();
-            BeanUtils.copyProperties(dto, calculateDTO);
-            SettlementCalculateVO calculateResult = calculateSettlement(calculateDTO);
-
-            Settlement settlement = new Settlement();
-            settlement.setSettlementId(IDGenerator.generateId());
-            settlement.setSettlementNo(generateSettlementNo());
-            settlement.setSettlementType(dto.getSettlementType());
-            settlement.setProviderId(dto.getProviderId());
-            settlement.setSettlementPeriodStart(dto.getSettlementPeriodStart());
-            settlement.setSettlementPeriodEnd(dto.getSettlementPeriodEnd());
-            settlement.setTotalOrderCount(calculateResult.getTotalOrderCount());
-            settlement.setTotalServiceAmount(calculateResult.getTotalServiceAmount());
-            settlement.setTotalSubsidyAmount(calculateResult.getTotalSubsidyAmount());
-            settlement.setTotalSelfPayAmount(calculateResult.getTotalSelfPayAmount());
-            settlement.setSettlementAmount(calculateResult.getCalculatedSettlementAmount());
-            settlement.setStatus("PENDING");
-            settlement.setCreateTime(LocalDateTime.now());
-            settlement.setUpdateTime(LocalDateTime.now());
-
             baseMapper.insert(settlement);
             settlementIds.add(settlement.getSettlementId());
         }
-
         return settlementIds;
     }
 
@@ -192,30 +191,17 @@ public class SettlementServiceImpl extends ServiceImpl<SettlementMapper, Settlem
     private SettlementVO convertToVO(Settlement settlement) {
         SettlementVO vo = new SettlementVO();
         BeanUtils.copyProperties(settlement, vo);
-        vo.setSettlementTypeName(getSettlementTypeName(settlement.getSettlementType()));
-        vo.setStatusName(getStatusName(settlement.getStatus()));
+        vo.setStatus(settlement.getPaymentStatus());
+        vo.setStatusName(getStatusName(settlement.getPaymentStatus()));
+        vo.setElderName(settlement.getElderName());
         return vo;
     }
 
-    private String getSettlementTypeName(String type) {
-        if ("STAFF".equals(type)) {
-            return "服务人员结算";
-        } else if ("PROVIDER".equals(type)) {
-            return "服务商结算";
-        }
-        return type;
-    }
-
     private String getStatusName(String status) {
-        if ("PENDING".equals(status) || "UNPAID".equals(status)) {
-            return "待结算";
-        } else if ("CONFIRMED".equals(status)) {
-            return "已确认";
-        } else if ("CANCELLED".equals(status)) {
-            return "已取消";
-        } else if ("PAID".equals(status) || "SETTLED".equals(status)) {
-            return "已支付";
-        }
+        if ("PENDING".equals(status) || "UNPAID".equals(status)) return "待结算";
+        if ("CONFIRMED".equals(status) || "SETTLED".equals(status)) return "已结算";
+        if ("PAID".equals(status)) return "已支付";
+        if ("CANCELLED".equals(status)) return "已取消";
         return status;
     }
 }

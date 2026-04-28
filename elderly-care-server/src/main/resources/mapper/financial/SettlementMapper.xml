@@ -7,11 +7,14 @@
         <result column="settlement_no" property="settlementNo"/>
         <result column="provider_id" property="providerId"/>
         <result column="staff_id" property="staffId"/>
+        <result column="elder_id" property="elderId"/>
+        <result column="service_date" property="serviceDate"/>
         <result column="total_amount" property="totalServiceAmount"/>
         <result column="subsidy_amount" property="totalSubsidyAmount"/>
         <result column="self_pay_amount" property="totalSelfPayAmount"/>
-        <result column="payment_status" property="status"/>
-        <result column="payment_time" property="confirmTime"/>
+        <result column="unit_price" property="unitPrice"/>
+        <result column="payment_status" property="paymentStatus"/>
+        <result column="payment_time" property="paymentTime"/>
         <result column="create_time" property="createTime"/>
     </resultMap>
 
@@ -23,6 +26,11 @@
             p.provider_name AS providerName,
             st.staff_id,
             s.staff_name AS staffName,
+            st.order_id,
+            o.order_no AS orderNo,
+            st.elder_id,
+            e.elder_name AS elderName,
+            st.service_date,
             st.total_amount,
             st.subsidy_amount,
             st.self_pay_amount,
@@ -32,6 +40,8 @@
         FROM t_settlement st
         LEFT JOIN t_provider p ON st.provider_id = p.provider_id
         LEFT JOIN t_staff s ON st.staff_id = s.staff_id
+        LEFT JOIN t_order o ON st.order_id = o.order_id
+        LEFT JOIN t_elder e ON st.elder_id = e.elder_id
         WHERE 1=1
         <if test="query.settlementNo != null and query.settlementNo != ''">
             AND st.settlement_no LIKE CONCAT('%', #{query.settlementNo}, '%')

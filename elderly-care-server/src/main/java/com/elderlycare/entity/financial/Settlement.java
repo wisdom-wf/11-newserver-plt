@@ -7,61 +7,44 @@ import java.math.BigDecimal;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 
-/**
- * 结算单实体
- */
 @Data
 @TableName("t_settlement")
 public class Settlement implements Serializable {
-
     private static final long serialVersionUID = 1L;
 
     @TableId(type = IdType.ASSIGN_ID)
     private String settlementId;
 
-    // DB无此列
-    @TableField(exist = false)
     private String settlementNo;
-
-    @TableField(exist = false)
-    private String settlementType;
 
     private String providerId;
 
-    // DB无此列
-    @TableField(exist = false)
-    private String providerName;
-
     private String staffId;
-
-    // DB无此列
-    @TableField(exist = false)
-    private String staffName;
 
     private String orderId;
 
-    // 联表/不存在字段
+    // 联表字段
     @TableField(exist = false)
+    private String providerName;
+
+    @TableField(exist = false)
+    private String staffName;
+
+    // DB 字段
     private String elderId;
 
     @TableField(exist = false)
+    private String elderName;
+
     private LocalDate serviceDate;
 
+    // 联表字段（前端/VO 期望）
     @TableField(exist = false)
-    private Integer serviceDuration;
+    private String orderNo;
 
+    // 联表字段（前端/VO 期望）
     @TableField(exist = false)
-    private BigDecimal unitPrice;
-
-    // DB无此列
-    @TableField(exist = false)
-    private LocalDate settlementPeriodStart;
-
-    @TableField(exist = false)
-    private LocalDate settlementPeriodEnd;
-
-    @TableField(exist = false)
-    private Integer totalOrderCount;
+    private String settlementType;
 
     @TableField("total_amount")
     private BigDecimal totalServiceAmount;
@@ -72,11 +55,11 @@ public class Settlement implements Serializable {
     @TableField("self_pay_amount")
     private BigDecimal totalSelfPayAmount;
 
-    @TableField(exist = false)
-    private BigDecimal settlementAmount;
+    private BigDecimal unitPrice;
 
+    // DB 列名是 payment_status，映射到 paymentStatus
     @TableField("payment_status")
-    private String status;
+    private String paymentStatus;
 
     private String paymentMethod;
 
@@ -104,8 +87,22 @@ public class Settlement implements Serializable {
     @TableField(fill = FieldFill.INSERT)
     private LocalDateTime createTime;
 
-    // DB无update_time列，但Service层需要
+    // 联表/不存在字段
     @TableField(exist = false)
     private LocalDateTime updateTime;
 
+    // 联表/不存在字段
+    @TableField(exist = false)
+    private LocalDate settlementPeriodStart;
+
+    @TableField(exist = false)
+    private LocalDate settlementPeriodEnd;
+
+    // 联表/不存在字段
+    @TableField(exist = false)
+    private Integer totalOrderCount;
+
+    // 联表/不存在字段
+    @TableField(exist = false)
+    private BigDecimal settlementAmount;
 }
