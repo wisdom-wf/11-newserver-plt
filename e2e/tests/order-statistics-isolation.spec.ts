@@ -8,7 +8,7 @@ async function getFWS1Token() {
   const res = await fetch('http://localhost:8080/api/auth/login', {
     method: 'POST',
     headers: { 'Content-Type': 'application/json' },
-    body: JSON.stringify({ username: 'FWS1', password: 'mima123' })
+    body: JSON.stringify({ username: 'FWS1', password: 'admin123' })
   });
   const body = await res.json();
   return body.data?.accessToken as string;
@@ -147,7 +147,7 @@ test.describe('订单统计接口隔离', () => {
   test('TC-OS-05: STATISTICS_CONTROLLER订单统计接口同样隔离', async ({ request }) => {
     const fws1Token = await (async () => {
       const r = await request.post('http://localhost:8080/api/auth/login', {
-        data: { username: 'FWS1', password: '123456' }
+        data: { username: 'FWS1', password: 'admin123' }
       });
       return (await r.json())?.data?.accessToken;
     })();
