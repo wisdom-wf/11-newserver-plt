@@ -33,7 +33,7 @@ test.describe('数据隔离测试 - Provider与Staff视角', () => {
 
     // FWS1 - Provider 01
     const fws1Login = await req.post(`${API_BASE}/auth/login`, {
-      data: { username: 'FWS1', password: 'mima123' }
+      data: { username: 'FWS1', password: 'admin123' }
     });
     expect(fws1Login.ok()).toBeTruthy();
     const fws1Body = await fws1Login.json();
@@ -42,7 +42,7 @@ test.describe('数据隔离测试 - Provider与Staff视角', () => {
 
     // FWS2 - Provider 02
     const fws2Login = await req.post(`${API_BASE}/auth/login`, {
-      data: { username: 'FWS2', password: 'mima123' }
+      data: { username: 'FWS2', password: 'admin123' }
     });
     expect(fws2Login.ok()).toBeTruthy();
     const fws2Body = await fws2Login.json();
@@ -51,7 +51,7 @@ test.describe('数据隔离测试 - Provider与Staff视角', () => {
 
     // STAFF - 属于 FWS1 的员工
     const staffLogin = await req.post(`${API_BASE}/auth/login`, {
-      data: { username: '13109118901', password: 'mima123' }
+      data: { username: '13109118901', password: 'admin123' }
     });
     expect(staffLogin.ok()).toBeTruthy();
     const staffBody = await staffLogin.json();

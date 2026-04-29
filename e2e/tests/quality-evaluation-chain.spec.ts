@@ -55,7 +55,7 @@ test.describe('质检-评价完整链路', () => {
     adminToken = (await adminLogin.json()).data.accessToken;
 
     const fws1Login = await req.post(`${API_BASE}/auth/login`, {
-      data: { username: 'FWS1', password: 'mima123' }
+      data: { username: 'FWS1', password: 'admin123' }
     });
     expect(fws1Login.ok()).toBeTruthy();
     fws1Token = (await fws1Login.json()).data.accessToken;

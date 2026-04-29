@@ -182,7 +182,7 @@ test.describe('字段校验与边界测试', () => {
 
   test('TC-VAL-12: PROVIDER 查订单列表只返回本公司数据', async ({ request }) => {
     const fws1Login = await request.post(`${API}/auth/login`, {
-      data: { username: 'FWS1', password: 'mima123' }
+      data: { username: 'FWS1', password: 'admin123' }
     });
     const fws1Token = (await fws1Login.json()).data?.accessToken;
 

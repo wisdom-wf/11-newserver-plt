@@ -8,7 +8,7 @@ const API_BASE = 'http://localhost:8080/api';
 // ============================================================================
 const ACCOUNTS = {
   admin: { username: 'admin', password: 'admin123' },
-  staff: { username: 'CS1', password: 'mima123' },
+  staff: { username: 'CS1', password: 'admin123' },
 };
 
 // ============================================================================
@@ -490,7 +490,7 @@ test.describe('Phase 5: STAFF Role Data Isolation', () => {
 
     // Staff token
     const staffLogin = await request.post(`${API_BASE}/auth/login`, {
-      data: { username: 'CS1', password: 'mima123' }
+      data: { username: 'CS1', password: 'admin123' }
     });
     if (!staffLogin.ok()) {
       console.log('  -> Staff account CS1 not available, skipping');

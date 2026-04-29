@@ -20,13 +20,13 @@ test.describe('QualityCheck API Tests', () => {
     adminToken = (await adminLogin.json()).data.accessToken;
 
     const provLogin = await req.post(`${API_BASE}/auth/login`, {
-      data: { username: 'FWS1', password: 'mima123' }
+      data: { username: 'FWS1', password: 'admin123' }
     });
     expect(provLogin.ok()).toBeTruthy();
     providerToken = (await provLogin.json()).data.accessToken;
 
     const staffLogin = await req.post(`${API_BASE}/auth/login`, {
-      data: { username: '13109118901', password: 'mima123' }
+      data: { username: '13109118901', password: 'admin123' }
     });
     if (staffLogin.ok()) {
       staffToken = (await staffLogin.json()).data.accessToken;

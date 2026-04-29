@@ -22,12 +22,12 @@ test.describe('财务结算链路', () => {
     adminToken = (await adminLogin.json()).data?.accessToken;
 
     const fws1Login = await request.post(`${API}/auth/login`, {
-      data: { username: 'FWS1', password: 'mima123' }
+      data: { username: 'FWS1', password: 'admin123' }
     });
     fws1Token = (await fws1Login.json()).data?.accessToken;
 
     const fws2Login = await request.post(`${API}/auth/login`, {
-      data: { username: 'FWS2', password: 'mima123' }
+      data: { username: 'FWS2', password: 'admin123' }
     });
     fws2Token = (await fws2Login.json()).data?.accessToken;
   });

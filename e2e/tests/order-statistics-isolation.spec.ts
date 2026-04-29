@@ -19,7 +19,7 @@ async function getFWS2Token() {
   const res = await fetch('http://localhost:8080/api/auth/login', {
     method: 'POST',
     headers: { 'Content-Type': 'application/json' },
-    body: JSON.stringify({ username: 'FWS2', password: 'mima123' })
+    body: JSON.stringify({ username: 'FWS2', password: 'admin123' })
   });
   const body = await res.json();
   return body.data?.accessToken as string;

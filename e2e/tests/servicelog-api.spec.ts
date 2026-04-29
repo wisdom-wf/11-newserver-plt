@@ -28,7 +28,7 @@ test.describe('Service Log API Tests', () => {
 
     // 获取 provider token (CS1)
     const providerLogin = await req.post(`${API_BASE}/auth/login`, {
-      data: { username: 'CS1', password: 'mima123' }
+      data: { username: 'CS1', password: 'admin123' }
     });
     if (providerLogin.ok()) {
       const providerBody = await providerLogin.json();

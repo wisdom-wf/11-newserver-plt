@@ -19,12 +19,12 @@ test.describe('服务人员数据隔离', () => {
     adminToken = (await adminLogin.json()).data?.accessToken;
 
     const fws1Login = await request.post(`${API}/auth/login`, {
-      data: { username: 'FWS1', password: 'mima123' }
+      data: { username: 'FWS1', password: 'admin123' }
     });
     fws1Token = (await fws1Login.json()).data?.accessToken;
 
     const fws2Login = await request.post(`${API}/auth/login`, {
-      data: { username: 'FWS2', password: 'mima123' }
+      data: { username: 'FWS2', password: 'admin123' }
     });
     fws2Token = (await fws2Login.json()).data?.accessToken;
 
@@ -36,7 +36,7 @@ test.describe('服务人员数据隔离', () => {
     const staff = staffList[0];
     if (staff) {
       const staffLogin = await request.post(`${API}/auth/login`, {
-        data: { username: staff.staffPhone || staff.phone, password: 'mima123' }
+        data: { username: staff.staffPhone || staff.phone, password: 'admin123' }
       });
       fws1StaffToken = (await staffLogin.json()).data?.accessToken;
     }

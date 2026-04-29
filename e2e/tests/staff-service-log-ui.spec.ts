@@ -33,8 +33,8 @@ async function setupAuthenticatedPage(page: Page, username: string, password: st
   const currentUrl = page.url();
   if (currentUrl.includes('/login')) {
     await page.evaluate(([t, rt]) => {
-      localStorage.setItem('token', t);
-      localStorage.setItem('refreshToken', rt);
+      localStorage.setItem('SOY_token', t);
+      localStorage.setItem('SOY_refreshToken', rt);
     }, [token, refreshToken]);
 
     await page.reload();

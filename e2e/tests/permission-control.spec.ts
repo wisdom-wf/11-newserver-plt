@@ -15,7 +15,7 @@ test.describe('权限控制测试', () => {
 
     // FWS1 是真实存在的PROVIDER账号
     const providerLogin = await request.post(`${API_BASE}/auth/login`, {
-      data: { username: 'FWS1', password: 'mima123' }
+      data: { username: 'FWS1', password: 'admin123' }
     });
     const providerBody = await providerLogin.json();
     providerToken = providerBody.data.accessToken;

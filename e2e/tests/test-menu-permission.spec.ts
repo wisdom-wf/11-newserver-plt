@@ -8,7 +8,7 @@ test.describe('STAFF/PROVIDER 动态菜单权限测试', () => {
   test('后端API测试 - STAFF账户获取菜单', async ({ request }) => {
     // 1. STAFF 账户登录
     const loginResponse = await request.post(`${BACKEND_URL}/api/auth/login`, {
-      data: { username: '13109118901', password: 'mima123' }
+      data: { username: '13109118901', password: 'admin123' }
     });
 
     expect(loginResponse.ok(), `登录失败: ${await loginResponse.text()}`).toBeTruthy();
@@ -52,7 +52,7 @@ test.describe('STAFF/PROVIDER 动态菜单权限测试', () => {
 
   test('后端API测试 - 获取PROVIDER账户菜单', async ({ request }) => {
     const loginResponse = await request.post(`${BACKEND_URL}/api/auth/login`, {
-      data: { username: '13900000099', password: 'mima123' }
+      data: { username: '13900000099', password: 'admin123' }
     });
 
     let loginData = await loginResponse.json();
@@ -60,7 +60,7 @@ test.describe('STAFF/PROVIDER 动态菜单权限测试', () => {
 
     if (!token) {
       const altResponse = await request.post(`${BACKEND_URL}/api/auth/login`, {
-        data: { username: '13900000088', password: 'mima123' }
+        data: { username: '13900000088', password: 'admin123' }
       });
       loginData = await altResponse.json();
       token = loginData?.data?.accessToken;
@@ -87,7 +87,7 @@ test.describe('STAFF/PROVIDER 动态菜单权限测试', () => {
 
     // 使用正确的选择器
     await page.locator('input[placeholder="请输入用户名"]').fill('13109118901');
-    await page.locator('input[placeholder="请输入密码"]').fill('mima123');
+    await page.locator('input[placeholder="请输入密码"]').fill('admin123');
 
     // 点击确认按钮登录
     await page.locator('button:has-text("确认")').click();
@@ -112,7 +112,7 @@ test.describe('STAFF/PROVIDER 动态菜单权限测试', () => {
     await page.waitForLoadState('networkidle');
 
     await page.locator('input[placeholder="请输入用户名"]').fill('13109118901');
-    await page.locator('input[placeholder="请输入密码"]').fill('mima123');
+    await page.locator('input[placeholder="请输入密码"]').fill('admin123');
     await page.locator('button:has-text("确认")').click();
 
     await page.waitForURL(/home|dashboard/, { timeout: 15000 }).catch(() => {});

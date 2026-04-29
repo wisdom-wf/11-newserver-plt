@@ -19,7 +19,7 @@ test.describe('服务人员全生命周期', () => {
     adminToken = (await adminLogin.json()).data?.accessToken;
 
     const fws1Login = await request.post(`${API}/auth/login`, {
-      data: { username: 'FWS1', password: 'mima123' }
+      data: { username: 'FWS1', password: 'admin123' }
     });
     fws1Token = (await fws1Login.json()).data?.accessToken;
 
@@ -89,7 +89,7 @@ test.describe('服务人员全生命周期', () => {
 
     // 用该手机号登录（默认密码 mima123）
     const loginResp = await request.post(`${API}/auth/login`, {
-      data: { username: phone, password: 'mima123' }
+      data: { username: phone, password: 'admin123' }
     });
     const loginBody = await loginResp.json();
     expect(loginBody.code).toBe(200);
@@ -113,7 +113,7 @@ test.describe('服务人员全生命周期', () => {
     }
     const staff = staffList[0];
     const staffLoginResp = await request.post(`${API}/auth/login`, {
-      data: { username: staff.staffPhone || staff.phone, password: 'mima123' }
+      data: { username: staff.staffPhone || staff.phone, password: 'admin123' }
     });
     const staffToken = (await staffLoginResp.json()).data?.accessToken;
     if (!staffToken) {

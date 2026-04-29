@@ -26,7 +26,7 @@ test.describe('满意度评价 TDD 测试', () => {
     adminToken = (await adminLogin.json()).data.accessToken;
 
     const fws1Login = await req.post(`${API_BASE}/auth/login`, {
-      data: { username: 'FWS1', password: 'mima123' }
+      data: { username: 'FWS1', password: 'admin123' }
     });
     expect(fws1Login.ok()).toBeTruthy();
     const fws1Body = await fws1Login.json();
@@ -34,7 +34,7 @@ test.describe('满意度评价 TDD 测试', () => {
     fws1ProviderId = fws1Body.data.userInfo?.providerId || '';
 
     const staffLogin = await req.post(`${API_BASE}/auth/login`, {
-      data: { username: '13109118901', password: 'mima123' }
+      data: { username: '13109118901', password: 'admin123' }
     });
     if (staffLogin.ok()) {
       staffToken = (await staffLogin.json()).data.accessToken;

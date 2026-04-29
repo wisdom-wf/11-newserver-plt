@@ -23,7 +23,7 @@ test.describe('Financial API Tests', () => {
     adminToken = (await adminLogin.json()).data.accessToken;
 
     const provLogin = await req.post(`${API_BASE}/auth/login`, {
-      data: { username: 'FWS1', password: 'mima123' }
+      data: { username: 'FWS1', password: 'admin123' }
     });
     if (provLogin.ok()) {
       providerToken = (await provLogin.json()).data.accessToken;

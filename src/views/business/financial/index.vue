@@ -133,8 +133,8 @@ function getStatusLabel(status: string): string {
 
 const columns: DataTableColumns<any> = [
   { title: '结算单号', key: 'settlementNo', width: 160 },
+  { title: '订单号', key: 'orderNo', width: 160 },
   { title: '服务商', key: 'providerName', width: 150 },
-  { title: '结算类型', key: 'settlementTypeName', width: 120 },
   {
     title: '服务人员',
     key: 'staffName',
@@ -144,19 +144,42 @@ const columns: DataTableColumns<any> = [
         ? h('a', { style: { color: '#18a058', cursor: 'pointer' }, onClick: () => showStaffDetail(row) }, row.staffName)
         : '-'
   },
-  { title: '订单数', key: 'totalOrderCount', width: 80 },
-  { title: '总服务费', key: 'totalServiceAmount', width: 100 },
-  { title: '补贴金额', key: 'totalSubsidyAmount', width: 100 },
-  { title: '自付金额', key: 'totalSelfPayAmount', width: 100 },
-  { title: '结算金额', key: 'settlementAmount', width: 100 },
+  {
+    title: '客户',
+    key: 'elderName',
+    width: 100,
+    render: row =>
+      row.elderName
+        ? h('a', { style: { color: '#18a058', cursor: 'pointer' }, onClick: () => showElderDetail(row) }, row.elderName)
+        : '-'
+  },
+  { title: '服务日期', key: 'serviceDate', width: 120 },
+  { title: '总服务费', key: 'totalServiceAmount', width: 100, render: row => row.totalServiceAmount ? `¥${Number(row.totalServiceAmount).toFixed(2)}` : '-' },
+  { title: '补贴金额', key: 'totalSubsidyAmount', width: 100, render: row => row.totalSubsidyAmount ? `¥${Number(row.totalSubsidyAmount).toFixed(2)}` : '-' },
+  { title: '自付金额', key: 'totalSelfPayAmount', width: 100, render: row => row.totalSelfPayAmount ? `¥${Number(row.totalSelfPayAmount).toFixed(2)}` : '-' },
   {
     title: '结算状态',
     key: 'status',
     width: 100,
     render: row => h(NTag, { type: getStatusType(row.status), size: 'small' }, () => getStatusLabel(row.status))
   },
-  { title: '确认时间', key: 'confirmTime', width: 170 },
-  { title: '创建时间', key: 'createTime', width: 170 }
+  { title: '支付时间', key: 'paymentTime', width: 170 },
+  { title: '创建时间', key: 'createTime', width: 170 },
+  {
+    title: '操作',
+    key: 'actions',
+    width: 100,
+    fixed: 'right',
+    render: row => {
+      const actions = [];
+      if (row.status === 'UNPAID' || row.status === 'PENDING') {
+        actions.push(
+          h(NButton, { size: 'small', type: 'success', onClick: () => handleConfirm(row), style: { marginRight: '8px' } }, () => '确认结算')
+        );
+      }
+      return h(NSpace, null, () => actions);
+    }
+  }
 ];
 
 async function getStatistics() {
@@ -388,6 +411,21 @@ const settlementTypeOptions = [
   { label: '服务商结算', value: 'PROVIDER' },
   { label: '服务人员结算', value: 'STAFF' }
 ];
+
+async function handleConfirm(row: any) {
+  try {
+    const { error } = await fetchConfirmSettlement(row.settlementId);
+    if (error) {
+      message.error(error.message || '确认失败');
+      return;
+    }
+    message.success('确认成功');
+    getData();
+    getStatistics();
+  } catch (e) {
+    console.error('Confirm settlement failed', e);
+  }
+}
 
 async function handleSettlementCalculate() {
   settlementLoading.value = true;

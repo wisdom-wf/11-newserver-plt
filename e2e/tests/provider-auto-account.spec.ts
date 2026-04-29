@@ -85,7 +85,7 @@ test.describe('服务商账号自动创建测试', () => {
 
     // 用默认密码验证账号可以登录
     const loginResponse = await request.post(`${API_BASE}/auth/login`, {
-      data: { username, password: 'mima123' }
+      data: { username, password: 'admin123' }
     });
     const loginBody = await loginResponse.json();
     console.log(`登录验证: HTTP ${loginResponse.status()}, code=${loginBody.code}`);

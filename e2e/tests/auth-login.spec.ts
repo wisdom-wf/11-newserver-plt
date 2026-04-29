@@ -21,7 +21,7 @@ test.describe('登录功能测试', () => {
     const response = await request.post(`${API_BASE}/auth/login`, {
       data: {
         username: 'FWS1',
-        password: 'mima123'
+        password: 'admin123'
       }
     });
     expect(response.status()).toBe(200);
