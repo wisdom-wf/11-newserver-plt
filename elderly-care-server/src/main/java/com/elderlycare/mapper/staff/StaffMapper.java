@@ -28,7 +28,7 @@ public interface StaffMapper extends BaseMapper<Staff> {
      * 根据ID更新服务人员（绕过逻辑删除）
      */
     int updateStaffById(@Param("staffId") String staffId, @Param("staffName") String staffName,
-                       @Param("gender") Integer gender, @Param("idCard") String idCard,
+                       @Param("gender") String gender, @Param("idCard") String idCard,
                        @Param("age") Integer age, @Param("phone") String phone,
                        @Param("birthDate") java.time.LocalDate birthDate,
                        @Param("nation") String nation, @Param("education") String education,

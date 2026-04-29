@@ -700,11 +700,11 @@ public class StaffServiceImpl implements StaffService {
 
     // ==================== 枚举文本转换 ====================
 
-    private String getGenderText(Integer gender) {
+    private String getGenderText(String gender) {
         if (gender == null) return "";
         return switch (gender) {
-            case 0 -> "女";
-            case 1 -> "男";
+            case "FEMALE" -> "女";
+            case "MALE" -> "男";
             default -> "未知";
         };
     }

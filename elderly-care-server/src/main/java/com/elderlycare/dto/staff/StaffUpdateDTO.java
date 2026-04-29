@@ -20,7 +20,7 @@ public class StaffUpdateDTO implements Serializable {
     /**
      * 性别：0-女，1-男
      */
-    private Integer gender;
+    private String gender;
 
     /**
      * 身份证号

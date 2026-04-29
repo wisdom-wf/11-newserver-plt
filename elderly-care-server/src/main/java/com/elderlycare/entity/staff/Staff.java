@@ -43,9 +43,9 @@ public class Staff implements Serializable {
     private String staffName;
 
     /**
-     * 性别：0-女，1-男
+     * 性别：FEMALE-女，MALE-男
      */
-    private Integer gender;
+    private String gender;
 
     /**
      * 身份证号
@@ -166,6 +166,7 @@ public class Staff implements Serializable {
     /**
      * 创建者ID
      */
+    @TableField(exist = false)
     private Long createBy;
 
     /**
@@ -176,6 +177,7 @@ public class Staff implements Serializable {
     /**
      * 更新者ID
      */
+    @TableField(exist = false)
     private Long updateBy;
 
     /**

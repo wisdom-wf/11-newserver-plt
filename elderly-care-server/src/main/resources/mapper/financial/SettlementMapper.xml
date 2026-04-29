@@ -56,7 +56,7 @@
             AND st.staff_id = #{query.staffId}
         </if>
         <if test="query.orderNo != null and query.orderNo != ''">
-            AND st.settlement_no LIKE CONCAT('%', #{query.orderNo}, '%')
+            AND o.order_no LIKE CONCAT('%', #{query.orderNo}, '%')
         </if>
         <if test="query.elderName != null and query.elderName != ''">
             AND EXISTS (

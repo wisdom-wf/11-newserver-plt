@@ -41,7 +41,7 @@ public class StaffVO implements Serializable {
     /**
      * 性别：0-女，1-男
      */
-    private Integer gender;
+    private String gender;
 
     /**
      * 性别文本
