@@ -317,13 +317,13 @@ const local: App.I18n.Schema = {
       turnover: 'Turnover',
       dealCount: 'Deal Count',
       projectNews: {
-        title: 'Project News',
+        title: 'Project Updates',
         moreNews: 'More News',
-        desc1: 'Soybean created the open source project soybean-admin on May 28, 2021!',
-        desc2: 'Yanbowe submitted a bug to soybean-admin, the multi-tab bar will not adapt.',
-        desc3: 'Soybean is ready to do sufficient preparation for the release of soybean-admin!',
-        desc4: 'Soybean is busy writing project documentation for soybean-admin!',
-        desc5: 'Soybean just wrote some of the workbench pages casually, and it was enough to see!'
+        desc1: 'Smart Elderly Care Platform officially launched, providing quality services for seniors!',
+        desc2: 'Core features including provider management, staff management, and order management are live.',
+        desc3: 'Platform supports government oversight, service provider operations, and on-site service workflows.',
+        desc4: 'Integrated cockpit dashboard provides real-time operational analytics.',
+        desc5: 'Multi-role permission system meets government, district, community, and provider management needs.'
       },
       creativity: 'Creativity'
     }

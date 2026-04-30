@@ -95,7 +95,7 @@ const local: App.I18n.Schema = {
         applySuccess: '预设应用成功',
         default: {
           name: '默认预设',
-          desc: 'Soybean 默认主题预设'
+          desc: '智慧养老默认主题预设'
         },
         dark: {
           name: '暗色预设',
@@ -314,11 +314,11 @@ const local: App.I18n.Schema = {
       projectNews: {
         title: '项目动态',
         moreNews: '更多动态',
-        desc1: 'Soybean 在2021年5月28日创建了开源项目 soybean-admin!',
-        desc2: 'Yanbowe 向 soybean-admin 提交了一个bug，多标签栏不会自适应。',
-        desc3: 'Soybean 准备为 soybean-admin 的发布做充分的准备工作!',
-        desc4: 'Soybean 正在忙于为soybean-admin写项目说明文档！',
-        desc5: 'Soybean 刚才把工作台页面随便写了一些，凑合能看了！'
+        desc1: '红泥数智智慧养老平台正式上线，为社区老年人提供贴心服务！',
+        desc2: '平台已完成服务商管理、服务人员管理、订单管理等核心功能开发。',
+        desc3: '系统支持政府监管、服务商运营、服务人员上门服务全流程管理。',
+        desc4: '平台集成驾驶舱数据统计，实时掌握服务运营态势。',
+        desc5: '智慧养老平台支持多级角色权限，满足政府、街道、社区、服务商多层级管理需求。'
       },
       creativity: '创意'
     }
