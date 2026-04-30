@@ -49,7 +49,7 @@
 │   └── src/main/resources/
 │       └── mapper/               # MyBatis XML映射文件
 │
-├── dingfeng-work/                # 前端应用 (基于SoybeanAdmin)
+├── dingfeng-work/                # 前端应用 (Vue3 + NaiveUI)
 │   ├── src/
 │   │   ├── api/                  # API接口定义
 │   │   ├── service/             # 服务层
@@ -360,5 +360,5 @@ MIT License
 ## 致谢
 
 - 后端框架: [Spring Boot](https://spring.io/projects/spring-boot)
-- 前端框架: [SoybeanAdmin](https://github.com/soybeanjs/soybean-admin)
+- 前端框架: [Vue3](https://vuejs.org/) + [NaiveUI](https://www.naiveui.org/)
 - UI组件: [Naive UI](https://www.naiveui.org/)

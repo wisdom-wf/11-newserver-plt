@@ -465,6 +465,53 @@ dingfeng-work:              main    ✅ 已推送（测试文件更新）
 
 ---
 
+## 六、核心设计原则（所有开发者必须遵守）
+
+> ⚠️ **这是最高优先级原则，任何新功能开发必须首先理解并遵循此原则。**
+
+### ID 体系规范：orderNo 是串联所有对象的关键
+
+系统存在两套 ID 标识：
+
+| 类型 | 字段 | 用途 | 示例 |
+|------|------|------|------|
+| **内部 ID** | `id` / `_id` / `xxxId` | 数据库主键，系统内部关联用，**用户不可见** | `2044978647030419457` |
+| **用户标识** | `orderNo` / `appointmentNo` / `serviceLogNo` | 用户看到的唯一编号，用于定位和交流 | `ORD20260415001` |
+
+**原则：**
+1. 所有**跨页面跳转**必须传**用户级唯一标识**（orderNo / appointmentNo），而不是内部数据库 ID
+2. 跳转目标页面收到参数后，**必须通过用户标识精确定位到具体对象**，并在界面上提示用户"已定位到 XXX"
+3. **禁止**把内部 ID 暴露给用户，也**禁止**要求用户记忆/输入内部 ID
+4. **orderNo（订单编号）是整个业务链的枢纽**：预约 → 订单 → 服务日志 → 质检 → 评价，所有对象都通过 `orderNo` 与订单关联
+
+**正确做法示例：**
+```vue
+// ❌ 错误：传内部ID，用户看到空白列表不知所措
+router.push({ path: '/business/service-log', query: { orderId: order.id } });
+
+// ✅ 正确：传用户标识，目标页自动精确定位并提示
+router.push({ path: '/business/service-log', query: { orderNo: order.orderNo } });
+
+// 目标页 service-log/index.vue onMounted：
+// if (route.query.orderNo) {
+//   searchOrderNo.value = route.query.orderNo as string;
+//   message.info(`已定位到订单：${route.query.orderNo}`);
+//   getData();
+// }
+```
+
+**关联对象路由参数约定：**
+
+| 出发页 | 目标页 | 参数 | 说明 |
+|--------|--------|------|------|
+| 订单详情 | 服务日志 | `orderNo` | 精确定位到该订单的日志 |
+| 订单详情 | 质检单 | `orderNo` | 精确定位到该订单的质检 |
+| 订单详情 | 评价 | `orderNo` | 精确定位到该订单的评价 |
+| 预约列表 | 订单详情 | `orderNo` | 精确定位到该预约对应的订单 |
+| 订单详情 | 预约详情 | `id` (appointmentId) | 跳转预约页并用 appointmentNo 过滤 |
+
+---
+
 ## 六、开发规范（重要）
 
 ### 前端规范
