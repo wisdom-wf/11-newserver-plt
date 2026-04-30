@@ -1,5 +1,6 @@
 <script setup lang="ts">
 import { ref, h, onMounted, computed } from 'vue';
+import { useRoute } from 'vue-router';
 import {
   NButton,
   NCard,
@@ -32,7 +33,8 @@ import {
   fetchGetAppointmentStatistics,
   fetchGetProviderOptions,
   fetchGetAppointmentTimeline,
-  fetchGetProviderCertificates
+  fetchGetProviderCertificates,
+  fetchGetAppointment
 } from '@/service/api';
 import { useRouterPush } from '@/hooks/common/router';
 import { useNaivePaginatedTable, useTableOperate, defaultTransform } from '@/hooks/common/table';
@@ -47,6 +49,7 @@ defineOptions({
 });
 
 const message = useMessage();
+const route = useRoute();
 const { routerPushByKey } = useRouterPush();
 const { formRef, validate, restoreValidation } = useNaiveForm();
 const { hasAuth } = useAuth();
@@ -548,10 +551,25 @@ function handleResetSearch() {
   getDataByPage(1);
 }
 
-onMounted(() => {
+onMounted(async () => {
   getStatistics();
-  getData();
   getProviderOptions();
+
+  // 从其他页面跳转过来时，通过 appointmentId 精确定位
+  const appointmentId = route.query.id as string;
+  if (appointmentId) {
+    try {
+      const { data, error } = await fetchGetAppointment(appointmentId);
+      if (data && !error) {
+        searchAppointmentNo.value = data.appointmentNo || '';
+        message.info(`已定位到预约：${data.appointmentNo}`);
+      }
+    } catch (e) {
+      console.error('定位预约失败', e);
+    }
+  }
+
+  getData();
 });
 </script>
 

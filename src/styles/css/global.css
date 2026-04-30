@@ -13,3 +13,76 @@ html {
   overflow-x: hidden;
   color: rgb(var(--base-text-color));
 }
+
+/* === 语义色 token（设计系统） === */
+:root {
+  --color-primary:          #1E3A5F;
+  --color-primary-light:     #2B5290;
+  --color-primary-dark:      #152B47;
+
+  --color-secondary:         #E67E22;
+  --color-secondary-light:   #F39C12;
+
+  --color-success:           #10B981;
+  --color-warning:           #F59E0B;
+  --color-error:             #EF4444;
+  --color-info:              #3B82F6;
+
+  --color-text-primary:      #1E293B;
+  --color-text-secondary:    #64748B;
+  --color-text-disabled:     #94A3B8;
+
+  --radius-sm: 4px;
+  --radius-md: 8px;
+  --radius-lg: 12px;
+  --radius-xl: 16px;
+
+  /* 阴影 token */
+  --shadow-sm:  0 1px 2px rgba(30,58,95,0.05);
+  --shadow-md:  0 2px 8px rgba(30,58,95,0.08), 0 0 1px rgba(30,58,95,0.04);
+  --shadow-lg:  0 4px 16px rgba(30,58,95,0.10), 0 2px 6px rgba(30,58,95,0.06);
+  --shadow-xl:  0 8px 32px rgba(30,58,95,0.12), 0 4px 12px rgba(30,58,95,0.08);
+}
+
+/* 全局高级感：卡片 hover 微提升 */
+.n-card:hover {
+  box-shadow: var(--shadow-md) !important;
+  transition: box-shadow 0.2s ease;
+}
+
+/* 按钮 hover 光效 */
+.n-button:not(.n-button--disabled):hover {
+  box-shadow: 0 2px 8px rgba(30,58,95,0.15) !important;
+  transition: box-shadow 0.2s ease;
+}
+
+/* 表格行 hover 高亮 */
+.n-data-table-tr:hover .n-data-table-td {
+  background-color: rgba(30,58,95,0.03) !important;
+}
+
+/* 侧边栏菜单激活态：政务蓝文字 */
+.n-menu-item-content--selected .n-menu-item-content__text {
+  color: var(--color-primary) !important;
+  font-weight: 600 !important;
+}
+
+/* Menu 全局 CSS 变量（政务蓝，覆盖 naiveui 默认值） */
+:root {
+  --n-item-text-color: #1E293B !important;
+  --n-item-text-color-active: #1E3A5F !important;
+  --n-item-text-color-hover: #1E3A5F !important;
+  --n-item-icon-color: #1E293B !important;
+  --n-item-icon-color-active: #1E3A5F !important;
+  --n-item-icon-color-hover: #1E3A5F !important;
+  --n-item-color-hover: rgba(30, 58, 95, 0.05) !important;
+  --n-item-color-active: rgba(30, 58, 95, 0.10) !important;
+}
+
+/* Tab 激活态 */
+.n-tabs-tab--active-type .n-tabs-tab__label {
+  color: #1E3A5F !important;
+}
+.n-tabs-bar--active-type {
+  background-color: #1E3A5F !important;
+}

@@ -4,13 +4,13 @@ export const themeSettings: App.Theme.ThemeSetting = {
   grayscale: false,
   colourWeakness: false,
   recommendColor: false,
-  themeColor: '#646cff',
-  themeRadius: 6,
+  themeColor: '#1E3A5F',
+  themeRadius: 8,
   otherColor: {
-    info: '#2080f0',
-    success: '#52c41a',
-    warning: '#faad14',
-    error: '#f5222d'
+    info: '#3B82F6',
+    success: '#10B981',
+    warning: '#F59E0B',
+    error: '#EF4444'
   },
   isInfoFollowPrimary: true,
   layout: {

@@ -7,14 +7,14 @@
   "grayscale": false,
   "colourWeakness": false,
   "recommendColor": false,
-  "themeColor": "#646cff",
+  "themeColor": "#1E3A5F",
   "otherColor": {
-    "info": "#2080f0",
-    "success": "#52c41a",
-    "warning": "#faad14",
-    "error": "#f5222d"
+    "info": "#3B82F6",
+    "success": "#10B981",
+    "warning": "#F59E0B",
+    "error": "#EF4444"
   },
-  "themeRadius": 6,
+  "themeRadius": 8,
   "isInfoFollowPrimary": true,
   "layout": {
     "mode": "vertical",

@@ -1,5 +1,6 @@
 <script setup lang="ts">
 import { ref, h, onMounted } from 'vue';
+import { useRoute, useRouter } from 'vue-router';
 import { NButton, NCard, NTag, NSpace, NInput, NSelect, NDrawer, NDrawerContent, useMessage, NImage, NImageGroup, NUpload, NInputNumber, useDialog, NGrid, NGi, NPopconfirm } from 'naive-ui';
 import type { DataTableColumns } from 'naive-ui';
 import { useFormRules } from '@/hooks/common/form';
@@ -23,6 +24,8 @@ defineOptions({
 
 const message = useMessage();
 const dialog = useDialog();
+const route = useRoute();
+const router = useRouter();
 const { patternRules, createRequiredRule } = useFormRules();
 const { formRef, validate, restoreValidation } = useNaiveForm();
 const { hasAuth } = useAuth();
@@ -404,7 +407,20 @@ function handleResetSearch() {
   getDataByPage(1);
 }
 
-onMounted(() => {
+onMounted(async () => {
+  // 接收老人档案详情跳转参数（订单详情→老人档案详情），直接打开该老人详情抽屉
+  if (route.query.elderId) {
+    const elderId = String(route.query.elderId);
+    try {
+      const { data } = await fetchGetElder(elderId);
+      if (data) {
+        detailData.value = data;
+        detailVisible.value = true;
+      }
+    } catch (e) {
+      console.error('Failed to load elder detail from route', e);
+    }
+  }
   getStatistics();
   getData();
 });

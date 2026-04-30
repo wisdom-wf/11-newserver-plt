@@ -144,9 +144,26 @@ export function addThemeVarsToGlobal(tokens: App.Theme.BaseToken, darkTokens: Ap
   const cssVarStr = getCssVarByTokens(tokens);
   const darkCssVarStr = getCssVarByTokens(darkTokens);
 
+  // 深色主色（如政务蓝 #1E3A5F）无法通过算法生成正确的浅色变体
+  // 强制覆盖为与政务蓝搭配的天蓝色系
+  const primaryLightOverrides = `
+    --primary-50-color: 227 239 250;
+    --primary-100-color: 207 226 246;
+    --primary-200-color: 179 210 236;
+    --primary-300-color: 147 191 224;
+    --primary-400-color: 101 163 206;
+    --primary-color: 30 58 95;
+    --primary-600-color: 22 45 75;
+    --primary-700-color: 16 34 56;
+    --primary-800-color: 10 22 37;
+    --primary-900-color: 5 11 19;
+    --primary-950-color: 2 5 9;
+  `;
+
   const css = `
     :root {
       ${cssVarStr}
+      ${primaryLightOverrides}
     }
   `;
 
@@ -247,17 +264,65 @@ export function getNaiveTheme(
 ) {
   const { primary: colorLoading } = colors;
 
+  // 全局组件样式覆盖（政务蓝 + 统一圆角）
+  const componentOverrides = {
+    Button: {
+      borderRadiusMedium: `${settings.themeRadius}px`,
+      borderRadiusSmall: `${Math.max(settings.themeRadius - 2, 4)}px`,
+      borderRadiusLarge: `${settings.themeRadius + 2}px`,
+      // 强制使用政务蓝主色（避免 NaiveUI 自动生成色板偏移）
+      colorPrimary: '#1E3A5F',
+      colorHoverPrimary: '#2B5290',
+      colorPressedPrimary: '#152B47',
+      textColorPrimary: '#FFFFFF',
+      textColorHoverPrimary: '#FFFFFF',
+      textColorPressedPrimary: '#FFFFFF',
+      borderPrimary: 'none',
+      borderHoverPrimary: 'none',
+      borderPressedPrimary: 'none'
+    },
+    Card: {
+      borderRadius: `${settings.themeRadius + 4}px`,
+      paddingMedium: '20px',
+      paddingLarge: '24px'
+    },
+    Input: { borderRadius: `${settings.themeRadius}px` },
+    Select: { borderRadius: `${settings.themeRadius}px` },
+    Tag: { borderRadius: '6px' },
+    Alert: { borderRadiusMedium: '10px' },
+    DataTable: { borderRadius: '12px' },
+    Modal: { borderRadius: '14px' },
+    Menu: {
+      borderRadius: `${settings.themeRadius}px`,
+      itemColorHover: 'rgba(30, 58, 95, 0.05)',
+      itemColorActive: 'rgba(30, 58, 95, 0.10)',
+      itemTextColorActive: '#1E3A5F',
+      itemTextColorHover: '#1E3A5F',
+      itemIconColorActive: '#1E3A5F',
+      itemIconColorHover: '#1E3A5F'
+    },
+    LoadingBar: { colorLoading: colors.primary }
+  } as GlobalThemeOverrides;
+
   const theme: GlobalThemeOverrides = {
     common: {
       ...getNaiveThemeColors(colors, settings.recommendColor),
-      borderRadius: `${settings.themeRadius}px`
+      borderRadius: `${settings.themeRadius}px`,
+      textColorBase: '#1E293B',
+      textColor1: '#1E293B',
+      textColor2: '#64748B',
+      textColor3: '#94A3B8',
+      textColorDisabled: '#94A3B8',
+      borderColor: '#E2E8F0',
+      dividerColor: '#E2E8F0',
+      modalColor: '#FFFFFF',
+      popoverColor: '#FFFFFF',
+      tableColor: '#FFFFFF',
+      cardColor: '#FFFFFF',
+      bodyColor: '#F8FAFC',
+      tagColor: '#F1F5F9'
     },
-    LoadingBar: {
-      colorLoading
-    },
-    Tag: {
-      borderRadius: `${settings.themeRadius}px`
-    }
+    ...componentOverrides
   };
 
   // If there are overrides, merge them with priority

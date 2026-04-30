@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { computed } from 'vue';
+import { computed, onMounted, nextTick } from 'vue';
 import { NConfigProvider, darkTheme } from 'naive-ui';
 import type { WatermarkProps } from 'naive-ui';
 import { useAppStore } from './store/modules/app';
@@ -37,6 +37,30 @@ const watermarkProps = computed<WatermarkProps>(() => {
     rotate: -15,
     zIndex: 9999
   };
+});
+
+// 强制修复菜单激活项文字色（naiveui 内部优先级问题）
+onMounted(async () => {
+  await nextTick();
+  const fixMenuActive = () => {
+    const selected = document.querySelectorAll('.n-menu-item-content--selected');
+    selected.forEach(el => {
+      // 文字：naiveui 用的是 n-menu-item-content-header
+      const textEl = el.querySelector('.n-menu-item-content-header');
+      if (textEl && textEl instanceof HTMLElement) {
+        textEl.style.color = '#1E3A5F';
+        textEl.style.fontWeight = '600';
+      }
+      // 图标：SVG path 用 currentColor，改 icon div 颜色即可
+      const iconEl = el.querySelector('.n-menu-item-content__icon');
+      if (iconEl && iconEl instanceof HTMLElement) {
+        iconEl.style.color = '#1E3A5F';
+      }
+    });
+  };
+  fixMenuActive();
+  setTimeout(fixMenuActive, 500);
+  setTimeout(fixMenuActive, 1500);
 });
 </script>
 

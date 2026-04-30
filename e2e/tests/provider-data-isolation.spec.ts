@@ -49,9 +49,9 @@ test.describe('数据隔离测试 - Provider与Staff视角', () => {
     fws2Token = fws2Body.data.accessToken;
     fws2ProviderId = fws2Body.data.userInfo?.providerId || '';
 
-    // STAFF - 属于 FWS1 的员工
+    // STAFF - 属于 FWS1 的员工（密码为 mima123）
     const staffLogin = await req.post(`${API_BASE}/auth/login`, {
-      data: { username: '13109118901', password: 'admin123' }
+      data: { username: '13109118901', password: 'mima123' }
     });
     expect(staffLogin.ok()).toBeTruthy();
     const staffBody = await staffLogin.json();
