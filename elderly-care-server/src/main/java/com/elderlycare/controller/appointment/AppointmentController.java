@@ -170,4 +170,14 @@ public class AppointmentController {
         Object timeline = appointmentService.getAppointmentTimeline(id);
         return Result.success(timeline);
     }
+
+    /**
+     * 批量删除预约
+     * POST /api/appointment/batch
+     */
+    @PostMapping("/batch")
+    public Result<Void> batchDeleteAppointment(@RequestBody List<String> ids) {
+        appointmentService.batchDeleteAppointment(ids);
+        return Result.successMsg("批量删除成功");
+    }
 }

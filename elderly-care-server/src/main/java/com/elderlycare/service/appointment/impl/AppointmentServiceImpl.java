@@ -642,6 +642,14 @@ public class AppointmentServiceImpl implements AppointmentService {
         return list.stream().map(this::convertToVO).collect(Collectors.toList());
     }
 
+    @Override
+    @Transactional(rollbackFor = Exception.class)
+    public void batchDeleteAppointment(List<String> ids) {
+        for (String id : ids) {
+            appointmentMapper.deleteById(id);
+        }
+    }
+
     private AppointmentVO convertToVO(Appointment appointment) {
         if (appointment == null) {
             return null;

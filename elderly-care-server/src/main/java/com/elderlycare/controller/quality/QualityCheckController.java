@@ -14,6 +14,7 @@ import com.elderlycare.vo.quality.QualityCheckVO;
 import lombok.RequiredArgsConstructor;
 import org.springframework.web.bind.annotation.*;
 
+import java.util.List;
 import java.util.Map;
 
 /**
@@ -169,5 +170,15 @@ public class QualityCheckController {
             @RequestParam(required = false) String endDate) {
         QualityCheckStatisticsVO result = qualityCheckService.getStatistics(areaId, providerId, startDate, endDate);
         return Result.success(result);
+    }
+
+    /**
+     * 批量删除质检
+     * POST /api/quality-check/batch
+     */
+    @PostMapping("/batch")
+    public Result<Void> batchDeleteQualityCheck(@RequestBody List<String> ids) {
+        qualityCheckService.batchDeleteQualityCheck(ids);
+        return Result.successMsg("批量删除成功");
     }
 }

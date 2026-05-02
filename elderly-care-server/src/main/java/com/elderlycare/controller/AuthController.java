@@ -4,6 +4,7 @@ import com.elderlycare.common.Result;
 import com.elderlycare.common.UserContext;
 import com.elderlycare.dto.LoginDTO;
 import com.elderlycare.dto.PasswordDTO;
+import com.elderlycare.dto.PhoneLoginDTO;
 import com.elderlycare.service.AuthService;
 import com.elderlycare.vo.LoginVO;
 import com.elderlycare.vo.UserInfoVO;
@@ -61,6 +62,16 @@ public class AuthController {
         passwordDTO.setUserId(userId);
         authService.changePassword(userId, passwordDTO);
         return Result.success();
+    }
+
+    /**
+     * 手机号验证码登录（仅服务人员）
+     */
+    @PostMapping("/phone-login")
+    public Result<LoginVO> phoneLogin(@RequestBody PhoneLoginDTO phoneLoginDTO, HttpServletRequest request) {
+        String loginIp = getClientIp(request);
+        LoginVO loginVO = authService.phoneLogin(phoneLoginDTO.getPhone(), phoneLoginDTO.getCaptcha(), loginIp);
+        return Result.success(loginVO);
     }
 
     /**

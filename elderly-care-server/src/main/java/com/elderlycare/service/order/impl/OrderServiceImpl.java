@@ -313,6 +313,14 @@ public class OrderServiceImpl implements OrderService {
         orderMapper.updateById(order);
     }
 
+    @Override
+    @Transactional(rollbackFor = Exception.class)
+    public void batchDeleteOrders(List<String> orderIds) {
+        for (String orderId : orderIds) {
+            orderMapper.deleteById(orderId);
+        }
+    }
+
     // ==================== 订单派单 ====================
 
     @Override

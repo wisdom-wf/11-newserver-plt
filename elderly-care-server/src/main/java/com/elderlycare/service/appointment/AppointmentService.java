@@ -74,4 +74,9 @@ public interface AppointmentService {
      * 获取预约时间轴
      */
     Object getAppointmentTimeline(String id);
+
+    /**
+     * 批量删除预约
+     */
+    void batchDeleteAppointment(List<String> ids);
 }

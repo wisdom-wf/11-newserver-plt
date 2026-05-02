@@ -5,6 +5,9 @@ import com.elderlycare.common.PageResult;
 import com.elderlycare.dto.order.*;
 import com.elderlycare.vo.order.*;
 
+import java.util.List;
+import java.util.Map;
+
 /**
  * 订单服务接口
  */
@@ -36,6 +39,11 @@ public interface OrderService {
      * 取消订单
      */
     void cancelOrder(String orderId, CancelOrderDTO dto);
+
+    /**
+     * 批量删除订单
+     */
+    void batchDeleteOrders(List<String> orderIds);
 
     // ==================== 订单派单 ====================
 

@@ -28,6 +28,11 @@
         WHERE username = #{username} AND deleted = 0
     </select>
 
+    <select id="selectByPhone" resultMap="BaseResultMap">
+        SELECT * FROM t_user
+        WHERE phone = #{phone} AND deleted = 0
+    </select>
+
     <select id="selectRoleIdsByUserId" resultType="java.lang.String">
         SELECT role_id FROM t_user_role
         WHERE user_id = #{userId}

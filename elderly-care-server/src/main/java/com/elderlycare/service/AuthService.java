@@ -34,4 +34,13 @@ public interface AuthService {
      * 重置密码
      */
     void resetPassword(String userId, String newPassword);
+
+    /**
+     * 手机号验证码登录（仅服务人员）
+     * @param phone 手机号
+     * @param captcha 验证码
+     * @param loginIp 登录IP
+     * @return 登录凭证
+     */
+    LoginVO phoneLogin(String phone, String captcha, String loginIp);
 }

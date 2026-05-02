@@ -28,6 +28,7 @@ import java.math.BigDecimal;
 import java.math.RoundingMode;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
+import java.util.List;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -477,6 +478,14 @@ public class ServiceEvaluationServiceImpl extends ServiceImpl<ServiceEvaluationM
 
         evaluation.setTokenStatus("INVALID");
         evaluationMapper.updateById(evaluation);
+    }
+
+    @Override
+    @Transactional(rollbackFor = Exception.class)
+    public void batchDeleteEvaluation(List<String> evaluationIds) {
+        for (String id : evaluationIds) {
+            evaluationMapper.deleteById(id);
+        }
     }
 
     /**

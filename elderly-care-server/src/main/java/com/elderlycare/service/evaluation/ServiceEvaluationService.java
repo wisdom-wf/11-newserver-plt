@@ -10,6 +10,8 @@ import com.elderlycare.vo.evaluation.EvaluationVO;
 import com.elderlycare.vo.evaluation.ProviderScoreVO;
 import com.elderlycare.vo.evaluation.StaffScoreVO;
 
+import java.util.List;
+
 /**
  * 服务评价Service接口
  */
@@ -85,4 +87,9 @@ public interface ServiceEvaluationService extends IService<ServiceEvaluation> {
      * @param token 评价邀请Token
      */
     void invalidateInvite(String token);
+
+    /**
+     * 批量删除评价
+     */
+    void batchDeleteEvaluation(List<String> evaluationIds);
 }

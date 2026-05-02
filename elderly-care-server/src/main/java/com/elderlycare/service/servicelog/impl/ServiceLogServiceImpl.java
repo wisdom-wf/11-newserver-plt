@@ -161,25 +161,6 @@ public class ServiceLogServiceImpl implements ServiceLogService {
         serviceLog.setMedicationGiven(vo.getMedicationGiven());
         serviceLogMapper.insert(serviceLog);
 
-        // 自动生成质检单（待质检状态）
-        QualityCheck qualityCheck = new QualityCheck();
-        qualityCheck.setQualityCheckId(IDGenerator.generateId());
-        qualityCheck.setCheckNo("QC" + System.currentTimeMillis());
-        qualityCheck.setOrderId(vo.getOrderId());
-        qualityCheck.setOrderNo(order != null ? order.getOrderNo() : null);
-        qualityCheck.setServiceLogId(serviceLog.getServiceLogId());
-        qualityCheck.setServiceCategory(serviceLog.getServiceTypeCode());
-        qualityCheck.setProviderId(serviceLog.getProviderId());
-        qualityCheck.setProviderName(serviceLog.getProviderName());
-        qualityCheck.setStaffId(serviceLog.getStaffId());
-        qualityCheck.setStaffName(serviceLog.getStaffName());
-        qualityCheck.setCheckType("COMPLETION"); // 完工质检
-        qualityCheck.setCheckMethod("PHOTO_REVIEW"); // 默认照片审核
-        qualityCheck.setCheckResult("PENDING"); // 待质检
-        qualityCheck.setRectifyStatus("PENDING");
-        qualityCheck.setCreateTime(LocalDateTime.now());
-        qualityCheckMapper.insert(qualityCheck);
-
         return serviceLog.getServiceLogId();
     }
 
@@ -242,7 +223,25 @@ public class ServiceLogServiceImpl implements ServiceLogService {
             serviceLog.setReviewComment(remarks);
         }
         serviceLogMapper.updateById(serviceLog);
-        // 质检单已在 submitServiceLog() 创建日志时一并创建，无需重复创建
+
+        // 提交审核时自动创建质检单（待质检状态）
+        QualityCheck qualityCheck = new QualityCheck();
+        qualityCheck.setQualityCheckId(IDGenerator.generateId());
+        qualityCheck.setCheckNo("QC" + System.currentTimeMillis());
+        qualityCheck.setOrderId(serviceLog.getOrderId());
+        qualityCheck.setOrderNo(serviceLog.getOrderNo());
+        qualityCheck.setServiceLogId(serviceLog.getServiceLogId());
+        qualityCheck.setServiceCategory(serviceLog.getServiceTypeCode());
+        qualityCheck.setProviderId(serviceLog.getProviderId());
+        qualityCheck.setProviderName(serviceLog.getProviderName());
+        qualityCheck.setStaffId(serviceLog.getStaffId());
+        qualityCheck.setStaffName(serviceLog.getStaffName());
+        qualityCheck.setCheckType("COMPLETION"); // 完工质检
+        qualityCheck.setCheckMethod("PHOTO_REVIEW"); // 默认照片审核
+        qualityCheck.setCheckResult("PENDING"); // 待质检
+        qualityCheck.setRectifyStatus("PENDING");
+        qualityCheck.setCreateTime(LocalDateTime.now());
+        qualityCheckMapper.insert(qualityCheck);
     }
 
     @Override
@@ -265,32 +264,7 @@ public class ServiceLogServiceImpl implements ServiceLogService {
         serviceLog.setReviewerId(com.elderlycare.common.UserContext.getUserId());
         serviceLog.setReviewerName(com.elderlycare.common.UserContext.getUsername());
         serviceLogMapper.updateById(serviceLog);
-
-        // APPROVED 时自动创建质检单（checkResult=PENDING，等待质检员执行 inspect）
-        if ("APPROVED".equals(result)) {
-            // 查订单信息填充质检单
-            Order order = null;
-            if (serviceLog.getOrderId() != null) {
-                order = orderMapper.selectById(serviceLog.getOrderId());
-            }
-            QualityCheck qc = new QualityCheck();
-            qc.setCheckNo("QC" + System.currentTimeMillis());
-            qc.setOrderId(serviceLog.getOrderId());
-            qc.setOrderNo(serviceLog.getOrderNo());
-            qc.setServiceLogId(serviceLog.getServiceLogId());
-            qc.setServiceCategory(serviceLog.getServiceTypeName());
-            qc.setProviderId(serviceLog.getProviderId());
-            qc.setProviderName(serviceLog.getProviderName());
-            qc.setStaffId(serviceLog.getStaffId());
-            qc.setStaffName(serviceLog.getStaffName());
-            qc.setCheckType("COMPLETION"); // 完工抽检
-            qc.setCheckResult("PENDING");  // 待质检，等质检员执行 inspect
-            qc.setNeedRectify(false);
-            qc.setRectifyStatus(null);
-            qc.setCreateTime(LocalDateTime.now());
-            qualityCheckMapper.insert(qc);
-        }
-        // REJECTED 仅更新日志审核状态
+        // 质检单已在提交审核时创建，无需重复创建
     }
 
     @Override

@@ -5,6 +5,7 @@ import com.elderlycare.dto.quality.QualityCheckQueryDTO;
 import com.elderlycare.vo.quality.QualityCheckStatisticsVO;
 import com.elderlycare.vo.quality.QualityCheckVO;
 
+import java.util.List;
 import java.util.Map;
 
 /**
@@ -65,4 +66,9 @@ public interface QualityCheckService {
      * 获取质检统计
      */
     QualityCheckStatisticsVO getStatistics(String areaId, String providerId, String startDate, String endDate);
+
+    /**
+     * 批量删除质检
+     */
+    void batchDeleteQualityCheck(List<String> ids);
 }

@@ -10,6 +10,7 @@ import com.elderlycare.entity.User;
 import com.elderlycare.mapper.LoginLogMapper;
 import com.elderlycare.mapper.UserMapper;
 import com.elderlycare.service.AuthService;
+import com.elderlycare.service.CaptchaService;
 import com.elderlycare.service.UserService;
 import com.elderlycare.vo.LoginVO;
 import com.elderlycare.vo.UserInfoVO;
@@ -44,6 +45,9 @@ public class AuthServiceImpl implements AuthService {
 
     @Value("${jwt.expiration}")
     private Long expiration;
+
+    @Autowired
+    private CaptchaService captchaService;
 
     /** 密码最大失败次数 */
     private static final int MAX_LOGIN_FAIL_COUNT = 5;
@@ -225,5 +229,60 @@ public class AuthServiceImpl implements AuthService {
         }
         // 兼容明文密码
         return rawPassword.equals(encodedPassword);
+    }
+
+    @Override
+    @Transactional(rollbackFor = Exception.class)
+    public LoginVO phoneLogin(String phone, String captcha, String loginIp) {
+        // 1. 验证验证码
+        boolean captchaValid = captchaService.verifyCaptcha(phone, "PHONE_LOGIN", captcha);
+        if (!captchaValid) {
+            throw new BusinessException(400, "验证码错误");
+        }
+
+        // 2. 查询该手机号是否有STAFF用户
+        User user = userMapper.selectByPhone(phone);
+
+        // 3. 不存在则自动注册（创建STAFF类型用户，无服务商）
+        if (user == null) {
+            user = new User();
+            user.setUserId(IDGenerator.generateId());
+            user.setUsername(phone);
+            user.setPhone(phone);
+            user.setRealName("新用户");
+            user.setPassword(encodePassword("123456")); // 默认密码
+            user.setUserType("STAFF");
+            user.setStatus("NORMAL");
+            user.setProviderId(null); // 不分配服务商
+            user.setCreateTime(LocalDateTime.now());
+            user.setDeleted(0);
+            userMapper.insert(user);
+
+            // 记录注册日志
+            recordLoginLog(user.getUserId(), phone, loginIp, "REGISTER", "手机号注册");
+        }
+
+        // 4. 检查用户状态
+        if (!"NORMAL".equals(user.getStatus())) {
+            throw new BusinessException(401, "用户已被禁用");
+        }
+
+        // 5. 更新登录信息
+        userMapper.updateLoginInfo(user.getUserId(), loginIp);
+
+        // 6. 记录登录日志
+        recordLoginLog(user.getUserId(), user.getUsername(), loginIp, "SUCCESS", "手机号登录");
+
+        // 7. 生成Token
+        String accessToken = jwtUtil.generateToken(user.getUserId(), user.getUsername());
+
+        // 8. 构建响应
+        LoginVO loginVO = new LoginVO();
+        loginVO.setAccessToken(accessToken);
+        loginVO.setTokenType("Bearer");
+        loginVO.setExpiresIn(expiration / 1000);
+        loginVO.setUserInfo(getCurrentUserInfo(user.getUserId()));
+
+        return loginVO;
     }
 }

@@ -240,4 +240,14 @@ public class EvaluationController {
         evaluationService.invalidateInvite(token);
         return Result.success();
     }
+
+    /**
+     * 批量删除评价
+     * POST /api/evaluations/batch
+     */
+    @PostMapping("/batch")
+    public Result<Void> batchDeleteEvaluations(@RequestBody List<String> evaluationIds) {
+        evaluationService.batchDeleteEvaluation(evaluationIds);
+        return Result.successMsg("批量删除成功");
+    }
 }

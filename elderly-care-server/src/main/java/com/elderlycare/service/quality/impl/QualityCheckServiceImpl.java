@@ -23,6 +23,7 @@ import org.springframework.transaction.annotation.Transactional;
 
 import java.math.BigDecimal;
 import java.time.LocalDateTime;
+import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
 
@@ -295,6 +296,14 @@ public class QualityCheckServiceImpl implements QualityCheckService {
         }
 
         qualityCheckMapper.updateById(qc);
+    }
+
+    @Override
+    @Transactional(rollbackFor = Exception.class)
+    public void batchDeleteQualityCheck(List<String> ids) {
+        for (String id : ids) {
+            qualityCheckMapper.deleteById(id);
+        }
     }
 
     private QualityCheckVO convertToVO(QualityCheck qualityCheck) {

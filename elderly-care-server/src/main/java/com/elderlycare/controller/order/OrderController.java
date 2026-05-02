@@ -106,6 +106,16 @@ public class OrderController {
         return Result.successMsg("订单取消成功");
     }
 
+    /**
+     * 批量删除订单
+     * POST /api/orders/batch
+     */
+    @PostMapping("/batch")
+    public Result<Void> batchDeleteOrders(@RequestBody List<String> orderIds) {
+        orderService.batchDeleteOrders(orderIds);
+        return Result.successMsg("批量删除成功");
+    }
+
     // ==================== 订单派单 ====================
 
     /**
