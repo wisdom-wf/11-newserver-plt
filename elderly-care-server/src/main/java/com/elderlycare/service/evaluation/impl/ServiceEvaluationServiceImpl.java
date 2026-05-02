@@ -353,7 +353,7 @@ public class ServiceEvaluationServiceImpl extends ServiceImpl<ServiceEvaluationM
         EvaluationInviteVO vo = new EvaluationInviteVO();
         vo.setEvaluationId(evaluation.getEvaluationId());
         vo.setToken(token);
-        vo.setSurveyUrl("/public/survey?token=" + token);
+        vo.setSurveyUrl("/jxy/public/survey?token=" + token);
         vo.setOrderId(orderId);
         vo.setElderId(elderId);
         vo.setElderName(elderName);
@@ -398,7 +398,7 @@ public class ServiceEvaluationServiceImpl extends ServiceImpl<ServiceEvaluationM
         EvaluationInviteVO vo = new EvaluationInviteVO();
         vo.setEvaluationId(evaluation.getEvaluationId());
         vo.setToken(token);
-        vo.setSurveyUrl("/public/survey?token=" + token);
+        vo.setSurveyUrl("/jxy/public/survey?token=" + token);
         vo.setOrderId(evaluation.getOrderId());
         vo.setElderId(evaluation.getElderId());
         vo.setElderName(evaluation.getElderName());

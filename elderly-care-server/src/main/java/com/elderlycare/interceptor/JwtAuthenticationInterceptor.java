@@ -42,6 +42,7 @@ public class JwtAuthenticationInterceptor implements HandlerInterceptor {
             "/api/auth/logout",
             "/api/auth/captcha",
             "/api/public",
+            "/public/",             // 公开评价/工单API（不需要JWT）
             "/swagger-ui",
             "/v3/api-docs",
             "/doc.html",

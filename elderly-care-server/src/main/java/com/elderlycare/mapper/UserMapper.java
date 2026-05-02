@@ -18,6 +18,11 @@ public interface UserMapper extends BaseMapper<User> {
     User selectByUsername(@Param("username") String username);
 
     /**
+     * 根据手机号查询用户
+     */
+    User selectByPhone(@Param("phone") String phone);
+
+    /**
      * 查询用户角色ID列表
      */
     List<String> selectRoleIdsByUserId(@Param("userId") String userId);
