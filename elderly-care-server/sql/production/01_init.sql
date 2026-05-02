@@ -878,6 +878,10 @@ INSERT INTO t_role (role_id, role_code, role_name, role_desc, role_type, data_sc
 ('R003', 'DISTRICT_ADMIN', '区县管理员', '区县系统管理员', 'ADMIN', 'DISTRICT', 3, 'NORMAL'),
 ('R004', 'PROVIDER_ADMIN', '服务商管理员', '服务商管理员', 'PROVIDER', 'SELF', 4, 'NORMAL');
 
+-- 分配超级管理员角色给admin用户
+INSERT INTO t_user_role (user_role_id, user_id, role_id, create_time) VALUES
+('UR001', 'U001', 'R001', NOW());
+
 -- 插入服务类型
 INSERT INTO t_service_type (service_type_id, service_type_code, service_type_name, service_desc, service_unit, estimated_duration, sort_order, status) VALUES
 ('ST001', 'MEAL', '助餐服务', '为老年人提供餐饮配送服务', '次', 30, 1, 'ACTIVE'),
