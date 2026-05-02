@@ -114,6 +114,7 @@ const operateType = ref<'add' | 'edit'>('add');
 const currentLogId = ref('');
 const formData = ref({
   orderId: '',
+  serviceDate: null as number | null,
   serviceStartTime: null as number | null,
   serviceEndTime: null as number | null,
   serviceDuration: 0,
@@ -123,7 +124,15 @@ const formData = ref({
   medicationGiven: ''
 });
 
-// Helper: convert timestamp to LocalDateTime string format
+// Helper: convert timestamp to date string (yyyy-MM-dd)
+function formatDate(timestamp: number | null): string | null {
+  if (!timestamp) return null;
+  const date = new Date(timestamp);
+  const pad = (n: number) => String(n).padStart(2, '0');
+  return `${date.getFullYear()}-${pad(date.getMonth() + 1)}-${pad(date.getDate())}`;
+}
+
+// Helper: convert timestamp to datetime string (yyyy-MM-ddTHH:mm:ss)
 function formatDateTime(timestamp: number | null): string | null {
   if (!timestamp) return null;
   const date = new Date(timestamp);
@@ -530,6 +539,7 @@ function showAddModal() {
   currentLogId.value = '';
   formData.value = {
     orderId: '',
+    serviceDate: null,
     serviceStartTime: null,
     serviceEndTime: null,
     serviceDuration: 0,
@@ -552,6 +562,7 @@ function handleUpdate(row: Api.ServiceLog.ServiceLog) {
   };
   formData.value = {
     orderId: row.orderId || '',
+    serviceDate: parseToTimestamp(row.serviceDate),
     serviceStartTime: parseToTimestamp(row.serviceStartTime),
     serviceEndTime: parseToTimestamp(row.serviceEndTime),
     serviceDuration: row.serviceDuration || 0,
@@ -578,7 +589,7 @@ function goToCreateQuality() {
   // 跳转到质检页，并带上 orderNo 和 serviceLogId 参数预填
   const query: Record<string, string> = { serviceLogId: qualityPromptLogId.value };
   if (qualityPromptOrderNo.value) query.orderNo = qualityPromptOrderNo.value;
-  router.push({ name: 'QualityCheck', query });
+  router.push({ name: 'business_quality', query });
 }
 
 function showReviewModal(row: Api.ServiceLog.ServiceLog) {
@@ -589,15 +600,36 @@ function showReviewModal(row: Api.ServiceLog.ServiceLog) {
 }
 
 function goToQualityCheck(row: Api.ServiceLog.ServiceLog) {
-  router.push({ path: '/business/quality', query: { orderNo: row.orderNo || '' } });
+  router.push({
+    path: '/business/quality',
+    query: {
+      orderNo: row.orderNo || '',
+      staffId: row.staffId || '',
+      staffName: row.staffName || ''
+    }
+  });
 }
 
 function goToEvaluation(row: Api.ServiceLog.ServiceLog) {
-  router.push({ path: '/business/evaluation', query: { orderNo: row.orderNo || '' } });
+  router.push({
+    path: '/business/evaluation',
+    query: {
+      orderNo: row.orderNo || '',
+      staffId: row.staffId || '',
+      elderId: row.elderId || ''
+    }
+  });
 }
 
 function goToCompleteService(row: Api.ServiceLog.ServiceLog) {
-  router.push({ path: '/business/order', query: { orderNo: row.orderNo || '' } });
+  router.push({
+    path: '/business/order',
+    query: {
+      orderNo: row.orderNo || '',
+      staffId: row.staffId || '',
+      elderId: row.elderId || ''
+    }
+  });
 }
 
 async function handleDuplicate(row: Api.ServiceLog.ServiceLog) {
@@ -625,18 +657,21 @@ async function handleQualityReview() {
 async function submitReview() {
   try {
     await fetchSubmitServiceLogForReview(reviewLogId.value, reviewRemarks.value);
-    message.success('提交审核成功');
+    message.success('提交审核成功，质检单已自动创建');
     reviewDialogVisible.value = false;
-
-    // 审核通过后：检查是否已有质检单，没有则弹窗提示
-    const { data: qcData } = await fetchGetQualityCheckByServiceLogId(reviewLogId.value);
     getData();
-    if (!qcData) {
-      // 从表格行数据中捞 orderNo
-      const row = tableData.value.find((r) => r.serviceLogId === reviewLogId.value);
-      qualityPromptLogId.value = reviewLogId.value;
-      qualityPromptOrderNo.value = row?.orderNo || '';
-      qualityPromptVisible.value = true;
+
+    // 自动跳转到质检页面并过滤
+    const row = tableData.value.find((r) => r.serviceLogId === reviewLogId.value);
+    if (row) {
+      router.push({
+        path: '/business/quality',
+        query: {
+          orderNo: row.orderNo || '',
+          staffId: row.staffId || '',
+          staffName: row.staffName || ''
+        }
+      });
     }
   } catch (e: any) {
     message.error(e.message || '提交审核失败');
@@ -657,6 +692,7 @@ async function handleSubmitForm() {
       await fetchUpdateServiceLog(logId, {
         id: logId,
         orderId: formData.value.orderId,
+        serviceDate: formatDate(formData.value.serviceDate),
         serviceStartTime: formatDateTime(formData.value.serviceStartTime),
         serviceEndTime: formatDateTime(formData.value.serviceEndTime),
         serviceDuration: formData.value.serviceDuration,
@@ -671,6 +707,7 @@ async function handleSubmitForm() {
       // Create new log
       await fetchSubmitServiceLog({
         orderId: formData.value.orderId,
+        serviceDate: formatDate(formData.value.serviceDate),
         serviceStartTime: formatDateTime(formData.value.serviceStartTime),
         serviceEndTime: formatDateTime(formData.value.serviceEndTime),
         serviceDuration: formData.value.serviceDuration,
@@ -955,17 +992,17 @@ onMounted(async () => {
               <NInput v-model:value="formData.orderId" placeholder="请输入订单ID" />
             </div>
             <div>
-              <div style="margin-bottom: 8px; color: #333; font-weight: 500">服务时长(分钟)</div>
-              <NInputNumber v-model:value="formData.serviceDuration" :min="0" style="width: 100%" />
+              <div style="margin-bottom: 8px; color: #333; font-weight: 500">服务日期 *</div>
+              <NDatePicker v-model:value="formData.serviceDate" type="date" style="width: 100%" />
             </div>
           </div>
           <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 16px; margin-top: 16px">
             <div>
-              <div style="margin-bottom: 8px; color: #333; font-weight: 500">服务开始时间</div>
+              <div style="margin-bottom: 8px; color: #333; font-weight: 500">服务开始时间 *</div>
               <NDatePicker v-model:value="formData.serviceStartTime" type="datetime" style="width: 100%" />
             </div>
             <div>
-              <div style="margin-bottom: 8px; color: #333; font-weight: 500">服务结束时间</div>
+              <div style="margin-bottom: 8px; color: #333; font-weight: 500">服务结束时间 *</div>
               <NDatePicker v-model:value="formData.serviceEndTime" type="datetime" style="width: 100%" />
             </div>
           </div>
@@ -993,7 +1030,7 @@ onMounted(async () => {
           </div>
           <div style="margin-top: 16px">
             <div style="margin-bottom: 8px; color: #333; font-weight: 500">
-              服务照片
+              服务照片 *
               <span style="color: #999; font-weight: normal">
                 ({{ formData.servicePhotos.length }}/{{ MAX_IMAGE_COUNT }})
               </span>

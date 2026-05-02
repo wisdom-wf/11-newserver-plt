@@ -59,7 +59,7 @@ export function fetchDeleteStaff(id: string) {
 export function fetchBatchDeleteStaff(ids: string[]) {
   return request({
     url: '/api/staff/batch',
-    method: 'delete',
+    method: 'post',
     data: ids
   });
 }

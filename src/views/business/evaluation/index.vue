@@ -36,7 +36,8 @@ import {
   fetchCreateEvaluation,
   fetchGetQualityCheckByOrderId,
   fetchGenerateEvaluationLink,
-  fetchInvalidateInvite
+  fetchInvalidateInvite,
+  fetchBatchDeleteEvaluation
 } from '@/service/api';
 import { useNaivePaginatedTable, defaultTransform } from '@/hooks/common/table';
 import { useAuth } from '@/hooks/business/auth';
@@ -324,6 +325,7 @@ function getSatisfactionLabel(level: string): string {
 }
 
 const columns: DataTableColumns<any> = [
+  { type: 'selection' },
   { title: '评价编号', key: 'evaluationId', width: 160 },
   { title: '订单号', key: 'orderId', width: 160 },
   {
@@ -454,6 +456,21 @@ function handleResetSearch() {
   getDataByPage(1);
 }
 
+async function handleBatchDelete() {
+  if (!checkedRowKeys.value.length) return;
+  try {
+    await fetchBatchDeleteEvaluation(checkedRowKeys.value.map(String));
+    message.success('批量删除成功');
+    checkedRowKeys.value = [];
+    await getData();
+    await getStatistics();
+  } catch (e: any) {
+    console.error('Batch delete error:', e);
+    const errMsg = e?.message || e?.response?.data?.message || '批量删除失败';
+    message.error(errMsg);
+  }
+}
+
 onMounted(() => {
   // 接收质检详情跳转来的订单编号，自动搜索并打开新建评价对话框
   if (route.query.orderNo) {
@@ -540,9 +557,11 @@ onMounted(() => {
       </div>
       <TableHeaderOperation
         v-model:columns="columnChecks"
+        :disabled-delete="checkedRowKeys.length === 0"
         :loading="loading"
         @add="openCreateDialog"
         @refresh="getData"
+        @delete="handleBatchDelete"
       />
       <NDataTable
         :columns="columns"
@@ -550,6 +569,7 @@ onMounted(() => {
         :loading="loading"
         :scroll-x="1200"
         :row-key="(row: any) => row.evaluationId"
+        v-model:checked-row-keys="checkedRowKeys"
         remote
         :pagination="mobilePagination"
       />

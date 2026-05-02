@@ -155,7 +155,7 @@ export function fetchGetProviderAdminAccount(providerId: string) {
 export function fetchBatchDeleteProvider(ids: string[]) {
   return request({
     url: '/api/providers/batch',
-    method: 'delete',
+    method: 'post',
     data: ids
   });
 }

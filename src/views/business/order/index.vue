@@ -41,7 +41,8 @@ import {
   fetchGetServiceLogByOrderId,
   fetchGetEvaluationByOrderId,
   fetchGetQualityCheckByOrderId,
-  fetchCreateEvaluation
+  fetchCreateEvaluation,
+  fetchBatchDeleteOrder
 } from '@/service/api';
 import { useRouterPush } from '@/hooks/common/router';
 import { useNaivePaginatedTable, defaultTransform } from '@/hooks/common/table';
@@ -113,7 +114,8 @@ const statusOptions = [
   { label: '已评价', value: 'EVALUATED' },
   { label: '已结算', value: 'SETTLED' },
   { label: '已取消', value: 'CANCELLED' },
-  { label: '已拒单', value: 'REJECTED' }
+  { label: '已拒单', value: 'REJECTED' },
+  { label: '已完成', value: 'COMPLETED' }
 ];
 
 async function getProviderOptions() {
@@ -140,7 +142,8 @@ function getStatusType(status: string): 'warning' | 'success' | 'info' | 'error'
     EVALUATED: 'success',
     SETTLED: 'success',
     CANCELLED: 'error',
-    REJECTED: 'error'
+    REJECTED: 'error',
+    COMPLETED: 'success'
   };
   return map[status] || 'default';
 }
@@ -345,6 +348,7 @@ function formatServiceTime(serviceDate: string | undefined, serviceTime: string 
 
 // Table columns
 const columns: DataTableColumns<Api.Order.Order> = [
+  { type: 'selection' },
   { title: '订单号', key: 'orderNo', width: 160 },
   {
     title: '客户姓名',
@@ -783,6 +787,21 @@ async function handleDelete(row: Api.Order.Order) {
   }
 }
 
+async function handleBatchDelete() {
+  if (!checkedRowKeys.value.length) return;
+  try {
+    await fetchBatchDeleteOrder(checkedRowKeys.value);
+    message.success('批量删除成功');
+    checkedRowKeys.value = [];
+    await getData();
+    await getStatistics();
+  } catch (e: any) {
+    console.error('Batch delete error:', e);
+    const errMsg = e?.message || e?.response?.data?.message || '批量删除失败';
+    message.error(errMsg);
+  }
+}
+
 function handleCancel(row: Api.Order.Order) {
   currentOrderId.value = row.orderId;
   cancelForm.value = { reason: '' };
@@ -1015,6 +1034,10 @@ async function handleCreateEvaluation() {
 }
 
 onMounted(() => {
+  // 接收从其他页面跳转过来的过滤参数
+  if (route.query.orderNo) {
+    searchOrderNo.value = route.query.orderNo as string;
+  }
   if (route.query.elderName) {
     searchElderName.value = route.query.elderName as string;
   }
@@ -1190,6 +1213,7 @@ onMounted(() => {
         :loading="loading"
         @add="handleAdd"
         @refresh="getData"
+        @delete="handleBatchDelete"
       />
 
       <NDataTable

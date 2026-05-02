@@ -134,3 +134,14 @@ export function fetchInvalidateInvite(token: string) {
     method: 'put'
   });
 }
+
+/**
+ * 批量删除评价
+ */
+export function fetchBatchDeleteEvaluation(ids: string[]) {
+  return request({
+    url: '/api/evaluations/batch',
+    method: 'post',
+    data: ids
+  });
+}

@@ -17,6 +17,23 @@ export function fetchLogin(userName: string, password: string) {
   });
 }
 
+/**
+ * 手机号验证码登录（仅服务人员）
+ * @param phone 手机号
+ * @param captcha 验证码
+ */
+export function fetchPhoneLogin(phone: string, captcha: string) {
+  return request<Api.Auth.LoginToken>({
+    url: '/api/auth/phone-login',
+    method: 'post',
+    data: {
+      phone,
+      captcha,
+      captchaKey: 'PHONE_LOGIN'
+    }
+  });
+}
+
 /** Get user info */
 export function fetchGetUserInfo() {
   return request<Api.Auth.UserInfo>({ url: '/api/auth/userinfo' });

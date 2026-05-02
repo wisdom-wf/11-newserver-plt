@@ -132,3 +132,14 @@ export function fetchGetAppointmentTimeline(id: string) {
     method: 'get'
   });
 }
+
+/**
+ * 批量删除预约
+ */
+export function fetchBatchDeleteAppointment(ids: string[]) {
+  return request({
+    url: '/api/appointment/batch',
+    method: 'post',
+    data: ids
+  });
+}

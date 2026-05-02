@@ -133,6 +133,17 @@ export function fetchDeleteOrder(orderId: string) {
 }
 
 /**
+ * 批量删除订单
+ */
+export function fetchBatchDeleteOrder(ids: string[]) {
+  return request({
+    url: '/api/orders/batch',
+    method: 'post',
+    data: ids
+  });
+}
+
+/**
  * 获取订单统计
  */
 export function fetchGetOrderStatistics() {

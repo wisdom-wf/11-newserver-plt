@@ -598,6 +598,7 @@ onMounted(async () => {
         :loading="loading"
         :scroll-x="1400"
         :row-key="(row: Api.Staff.Staff) => row.staffId"
+        v-model:checked-row-keys="checkedRowKeys"
         remote
         :pagination="mobilePagination"
       />

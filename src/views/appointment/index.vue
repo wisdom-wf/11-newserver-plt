@@ -34,7 +34,8 @@ import {
   fetchGetProviderOptions,
   fetchGetAppointmentTimeline,
   fetchGetProviderCertificates,
-  fetchGetAppointment
+  fetchGetAppointment,
+  fetchBatchDeleteAppointment
 } from '@/service/api';
 import { useRouterPush } from '@/hooks/common/router';
 import { useNaivePaginatedTable, useTableOperate, defaultTransform } from '@/hooks/common/table';
@@ -127,6 +128,7 @@ function getStatusLabel(status: string): string {
 
 // Table columns
 const columns: DataTableColumns<Api.Appointment.Appointment> = [
+  { type: 'selection' },
   { title: '预约单号', key: 'appointmentNo', width: 160 },
   { title: '客户姓名', key: 'elderName', width: 100 },
   { title: '客户手机号', key: 'elderPhone', width: 130 },
@@ -274,6 +276,21 @@ async function handleAddSubmit() {
 // Confirm modal
 const confirmModalVisible = ref(false);
 const confirmForm = ref({ providerId: '', appointmentTime: '' });
+
+async function handleBatchDelete() {
+  if (!checkedRowKeys.value.length) return;
+  try {
+    await fetchBatchDeleteAppointment(checkedRowKeys.value);
+    message.success('批量删除成功');
+    checkedRowKeys.value = [];
+    await getData();
+    await getStatistics();
+  } catch (e: any) {
+    console.error('Batch delete error:', e);
+    const errMsg = e?.message || e?.response?.data?.message || '批量删除失败';
+    message.error(errMsg);
+  }
+}
 
 // Provider credentials drawer
 const credentialsDrawerVisible = ref(false);
@@ -644,6 +661,7 @@ onMounted(async () => {
         :loading="loading"
         @add="handleAdd"
         @refresh="getData"
+        @delete="handleBatchDelete"
       />
 
       <NDataTable
@@ -652,6 +670,7 @@ onMounted(async () => {
         :loading="loading"
         :scroll-x="1400"
         :row-key="(row: Api.Appointment.Appointment) => row.appointmentId"
+        v-model:checked-row-keys="checkedRowKeys"
         remote
         :pagination="mobilePagination"
       />

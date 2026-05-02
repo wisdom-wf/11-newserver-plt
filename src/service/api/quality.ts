@@ -122,3 +122,14 @@ export function fetchGetQualityStatistics(params?: {
     params
   });
 }
+
+/**
+ * 批量删除质检
+ */
+export function fetchBatchDeleteQualityCheck(ids: string[]) {
+  return request({
+    url: '/api/quality-check/batch',
+    method: 'post',
+    data: ids
+  });
+}

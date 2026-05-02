@@ -52,20 +52,14 @@ const accounts = computed<Account[]>(() => [
   {
     key: 'super',
     label: $t('page.login.pwdLogin.superAdmin'),
-    userName: 'Super',
-    password: '123456'
+    userName: 'admin',
+    password: 'admin123'
   },
   {
-    key: 'admin',
-    label: $t('page.login.pwdLogin.admin'),
-    userName: 'Admin',
-    password: '123456'
-  },
-  {
-    key: 'user',
-    label: $t('page.login.pwdLogin.user'),
-    userName: 'User',
-    password: '123456'
+    key: 'provider',
+    label: '服务商管理员',
+    userName: 'FWS1',
+    password: 'admin123'
   }
 ]);
 

@@ -34,7 +34,9 @@ import {
   fetchSubmitRectify,
   fetchRecheck,
   fetchCreateQualityCheck,
-  fetchInspect
+  fetchInspect,
+  fetchGetServiceLog,
+  fetchBatchDeleteQualityCheck
 } from '@/service/api';
 import { useNaivePaginatedTable, defaultTransform } from '@/hooks/common/table';
 import { useAuth } from '@/hooks/business/auth';
@@ -130,6 +132,7 @@ async function showStaffDetail(row: Api.Quality.QualityCheck) {
 // Quality check detail drawer
 const qualityDetailDrawerVisible = ref(false);
 const qualityDetailData = ref<Api.Quality.QualityCheck | null>(null);
+const serviceLogDetail = ref<Api.ServiceLog.ServiceLog | null>(null);
 
 async function showQualityDetail(row: Api.Quality.QualityCheck) {
   try {
@@ -140,6 +143,13 @@ async function showQualityDetail(row: Api.Quality.QualityCheck) {
     }
     if (data) {
       qualityDetailData.value = data;
+      // 获取关联的服务日志详情
+      if (data.serviceLogId) {
+        const { data: logData } = await fetchGetServiceLog(data.serviceLogId);
+        serviceLogDetail.value = logData || null;
+      } else {
+        serviceLogDetail.value = null;
+      }
       qualityDetailDrawerVisible.value = true;
     }
   } catch (e) {
@@ -166,7 +176,14 @@ function openCreateDialog() {
 }
 
 function goToCompleteService(row: Api.Quality.QualityCheck) {
-  router.push({ path: '/business/order', query: { orderNo: row.orderNo || '' } });
+  router.push({
+    path: '/business/order',
+    query: {
+      orderNo: row.orderNo || '',
+      staffId: row.staffId || '',
+      staffName: row.staffName || ''
+    }
+  });
 }
 
 async function handleCreateSubmit() {
@@ -378,6 +395,7 @@ function getCheckMethodLabel(checkMethod: string): string {
 }
 
 const columns: DataTableColumns<Api.Quality.QualityCheck> = [
+  { type: 'selection' },
   { title: '质检编号', key: 'checkNo', width: 160 },
   { title: '订单号', key: 'orderNo', width: 160 },
   { title: '服务商', key: 'providerName', width: 150 },
@@ -525,6 +543,9 @@ const {
 // Ensure columnChecks is always an array (writable ref for v-model)
 const columnChecks = ref<Array<{ prop: string; label: string; checked: boolean }>>([]);
 
+// Table checked row keys
+const checkedRowKeys = ref<string[]>([]);
+
 // Watch rawColumnChecks and sync to columnChecks
 watch(
   () => rawColumnChecks.value,
@@ -545,14 +566,30 @@ function handleResetSearch() {
   getDataByPage(1);
 }
 
+async function handleBatchDelete() {
+  if (!checkedRowKeys.value.length) return;
+  try {
+    await fetchBatchDeleteQualityCheck(checkedRowKeys.value);
+    message.success('批量删除成功');
+    checkedRowKeys.value = [];
+    await getData();
+    await getStatistics();
+  } catch (e: any) {
+    console.error('Batch delete error:', e);
+    const errMsg = e?.message || e?.response?.data?.message || '批量删除失败';
+    message.error(errMsg);
+  }
+}
+
 onMounted(async () => {
   // 接收服务日志跳转来的订单号参数
   if (route.query.orderNo) {
     searchOrderNo.value = String(route.query.orderNo);
   }
-  // 接收服务日志跳转来的serviceLogId（预填创建表单）
+  // 接收服务日志跳转来的serviceLogId（预填创建表单并自动打开创建对话框）
   if (route.query.serviceLogId) {
     createForm.value.serviceLogId = String(route.query.serviceLogId);
+    createDialogVisible.value = true;
   }
   // 接收质检详情跳转参数（订单详情→质检详情），直接打开该质检详情抽屉
   if (route.query.qcId) {
@@ -640,9 +677,11 @@ onMounted(async () => {
 
       <TableHeaderOperation
         v-model:columns="columnChecks"
+        :disabled-delete="checkedRowKeys.length === 0"
         :loading="loading"
         @add="openCreateDialog"
         @refresh="getData"
+        @delete="handleBatchDelete"
       />
 
       <NDataTable
@@ -651,6 +690,7 @@ onMounted(async () => {
         :loading="loading"
         :scroll-x="1400"
         :row-key="(row: Api.Quality.QualityCheck) => row.qualityCheckId"
+        v-model:checked-row-keys="checkedRowKeys"
         remote
         :pagination="mobilePagination"
       />
@@ -682,6 +722,36 @@ onMounted(async () => {
           <NFormItem label="服务商">{{ qualityDetailData.providerName || '-' }}</NFormItem>
           <NFormItem label="服务人员">{{ qualityDetailData.staffName || '-' }}</NFormItem>
           <NFormItem label="服务类别">{{ qualityDetailData.serviceCategory || '-' }}</NFormItem>
+
+          <!-- 服务日志信息 -->
+          <NDivider>服务日志信息</NDivider>
+          <NFormItem label="服务日期">{{ serviceLogDetail?.serviceDate || '-' }}</NFormItem>
+          <NFormItem label="服务开始时间">{{ serviceLogDetail?.serviceStartTime || '-' }}</NFormItem>
+          <NFormItem label="服务结束时间">{{ serviceLogDetail?.serviceEndTime || '-' }}</NFormItem>
+          <NFormItem label="服务时长">{{ serviceLogDetail?.serviceDuration ? serviceLogDetail.serviceDuration + '分钟' : '-' }}</NFormItem>
+          <NFormItem label="服务内容">{{ serviceLogDetail?.serviceContent || '-' }}</NFormItem>
+          <NFormItem label="健康观察">{{ serviceLogDetail?.healthObservations || '-' }}</NFormItem>
+          <NFormItem label="给药记录">{{ serviceLogDetail?.medicationGiven || '-' }}</NFormItem>
+          <NFormItem label="服务照片" v-if="serviceLogDetail?.servicePhotoList && serviceLogDetail.servicePhotoList.length">
+            <NImageGroup>
+              <NSpace>
+                <template v-for="photo in serviceLogDetail.servicePhotoList" :key="photo">
+                  <NImage :src="photo" width="80" height="80" object-fit="cover" style="border-radius: 4px; border: 1px solid #e6e6e6" />
+                </template>
+              </NSpace>
+            </NImageGroup>
+          </NFormItem>
+          <NFormItem label="服务照片" v-else-if="serviceLogDetail?.servicePhotos">
+            <NImageGroup>
+              <NSpace>
+                <template v-for="photo in (Array.isArray(serviceLogDetail.servicePhotos) ? serviceLogDetail.servicePhotos : String(serviceLogDetail.servicePhotos).split(','))" :key="photo">
+                  <NImage :src="photo" width="80" height="80" object-fit="cover" style="border-radius: 4px; border: 1px solid #e6e6e6" />
+                </template>
+              </NSpace>
+            </NImageGroup>
+          </NFormItem>
+          <NFormItem label="服务照片" v-else>-</NFormItem>
+
           <NFormItem label="质检类型">{{ getCheckTypeLabel(qualityDetailData.checkType) }}</NFormItem>
           <NFormItem label="质检方式">{{ getCheckMethodLabel(qualityDetailData.checkMethod) }}</NFormItem>
           <NFormItem label="综合评分">{{ qualityDetailData.checkScore }}分</NFormItem>
