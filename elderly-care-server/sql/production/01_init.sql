@@ -867,8 +867,9 @@ CREATE TABLE IF NOT EXISTS t_area (
 -- ============================================
 
 -- 插入超级管理员用户 (密码: admin123)
+-- BCrypt hash: $2a$10$2h94k8/s28IpiH.aDBOl4eq7e74PuG17jLnvJJrBNe58cmqhkNF5C
 INSERT INTO t_user (user_id, username, password, real_name, phone, user_type, status) VALUES
-('U001', 'admin', '$2a$10$N.zmdr9k7uOCQb376NoUnuTJ8iAt6Z5EHsM8lE9lBOsl7iAt6Z5EH', '系统管理员', '13800138000', 'SYSTEM', 'NORMAL');
+('U001', 'admin', '$2a$10$2h94k8/s28IpiH.aDBOl4eq7e74PuG17jLnvJJrBNe58cmqhkNF5C', '系统管理员', '13800138000', 'SYSTEM', 'NORMAL');
 
 -- 插入角色
 INSERT INTO t_role (role_id, role_code, role_name, role_desc, role_type, data_scope, sort_order, status) VALUES
