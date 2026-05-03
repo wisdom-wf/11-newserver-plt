@@ -8,6 +8,7 @@
 -- 1. 01_init.sql        -- 创建数据库、表结构、基础数据
 -- 2. 02_area_data.sql   -- 导入区域数据（延安市）
 -- 3. 03_menu_permissions.sql  -- 初始化菜单和角色菜单关联
+-- 4. 04_permissions.sql -- 初始化权限和角色权限关联
 -- =============================================
 
 -- 二、执行命令
@@ -16,11 +17,13 @@
 -- mysql -uroot -p --default-character-set=utf8mb4 < 01_init.sql
 -- mysql -uroot -p --default-character-set=utf8mb4 < 02_area_data.sql
 -- mysql -uroot -p --default-character-set=utf8mb4 < 03_menu_permissions.sql
+-- mysql -uroot -p --default-character-set=utf8mb4 < 04_permissions.sql
 --
 -- 方法2: source命令
 -- SOURCE 01_init.sql;
 -- SOURCE 02_area_data.sql;
 -- SOURCE 03_menu_permissions.sql;
+-- SOURCE 04_permissions.sql;
 -- =============================================
 
 -- 三、初始化内容说明
@@ -47,7 +50,15 @@
 -- =============================================
 -- 超级管理员: admin / admin123
 -- 用户类型: SYSTEM
--- 拥有所有权限
+-- 拥有所有权限（在 04_permissions.sql 中分配）
+-- =============================================
+
+-- 五、初始化流程说明
+-- =============================================
+-- 04_permissions.sql 包含:
+--   - 权限表数据 (系统管理、服务商、服务人员、老人、订单等模块权限)
+--   - 角色权限关联 (超级管理员拥有所有权限)
+--   - 管理员角色分配 (admin 用户关联超级管理员角色)
 -- =============================================
 
 -- 五、注意事项

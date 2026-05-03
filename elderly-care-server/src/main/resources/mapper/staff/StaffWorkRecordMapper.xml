@@ -3,30 +3,23 @@
 <mapper namespace="com.elderlycare.mapper.staff.StaffWorkRecordMapper">
 
     <resultMap id="BaseResultMap" type="com.elderlycare.entity.staff.StaffWorkRecord">
-        <id column="record_id" property="recordId"/>
+        <id column="work_record_id" property="recordId"/>
         <result column="staff_id" property="staffId"/>
-        <result column="schedule_id" property="scheduleId"/>
         <result column="order_id" property="orderId"/>
+        <result column="elder_id" property="elderId"/>
+        <result column="service_date" property="serviceDate"/>
         <result column="check_in_time" property="checkInTime"/>
-        <result column="check_in_latitude" property="checkInLatitude"/>
-        <result column="check_in_longitude" property="checkInLongitude"/>
-        <result column="check_in_address" property="checkInAddress"/>
-        <result column="check_in_device" property="checkInDevice"/>
         <result column="check_out_time" property="checkOutTime"/>
-        <result column="check_out_latitude" property="checkOutLatitude"/>
-        <result column="check_out_longitude" property="checkOutLongitude"/>
-        <result column="check_out_address" property="checkOutAddress"/>
-        <result column="check_out_device" property="checkOutDevice"/>
-        <result column="work_duration" property="workDuration"/>
-        <result column="check_in_status" property="checkInStatus"/>
-        <result column="check_out_status" property="checkOutStatus"/>
-        <result column="status" property="status"/>
+        <result column="service_duration" property="serviceDuration"/>
+        <result column="check_in_location" property="checkInLocation"/>
+        <result column="check_out_location" property="checkOutLocation"/>
+        <result column="service_photos" property="servicePhotos"/>
+        <result column="service_log" property="serviceLog"/>
+        <result column="abnormal_situation" property="abnormalSituation"/>
+        <result column="elder_signature" property="elderSignature"/>
+        <result column="service_status" property="serviceStatus"/>
         <result column="deleted" property="deleted"/>
-        <result column="create_by" property="createBy"/>
         <result column="create_time" property="createTime"/>
-        <result column="update_by" property="updateBy"/>
-        <result column="update_time" property="updateTime"/>
-        <result column="remark" property="remark"/>
     </resultMap>
 
     <select id="selectWorkRecordPage" resultMap="BaseResultMap">

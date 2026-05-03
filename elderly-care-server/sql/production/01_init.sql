@@ -174,6 +174,8 @@ CREATE TABLE IF NOT EXISTS t_provider (
     audit_comment VARCHAR(500) COMMENT '审核备注',
     audit_time DATETIME COMMENT '审核时间',
     auditor_id VARCHAR(32) COMMENT '审核人ID',
+    rating DECIMAL(3,2) DEFAULT 0 COMMENT '评分',
+    rating_count INT DEFAULT 0 COMMENT '评价次数',
     tenant_id VARCHAR(32) COMMENT '租户ID',
     create_time DATETIME DEFAULT CURRENT_TIMESTAMP,
     update_time DATETIME DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,

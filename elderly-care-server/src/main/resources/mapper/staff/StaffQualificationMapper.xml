@@ -7,11 +7,11 @@
         <result column="staff_id" property="staffId"/>
         <result column="qualification_type" property="qualificationType"/>
         <result column="qualification_name" property="qualificationName"/>
-        <result column="qualification_no" property="qualificationNo"/>
-        <result column="issuing_authority" property="issuingAuthority"/>
+        <result column="qualification_number" property="qualificationNo"/>
+        <result column="issue_organization" property="issuingAuthority"/>
         <result column="issue_date" property="issueDate"/>
         <result column="expire_date" property="expireDate"/>
-        <result column="certificate_urls" property="certificateUrls"/>
+        <result column="attachment_url" property="certificateUrls"/>
         <result column="status" property="status"/>
         <result column="deleted" property="deleted"/>
         <result column="create_by" property="createBy"/>

@@ -12,7 +12,6 @@
         <result column="check_in_location" property="checkInLocation"/>
         <result column="check_out_location" property="checkOutLocation"/>
         <result column="service_photos" property="servicePhotos"/>
-        <result column="service_video" property="serviceVideo"/>
         <result column="service_log" property="serviceLog"/>
         <result column="abnormal_situation" property="abnormalSituation"/>
         <result column="elder_signature" property="elderSignature"/>
