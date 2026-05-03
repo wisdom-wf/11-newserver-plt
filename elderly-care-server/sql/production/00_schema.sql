@@ -1,5 +1,17 @@
 
+/*!40101 SET @OLD_CHARACTER_SET_CLIENT=@@CHARACTER_SET_CLIENT */;
+/*!40101 SET @OLD_CHARACTER_SET_RESULTS=@@CHARACTER_SET_RESULTS */;
+/*!40101 SET @OLD_COLLATION_CONNECTION=@@COLLATION_CONNECTION */;
+/*!50503 SET NAMES utf8mb4 */;
+/*!40103 SET @OLD_TIME_ZONE=@@TIME_ZONE */;
+/*!40103 SET TIME_ZONE='+00:00' */;
+/*!40014 SET @OLD_UNIQUE_CHECKS=@@UNIQUE_CHECKS, UNIQUE_CHECKS=0 */;
+/*!40014 SET @OLD_FOREIGN_KEY_CHECKS=@@FOREIGN_KEY_CHECKS, FOREIGN_KEY_CHECKS=0 */;
+/*!40101 SET @OLD_SQL_MODE=@@SQL_MODE, SQL_MODE='NO_AUTO_VALUE_ON_ZERO' */;
+/*!40111 SET @OLD_SQL_NOTES=@@SQL_NOTES, SQL_NOTES=0 */;
 DROP TABLE IF EXISTS `appointment`;
+/*!40101 SET @saved_cs_client     = @@character_set_client */;
+/*!50503 SET character_set_client = utf8mb4 */;
 CREATE TABLE `appointment` (
   `appointment_id` varchar(64) NOT NULL COMMENT '预约ID',
   `appointment_no` varchar(64) DEFAULT NULL COMMENT '预约单号',
@@ -35,7 +47,10 @@ CREATE TABLE `appointment` (
   KEY `idx_elder_phone` (`elder_phone`),
   KEY `idx_status` (`status`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci COMMENT='预约管理表';
+/*!40101 SET character_set_client = @saved_cs_client */;
 DROP TABLE IF EXISTS `quality_check`;
+/*!40101 SET @saved_cs_client     = @@character_set_client */;
+/*!50503 SET character_set_client = utf8mb4 */;
 CREATE TABLE `quality_check` (
   `quality_check_id` varchar(64) NOT NULL COMMENT '质检ID',
   `check_no` varchar(64) DEFAULT NULL COMMENT '质检编号',
@@ -72,7 +87,10 @@ CREATE TABLE `quality_check` (
   KEY `idx_provider_id` (`provider_id`),
   KEY `idx_check_result` (`check_result`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci COMMENT='服务质检表';
+/*!40101 SET character_set_client = @saved_cs_client */;
 DROP TABLE IF EXISTS `service_log`;
+/*!40101 SET @saved_cs_client     = @@character_set_client */;
+/*!50503 SET character_set_client = utf8mb4 */;
 CREATE TABLE `service_log` (
   `service_log_id` varchar(64) NOT NULL COMMENT '服务日志ID',
   `log_no` varchar(64) DEFAULT NULL COMMENT '服务日志编号',
@@ -114,13 +132,22 @@ CREATE TABLE `service_log` (
   `review_comment` varchar(500) DEFAULT NULL COMMENT '审核意见',
   `audit_status` varchar(20) DEFAULT NULL COMMENT '审核状态',
   `health_observations` text COMMENT '健康观察',
+  `medication_given` text COMMENT '给药记录',
+  `departure_time` datetime DEFAULT NULL COMMENT '出发时间',
+  `sign_in_location` varchar(200) DEFAULT NULL COMMENT '签到位置',
+  `sign_in_photos` text COMMENT '签到照片',
+  `sign_out_location` varchar(200) DEFAULT NULL COMMENT '签退位置',
+  `sign_out_photos` text COMMENT '签退照片',
   PRIMARY KEY (`service_log_id`),
   KEY `idx_order_id` (`order_id`),
   KEY `idx_staff_id` (`staff_id`),
   KEY `idx_provider_id` (`provider_id`),
   KEY `idx_service_date` (`service_date`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci COMMENT='服务日志表';
+/*!40101 SET character_set_client = @saved_cs_client */;
 DROP TABLE IF EXISTS `t_area`;
+/*!40101 SET @saved_cs_client     = @@character_set_client */;
+/*!50503 SET character_set_client = utf8mb4 */;
 CREATE TABLE `t_area` (
   `area_id` varchar(32) NOT NULL COMMENT '区域ID',
   `area_code` varchar(50) NOT NULL COMMENT '区域编码',
@@ -139,7 +166,10 @@ CREATE TABLE `t_area` (
   KEY `idx_parent` (`parent_id`),
   KEY `idx_area_code` (`area_code`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci COMMENT='区域表';
+/*!40101 SET character_set_client = @saved_cs_client */;
 DROP TABLE IF EXISTS `t_customer_feedback`;
+/*!40101 SET @saved_cs_client     = @@character_set_client */;
+/*!50503 SET character_set_client = utf8mb4 */;
 CREATE TABLE `t_customer_feedback` (
   `feedback_id` varchar(32) NOT NULL COMMENT '反馈ID',
   `elder_id` varchar(32) DEFAULT NULL COMMENT '老人ID',
@@ -161,7 +191,10 @@ CREATE TABLE `t_customer_feedback` (
   KEY `idx_feedback_type` (`feedback_type`),
   KEY `idx_handling_status` (`handling_status`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci COMMENT='客户反馈表';
+/*!40101 SET character_set_client = @saved_cs_client */;
 DROP TABLE IF EXISTS `t_dict_item`;
+/*!40101 SET @saved_cs_client     = @@character_set_client */;
+/*!50503 SET character_set_client = utf8mb4 */;
 CREATE TABLE `t_dict_item` (
   `dict_item_id` varchar(32) NOT NULL,
   `dict_type_id` varchar(32) NOT NULL COMMENT '字典类型ID',
@@ -176,7 +209,10 @@ CREATE TABLE `t_dict_item` (
   PRIMARY KEY (`dict_item_id`),
   KEY `idx_dict_type` (`dict_type_id`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci COMMENT='数据字典项表';
+/*!40101 SET character_set_client = @saved_cs_client */;
 DROP TABLE IF EXISTS `t_dict_type`;
+/*!40101 SET @saved_cs_client     = @@character_set_client */;
+/*!50503 SET character_set_client = utf8mb4 */;
 CREATE TABLE `t_dict_type` (
   `dict_type_id` varchar(32) NOT NULL COMMENT '字典类型ID',
   `dict_type_code` varchar(50) NOT NULL COMMENT '字典类型编码',
@@ -192,7 +228,10 @@ CREATE TABLE `t_dict_type` (
   UNIQUE KEY `dict_type_code` (`dict_type_code`),
   KEY `idx_dict_type_code` (`dict_type_code`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci COMMENT='数据字典类型表';
+/*!40101 SET character_set_client = @saved_cs_client */;
 DROP TABLE IF EXISTS `t_elder`;
+/*!40101 SET @saved_cs_client     = @@character_set_client */;
+/*!50503 SET character_set_client = utf8mb4 */;
 CREATE TABLE `t_elder` (
   `elder_id` varchar(32) NOT NULL COMMENT '老人ID',
   `elder_no` varchar(50) DEFAULT NULL COMMENT '老人编号',
@@ -233,7 +272,10 @@ CREATE TABLE `t_elder` (
   KEY `idx_area` (`area_id`),
   KEY `idx_status` (`status`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci COMMENT='老人基本信息表';
+/*!40101 SET character_set_client = @saved_cs_client */;
 DROP TABLE IF EXISTS `t_elder_demand`;
+/*!40101 SET @saved_cs_client     = @@character_set_client */;
+/*!50503 SET character_set_client = utf8mb4 */;
 CREATE TABLE `t_elder_demand` (
   `demand_id` varchar(32) NOT NULL,
   `elder_id` varchar(32) NOT NULL COMMENT '老人ID',
@@ -252,7 +294,10 @@ CREATE TABLE `t_elder_demand` (
   KEY `idx_elder` (`elder_id`),
   KEY `idx_service_type` (`service_type_code`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci COMMENT='老人服务需求表';
+/*!40101 SET character_set_client = @saved_cs_client */;
 DROP TABLE IF EXISTS `t_elder_family`;
+/*!40101 SET @saved_cs_client     = @@character_set_client */;
+/*!50503 SET character_set_client = utf8mb4 */;
 CREATE TABLE `t_elder_family` (
   `family_id` varchar(32) NOT NULL,
   `elder_id` varchar(32) NOT NULL COMMENT '老人ID',
@@ -267,7 +312,10 @@ CREATE TABLE `t_elder_family` (
   PRIMARY KEY (`family_id`),
   KEY `idx_elder` (`elder_id`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci COMMENT='老人家庭信息表';
+/*!40101 SET character_set_client = @saved_cs_client */;
 DROP TABLE IF EXISTS `t_elder_health`;
+/*!40101 SET @saved_cs_client     = @@character_set_client */;
+/*!50503 SET character_set_client = utf8mb4 */;
 CREATE TABLE `t_elder_health` (
   `health_id` varchar(32) NOT NULL,
   `elder_id` varchar(32) NOT NULL COMMENT '老人ID',
@@ -290,7 +338,10 @@ CREATE TABLE `t_elder_health` (
   PRIMARY KEY (`health_id`),
   UNIQUE KEY `uk_elder` (`elder_id`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci COMMENT='老人健康信息表';
+/*!40101 SET character_set_client = @saved_cs_client */;
 DROP TABLE IF EXISTS `t_elder_subsidy`;
+/*!40101 SET @saved_cs_client     = @@character_set_client */;
+/*!50503 SET character_set_client = utf8mb4 */;
 CREATE TABLE `t_elder_subsidy` (
   `subsidy_id` varchar(32) NOT NULL,
   `elder_id` varchar(32) NOT NULL COMMENT '老人ID',
@@ -312,7 +363,10 @@ CREATE TABLE `t_elder_subsidy` (
   KEY `idx_subsidy_type` (`subsidy_type`),
   KEY `idx_status` (`subsidy_status`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci COMMENT='老人补贴表';
+/*!40101 SET character_set_client = @saved_cs_client */;
 DROP TABLE IF EXISTS `t_login_log`;
+/*!40101 SET @saved_cs_client     = @@character_set_client */;
+/*!50503 SET character_set_client = utf8mb4 */;
 CREATE TABLE `t_login_log` (
   `login_log_id` varchar(32) NOT NULL,
   `user_id` varchar(32) DEFAULT NULL COMMENT '用户ID',
@@ -328,7 +382,10 @@ CREATE TABLE `t_login_log` (
   KEY `idx_user` (`user_id`),
   KEY `idx_login_time` (`login_time`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci COMMENT='登录日志表';
+/*!40101 SET character_set_client = @saved_cs_client */;
 DROP TABLE IF EXISTS `t_menu`;
+/*!40101 SET @saved_cs_client     = @@character_set_client */;
+/*!50503 SET character_set_client = utf8mb4 */;
 CREATE TABLE `t_menu` (
   `menu_id` varchar(64) NOT NULL COMMENT '菜单ID',
   `menu_code` varchar(128) NOT NULL COMMENT '菜单代码(路由name)',
@@ -349,7 +406,10 @@ CREATE TABLE `t_menu` (
   KEY `idx_parent_id` (`parent_id`),
   KEY `idx_status` (`status`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci COMMENT='菜单表';
+/*!40101 SET character_set_client = @saved_cs_client */;
 DROP TABLE IF EXISTS `t_operation_log`;
+/*!40101 SET @saved_cs_client     = @@character_set_client */;
+/*!50503 SET character_set_client = utf8mb4 */;
 CREATE TABLE `t_operation_log` (
   `operation_log_id` varchar(32) NOT NULL,
   `user_id` varchar(32) DEFAULT NULL COMMENT '用户ID',
@@ -368,7 +428,10 @@ CREATE TABLE `t_operation_log` (
   KEY `idx_user` (`user_id`),
   KEY `idx_operation_time` (`operation_time`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci COMMENT='操作日志表';
+/*!40101 SET character_set_client = @saved_cs_client */;
 DROP TABLE IF EXISTS `t_order`;
+/*!40101 SET @saved_cs_client     = @@character_set_client */;
+/*!50503 SET character_set_client = utf8mb4 */;
 CREATE TABLE `t_order` (
   `order_id` varchar(32) NOT NULL COMMENT '订单ID',
   `order_no` varchar(50) NOT NULL COMMENT '订单编号',
@@ -411,7 +474,10 @@ CREATE TABLE `t_order` (
   KEY `idx_provider` (`provider_id`),
   KEY `idx_staff` (`staff_id`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci COMMENT='订单表';
+/*!40101 SET character_set_client = @saved_cs_client */;
 DROP TABLE IF EXISTS `t_order_dispatch`;
+/*!40101 SET @saved_cs_client     = @@character_set_client */;
+/*!50503 SET character_set_client = utf8mb4 */;
 CREATE TABLE `t_order_dispatch` (
   `dispatch_id` varchar(32) NOT NULL,
   `order_id` varchar(32) NOT NULL COMMENT '订单ID',
@@ -430,7 +496,10 @@ CREATE TABLE `t_order_dispatch` (
   KEY `idx_staff` (`staff_id`),
   KEY `idx_status` (`dispatch_status`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci COMMENT='订单派单记录表';
+/*!40101 SET character_set_client = @saved_cs_client */;
 DROP TABLE IF EXISTS `t_permission`;
+/*!40101 SET @saved_cs_client     = @@character_set_client */;
+/*!50503 SET character_set_client = utf8mb4 */;
 CREATE TABLE `t_permission` (
   `permission_id` varchar(32) NOT NULL COMMENT '权限ID',
   `permission_code` varchar(100) NOT NULL COMMENT '权限编码',
@@ -449,7 +518,10 @@ CREATE TABLE `t_permission` (
   UNIQUE KEY `permission_code` (`permission_code`),
   KEY `idx_parent` (`parent_id`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci COMMENT='权限表';
+/*!40101 SET character_set_client = @saved_cs_client */;
 DROP TABLE IF EXISTS `t_provider`;
+/*!40101 SET @saved_cs_client     = @@character_set_client */;
+/*!50503 SET character_set_client = utf8mb4 */;
 CREATE TABLE `t_provider` (
   `provider_id` varchar(32) NOT NULL COMMENT '服务商ID',
   `provider_no` varchar(50) DEFAULT NULL COMMENT '服务商编号',
@@ -484,7 +556,10 @@ CREATE TABLE `t_provider` (
   KEY `idx_credit_code` (`credit_code`),
   KEY `idx_status` (`status`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci COMMENT='服务商信息表';
+/*!40101 SET character_set_client = @saved_cs_client */;
 DROP TABLE IF EXISTS `t_provider_qualification`;
+/*!40101 SET @saved_cs_client     = @@character_set_client */;
+/*!50503 SET character_set_client = utf8mb4 */;
 CREATE TABLE `t_provider_qualification` (
   `qualification_id` varchar(32) NOT NULL,
   `provider_id` varchar(32) NOT NULL COMMENT '服务商ID',
@@ -504,7 +579,10 @@ CREATE TABLE `t_provider_qualification` (
   KEY `idx_provider` (`provider_id`),
   KEY `idx_expiry` (`expiry_date`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci COMMENT='服务商资质表';
+/*!40101 SET character_set_client = @saved_cs_client */;
 DROP TABLE IF EXISTS `t_provider_service_type`;
+/*!40101 SET @saved_cs_client     = @@character_set_client */;
+/*!50503 SET character_set_client = utf8mb4 */;
 CREATE TABLE `t_provider_service_type` (
   `provider_service_id` varchar(32) NOT NULL,
   `provider_id` varchar(32) NOT NULL,
@@ -521,7 +599,10 @@ CREATE TABLE `t_provider_service_type` (
   KEY `idx_provider` (`provider_id`),
   KEY `idx_service_type` (`service_type_code`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci COMMENT='服务商服务类型表';
+/*!40101 SET character_set_client = @saved_cs_client */;
 DROP TABLE IF EXISTS `t_refund`;
+/*!40101 SET @saved_cs_client     = @@character_set_client */;
+/*!50503 SET character_set_client = utf8mb4 */;
 CREATE TABLE `t_refund` (
   `refund_id` varchar(32) NOT NULL COMMENT '退款ID',
   `refund_no` varchar(50) DEFAULT NULL COMMENT '退款编号',
@@ -541,7 +622,10 @@ CREATE TABLE `t_refund` (
   KEY `idx_order` (`order_id`),
   KEY `idx_status` (`refund_status`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci COMMENT='退款记录表';
+/*!40101 SET character_set_client = @saved_cs_client */;
 DROP TABLE IF EXISTS `t_role`;
+/*!40101 SET @saved_cs_client     = @@character_set_client */;
+/*!50503 SET character_set_client = utf8mb4 */;
 CREATE TABLE `t_role` (
   `role_id` varchar(32) NOT NULL COMMENT '角色ID',
   `role_code` varchar(50) NOT NULL COMMENT '角色编码',
@@ -559,7 +643,10 @@ CREATE TABLE `t_role` (
   UNIQUE KEY `role_code` (`role_code`),
   KEY `idx_role_code` (`role_code`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci COMMENT='角色表';
+/*!40101 SET character_set_client = @saved_cs_client */;
 DROP TABLE IF EXISTS `t_role_menu`;
+/*!40101 SET @saved_cs_client     = @@character_set_client */;
+/*!50503 SET character_set_client = utf8mb4 */;
 CREATE TABLE `t_role_menu` (
   `role_menu_id` varchar(64) NOT NULL COMMENT '主键',
   `role_id` varchar(64) NOT NULL COMMENT '角色ID',
@@ -570,7 +657,10 @@ CREATE TABLE `t_role_menu` (
   KEY `idx_role_id` (`role_id`),
   KEY `idx_menu_id` (`menu_id`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci COMMENT='角色菜单关联表';
+/*!40101 SET character_set_client = @saved_cs_client */;
 DROP TABLE IF EXISTS `t_role_permission`;
+/*!40101 SET @saved_cs_client     = @@character_set_client */;
+/*!50503 SET character_set_client = utf8mb4 */;
 CREATE TABLE `t_role_permission` (
   `role_permission_id` varchar(32) NOT NULL,
   `role_id` varchar(32) NOT NULL COMMENT '角色ID',
@@ -580,7 +670,10 @@ CREATE TABLE `t_role_permission` (
   KEY `idx_role` (`role_id`),
   KEY `idx_permission` (`permission_id`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci COMMENT='角色权限关联表';
+/*!40101 SET character_set_client = @saved_cs_client */;
 DROP TABLE IF EXISTS `t_service_evaluation`;
+/*!40101 SET @saved_cs_client     = @@character_set_client */;
+/*!50503 SET character_set_client = utf8mb4 */;
 CREATE TABLE `t_service_evaluation` (
   `evaluation_id` varchar(32) NOT NULL COMMENT '评价ID',
   `order_id` varchar(32) NOT NULL COMMENT '订单ID',
@@ -614,7 +707,10 @@ CREATE TABLE `t_service_evaluation` (
   KEY `idx_staff` (`staff_id`),
   KEY `idx_provider` (`provider_id`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci COMMENT='服务评价表';
+/*!40101 SET character_set_client = @saved_cs_client */;
 DROP TABLE IF EXISTS `t_service_price`;
+/*!40101 SET @saved_cs_client     = @@character_set_client */;
+/*!50503 SET character_set_client = utf8mb4 */;
 CREATE TABLE `t_service_price` (
   `price_id` varchar(32) NOT NULL COMMENT '定价ID',
   `service_type_code` varchar(20) NOT NULL COMMENT '服务类型编码',
@@ -634,7 +730,10 @@ CREATE TABLE `t_service_price` (
   KEY `idx_service_type` (`service_type_code`),
   KEY `idx_area` (`area_id`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci COMMENT='服务定价表';
+/*!40101 SET character_set_client = @saved_cs_client */;
 DROP TABLE IF EXISTS `t_service_record`;
+/*!40101 SET @saved_cs_client     = @@character_set_client */;
+/*!50503 SET character_set_client = utf8mb4 */;
 CREATE TABLE `t_service_record` (
   `service_record_id` varchar(32) NOT NULL,
   `order_id` varchar(32) NOT NULL,
@@ -657,7 +756,10 @@ CREATE TABLE `t_service_record` (
   KEY `idx_staff` (`staff_id`),
   KEY `idx_date` (`service_date`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci COMMENT='服务记录表';
+/*!40101 SET character_set_client = @saved_cs_client */;
 DROP TABLE IF EXISTS `t_service_type`;
+/*!40101 SET @saved_cs_client     = @@character_set_client */;
+/*!50503 SET character_set_client = utf8mb4 */;
 CREATE TABLE `t_service_type` (
   `service_type_id` varchar(32) NOT NULL COMMENT '服务类型ID',
   `service_type_code` varchar(50) NOT NULL COMMENT '服务类型编码',
@@ -678,7 +780,10 @@ CREATE TABLE `t_service_type` (
   UNIQUE KEY `service_type_code` (`service_type_code`),
   KEY `idx_parent` (`parent_id`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci COMMENT='服务类型表';
+/*!40101 SET character_set_client = @saved_cs_client */;
 DROP TABLE IF EXISTS `t_settlement`;
+/*!40101 SET @saved_cs_client     = @@character_set_client */;
+/*!50503 SET character_set_client = utf8mb4 */;
 CREATE TABLE `t_settlement` (
   `settlement_id` varchar(32) NOT NULL COMMENT '结算ID',
   `settlement_no` varchar(50) DEFAULT NULL COMMENT '结算编号',
@@ -722,7 +827,10 @@ CREATE TABLE `t_settlement` (
   KEY `idx_provider` (`provider_id`),
   KEY `idx_payment_status` (`payment_status`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci COMMENT='结算单表';
+/*!40101 SET character_set_client = @saved_cs_client */;
 DROP TABLE IF EXISTS `t_staff`;
+/*!40101 SET @saved_cs_client     = @@character_set_client */;
+/*!50503 SET character_set_client = utf8mb4 */;
 CREATE TABLE `t_staff` (
   `staff_id` varchar(32) NOT NULL COMMENT '人员ID',
   `staff_no` varchar(50) DEFAULT NULL COMMENT '人员编号',
@@ -764,7 +872,10 @@ CREATE TABLE `t_staff` (
   KEY `idx_provider` (`provider_id`),
   KEY `idx_status` (`status`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci COMMENT='服务人员信息表';
+/*!40101 SET character_set_client = @saved_cs_client */;
 DROP TABLE IF EXISTS `t_staff_qualification`;
+/*!40101 SET @saved_cs_client     = @@character_set_client */;
+/*!50503 SET character_set_client = utf8mb4 */;
 CREATE TABLE `t_staff_qualification` (
   `qualification_id` varchar(32) NOT NULL,
   `staff_id` varchar(32) NOT NULL COMMENT '人员ID',
@@ -784,7 +895,10 @@ CREATE TABLE `t_staff_qualification` (
   KEY `idx_staff` (`staff_id`),
   KEY `idx_expiry` (`expiry_date`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci COMMENT='服务人员资质表';
+/*!40101 SET character_set_client = @saved_cs_client */;
 DROP TABLE IF EXISTS `t_staff_schedule`;
+/*!40101 SET @saved_cs_client     = @@character_set_client */;
+/*!50503 SET character_set_client = utf8mb4 */;
 CREATE TABLE `t_staff_schedule` (
   `schedule_id` varchar(32) NOT NULL,
   `staff_id` varchar(32) NOT NULL,
@@ -802,7 +916,10 @@ CREATE TABLE `t_staff_schedule` (
   KEY `idx_staff` (`staff_id`),
   KEY `idx_date` (`schedule_date`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci COMMENT='服务人员排班表';
+/*!40101 SET character_set_client = @saved_cs_client */;
 DROP TABLE IF EXISTS `t_staff_work_record`;
+/*!40101 SET @saved_cs_client     = @@character_set_client */;
+/*!50503 SET character_set_client = utf8mb4 */;
 CREATE TABLE `t_staff_work_record` (
   `work_record_id` varchar(32) NOT NULL,
   `staff_id` varchar(32) NOT NULL,
@@ -826,7 +943,10 @@ CREATE TABLE `t_staff_work_record` (
   KEY `idx_order` (`order_id`),
   KEY `idx_date` (`service_date`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci COMMENT='服务人员工作记录表';
+/*!40101 SET character_set_client = @saved_cs_client */;
 DROP TABLE IF EXISTS `t_system_param`;
+/*!40101 SET @saved_cs_client     = @@character_set_client */;
+/*!50503 SET character_set_client = utf8mb4 */;
 CREATE TABLE `t_system_param` (
   `param_id` varchar(32) NOT NULL COMMENT '参数ID',
   `param_category` varchar(50) DEFAULT NULL COMMENT '参数分类',
@@ -846,7 +966,10 @@ CREATE TABLE `t_system_param` (
   UNIQUE KEY `param_code` (`param_code`),
   KEY `idx_param_code` (`param_code`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci COMMENT='系统参数表';
+/*!40101 SET character_set_client = @saved_cs_client */;
 DROP TABLE IF EXISTS `t_user`;
+/*!40101 SET @saved_cs_client     = @@character_set_client */;
+/*!50503 SET character_set_client = utf8mb4 */;
 CREATE TABLE `t_user` (
   `user_id` varchar(32) NOT NULL COMMENT '用户ID',
   `username` varchar(50) NOT NULL COMMENT '用户名',
@@ -875,7 +998,10 @@ CREATE TABLE `t_user` (
   KEY `idx_phone` (`phone`),
   KEY `idx_tenant` (`tenant_id`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci COMMENT='用户表';
+/*!40101 SET character_set_client = @saved_cs_client */;
 DROP TABLE IF EXISTS `t_user_role`;
+/*!40101 SET @saved_cs_client     = @@character_set_client */;
+/*!50503 SET character_set_client = utf8mb4 */;
 CREATE TABLE `t_user_role` (
   `user_role_id` varchar(32) NOT NULL,
   `user_id` varchar(32) NOT NULL COMMENT '用户ID',
@@ -887,5 +1013,14 @@ CREATE TABLE `t_user_role` (
   KEY `idx_user` (`user_id`),
   KEY `idx_role` (`role_id`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci COMMENT='用户角色关联表';
+/*!40101 SET character_set_client = @saved_cs_client */;
+/*!40103 SET TIME_ZONE=@OLD_TIME_ZONE */;
 
+/*!40101 SET SQL_MODE=@OLD_SQL_MODE */;
+/*!40014 SET FOREIGN_KEY_CHECKS=@OLD_FOREIGN_KEY_CHECKS */;
+/*!40014 SET UNIQUE_CHECKS=@OLD_UNIQUE_CHECKS */;
+/*!40101 SET CHARACTER_SET_CLIENT=@OLD_CHARACTER_SET_CLIENT */;
+/*!40101 SET CHARACTER_SET_RESULTS=@OLD_CHARACTER_SET_RESULTS */;
+/*!40101 SET COLLATION_CONNECTION=@OLD_COLLATION_CONNECTION */;
+/*!40111 SET SQL_NOTES=@OLD_SQL_NOTES */;
 
