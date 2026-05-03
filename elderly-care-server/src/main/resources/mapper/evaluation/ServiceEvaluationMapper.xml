@@ -41,6 +41,11 @@
             se.evaluation_tags,
             se.is_anonymous,
             se.evaluation_time,
+            se.evaluation_token,
+            se.token_status,
+            se.token_expire_time,
+            se.reply_content,
+            se.reply_time,
             se.create_time
         FROM t_service_evaluation se
         LEFT JOIN t_staff s ON se.staff_id = s.staff_id
@@ -108,6 +113,17 @@
             se.evaluation_tags,
             se.is_anonymous,
             se.evaluation_time,
+            se.evaluation_token,
+            se.token_status,
+            se.token_expire_time,
+            se.token_used_time,
+            se.token_used_ip,
+            se.quality_check_id,
+            se.service_log_id,
+            se.reply_content,
+            se.reply_time,
+            se.replyer_id,
+            se.replyer_name,
             se.create_time
         FROM t_service_evaluation se
         LEFT JOIN t_staff s ON se.staff_id = s.staff_id
@@ -134,12 +150,19 @@
             se.evaluation_tags,
             se.is_anonymous,
             se.evaluation_time,
+            se.evaluation_token,
+            se.token_status,
+            se.token_expire_time,
+            se.token_used_time,
+            se.token_used_ip,
+            se.quality_check_id,
+            se.service_log_id,
+            se.reply_content,
+            se.reply_time,
+            se.replyer_id,
+            se.replyer_name,
             se.create_time
         FROM t_service_evaluation se
-        LEFT JOIN t_staff s ON se.staff_id = s.staff_id
-        LEFT JOIN t_provider p ON se.provider_id = p.provider_id
-        LEFT JOIN t_elder e ON se.elder_id = e.elder_id
-        LEFT JOIN t_order o ON se.order_id = o.order_id
         WHERE se.evaluation_token = #{token}
     </select>
 

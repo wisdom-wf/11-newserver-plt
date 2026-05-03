@@ -10,15 +10,13 @@
         <result column="qualification_number" property="qualificationNo"/>
         <result column="issue_organization" property="issuingAuthority"/>
         <result column="issue_date" property="issueDate"/>
-        <result column="expire_date" property="expireDate"/>
+        <result column="expiry_date" property="expireDate"/>
         <result column="attachment_url" property="certificateUrls"/>
         <result column="status" property="status"/>
+        <result column="audit_status" property="auditStatus"/>
         <result column="deleted" property="deleted"/>
-        <result column="create_by" property="createBy"/>
         <result column="create_time" property="createTime"/>
-        <result column="update_by" property="updateBy"/>
         <result column="update_time" property="updateTime"/>
-        <result column="remark" property="remark"/>
     </resultMap>
 
     <select id="selectByStaffId" resultMap="BaseResultMap">
