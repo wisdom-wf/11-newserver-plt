@@ -13,6 +13,7 @@
         <result column="address" property="address"/>
         <result column="service_areas" property="serviceAreas"/>
         <result column="description" property="description"/>
+        <result column="audit_status" property="auditStatus"/>
         <result column="status" property="status"/>
         <result column="rating" property="rating"/>
         <result column="rating_count" property="ratingCount"/>
