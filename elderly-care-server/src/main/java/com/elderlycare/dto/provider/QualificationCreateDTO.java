@@ -3,7 +3,7 @@ package com.elderlycare.dto.provider;
 import lombok.Data;
 import jakarta.validation.constraints.NotBlank;
 import java.io.Serializable;
-import java.time.LocalDateTime;
+import java.time.LocalDate;
 
 /**
  * 资质创建DTO
@@ -33,12 +33,12 @@ public class QualificationCreateDTO implements Serializable {
     /**
      * 有效期开始
      */
-    private LocalDateTime issueDate;
+    private LocalDate issueDate;
 
     /**
      * 有效期截止
      */
-    private LocalDateTime expiryDate;
+    private LocalDate expiryDate;
 
     /**
      * 发证机构

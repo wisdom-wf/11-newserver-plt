@@ -3,6 +3,7 @@ package com.elderlycare.entity.provider;
 import com.baomidou.mybatisplus.annotation.*;
 import lombok.Data;
 import java.io.Serializable;
+import java.time.LocalDate;
 import java.time.LocalDateTime;
 
 /**
@@ -43,12 +44,12 @@ public class ProviderQualification implements Serializable {
     /**
      * 有效期开始
      */
-    private LocalDateTime issueDate;
+    private LocalDate issueDate;
 
     /**
      * 有效期截止
      */
-    private LocalDateTime expiryDate;
+    private LocalDate expiryDate;
 
     /**
      * 发证机构

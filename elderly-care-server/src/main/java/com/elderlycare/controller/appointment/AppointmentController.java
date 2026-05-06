@@ -5,9 +5,11 @@ import com.elderlycare.common.Result;
 import com.elderlycare.common.UserContext;
 import com.elderlycare.dto.appointment.AppointmentCreateDTO;
 import com.elderlycare.dto.appointment.AppointmentQueryDTO;
+import com.elderlycare.dto.appointment.AppointmentUpdateDTO;
 import com.elderlycare.service.appointment.AppointmentService;
 import com.elderlycare.vo.appointment.AppointmentStatisticsVO;
 import com.elderlycare.vo.appointment.AppointmentVO;
+import jakarta.servlet.http.HttpServletResponse;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.MediaType;
@@ -16,8 +18,10 @@ import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 
+import java.io.IOException;
 import java.net.URLEncoder;
 import java.nio.charset.StandardCharsets;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
@@ -113,6 +117,16 @@ public class AppointmentController {
     }
 
     /**
+     * 编辑预约业务信息（服务类型/预约时间/备注）
+     * PUT /api/appointment/{id}/update
+     */
+    @PutMapping("/{id}/update")
+    public Result<Void> updateAppointmentInfo(@PathVariable String id, @RequestBody AppointmentUpdateDTO dto) {
+        appointmentService.updateAppointmentInfo(id, dto);
+        return Result.successMsg("保存成功");
+    }
+
+    /**
      * 导入预约（Excel）
      * POST /api/appointment/import
      */
@@ -179,5 +193,51 @@ public class AppointmentController {
     public Result<Void> batchDeleteAppointment(@RequestBody List<String> ids) {
         appointmentService.batchDeleteAppointment(ids);
         return Result.successMsg("批量删除成功");
+    }
+
+    // ========== 预约二维码（仅超级管理员） ==========
+
+    /**
+     * 生成预约二维码
+     * POST /api/appointment/qrcode/generate
+     */
+    @PostMapping("/qrcode/generate")
+    public Result<Map<String, String>> generateQRCode() {
+        // 仅超级管理员
+        List<String> roles = UserContext.getRoles();
+        if (roles == null || !roles.contains("SUPER_ADMIN")) {
+            return Result.forbidden("仅超级管理员可生成预约二维码");
+        }
+        String token = appointmentService.generateAppointmentToken();
+        Map<String, String> data = new HashMap<>();
+        data.put("token", token);
+        return Result.success(data);
+    }
+
+    /**
+     * 获取二维码图片
+     * GET /api/appointment/qrcode/{token}/image
+     */
+    @GetMapping("/qrcode/{token}/image")
+    public void getQRCodeImage(@PathVariable String token, HttpServletResponse response) throws Exception {
+        byte[] image = appointmentService.getQRCodeImage(token);
+        response.setContentType("image/png");
+        response.setContentLength(image.length);
+        response.getOutputStream().write(image);
+        response.getOutputStream().flush();
+    }
+
+    /**
+     * 停用二维码
+     * PUT /api/appointment/qrcode/{token}/disable
+     */
+    @PutMapping("/qrcode/{token}/disable")
+    public Result<Void> disableQRCode(@PathVariable String token) {
+        List<String> roles = UserContext.getRoles();
+        if (roles == null || !roles.contains("SUPER_ADMIN")) {
+            return Result.forbidden("仅超级管理员可停用预约二维码");
+        }
+        appointmentService.disableAppointmentToken(token);
+        return Result.successMsg("二维码已停用");
     }
 }

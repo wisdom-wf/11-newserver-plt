@@ -13,7 +13,6 @@
         <result column="address" property="address"/>
         <result column="service_areas" property="serviceAreas"/>
         <result column="description" property="description"/>
-        <result column="audit_status" property="auditStatus"/>
         <result column="status" property="status"/>
         <result column="rating" property="rating"/>
         <result column="rating_count" property="ratingCount"/>
@@ -23,7 +22,9 @@
     </resultMap>
 
     <select id="selectProviderPage" resultMap="BaseResultMap">
-        SELECT * FROM t_provider
+        SELECT provider_id,provider_name,provider_type,service_category,credit_code,legal_person,
+               contact_phone,address,service_areas,description,status,rating,rating_count,
+               create_time,update_time,deleted FROM t_provider
         WHERE deleted = 0
         <if test="query.providerName != null and query.providerName != ''">
             AND provider_name LIKE CONCAT('%', #{query.providerName}, '%')

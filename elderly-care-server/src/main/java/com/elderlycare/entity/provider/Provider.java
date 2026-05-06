@@ -66,11 +66,6 @@ public class Provider implements Serializable {
     private String description;
 
     /**
-     * 审核状态: PENDING-待审核, APPROVED-已通过, REJECTED-已驳回
-     */
-    private String auditStatus;
-
-    /**
      * 状态: ENABLED-启用, DISABLED-禁用
      */
     private String status;

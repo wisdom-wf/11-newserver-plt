@@ -101,4 +101,13 @@ public class Appointment implements Serializable {
     /** 更新时间 */
     @TableField(fill = FieldFill.INSERT_UPDATE)
     private LocalDateTime updateTime;
+
+    /** 预约二维码Token */
+    private String appointmentToken;
+
+    /** Token状态：ACTIVE/EXPIRED */
+    private String tokenStatus;
+
+    /** Token过期时间 */
+    private LocalDateTime tokenExpireTime;
 }

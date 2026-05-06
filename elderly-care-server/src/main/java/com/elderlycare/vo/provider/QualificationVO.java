@@ -2,6 +2,7 @@ package com.elderlycare.vo.provider;
 
 import lombok.Data;
 import java.io.Serializable;
+import java.time.LocalDate;
 import java.time.LocalDateTime;
 
 /**
@@ -17,8 +18,8 @@ public class QualificationVO implements Serializable {
     private String qualificationName;
     private String qualificationType;
     private String qualificationNumber;
-    private LocalDateTime issueDate;
-    private LocalDateTime expiryDate;
+    private LocalDate issueDate;
+    private LocalDate expiryDate;
     private String issueOrganization;
     private String attachmentUrl;
     private String status;

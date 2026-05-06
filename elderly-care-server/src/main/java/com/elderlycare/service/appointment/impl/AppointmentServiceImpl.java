@@ -7,6 +7,8 @@ import com.elderlycare.common.IDGenerator;
 import com.elderlycare.common.PageResult;
 import com.elderlycare.dto.appointment.AppointmentCreateDTO;
 import com.elderlycare.dto.appointment.AppointmentQueryDTO;
+import com.elderlycare.dto.appointment.PublicAppointmentSubmitDTO;
+import com.elderlycare.dto.appointment.AppointmentUpdateDTO;
 import com.elderlycare.entity.appointment.Appointment;
 import com.elderlycare.entity.elder.Elder;
 import com.elderlycare.entity.order.Order;
@@ -16,9 +18,11 @@ import com.elderlycare.mapper.appointment.AppointmentMapper;
 import com.elderlycare.mapper.elder.ElderMapper;
 import com.elderlycare.mapper.order.OrderMapper;
 import com.elderlycare.mapper.provider.ProviderMapper;
+import com.elderlycare.utils.QRCodeUtil;
 import com.elderlycare.service.appointment.AppointmentService;
 import com.elderlycare.vo.appointment.AppointmentStatisticsVO;
 import com.elderlycare.vo.appointment.AppointmentVO;
+import com.elderlycare.vo.appointment.PublicAppointmentVO;
 import lombok.RequiredArgsConstructor;
 import org.apache.poi.ss.usermodel.*;
 import org.apache.poi.xssf.usermodel.XSSFWorkbook;
@@ -940,5 +944,148 @@ public class AppointmentServiceImpl implements AppointmentService {
             case "INVALID": return "已作废";
             default: return status;
         }
+    }
+
+    // ========== 预约二维码（公开预约） ==========
+
+    @Override
+    public String generateAppointmentToken() {
+        String token = generateSecureToken();
+
+        // 创建一条token模板记录（仅用于存储token，不用于业务预约）
+        Appointment template = new Appointment();
+        template.setAppointmentId(IDGenerator.generateId());
+        template.setAppointmentNo(generateAppointmentNo());
+        template.setStatus("PENDING");
+        template.setValidity("VALID");
+        template.setAppointmentToken(token);
+        template.setTokenStatus("ACTIVE");
+        template.setTokenExpireTime(LocalDateTime.now().plusDays(30));
+        template.setCreateTime(LocalDateTime.now());
+        appointmentMapper.insert(template);
+
+        return token;
+    }
+
+    @Override
+    public PublicAppointmentVO validateAppointmentToken(String token) {
+        PublicAppointmentVO vo = new PublicAppointmentVO();
+
+        Appointment record = appointmentMapper.selectByToken(token);
+        if (record == null) {
+            vo.setValid(false);
+            vo.setErrorMsg("预约链接不存在");
+            return vo;
+        }
+        if (!"ACTIVE".equals(record.getTokenStatus())) {
+            vo.setValid(false);
+            vo.setErrorMsg("预约链接已停用");
+            return vo;
+        }
+        if (record.getTokenExpireTime() != null && record.getTokenExpireTime().isBefore(LocalDateTime.now())) {
+            vo.setValid(false);
+            vo.setErrorMsg("预约链接已过期");
+            return vo;
+        }
+
+        vo.setValid(true);
+        return vo;
+    }
+
+    @Override
+    @Transactional(rollbackFor = Exception.class)
+    public String submitPublicAppointment(String token, PublicAppointmentSubmitDTO dto) {
+        // 1. 校验token
+        Appointment record = appointmentMapper.selectByToken(token);
+        if (record == null || !"ACTIVE".equals(record.getTokenStatus())) {
+            throw new RuntimeException("预约链接无效或已停用");
+        }
+        if (record.getTokenExpireTime() != null && record.getTokenExpireTime().isBefore(LocalDateTime.now())) {
+            throw new RuntimeException("预约链接已过期");
+        }
+
+        // 2. 防刷：同手机号5分钟内不能重复提交
+        LocalDateTime fiveMinAgo = LocalDateTime.now().minusMinutes(5);
+        Long count = appointmentMapper.countRecentByPhone(dto.getElderPhone(), fiveMinAgo);
+        if (count != null && count > 0) {
+            throw new RuntimeException("您刚刚已提交过预约，请稍后再试");
+        }
+
+        // 3. 创建预约记录
+        Appointment appointment = new Appointment();
+        appointment.setAppointmentId(IDGenerator.generateId());
+        appointment.setAppointmentNo(generateAppointmentNo());
+        appointment.setElderName(dto.getElderName());
+        appointment.setElderPhone(dto.getElderPhone());
+        appointment.setElderIdCard(dto.getElderIdCard());
+
+        // 地址拼接默认前缀
+        String address = dto.getElderAddress();
+        if (address != null && !address.isEmpty()) {
+            appointment.setElderAddress("陕西省延安市宝塔区" + address);
+        } else {
+            appointment.setElderAddress("陕西省延安市宝塔区");
+        }
+
+        appointment.setStatus("PENDING");
+        appointment.setValidity("VALID");
+        appointment.setCreateTime(LocalDateTime.now());
+        // providerId / serviceType 留空，工作人员后续确认时填写
+
+        appointmentMapper.insert(appointment);
+        return appointment.getAppointmentId();
+    }
+
+    @Override
+    public byte[] getQRCodeImage(String token) throws Exception {
+        // 二维码内容：预约页面URL
+        String url = "https://wisdomdance.cn/jxy/appointment-book?token=" + token;
+        return QRCodeUtil.generateBrandedPng(url);
+    }
+
+    @Override
+    public void disableAppointmentToken(String token) {
+        Appointment record = appointmentMapper.selectByToken(token);
+        if (record == null) {
+            throw new RuntimeException("二维码不存在");
+        }
+        record.setTokenStatus("EXPIRED");
+        appointmentMapper.updateById(record);
+    }
+
+    @Override
+    public void updateAppointmentInfo(String id, AppointmentUpdateDTO dto) {
+        Appointment appointment = appointmentMapper.selectById(id);
+        if (appointment == null) {
+            throw new RuntimeException("预约不存在");
+        }
+        if (!"PENDING".equals(appointment.getStatus())) {
+            throw new RuntimeException("仅待处理状态的预约可编辑");
+        }
+        if (dto.getServiceType() != null) {
+            appointment.setServiceType(dto.getServiceType());
+        }
+        if (dto.getServiceTypeCode() != null) {
+            appointment.setServiceTypeCode(dto.getServiceTypeCode());
+        }
+        if (dto.getAppointmentTime() != null) {
+            appointment.setAppointmentTime(dto.getAppointmentTime());
+        }
+        if (dto.getRemark() != null) {
+            appointment.setRemark(dto.getRemark());
+        }
+        appointment.setUpdateTime(LocalDateTime.now());
+        appointmentMapper.updateById(appointment);
+    }
+
+    private String generateSecureToken() {
+        java.security.SecureRandom random = new java.security.SecureRandom();
+        byte[] bytes = new byte[24];
+        random.nextBytes(bytes);
+        StringBuilder token = new StringBuilder();
+        for (byte b : bytes) {
+            token.append(String.format("%02X", b));
+        }
+        return token.toString();
     }
 }
