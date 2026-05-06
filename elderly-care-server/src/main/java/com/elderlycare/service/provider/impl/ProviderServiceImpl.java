@@ -122,6 +122,7 @@ public class ProviderServiceImpl extends ServiceImpl<ProviderMapper, Provider> i
             dto.getProviderName(),
             dto.getProviderType(),
             dto.getServiceCategory(),
+            dto.getCreditCode(),
             dto.getLegalPerson(),
             dto.getContactPhone(),
             dto.getAddress(),

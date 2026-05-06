@@ -22,8 +22,8 @@ public interface ProviderMapper extends BaseMapper<Provider> {
      */
     int updateProviderById(@Param("providerId") String providerId, @Param("providerName") String providerName,
                           @Param("providerType") String providerType, @Param("serviceCategory") String serviceCategory,
-                          @Param("legalPerson") String legalPerson, @Param("contactPhone") String contactPhone,
-                          @Param("address") String address, @Param("serviceAreas") String serviceAreas,
-                          @Param("description") String description, @Param("businessLicense") String businessLicense,
-                          @Param("status") String status);
+                          @Param("creditCode") String creditCode, @Param("legalPerson") String legalPerson,
+                          @Param("contactPhone") String contactPhone, @Param("address") String address,
+                          @Param("serviceAreas") String serviceAreas, @Param("description") String description,
+                          @Param("businessLicense") String businessLicense, @Param("status") String status);
 }
