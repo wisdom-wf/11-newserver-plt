@@ -187,8 +187,10 @@ public class ServiceLogController {
     /**
      * 服务日志批量删除
      * DELETE /api/service-log/batch
+     * POST /api/service-log/batch (兼容前端)
      */
     @DeleteMapping("/batch")
+    @PostMapping("/batch")
     public Result<Void> batchDeleteServiceLog(@RequestBody List<String> ids) {
         for (String id : ids) {
             serviceLogService.deleteServiceLog(id);
