@@ -222,11 +222,10 @@ async function uploadCertificate(base64Data: string, fileName: string, fileSize:
 
   uploadingCerts.value.add(fileKey);
   try {
-    // Extract cert type from filename or use default
-    const qualificationType = fileName.split('.').pop() || 'CERT';
+    // 统一使用 CERTIFICATE 类型，避免文件扩展名导致的问题
     await fetchCreateProviderCertificate(props.providerId, {
       qualificationName: fileName,
-      qualificationType,
+      qualificationType: 'CERTIFICATE',
       attachmentUrl: base64Data
     });
     message.success('上传成功');
