@@ -150,5 +150,13 @@ declare namespace Api {
       label: string;
       value: string;
     }
+
+    /** 编辑预约参数 */
+    interface AppointmentUpdateParams {
+      serviceType?: string;
+      serviceTypeCode?: string;
+      appointmentTime?: string;
+      remark?: string;
+    }
   }
 }

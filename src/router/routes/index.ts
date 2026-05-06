@@ -45,6 +45,15 @@ const customRoutes: CustomRoute[] = [
           constant: true,
           hideInMenu: true
         }
+      },
+      {
+        name: 'public_appointment-book',
+        path: '/appointment-book',
+        component: 'view.public_appointment-book',
+        meta: {
+          constant: true,
+          hideInMenu: true
+        }
       }
     ]
   }

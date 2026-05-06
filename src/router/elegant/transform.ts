@@ -181,6 +181,7 @@ const routeMap: RouteMap = {
   "login": "/login/:module(pwd-login|code-login|register|reset-pwd|bind-wechat)?",
   "provider": "/provider",
   "public": "/public",
+  "public_appointment-book": "/public/appointment-book",
   "public_dashboard": "/public/dashboard",
   "public_mobile": "/public/mobile",
   "public_survey": "/public/survey",

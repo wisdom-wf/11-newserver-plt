@@ -35,8 +35,12 @@ import {
   fetchGetAppointmentTimeline,
   fetchGetProviderCertificates,
   fetchGetAppointment,
-  fetchBatchDeleteAppointment
+  fetchBatchDeleteAppointment,
+  fetchGenerateAppointmentQRCode,
+  fetchDisableQRCode,
+  fetchUpdateAppointment
 } from '@/service/api';
+import { localStg } from '@/utils/storage';
 import { useRouterPush } from '@/hooks/common/router';
 import { useNaivePaginatedTable, useTableOperate, defaultTransform } from '@/hooks/common/table';
 import { useNaiveForm, useFormRules } from '@/hooks/common/form';
@@ -131,7 +135,37 @@ const columns: DataTableColumns<Api.Appointment.Appointment> = [
   { type: 'selection' },
   { title: '预约单号', key: 'appointmentNo', width: 160 },
   { title: '客户姓名', key: 'elderName', width: 100 },
-  { title: '客户手机号', key: 'elderPhone', width: 130 },
+  {
+    title: '手机号', key: 'elderPhone', width: 150,
+    render: row => {
+      if (!row.elderPhone) return '-';
+      return h('div', { style: 'display:flex;align-items:center;gap:4px' }, [
+        h('span', null, row.elderPhone),
+        h('span', {
+          style: 'cursor:pointer;opacity:0;color:#999;font-size:14px;transition:opacity 0.2s',
+          class: 'copy-trigger',
+          title: '点击复制',
+          onClick: (e: Event) => { e.stopPropagation(); navigator.clipboard.writeText(row.elderPhone!); }
+        }, '📋')
+      ]);
+    }
+  },
+  {
+    title: '身份证号', key: 'elderIdCard', width: 200,
+    render: row => {
+      if (!row.elderIdCard) return '-';
+      return h('div', { style: 'display:flex;align-items:center;gap:4px' }, [
+        h('span', { style: 'font-family:monospace' }, row.elderIdCard),
+        h('span', {
+          style: 'cursor:pointer;opacity:0;color:#999;font-size:14px;transition:opacity 0.2s',
+          class: 'copy-trigger',
+          title: '点击复制',
+          onClick: (e: Event) => { e.stopPropagation(); navigator.clipboard.writeText(row.elderIdCard!); }
+        }, '📋')
+      ]);
+    }
+  },
+  { title: '地址', key: 'elderAddress', width: 200, ellipsis: { tooltip: true } },
   { title: '服务类型', key: 'serviceType', width: 120 },
   { title: '预约时间', key: 'appointmentTime', width: 170 },
   { title: '服务商', key: 'providerName', width: 150 },
@@ -161,11 +195,11 @@ const columns: DataTableColumns<Api.Appointment.Appointment> = [
           );
         }
         buttons.push(
-          h(NButton, { size: 'small', onClick: () => handleCancel(row) }, () => '取消')
+          h(NButton, { size: 'small', type: 'info', onClick: () => openEditDrawer(row) }, () => '编辑')
         );
-      }
-      if (row.status === 'PENDING') {
-        buttons.push(h(NButton, { size: 'small', type: 'error', onClick: () => handleInvalidate(row) }, () => '作废'));
+        buttons.push(
+          h(NButton, { size: 'small', type: 'error', onClick: () => handleInvalidate(row) }, () => '作废')
+        );
       }
       if (row.status === 'CONFIRMED') {
         buttons.push(
@@ -322,9 +356,69 @@ async function handleDownloadCredential(url: string, filename: string) {
   }
 }
 
-// Cancel modal
-const cancelModalVisible = ref(false);
-const cancelForm = ref({ reason: '' });
+// Edit drawer
+const editDrawerVisible = ref(false);
+const editDateTimeTs = ref<number | null>(null);
+const editForm = ref({
+  appointmentId: '',
+  appointmentNo: '',
+  serviceType: '',
+  serviceTypeCode: '',
+  appointmentTime: '',
+  remark: ''
+});
+
+function openEditDrawer(row: Api.Appointment.Appointment) {
+  let timeStr = row.appointmentTime || '';
+  // 兼容 "2026-04-15 上午" / "2026-04-15 下午" 格式
+  if (timeStr.includes('上午')) {
+    timeStr = timeStr.replace('上午', '09:00').trim();
+  } else if (timeStr.includes('下午')) {
+    timeStr = timeStr.replace('下午', '15:00').trim();
+  }
+  editForm.value = {
+    appointmentId: row.appointmentId,
+    appointmentNo: row.appointmentNo,
+    serviceType: row.serviceType || '',
+    serviceTypeCode: row.serviceTypeCode || '',
+    appointmentTime: timeStr,
+    remark: row.remark || ''
+  };
+  // Parse existing time string to timestamp
+  editDateTimeTs.value = timeStr ? new Date(timeStr.replace(/-/g, '/')).getTime() : null;
+  editDrawerVisible.value = true;
+}
+
+async function handleEditSubmit() {
+  if (!editForm.value.serviceType) {
+    message.warning('请选择服务类型');
+    return;
+  }
+  if (!editDateTimeTs.value) {
+    message.warning('请选择预约时间');
+    return;
+  }
+  // Convert timestamp to string "yyyy-MM-dd HH:mm"
+  const d = new Date(editDateTimeTs.value);
+  const pad = (n: number) => n.toString().padStart(2, '0');
+  editForm.value.appointmentTime = `${d.getFullYear()}-${pad(d.getMonth() + 1)}-${pad(d.getDate())} ${pad(d.getHours())}:${pad(d.getMinutes())}`;
+
+  try {
+    const { error } = await fetchUpdateAppointment(editForm.value.appointmentId, {
+      serviceType: editForm.value.serviceType,
+      serviceTypeCode: editForm.value.serviceTypeCode,
+      appointmentTime: editForm.value.appointmentTime,
+      remark: editForm.value.remark
+    });
+    if (!error) {
+      message.success('保存成功');
+      editDrawerVisible.value = false;
+      getDataByPage(1);
+    }
+  } catch (e: any) {
+    message.error(e?.message || '保存失败');
+  }
+}
 
 // Invalidate modal
 const invalidateModalVisible = ref(false);
@@ -445,30 +539,6 @@ async function handleConfirmSubmit() {
   }
 }
 
-function handleCancel(row: Api.Appointment.Appointment) {
-  currentRow.value = row;
-  cancelForm.value = { reason: '' };
-  cancelModalVisible.value = true;
-}
-
-async function handleCancelSubmit() {
-  if (!currentRow.value) return;
-  try {
-    await fetchCancelAppointment(currentRow.value.appointmentId, cancelForm.value);
-    message.success('取消成功');
-    cancelModalVisible.value = false;
-    await getData();
-    try {
-      await getStatistics();
-    } catch (statsError) {
-      console.warn('获取统计信息失败:', statsError);
-    }
-  } catch (e) {
-    console.error('Failed to cancel', e);
-    message.error(e?.message || '取消失败，请重试');
-  }
-}
-
 function handleInvalidate(row: Api.Appointment.Appointment) {
   currentRow.value = row;
   invalidateForm.value = { reason: '' };
@@ -555,6 +625,67 @@ async function handleImportSubmit() {
     message.error('导入失败');
   } finally {
     importing.value = false;
+  }
+}
+
+// ========== 预约二维码 ==========
+const qrCodeModalVisible = ref(false);
+const qrCodeToken = ref('');
+const qrCodeImageUrl = ref('');
+const qrCodeLoading = ref(false);
+const isSuperAdmin = computed(() => authStore.userInfo.roles.includes('SUPER_ADMIN'));
+
+async function fetchQRCodeImageAsDataUrl(token: string): Promise<string> {
+  const authToken = localStg.get('token') || '';
+  const resp = await fetch(`/jxy/api/appointment/qrcode/${token}/image`, {
+    headers: { Authorization: `Bearer ${authToken}` }
+  });
+  if (!resp.ok) throw new Error(`获取二维码图片失败: ${resp.status}`);
+  const blob = await resp.blob();
+  return URL.createObjectURL(blob);
+}
+
+async function handleGenerateQRCode() {
+  qrCodeLoading.value = true;
+  try {
+    const { data, error } = await fetchGenerateAppointmentQRCode();
+    if (data && !error) {
+      qrCodeToken.value = data.token;
+      qrCodeImageUrl.value = await fetchQRCodeImageAsDataUrl(data.token);
+      qrCodeModalVisible.value = true;
+    }
+  } catch (e: any) {
+    message.error(e?.message || '生成二维码失败');
+  } finally {
+    qrCodeLoading.value = false;
+  }
+}
+
+function handleCopyQRLink() {
+  const url = `https://wisdomdance.cn/jxy/appointment-book?token=${qrCodeToken.value}`;
+  navigator.clipboard.writeText(url).then(() => {
+    message.success('链接已复制，可发送给用户');
+  }).catch(() => {
+    message.error('复制失败');
+  });
+}
+
+async function handleDownloadQRCode() {
+  try {
+    const authToken = localStg.get('token') || '';
+    const resp = await fetch(`/jxy/api/appointment/qrcode/${qrCodeToken.value}/image`, {
+      headers: { Authorization: `Bearer ${authToken}` }
+    });
+    if (!resp.ok) throw new Error(`下载失败: ${resp.status}`);
+    const blob = await resp.blob();
+    const url = URL.createObjectURL(blob);
+    const link = document.createElement('a');
+    link.href = url;
+    link.download = `预约二维码_${qrCodeToken.value.substring(0, 8)}.png`;
+    link.click();
+    URL.revokeObjectURL(url);
+  } catch (e: any) {
+    message.error(e?.message || '下载二维码失败');
   }
 }
 
@@ -651,6 +782,7 @@ onMounted(async () => {
           <NButton @click="handleResetSearch">重置</NButton>
           <NButton @click="handleOpenImport">导入</NButton>
           <NButton @click="handleDownloadTemplate">下载模板</NButton>
+          <NButton v-if="isSuperAdmin" type="warning" :loading="qrCodeLoading" @click="handleGenerateQRCode">生成预约二维码</NButton>
         </NSpace>
       </div>
 
@@ -710,20 +842,39 @@ onMounted(async () => {
       </template>
     </NModal>
 
-    <!-- Cancel Modal -->
-    <NModal v-model:show="cancelModalVisible" title="取消预约" preset="card" style="width: 500px">
-      <NForm :model="cancelForm" label-placement="left" label-width="100">
-        <NFormItem label="取消原因">
-          <NInput v-model:value="cancelForm.reason" type="textarea" placeholder="请输入取消原因" />
-        </NFormItem>
-      </NForm>
-      <template #footer>
-        <NSpace justify="end">
-          <NButton @click="cancelModalVisible = false">取消</NButton>
-          <NButton type="primary" @click="handleCancelSubmit">确认</NButton>
-        </NSpace>
-      </template>
-    </NModal>
+    <!-- Edit Drawer -->
+    <NDrawer v-model:show="editDrawerVisible" :width="480" placement="right" closable>
+      <NDrawerContent :title="`编辑预约 - ${editForm.appointmentNo}`" closable>
+        <NForm :model="editForm" label-placement="top">
+          <NFormItem label="服务类型" required>
+            <NSelect
+              v-model:value="editForm.serviceType"
+              :options="serviceTypeOptions"
+              placeholder="请选择服务类型"
+              @update:value="(val: string, option: any) => { editForm.serviceType = val; editForm.serviceTypeCode = option?.code || '' }"
+            />
+          </NFormItem>
+          <NFormItem label="预约时间" required>
+            <NDatePicker
+              v-model:value="editDateTimeTs"
+              type="datetime"
+              format="yyyy-MM-dd HH:mm"
+              placeholder="请选择预约时间"
+              style="width: 100%"
+            />
+          </NFormItem>
+          <NFormItem label="备注">
+            <NInput v-model:value="editForm.remark" type="textarea" placeholder="请输入备注" :rows="3" />
+          </NFormItem>
+        </NForm>
+        <template #footer>
+          <NSpace>
+            <NButton @click="editDrawerVisible = false">取消</NButton>
+            <NButton type="primary" @click="handleEditSubmit">保存</NButton>
+          </NSpace>
+        </template>
+      </NDrawerContent>
+    </NDrawer>
 
     <!-- Invalidate Modal -->
     <NModal v-model:show="invalidateModalVisible" title="作废预约" preset="card" style="width: 500px">
@@ -1003,6 +1154,33 @@ onMounted(async () => {
         </template>
       </NDrawerContent>
     </NDrawer>
+
+    <!-- QR Code Modal -->
+    <NModal v-model:show="qrCodeModalVisible" preset="card" style="width: 420px" :bordered="false" :mask-closable="true">
+      <template #header>
+        <div style="text-align: center; width: 100%">
+          <div style="font-size: 18px; font-weight: 600; color: #1E3A5F">预约二维码</div>
+          <div style="font-size: 13px; color: #999; margin-top: 4px">有效期 30 天 · 可重复使用</div>
+        </div>
+      </template>
+      <div style="display: flex; justify-content: center; padding: 8px 0">
+        <img
+          v-if="qrCodeImageUrl"
+          :src="qrCodeImageUrl"
+          style="width: 280px; height: 280px; border-radius: 12px; box-shadow: 0 4px 20px rgba(0,0,0,0.08)"
+          alt="预约二维码"
+        />
+      </div>
+      <div style="text-align: center; color: #888; font-size: 13px; padding: 4px 0 12px">
+        扫描二维码即可在线预约
+      </div>
+      <template #footer>
+        <div style="display: flex; justify-content: center; gap: 12px">
+          <NButton type="primary" @click="handleCopyQRLink">📋 复制链接</NButton>
+          <NButton @click="handleDownloadQRCode">⬇ 下载图片</NButton>
+        </div>
+      </template>
+    </NModal>
   </div>
 </template>
 
@@ -1248,5 +1426,10 @@ onMounted(async () => {
   color: #999;
   margin-top: 8px;
   text-align: right;
+}
+
+/* 复制图标 hover 显示 */
+td:hover .copy-trigger {
+  opacity: 1 !important;
 }
 </style>

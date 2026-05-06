@@ -31,6 +31,7 @@ export const views: Record<LastLevelRouteKey, RouteComponent | (() => Promise<Ro
   business_staff: () => import("@/views/business/staff/index.vue"),
   home: () => import("@/views/home/index.vue"),
   provider: () => import("@/views/provider/index.vue"),
+  "public_appointment-book": () => import("@/views/public/appointment-book/index.vue"),
   public_dashboard: () => import("@/views/public/dashboard/index.vue"),
   public_mobile: () => import("@/views/public/mobile/index.vue"),
   public_survey: () => import("@/views/public/survey/index.vue"),

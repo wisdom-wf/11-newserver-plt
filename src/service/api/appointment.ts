@@ -143,3 +143,43 @@ export function fetchBatchDeleteAppointment(ids: string[]) {
     data: ids
   });
 }
+
+/**
+ * 编辑预约业务信息（服务类型/预约时间/备注）
+ */
+export function fetchUpdateAppointment(id: string, data: Api.Appointment.AppointmentUpdateParams) {
+  return request({
+    url: `/api/appointment/${id}/update`,
+    method: 'put',
+    data
+  });
+}
+
+// ========== 预约二维码 ==========
+
+/**
+ * 生成预约二维码（仅超级管理员）
+ */
+export function fetchGenerateAppointmentQRCode() {
+  return request<{ token: string }>({
+    url: '/api/appointment/qrcode/generate',
+    method: 'post'
+  });
+}
+
+/**
+ * 获取二维码图片URL
+ */
+export function getQRCodeImageUrl(token: string) {
+  return `/jxy/api/appointment/qrcode/${token}/image`;
+}
+
+/**
+ * 停用二维码
+ */
+export function fetchDisableQRCode(token: string) {
+  return request({
+    url: `/api/appointment/qrcode/${token}/disable`,
+    method: 'put'
+  });
+}

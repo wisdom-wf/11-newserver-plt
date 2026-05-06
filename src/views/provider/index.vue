@@ -30,6 +30,7 @@ const { hasAuth } = useAuth();
 const rules = {
   providerName: [createRequiredRule('请输入服务商名称')],
   creditCode: [createRequiredRule('请输入统一社会信用代码')],
+  providerType: [createRequiredRule('请选择服务商类型')],
   legalPerson: [createRequiredRule('请输入法人姓名')],
   contactPhone: [
     createRequiredRule('请输入联系电话'),
@@ -281,8 +282,8 @@ async function handleSubmit() {
     await getData();
     await getStatistics();
     restoreValidation();
-  } catch (e) {
-    console.error('Failed to submit', e);
+  } catch (e: any) {
+    message.error(e?.message || '操作失败，请检查必填项');
   }
 }
 
@@ -398,7 +399,7 @@ onMounted(() => {
               style="width: 200px"
             />
           </NFormItem>
-          <NFormItem label="服务商类型">
+          <NFormItem label="服务商类型" path="providerType">
             <NSelect
               v-model:value="form.providerType"
               :options="providerTypeOptions"

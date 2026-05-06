@@ -35,6 +35,7 @@ declare module "@elegant-router/types" {
     "login": "/login/:module(pwd-login|code-login|register|reset-pwd|bind-wechat)?";
     "provider": "/provider";
     "public": "/public";
+    "public_appointment-book": "/public/appointment-book";
     "public_dashboard": "/public/dashboard";
     "public_mobile": "/public/mobile";
     "public_survey": "/public/survey";
@@ -117,6 +118,7 @@ declare module "@elegant-router/types" {
     | "business_staff"
     | "home"
     | "provider"
+    | "public_appointment-book"
     | "public_dashboard"
     | "public_mobile"
     | "public_survey"

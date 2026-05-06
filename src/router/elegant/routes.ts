@@ -208,6 +208,15 @@ export const generatedRoutes: GeneratedRoute[] = [
     },
     children: [
       {
+        name: 'public_appointment-book',
+        path: '/public/appointment-book',
+        component: 'view.public_appointment-book',
+        meta: {
+          title: 'public_appointment-book',
+          i18nKey: 'route.public_appointment-book'
+        }
+      },
+      {
         name: 'public_dashboard',
         path: '/public/dashboard',
         component: 'view.public_dashboard',
