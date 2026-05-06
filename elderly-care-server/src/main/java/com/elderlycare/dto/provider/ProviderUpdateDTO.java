@@ -49,6 +49,11 @@ public class ProviderUpdateDTO implements Serializable {
     private String serviceAreas;
 
     /**
+     * 统一社会信用代码
+     */
+    private String creditCode;
+
+    /**
      * 简介
      */
     private String description;

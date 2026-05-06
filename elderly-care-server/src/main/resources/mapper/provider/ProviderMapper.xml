@@ -50,6 +50,7 @@
             <if test="providerName != null">provider_name = #{providerName},</if>
             <if test="providerType != null">provider_type = #{providerType},</if>
             <if test="serviceCategory != null">service_category = #{serviceCategory},</if>
+            <if test="creditCode != null">credit_code = #{creditCode},</if>
             <if test="legalPerson != null">legal_person = #{legalPerson},</if>
             <if test="contactPhone != null">contact_phone = #{contactPhone},</if>
             <if test="address != null">address = #{address},</if>
