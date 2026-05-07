@@ -59,7 +59,7 @@ export function fetchDeleteElder(id: string) {
 export function fetchBatchDeleteElder(ids: string[]) {
   return request({
     url: '/api/elders/batch',
-    method: 'post',
+    method: 'delete',
     data: ids
   });
 }

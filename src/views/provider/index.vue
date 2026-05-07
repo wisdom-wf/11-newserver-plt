@@ -359,7 +359,7 @@ onMounted(() => {
         @refresh="getData"
         @delete="handleBatchDelete"
       >
-        <template #default>
+        <template #prefix>
           <NButton v-if="hasAuth('provider:list:add')" size="small" ghost type="primary" @click="handleOpenAdd">
             <template #icon>
               <icon-ic-round-plus class="text-icon" />

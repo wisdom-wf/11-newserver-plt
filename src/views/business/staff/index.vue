@@ -580,7 +580,7 @@ onMounted(async () => {
         @refresh="getData"
         @delete="handleBatchDelete"
       >
-        <template #default>
+        <template #prefix>
           <NButton v-if="hasAuth('staff:list:add')" size="small" ghost type="primary" @click="handleAdd">
             <template #icon>
               <icon-ic-round-plus class="text-icon" />

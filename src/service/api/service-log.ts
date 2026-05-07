@@ -105,7 +105,7 @@ export function fetchDeleteServiceLog(id: string) {
 export function fetchBatchDeleteServiceLog(ids: string[]) {
   return request({
     url: '/api/service-log/batch',
-    method: 'post',
+    method: 'delete',
     data: ids
   });
 }
