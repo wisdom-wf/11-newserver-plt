@@ -1,0 +1,40 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.elderlycare.mapper.ess.EssContractMapper">
+
+    <resultMap id="BaseResultMap" type="com.elderlycare.entity.ess.EssContract">
+        <id column="contract_id" property="contractId"/>
+        <result column="contract_no" property="contractNo"/>
+        <result column="order_id" property="orderId"/>
+        <result column="order_no" property="orderNo"/>
+        <result column="flow_id" property="flowId"/>
+        <result column="contract_name" property="contractName"/>
+        <result column="signers" property="signers"/>
+        <result column="status" property="status"/>
+        <result column="sign_url" property="signUrl"/>
+        <result column="signed_time" property="signedTime"/>
+        <result column="download_url" property="downloadUrl"/>
+        <result column="create_time" property="createTime"/>
+        <result column="update_time" property="updateTime"/>
+    </resultMap>
+
+    <select id="selectByOrderId" resultMap="BaseResultMap">
+        SELECT * FROM t_ess_contract
+        WHERE order_id = #{orderId} AND deleted = 0
+        ORDER BY create_time DESC
+        LIMIT 1
+    </select>
+
+    <select id="selectContractList" resultMap="BaseResultMap">
+        SELECT * FROM t_ess_contract
+        WHERE deleted = 0
+        <if test="status != null and status != ''">
+            AND status = #{status}
+        </if>
+        <if test="contractNo != null and contractNo != ''">
+            AND contract_no LIKE CONCAT('%', #{contractNo}, '%')
+        </if>
+        ORDER BY create_time DESC
+    </select>
+
+</mapper>

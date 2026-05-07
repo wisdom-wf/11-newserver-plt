@@ -35,3 +35,13 @@ jwt:
 page:
   default-page-size: 10
   max-page-size: 100
+
+# 腾讯电子签配置
+tencent:
+  ess:
+    secret-id: ${TENCENT_ESS_SECRET_ID}
+    secret-key: ${TENCENT_ESS_SECRET_KEY}
+    agent-id: 1252521778
+    region: ap-guangzhou
+    callback-url: ${TENCENT_ESS_CALLBACK_URL:http://your-domain.com/api/contracts/callback}
+    default-expire-days: 7

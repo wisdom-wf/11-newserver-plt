@@ -28,6 +28,7 @@ import com.elderlycare.entity.quality.QualityCheck;
 import com.elderlycare.entity.config.ConfigServiceType;
 import com.elderlycare.mapper.quality.QualityCheckMapper;
 import com.elderlycare.service.order.OrderService;
+import com.elderlycare.service.ess.ContractService;
 import com.elderlycare.vo.order.*;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -57,6 +58,7 @@ public class OrderServiceImpl implements OrderService {
     private final QualityCheckMapper qualityCheckMapper;
     private final ConfigServiceTypeMapper configServiceTypeMapper;
     private final AppointmentMapper appointmentMapper;
+    private final ContractService contractService;
 
     // ==================== 订单管理 ====================
 
@@ -378,6 +380,15 @@ public class OrderServiceImpl implements OrderService {
         order.setUpdateTime(LocalDateTime.now());
         orderMapper.updateById(order);
 
+        // 派单成功后自动创建电子签合同
+        try {
+            contractService.createServiceContract(orderId, dto.getStaffId());
+            log.info("电子签合同创建成功，订单号: {}", order.getOrderNo());
+        } catch (Exception e) {
+            log.error("电子签合同创建失败，订单号: {}", order.getOrderNo(), e);
+            // 派单成功不因合同创建失败而回滚
+        }
+
         return convertToDispatchVO(dispatch);
     }
 
@@ -484,6 +495,11 @@ public class OrderServiceImpl implements OrderService {
         // 只有已接单状态才能开始服务
         if (!OrderStatus.RECEIVED.getCode().equals(order.getStatus())) {
             throw new BusinessException(400, "当前状态不允许开始服务");
+        }
+
+        // 检查合同是否已签署
+        if (!contractService.isContractSigned(orderId)) {
+            throw new BusinessException(400, "请先完成合同签署后再开始服务");
         }
 
         // 创建服务记录（签到）
