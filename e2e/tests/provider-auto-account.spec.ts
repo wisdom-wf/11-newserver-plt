@@ -1,6 +1,6 @@
 import { test, expect } from '@playwright/test';
 
-const API_BASE = 'http://localhost:8080/api';
+const API_BASE = 'https://wisdomdance.cn/jxy/api';
 
 // 生成唯一18位信用代码（纯数字，符合正则 ^[0-9A-HJ-NPQRTUWXY]{2}\d{6}[0-9A-HJ-NPQRTUWXY]{10}$）
 // 方案：11 + 6位时间戳后6位 + 9位随机，确保18位且每次唯一

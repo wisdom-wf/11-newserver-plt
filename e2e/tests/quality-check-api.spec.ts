@@ -1,6 +1,6 @@
 import { test, expect, request } from '@playwright/test';
 
-const API_BASE = 'http://localhost:8080/api';
+const API_BASE = 'https://wisdomdance.cn/jxy/api';
 
 /**
  * QualityCheck API Tests - 质检API测试

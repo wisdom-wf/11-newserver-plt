@@ -8,7 +8,7 @@ import { test, expect, Page } from '@playwright/test';
  * 修复方案：将统计接口调用单独try-catch，避免统计失败时显示错误提示
  */
 
-const BACKEND_URL = 'http://localhost:8080';
+const BACKEND_URL = 'https://wisdomdance.cn/jxy/api';
 const FRONTEND_URL = 'http://localhost:9527';
 
 test.describe('预约确认功能', () => {

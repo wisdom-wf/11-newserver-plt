@@ -1,6 +1,6 @@
 import { test, expect } from '@playwright/test';
 
-const API_BASE = 'http://localhost:8080/api';
+const API_BASE = 'https://wisdomdance.cn/jxy/api';
 
 test.describe('登录功能测试', () => {
   test('admin账号登录成功', async ({ request }) => {

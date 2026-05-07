@@ -1,6 +1,6 @@
 import { test, expect, request } from '@playwright/test';
 
-const API_BASE = 'http://localhost:8080/api';
+const API_BASE = 'https://wisdomdance.cn/jxy/api';
 
 async function apiPost(token: string, url: string, data: object) {
   const req = await request.newRequest();

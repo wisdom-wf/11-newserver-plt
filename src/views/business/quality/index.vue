@@ -449,13 +449,23 @@ const columns: DataTableColumns<Api.Quality.QualityCheck> = [
           () => '查看'
         )
       );
-      // 如果需要整改且未提交整改，显示整改按钮
-      if (row.checkResult === 'NEED_RECTIFY' && row.rectifyStatus === 'PENDING') {
+      // 如果需要整改且未提交整改，显示整改按钮（支持 UNQUALIFIED 和 NEED_RECTIFY）
+      if ((row.checkResult === 'NEED_RECTIFY' || row.checkResult === 'UNQUALIFIED') && row.rectifyStatus === 'PENDING') {
         actions.push(
           h(
             NButton,
             { size: 'small', type: 'warning', onClick: () => showRectifyModal(row), style: { marginRight: '8px' } },
-            () => '整改'
+            () => '提交整改'
+          )
+        );
+      }
+      // 复检不通过后可重新整改
+      if (row.rectifyStatus === 'FAILED') {
+        actions.push(
+          h(
+            NButton,
+            { size: 'small', type: 'warning', onClick: () => showRectifyModal(row), style: { marginRight: '8px' } },
+            () => '重新整改'
           )
         );
       }

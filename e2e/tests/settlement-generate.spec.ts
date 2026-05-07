@@ -1,6 +1,6 @@
 import { test, expect } from '@playwright/test';
 
-const API = 'http://localhost:8080/api';
+const API = 'https://wisdomdance.cn/jxy/api';
 
 /**
  * 结算单生成功能 E2E 测试

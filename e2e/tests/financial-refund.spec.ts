@@ -16,7 +16,7 @@ import { test, expect, Page } from '@playwright/test';
  */
 
 const BASE_URL = 'http://localhost:9527';
-const API_BASE = 'http://localhost:8080/api';
+const API_BASE = 'https://wisdomdance.cn/jxy/api';
 
 async function getToken(page: Page, username = 'admin', password = 'admin123') {
   const resp = await page.request.post(`${API_BASE}/auth/login`, {

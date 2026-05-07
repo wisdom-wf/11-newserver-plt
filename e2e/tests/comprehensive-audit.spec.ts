@@ -1,7 +1,7 @@
 import { test, expect, Page, ConsoleMessage } from '@playwright/test';
 
 const BASE_URL = 'http://localhost:9527';
-const API_BASE = 'http://localhost:8080/api';
+const API_BASE = 'https://wisdomdance.cn/jxy/api';
 
 // ============================================================================
 // Test Accounts

@@ -6,7 +6,7 @@ import { test, expect, Page } from '@playwright/test';
  */
 
 const FRONTEND_URL = 'http://localhost:9527';
-const BACKEND_URL = 'http://localhost:8080';
+const BACKEND_URL = 'https://wisdomdance.cn/jxy/api';
 
 test.describe('批量删除功能', () => {
   async function login(page: Page) {

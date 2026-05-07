@@ -1,6 +1,6 @@
 import { test, expect } from '@playwright/test';
 
-const API = 'http://localhost:8080/api';
+const API = 'https://wisdomdance.cn/jxy/api';
 
 /**
  * 字段校验与边界条件测试

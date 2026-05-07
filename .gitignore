@@ -47,3 +47,4 @@ test-results/
 playwright-report/
 *.png
 *.json
+test-results/

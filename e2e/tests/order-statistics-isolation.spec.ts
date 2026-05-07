@@ -5,7 +5,7 @@ import { test, expect } from '@playwright/test';
 
 // 获取FWS1 token
 async function getFWS1Token() {
-  const res = await fetch('http://localhost:8080/api/auth/login', {
+  const res = await fetch('https://wisdomdance.cn/jxy/api/auth/login', {
     method: 'POST',
     headers: { 'Content-Type': 'application/json' },
     body: JSON.stringify({ username: 'FWS1', password: 'admin123' })
@@ -16,7 +16,7 @@ async function getFWS1Token() {
 
 // 获取FWS2 token
 async function getFWS2Token() {
-  const res = await fetch('http://localhost:8080/api/auth/login', {
+  const res = await fetch('https://wisdomdance.cn/jxy/api/auth/login', {
     method: 'POST',
     headers: { 'Content-Type': 'application/json' },
     body: JSON.stringify({ username: 'FWS2', password: 'admin123' })
@@ -27,7 +27,7 @@ async function getFWS2Token() {
 
 // 获取admin token
 async function getAdminToken() {
-  const res = await fetch('http://localhost:8080/api/auth/login', {
+  const res = await fetch('https://wisdomdance.cn/jxy/api/auth/login', {
     method: 'POST',
     headers: { 'Content-Type': 'application/json' },
     body: JSON.stringify({ username: 'admin', password: 'admin123' })
@@ -38,7 +38,7 @@ async function getAdminToken() {
 
 // 订单统计API调用
 async function fetchOrderStatistics(token: string) {
-  const res = await fetch('http://localhost:8080/api/orders/statistics', {
+  const res = await fetch('https://wisdomdance.cn/jxy/api/orders/statistics', {
     headers: { Authorization: `Bearer ${token}` }
   });
   return res.json();
@@ -146,14 +146,14 @@ test.describe('订单统计接口隔离', () => {
 
   test('TC-OS-05: STATISTICS_CONTROLLER订单统计接口同样隔离', async ({ request }) => {
     const fws1Token = await (async () => {
-      const r = await request.post('http://localhost:8080/api/auth/login', {
+      const r = await request.post('https://wisdomdance.cn/jxy/api/auth/login', {
         data: { username: 'FWS1', password: 'admin123' }
       });
       return (await r.json())?.data?.accessToken;
     })();
     if (!fws1Token) { console.log('TC-OS-05 skip: FWS1 token 获取失败'); return; }
 
-    const res = await request.get('http://localhost:8080/api/statistics/order', {
+    const res = await request.get('https://wisdomdance.cn/jxy/api/statistics/order', {
       headers: { Authorization: `Bearer ${fws1Token}` }
     });
 

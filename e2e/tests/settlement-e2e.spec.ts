@@ -3,7 +3,7 @@ import { test, expect } from '@playwright/test';
 // ============================================================================
 // 测试配置
 // ============================================================================
-const BACKEND = 'http://localhost:8080/api';
+const BACKEND = 'https://wisdomdance.cn/jxy/api';
 const FRONTEND = 'http://localhost:9527';
 const ADMIN_CREDS = { username: 'admin', password: 'admin123' };
 const FWS1_CREDS = { username: 'FWS1', password: 'admin123' };

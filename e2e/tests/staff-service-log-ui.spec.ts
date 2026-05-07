@@ -9,7 +9,7 @@ import { test, expect, Page } from '@playwright/test';
  *   - StaffController 新增 getServiceLogs API
  */
 const BASE_URL = 'http://localhost:9527';
-const API_BASE = 'http://localhost:8080/api';
+const API_BASE = 'https://wisdomdance.cn/jxy/api';
 
 /**
  * Helper function to setup authenticated page via localStorage

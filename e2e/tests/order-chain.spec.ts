@@ -1,6 +1,6 @@
 import { test, expect } from '@playwright/test';
 
-const API = 'http://localhost:8080/api';
+const API = 'https://wisdomdance.cn/jxy/api';
 
 async function adminToken(req: any) {
   const r = await req.post(`${API}/auth/login`, { data: { username: 'admin', password: 'admin123' } });

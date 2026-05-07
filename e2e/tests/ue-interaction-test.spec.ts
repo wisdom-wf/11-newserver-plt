@@ -5,7 +5,7 @@ import { test, expect, Page } from '@playwright/test';
  * 重点验证 Phase 1 发现的交互问题
  */
 
-const API_BASE = 'http://localhost:8080/api';
+const API_BASE = 'https://wisdomdance.cn/jxy/api';
 
 async function loginAsAdmin(page: Page) {
   await page.goto('/');

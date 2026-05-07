@@ -1,7 +1,7 @@
 import { test, expect } from '@playwright/test';
 
 const FRONTEND_URL = 'http://localhost:9527';
-const BACKEND_URL = 'http://localhost:8080';
+const BACKEND_URL = 'https://wisdomdance.cn/jxy/api';
 
 test.describe('预约确认查看服务商资质测试', () => {
   test('后端API - 预约列表包含待确认状态的预约', async ({ request }) => {

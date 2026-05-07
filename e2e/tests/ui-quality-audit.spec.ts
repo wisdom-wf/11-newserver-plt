@@ -5,7 +5,7 @@ import { test, expect, Page } from '@playwright/test';
  * 目标：采集核心页面截图，识别UI问题
  */
 
-const API_BASE = 'http://localhost:8080/api';
+const API_BASE = 'https://wisdomdance.cn/jxy/api';
 
 // 登录辅助函数
 async function loginAsAdmin(page: Page) {
