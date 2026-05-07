@@ -649,9 +649,10 @@ public class AppointmentServiceImpl implements AppointmentService {
     @Override
     @Transactional(rollbackFor = Exception.class)
     public void batchDeleteAppointment(List<String> ids) {
-        for (String id : ids) {
-            appointmentMapper.deleteById(id);
+        if (ids == null || ids.isEmpty()) {
+            return;
         }
+        appointmentMapper.deleteBatchIds(ids);
     }
 
     private AppointmentVO convertToVO(Appointment appointment) {
@@ -703,8 +704,9 @@ public class AppointmentServiceImpl implements AppointmentService {
         timeline.put("currentStatusName", getStatusName(appointment.getStatus()));
 
         // 填充订单关联信息
+        Order order = null;
         if (appointment.getOrderId() != null && !appointment.getOrderId().isEmpty()) {
-            Order order = orderMapper.selectById(appointment.getOrderId());
+            order = orderMapper.selectById(appointment.getOrderId());
             if (order != null) {
                 timeline.put("orderId", order.getOrderId());
                 timeline.put("orderNo", order.getOrderNo());
@@ -717,13 +719,10 @@ public class AppointmentServiceImpl implements AppointmentService {
         List<Map<String, Object>> nodes = buildAppointmentTimelineNodes(appointment);
         timeline.put("nodes", nodes);
 
-        // 追加订单时间轴节点
-        if (appointment.getOrderId() != null && !appointment.getOrderId().isEmpty()) {
-            Order order = orderMapper.selectById(appointment.getOrderId());
-            if (order != null) {
-                List<Map<String, Object>> orderNodes = buildOrderTimelineNodes(order);
-                timeline.put("orderNodes", orderNodes);
-            }
+        // 追加订单时间轴节点（复用已查询的order）
+        if (order != null) {
+            List<Map<String, Object>> orderNodes = buildOrderTimelineNodes(order);
+            timeline.put("orderNodes", orderNodes);
         }
 
         return timeline;

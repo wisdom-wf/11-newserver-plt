@@ -72,6 +72,11 @@ public interface ServiceLogService {
     void deleteServiceLog(String id);
 
     /**
+     * 批量删除服务日志
+     */
+    void deleteBatchServiceLog(List<String> ids);
+
+    /**
      * 复制服务日志（创建新草稿日志，预填原日志信息，清空时间/照片/签名/异常字段）
      * @param id 原日志ID
      * @return 新日志ID

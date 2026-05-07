@@ -192,9 +192,7 @@ public class ServiceLogController {
     @DeleteMapping("/batch")
     @PostMapping("/batch")
     public Result<Void> batchDeleteServiceLog(@RequestBody List<String> ids) {
-        for (String id : ids) {
-            serviceLogService.deleteServiceLog(id);
-        }
+        serviceLogService.deleteBatchServiceLog(ids);
         return Result.successMsg("批量删除成功");
     }
 

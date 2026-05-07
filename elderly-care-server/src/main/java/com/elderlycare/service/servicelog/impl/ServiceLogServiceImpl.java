@@ -282,6 +282,15 @@ public class ServiceLogServiceImpl implements ServiceLogService {
 
     @Override
     @Transactional(rollbackFor = Exception.class)
+    public void deleteBatchServiceLog(List<String> ids) {
+        if (ids == null || ids.isEmpty()) {
+            return;
+        }
+        serviceLogMapper.deleteBatchIds(ids);
+    }
+
+    @Override
+    @Transactional(rollbackFor = Exception.class)
     public String duplicateServiceLog(String id) {
         ServiceLog original = serviceLogMapper.selectById(id);
         if (original == null) {

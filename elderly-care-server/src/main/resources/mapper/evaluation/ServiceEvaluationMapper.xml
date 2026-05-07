@@ -11,12 +11,24 @@
         <result column="attitude_score" property="attitudeScore"/>
         <result column="quality_score" property="qualityScore"/>
         <result column="efficiency_score" property="efficiencyScore"/>
+        <result column="environment_score" property="environmentScore"/>
         <result column="overall_score" property="overallScore"/>
         <result column="average_score" property="averageScore"/>
         <result column="evaluation_content" property="content"/>
         <result column="evaluation_tags" property="tags"/>
         <result column="is_anonymous" property="anonymous"/>
         <result column="evaluation_time" property="evaluationTime"/>
+        <result column="evaluation_token" property="evaluationToken"/>
+        <result column="token_status" property="tokenStatus"/>
+        <result column="token_expire_time" property="tokenExpireTime"/>
+        <result column="token_used_time" property="tokenUsedTime"/>
+        <result column="token_used_ip" property="tokenUsedIp"/>
+        <result column="quality_check_id" property="qualityCheckId"/>
+        <result column="service_log_id" property="serviceLogId"/>
+        <result column="reply_content" property="replyContent"/>
+        <result column="reply_time" property="replyTime"/>
+        <result column="replyer_id" property="replyerId"/>
+        <result column="replyer_name" property="replyerName"/>
         <result column="create_time" property="createTime"/>
     </resultMap>
 
