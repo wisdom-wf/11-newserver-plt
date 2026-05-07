@@ -21,6 +21,7 @@ export const views: Record<LastLevelRouteKey, RouteComponent | (() => Promise<Ro
   "iframe-page": () => import("@/views/_builtin/iframe-page/[url].vue"),
   login: () => import("@/views/_builtin/login/index.vue"),
   appointment: () => import("@/views/appointment/index.vue"),
+  business_contract: () => import("@/views/business/contract/index.vue"),
   business_elder: () => import("@/views/business/elder/index.vue"),
   business_evaluation: () => import("@/views/business/evaluation/index.vue"),
   business_financial: () => import("@/views/business/financial/index.vue"),

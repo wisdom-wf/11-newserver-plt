@@ -62,6 +62,15 @@ export const generatedRoutes: GeneratedRoute[] = [
     },
     children: [
       {
+        name: 'business_contract',
+        path: '/business/contract',
+        component: 'view.business_contract',
+        meta: {
+          title: 'business_contract',
+          i18nKey: 'route.business_contract'
+        }
+      },
+      {
         name: 'business_elder',
         path: '/business/elder',
         component: 'view.business_elder',

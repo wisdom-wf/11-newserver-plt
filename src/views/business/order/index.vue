@@ -44,6 +44,10 @@ import {
   fetchCreateEvaluation,
   fetchBatchDeleteOrder
 } from '@/service/api';
+import {
+  fetchGetContractByOrderId,
+  fetchGetSignUrl
+} from '@/service/api';
 import { useRouterPush } from '@/hooks/common/router';
 import { useNaivePaginatedTable, defaultTransform } from '@/hooks/common/table';
 import { useNaiveForm } from '@/hooks/common/form';
@@ -629,6 +633,11 @@ const orderTimelineData = ref<OrderTimelineItem[]>([]);
 const activeDetailTab = ref<'info' | 'timeline'>('info');
 const expandedNodes = ref<Set<string>>(new Set());
 
+// 合同详情弹窗
+const contractDetailVisible = ref(false);
+const contractDetailData = ref<any>(null);
+const contractSignLoading = ref(false);
+
 function toggleNode(node: OrderTimelineItem) {
   if (expandedNodes.value.has(node.status)) {
     expandedNodes.value.delete(node.status);
@@ -713,7 +722,17 @@ async function handleAssignSubmit() {
     message.error(errMsg);
     return;
   }
-  message.success('派单成功');
+  // 派单成功后查询合同信息并展示
+  try {
+    const { data: contractData } = await fetchGetContractByOrderId(currentOrderId.value);
+    if (contractData) {
+      message.success(`派单成功，合同已创建：${contractData.contractNo}`);
+    } else {
+      message.success('派单成功');
+    }
+  } catch {
+    message.success('派单成功');
+  }
   assignModalVisible.value = false;
   await getData();
   await getStatistics();
@@ -721,21 +740,64 @@ async function handleAssignSubmit() {
 
 async function handleAccept(row: Api.Order.Order) {
   try {
-    await fetchAcceptOrder(row.orderId, {
-      staffId: row.staffId
-    });
+    // 先检查合同状态
+    const { data: contractData } = await fetchGetContractByOrderId(row.orderId);
+    if (contractData && contractData.status !== 'SIGNED' && contractData.status !== 'COMPLETED') {
+      // 合同未签署，弹出合同详情让服务人员查看/签署
+      contractDetailData.value = contractData;
+      contractDetailVisible.value = true;
+      return;
+    }
+    // 合同已签署或无合同，直接接单
+    await fetchAcceptOrder(row.orderId, { staffId: row.staffId });
     message.success('接单成功');
     await getData();
     await getStatistics();
   } catch (e: any) {
     console.error('Accept error:', e);
-    const errMsg = e?.message || e?.response?.data?.message || '接单失败';
-    message.error(errMsg);
+    // 无合同记录，直接接单
+    try {
+      await fetchAcceptOrder(row.orderId, { staffId: row.staffId });
+      message.success('接单成功');
+      await getData();
+      await getStatistics();
+    } catch (e2: any) {
+      const errMsg = e2?.message || e2?.response?.data?.message || '接单失败';
+      message.error(errMsg);
+    }
+  }
+}
+
+// 跳转到签署页面
+async function handleSignContract() {
+  if (!contractDetailData.value?.contractId) return;
+  contractSignLoading.value = true;
+  try {
+    const { data: signUrlData } = await fetchGetSignUrl(contractDetailData.value.contractId);
+    if (signUrlData?.signUrl) {
+      window.open(signUrlData.signUrl, '_blank');
+      contractDetailVisible.value = false;
+      message.success('请在签署完成后刷新订单状态');
+    }
+  } catch (e) {
+    message.error('获取签署链接失败');
+  } finally {
+    contractSignLoading.value = false;
   }
 }
 
 async function handleStart(row: Api.Order.Order) {
   try {
+    // 先检查合同状态
+    const { data: contractData } = await fetchGetContractByOrderId(row.orderId);
+    if (contractData && ['DRAFT', 'INITIATED', 'SIGNING'].includes(contractData.status)) {
+      // 合同未签署，弹出合同详情
+      message.warning('请先完成合同签署后再开始服务');
+      contractDetailData.value = contractData;
+      contractDetailVisible.value = true;
+      return;
+    }
+    // 合同已签署或无合同，执行开始服务
     await fetchStartOrder(row.orderId, {});
     message.success('开始服务');
     await getData();
@@ -1376,6 +1438,36 @@ onMounted(() => {
         <NSpace justify="end">
           <NButton @click="cancelModalVisible = false">取消</NButton>
           <NButton type="primary" @click="handleCancelSubmit">确认</NButton>
+        </NSpace>
+      </template>
+    </NModal>
+
+    <!-- Contract Detail Modal -->
+    <NModal v-model:show="contractDetailVisible" title="合同详情" preset="card" style="width: 520px">
+      <NForm v-if="contractDetailData" label-placement="left" label-width="100">
+        <NFormItem label="合同编号">{{ contractDetailData.contractNo || '-' }}</NFormItem>
+        <NFormItem label="合同名称">{{ contractDetailData.contractName || '智慧居家养老服务合同' }}</NFormItem>
+        <NFormItem label="甲方（服务商）">{{ contractDetailData.providerName || '-' }}</NFormItem>
+        <NFormItem label="乙方（服务人员）">{{ contractDetailData.staffName || '-' }}</NFormItem>
+        <NFormItem label="合同状态">
+          <NTag :type="contractDetailData.status === 'SIGNED' || contractDetailData.status === 'COMPLETED' ? 'success' : 'warning'" size="small">
+            {{ { DRAFT: '草稿', INITIATED: '已发起', SIGNING: '签署中', SIGNED: '已签署', COMPLETED: '已完成', EXPIRED: '已过期', REJECTED: '已拒签', CANCELLED: '已撤回' }[contractDetailData.status] || contractDetailData.status }}
+          </NTag>
+        </NFormItem>
+        <NFormItem label="创建时间">{{ contractDetailData.createTime || '-' }}</NFormItem>
+      </NForm>
+      <div v-else style="text-align: center; padding: 20px; color: #999">暂无合同信息</div>
+      <template #footer>
+        <NSpace justify="end">
+          <NButton @click="contractDetailVisible = false">关闭</NButton>
+          <NButton
+            v-if="contractDetailData && contractDetailData.status !== 'SIGNED' && contractDetailData.status !== 'COMPLETED'"
+            type="primary"
+            :loading="contractSignLoading"
+            @click="handleSignContract"
+          >
+            签署合同
+          </NButton>
         </NSpace>
       </template>
     </NModal>

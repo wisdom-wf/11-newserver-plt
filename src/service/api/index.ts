@@ -13,3 +13,4 @@ export * from './staff';
 export * from './elder';
 export * from './financial';
 export * from './cockpit';
+export * from './contract';
