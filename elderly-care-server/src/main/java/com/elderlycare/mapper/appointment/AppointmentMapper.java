@@ -21,4 +21,19 @@ public interface AppointmentMapper extends BaseMapper<Appointment> {
     /** 统计某手机号近期预约数（防刷） */
     @Select("SELECT COUNT(*) FROM appointment WHERE elder_phone = #{phone} AND create_time >= #{since}")
     Long countRecentByPhone(@Param("phone") String phone, @Param("since") LocalDateTime since);
+
+    /** 批量统计各状态数量 */
+    @Select("<script>" +
+            "SELECT status, COUNT(*) as cnt FROM appointment WHERE validity = 'VALID' " +
+            "<if test='providerId != null'> AND provider_id = #{providerId} </if>" +
+            "<if test='areaId != null and areaId != \"\"'> AND elder_area_id = #{areaId} </if>" +
+            "<if test='startDate != null'> AND create_time >= #{startDate} </if>" +
+            "<if test='endDate != null'> AND create_time &lt;= #{endDate} </if>" +
+            " GROUP BY status" +
+            "</script>")
+    java.util.List<java.util.Map<String, Object>> selectStatusCounts(
+            @Param("providerId") String providerId,
+            @Param("areaId") String areaId,
+            @Param("startDate") LocalDateTime startDate,
+            @Param("endDate") LocalDateTime endDate);
 }

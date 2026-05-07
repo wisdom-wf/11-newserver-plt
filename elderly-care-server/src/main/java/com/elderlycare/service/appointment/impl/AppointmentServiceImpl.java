@@ -3,8 +3,11 @@ package com.elderlycare.service.appointment.impl;
 import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
 import com.baomidou.mybatisplus.core.metadata.IPage;
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
+import com.elderlycare.common.BusinessException;
 import com.elderlycare.common.IDGenerator;
 import com.elderlycare.common.PageResult;
+import com.elderlycare.common.ServiceTypeCode;
+import com.elderlycare.common.YananArea;
 import com.elderlycare.dto.appointment.AppointmentCreateDTO;
 import com.elderlycare.dto.appointment.AppointmentQueryDTO;
 import com.elderlycare.dto.appointment.PublicAppointmentSubmitDTO;
@@ -32,10 +35,8 @@ import org.springframework.web.multipart.MultipartFile;
 
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
-import java.math.BigDecimal;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
-import java.time.format.DateTimeFormatter;
 import java.util.*;
 import java.util.stream.Collectors;
 
@@ -128,29 +129,29 @@ public class AppointmentServiceImpl implements AppointmentService {
         // 1. 先查询预约详情
         Appointment appointment = appointmentMapper.selectById(id);
         if (appointment == null) {
-            throw new RuntimeException("预约不存在");
+            throw BusinessException.fail("预约不存在");
         }
 
         // 2. 状态校验：只有PENDING状态可以确认
         if (!"PENDING".equals(appointment.getStatus())) {
-            throw new RuntimeException("只有待确认状态的预约可以进行确认操作");
+            throw BusinessException.fail("只有待确认状态的预约可以进行确认操作");
         }
 
         // 3. 参数校验
         if (providerId == null || providerId.isEmpty()) {
-            throw new RuntimeException("请选择服务商");
+            throw BusinessException.fail("请选择服务商");
         }
         if (appointmentTime == null || appointmentTime.isEmpty()) {
-            throw new RuntimeException("请填写预约时间");
+            throw BusinessException.fail("请填写预约时间");
         }
 
         // 4. 查询服务商信息并校验状态
         Provider provider = providerMapper.selectById(providerId);
         if (provider == null) {
-            throw new RuntimeException("所选服务商不存在");
+            throw BusinessException.fail("所选服务商不存在");
         }
         if (!"ENABLED".equals(provider.getStatus())) {
-            throw new RuntimeException("所选服务商已被禁用，无法确认预约");
+            throw BusinessException.fail("所选服务商已被禁用，无法确认预约");
         }
         appointment.setProviderId(providerId);
         appointment.setProviderName(provider.getProviderName());
@@ -301,26 +302,26 @@ public class AppointmentServiceImpl implements AppointmentService {
         // 1. 查询预约详情
         Appointment appointment = appointmentMapper.selectById(id);
         if (appointment == null) {
-            throw new RuntimeException("预约不存在");
+            throw BusinessException.fail("预约不存在");
         }
 
         // 2. 状态校验：只有CONFIRMED状态可以分配
         if (!"CONFIRMED".equals(appointment.getStatus())) {
-            throw new RuntimeException("只有已确认状态的预约可以进行分配");
+            throw BusinessException.fail("只有已确认状态的预约可以进行分配");
         }
 
         // 3. 参数校验
         if (providerId == null || providerId.isEmpty()) {
-            throw new RuntimeException("请选择服务商");
+            throw BusinessException.fail("请选择服务商");
         }
 
         // 4. 校验服务商状态
         Provider provider = providerMapper.selectById(providerId);
         if (provider == null) {
-            throw new RuntimeException("所选服务商不存在");
+            throw BusinessException.fail("所选服务商不存在");
         }
         if (!"ENABLED".equals(provider.getStatus())) {
-            throw new RuntimeException("所选服务商已被禁用，无法分配");
+            throw BusinessException.fail("所选服务商已被禁用，无法分配");
         }
 
         // 5. 执行分配
@@ -334,12 +335,12 @@ public class AppointmentServiceImpl implements AppointmentService {
         // 1. 查询预约详情
         Appointment appointment = appointmentMapper.selectById(id);
         if (appointment == null) {
-            throw new RuntimeException("预约不存在");
+            throw BusinessException.fail("预约不存在");
         }
 
         // 2. 状态校验：只有PENDING状态可以取消
         if (!"PENDING".equals(appointment.getStatus())) {
-            throw new RuntimeException("只有待确认状态的预约可以取消");
+            throw BusinessException.fail("只有待确认状态的预约可以取消");
         }
 
         // 3. 执行取消
@@ -353,12 +354,12 @@ public class AppointmentServiceImpl implements AppointmentService {
         // 1. 查询预约详情
         Appointment appointment = appointmentMapper.selectById(id);
         if (appointment == null) {
-            throw new RuntimeException("预约不存在");
+            throw BusinessException.fail("预约不存在");
         }
 
         // 2. 状态校验：只有PENDING状态可以作废
         if (!"PENDING".equals(appointment.getStatus())) {
-            throw new RuntimeException("只有待确认状态的预约可以作废");
+            throw BusinessException.fail("只有待确认状态的预约可以作废");
         }
 
         // 3. 执行作废
@@ -393,7 +394,7 @@ public class AppointmentServiceImpl implements AppointmentService {
                 }
             }
         } catch (IOException e) {
-            throw new RuntimeException("Excel文件读取失败", e);
+            throw new BusinessException(500, "Excel文件读取失败", e);
         }
 
         result.put("successCount", successCount);
@@ -491,64 +492,21 @@ public class AppointmentServiceImpl implements AppointmentService {
 
     private String getServiceTypeCode(String serviceType) {
         if (serviceType == null) return null;
-        switch (serviceType) {
-            case "上门服务": return "DOOR_TO_DOOR";
-            case "日间照料": return "DAY_CARE";
-            case "助餐服务": return "MEAL";
-            case "助洁服务": return "CLEANING";
-            case "助浴服务": return "BATHING";
-            case "健康监测": return "HEALTH";
-            case "康复护理": return "REHAB";
-            case "精神慰藉": return "COMFORT";
-            case "信息咨询": return "INFO";
-            case "紧急救援": return "EMERGENCY";
-            default: return "OTHER";
-        }
+        ServiceTypeCode code = ServiceTypeCode.fromChinese(serviceType);
+        return code != null ? code.name() : "OTHER";
     }
 
     private void parseAddressArea(String address, Appointment appointment) {
         if (address == null) return;
-        // 地址格式: 陕西省延安市宝塔区xxx
-        if (address.contains("宝塔区")) {
-            appointment.setElderAreaName("宝塔区");
-            appointment.setElderAreaId("610602");
-        } else if (address.contains("安塞区")) {
-            appointment.setElderAreaName("安塞区");
-            appointment.setElderAreaId("610603");
-        } else if (address.contains("子长市")) {
-            appointment.setElderAreaName("子长市");
-            appointment.setElderAreaId("610681");
-        } else if (address.contains("延长县")) {
-            appointment.setElderAreaName("延长县");
-            appointment.setElderAreaId("610621");
-        } else if (address.contains("延川县")) {
-            appointment.setElderAreaName("延川县");
-            appointment.setElderAreaId("610622");
-        } else if (address.contains("志丹县")) {
-            appointment.setElderAreaName("志丹县");
-            appointment.setElderAreaId("610625");
-        } else if (address.contains("吴起县")) {
-            appointment.setElderAreaName("吴起县");
-            appointment.setElderAreaId("610626");
-        } else if (address.contains("甘泉县")) {
-            appointment.setElderAreaName("甘泉县");
-            appointment.setElderAreaId("610627");
-        } else if (address.contains("富县")) {
-            appointment.setElderAreaName("富县");
-            appointment.setElderAreaId("610628");
-        } else if (address.contains("洛川县")) {
-            appointment.setElderAreaName("洛川县");
-            appointment.setElderAreaId("610629");
-        } else if (address.contains("黄陵县")) {
-            appointment.setElderAreaName("黄陵县");
-            appointment.setElderAreaId("610630");
-        } else if (address.contains("黄龙县")) {
-            appointment.setElderAreaName("黄龙县");
-            appointment.setElderAreaId("610631");
-        } else {
-            appointment.setElderAreaName("延安市");
-            appointment.setElderAreaId("610600");
+        for (YananArea area : YananArea.values()) {
+            if (address.contains(area.getAreaName())) {
+                appointment.setElderAreaName(area.getAreaName());
+                appointment.setElderAreaId(area.getAreaId());
+                return;
+            }
         }
+        appointment.setElderAreaName("延安市");
+        appointment.setElderAreaId("610600");
     }
 
     @Override
@@ -577,7 +535,7 @@ public class AppointmentServiceImpl implements AppointmentService {
             workbook.write(bos);
             return bos.toByteArray();
         } catch (Exception e) {
-            throw new RuntimeException("生成模板失败", e);
+            throw new BusinessException(500, "生成模板失败", e);
         }
     }
 
@@ -585,54 +543,33 @@ public class AppointmentServiceImpl implements AppointmentService {
     public AppointmentStatisticsVO getStatistics(String providerId, String areaId, String startDate, String endDate) {
         AppointmentStatisticsVO stats = new AppointmentStatisticsVO();
 
-        // 构建基础过滤条件
-        LambdaQueryWrapper<Appointment> baseWrapper = new LambdaQueryWrapper<>();
-        if (providerId != null) {
-            baseWrapper.eq(Appointment::getProviderId, providerId);
-        }
-        if (areaId != null && !areaId.isEmpty()) {
-            baseWrapper.eq(Appointment::getElderAreaId, areaId);
-        }
+        LocalDateTime startDateTime = null;
+        LocalDateTime endDateTime = null;
         if (startDate != null && !startDate.isEmpty()) {
-            baseWrapper.ge(Appointment::getCreateTime, LocalDateTime.parse(startDate + "T00:00:00"));
+            startDateTime = LocalDateTime.parse(startDate + "T00:00:00");
         }
         if (endDate != null && !endDate.isEmpty()) {
-            baseWrapper.le(Appointment::getCreateTime, LocalDateTime.parse(endDate + "T23:59:59"));
+            endDateTime = LocalDateTime.parse(endDate + "T23:59:59");
         }
 
-        // 总数
-        stats.setTotal(appointmentMapper.selectCount(baseWrapper.clone()).intValue());
+        java.util.List<java.util.Map<String, Object>> statusCounts =
+            appointmentMapper.selectStatusCounts(providerId, areaId, startDateTime, endDateTime);
 
-        // 待处理
-        LambdaQueryWrapper<Appointment> w1 = baseWrapper.clone();
-        w1.eq(Appointment::getStatus, "PENDING");
-        stats.setPending(appointmentMapper.selectCount(w1).intValue());
-
-        // 已确认
-        LambdaQueryWrapper<Appointment> w2 = baseWrapper.clone();
-        w2.eq(Appointment::getStatus, "CONFIRMED");
-        stats.setConfirmed(appointmentMapper.selectCount(w2).intValue());
-
-        // 已分配
-        LambdaQueryWrapper<Appointment> w3 = baseWrapper.clone();
-        w3.eq(Appointment::getStatus, "ASSIGNED");
-        stats.setAssigned(appointmentMapper.selectCount(w3).intValue());
-
-        // 已完成
-        LambdaQueryWrapper<Appointment> w4 = baseWrapper.clone();
-        w4.eq(Appointment::getStatus, "COMPLETED");
-        stats.setCompleted(appointmentMapper.selectCount(w4).intValue());
-
-        // 已取消
-        LambdaQueryWrapper<Appointment> w5 = baseWrapper.clone();
-        w5.eq(Appointment::getStatus, "CANCELLED");
-        stats.setCancelled(appointmentMapper.selectCount(w5).intValue());
-
-        // 已作废
-        LambdaQueryWrapper<Appointment> w6 = baseWrapper.clone();
-        w6.eq(Appointment::getStatus, "INVALID");
-        stats.setInvalid(appointmentMapper.selectCount(w6).intValue());
-
+        int total = 0;
+        for (java.util.Map<String, Object> row : statusCounts) {
+            String status = String.valueOf(row.get("status"));
+            int cnt = ((Number) row.get("cnt")).intValue();
+            total += cnt;
+            switch (status) {
+                case "PENDING": stats.setPending(cnt); break;
+                case "CONFIRMED": stats.setConfirmed(cnt); break;
+                case "ASSIGNED": stats.setAssigned(cnt); break;
+                case "COMPLETED": stats.setCompleted(cnt); break;
+                case "CANCELLED": stats.setCancelled(cnt); break;
+                case "INVALID": stats.setInvalid(cnt); break;
+            }
+        }
+        stats.setTotal(total);
         return stats;
     }
 
@@ -694,7 +631,7 @@ public class AppointmentServiceImpl implements AppointmentService {
     public Object getAppointmentTimeline(String id) {
         Appointment appointment = appointmentMapper.selectById(id);
         if (appointment == null) {
-            throw new RuntimeException("预约不存在");
+            throw BusinessException.fail("预约不存在");
         }
 
         Map<String, Object> timeline = new HashMap<>();
@@ -997,17 +934,17 @@ public class AppointmentServiceImpl implements AppointmentService {
         // 1. 校验token
         Appointment record = appointmentMapper.selectByToken(token);
         if (record == null || !"ACTIVE".equals(record.getTokenStatus())) {
-            throw new RuntimeException("预约链接无效或已停用");
+            throw BusinessException.fail("预约链接无效或已停用");
         }
         if (record.getTokenExpireTime() != null && record.getTokenExpireTime().isBefore(LocalDateTime.now())) {
-            throw new RuntimeException("预约链接已过期");
+            throw BusinessException.fail("预约链接已过期");
         }
 
         // 2. 防刷：同手机号5分钟内不能重复提交
         LocalDateTime fiveMinAgo = LocalDateTime.now().minusMinutes(5);
         Long count = appointmentMapper.countRecentByPhone(dto.getElderPhone(), fiveMinAgo);
         if (count != null && count > 0) {
-            throw new RuntimeException("您刚刚已提交过预约，请稍后再试");
+            throw BusinessException.fail("您刚刚已提交过预约，请稍后再试");
         }
 
         // 3. 创建预约记录
@@ -1046,7 +983,7 @@ public class AppointmentServiceImpl implements AppointmentService {
     public void disableAppointmentToken(String token) {
         Appointment record = appointmentMapper.selectByToken(token);
         if (record == null) {
-            throw new RuntimeException("二维码不存在");
+            throw BusinessException.fail("二维码不存在");
         }
         record.setTokenStatus("EXPIRED");
         appointmentMapper.updateById(record);
@@ -1056,10 +993,10 @@ public class AppointmentServiceImpl implements AppointmentService {
     public void updateAppointmentInfo(String id, AppointmentUpdateDTO dto) {
         Appointment appointment = appointmentMapper.selectById(id);
         if (appointment == null) {
-            throw new RuntimeException("预约不存在");
+            throw BusinessException.fail("预约不存在");
         }
         if (!"PENDING".equals(appointment.getStatus())) {
-            throw new RuntimeException("仅待处理状态的预约可编辑");
+            throw BusinessException.fail("仅待处理状态的预约可编辑");
         }
         if (dto.getServiceType() != null) {
             appointment.setServiceType(dto.getServiceType());
