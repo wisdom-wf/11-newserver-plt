@@ -182,7 +182,8 @@ public class QualityCheckServiceImpl implements QualityCheckService {
                     }
                 }
             } else {
-                qualityCheck.setRectifyStatus("FAILED");
+                // FAILED 后可重新整改，状态回退到 PENDING
+                qualityCheck.setRectifyStatus("PENDING");
             }
             qualityCheckMapper.updateById(qualityCheck);
         }
@@ -289,8 +290,12 @@ public class QualityCheckServiceImpl implements QualityCheckService {
             // 不合格/需整改：开启整改流程
             qc.setNeedRectify(true);
             qc.setRectifyStatus("PENDING");
-            qc.setRectifyNotice(dto.getRectifyNotice());
-            if (dto.getRectifyDeadline() != null) {
+            if ("UNQUALIFIED".equals(dto.getCheckResult())) {
+                // UNQUALIFIED：后端自动设置默认整改通知
+                qc.setRectifyNotice(dto.getRectifyNotice() != null ? dto.getRectifyNotice() : "质检不合格，请及时整改");
+                qc.setRectifyDeadline(dto.getRectifyDeadline() != null ? dto.getRectifyDeadline() : LocalDateTime.now().plusDays(3));
+            } else {
+                qc.setRectifyNotice(dto.getRectifyNotice());
                 qc.setRectifyDeadline(dto.getRectifyDeadline());
             }
         }
