@@ -331,8 +331,8 @@ public class ContractServiceImpl implements ContractService {
      */
     private Agent buildAgent() {
         Agent agent = new Agent();
-        agent.setProxyOperatorUid(essConfig.getOperatorId());
-        agent.setProxyOrganizationOpenId(essConfig.getAgentId());
+        agent.setProxyOperator(essConfig.getOperatorId());
+        agent.setProxyOrganizationId(essConfig.getAgentId());
         return agent;
     }
 
@@ -369,14 +369,14 @@ public class ContractServiceImpl implements ContractService {
             orgApprover.setOrganizationName(order.getProviderName());
             orgApprover.setApproverName(order.getProviderName());
             orgApprover.setApproverMobile(staff.getPhone()); // 用服务人员手机号（企业方经办人）
-            orgApprover.setRecipientId(1L);
+            orgApprover.setRecipientId("1");
 
             // 个人方（服务人员）
             FlowCreateApprover personalApprover = new FlowCreateApprover();
             personalApprover.setApproverType(1L); // 个人
             personalApprover.setApproverName(staff.getStaffName());
             personalApprover.setApproverMobile(staff.getPhone());
-            personalApprover.setRecipientId(2L);
+            personalApprover.setRecipientId("2");
 
             FlowCreateApprover[] approvers = new FlowCreateApprover[]{orgApprover, personalApprover};
             createFlowReq.setApprovers(approvers);
@@ -513,8 +513,8 @@ public class ContractServiceImpl implements ContractService {
             DescribeFileUrlsRequest req = new DescribeFileUrlsRequest();
             req.setAgent(agent);
             req.setBusinessType("FLOW");
-            String[] flowIds = new String[]{flowId};
-            req.setFlowIds(flowIds);
+            String[] businessIds = new String[]{flowId};
+            req.setBusinessIds(businessIds);
 
             DescribeFileUrlsResponse resp = client.DescribeFileUrls(req);
 
@@ -554,7 +554,7 @@ public class ContractServiceImpl implements ContractService {
             req.setCancelMessage("管理员取消合同");
 
             CancelFlowResponse resp = client.CancelFlow(req);
-            log.info("取消合同成功: flowId={}, result={}", flowId, resp.getOperateResult());
+            log.info("取消合同成功: flowId={}, requestId={}", flowId, resp.getRequestId());
 
         } catch (Exception e) {
             log.error("调用CancelFlow失败", e);
