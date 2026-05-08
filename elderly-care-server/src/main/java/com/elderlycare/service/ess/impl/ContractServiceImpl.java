@@ -359,7 +359,7 @@ public class ContractServiceImpl implements ContractService {
 
             // Step 1: CreateFlow - 创建签署流程
             CreateFlowRequest createFlowReq = new CreateFlowRequest();
-            createFlowReq.setAgent(agent);
+            
 
             // 设置操作人（必填）
             UserInfo operator = new UserInfo();
@@ -368,21 +368,21 @@ public class ContractServiceImpl implements ContractService {
 
             createFlowReq.setFlowName("智慧居家养老服务合同-" + order.getOrderNo());
 
-            // 签署方配置
-            // 企业方（服务商）
+            // 签署方配置 - 必须和模板中的角色顺序一致
+            // 企业方（甲方 - 陕西红泥数智科技有限公司，静默签署不发短信）
             FlowCreateApprover orgApprover = new FlowCreateApprover();
             orgApprover.setApproverType(0L); // 企业
-            orgApprover.setOrganizationName(order.getProviderName());
-            orgApprover.setApproverName(order.getProviderName());
-            orgApprover.setApproverMobile(staff.getPhone()); // 用服务人员手机号（企业方经办人）
-            orgApprover.setRecipientId("1");
+            orgApprover.setOrganizationName("陕西红泥数智科技有限公司");
+            orgApprover.setApproverName("王凡");
+            orgApprover.setApproverMobile("13800138000"); // 企业经办人手机号
+            orgApprover.setNotifyType("none"); // 企业方不发短信
 
-            // 个人方（服务人员）
+            // 个人方（乙方 - 服务人员，发短信通知签署）
             FlowCreateApprover personalApprover = new FlowCreateApprover();
             personalApprover.setApproverType(1L); // 个人
             personalApprover.setApproverName(staff.getStaffName());
             personalApprover.setApproverMobile(staff.getPhone());
-            personalApprover.setRecipientId("2");
+            personalApprover.setNotifyType("sms"); // 个人方发短信通知
 
             FlowCreateApprover[] approvers = new FlowCreateApprover[]{orgApprover, personalApprover};
             createFlowReq.setApprovers(approvers);
@@ -393,7 +393,7 @@ public class ContractServiceImpl implements ContractService {
 
             // Step 2: CreateDocument - 创建电子文档（绑定模板）
             CreateDocumentRequest createDocReq = new CreateDocumentRequest();
-            createDocReq.setAgent(agent);
+            
             createDocReq.setOperator(operator);
             createDocReq.setFlowId(flowId);
             createDocReq.setTemplateId(essConfig.getTemplateId());
@@ -409,7 +409,7 @@ public class ContractServiceImpl implements ContractService {
 
             // Step 3: StartFlow - 正式发起签署流程
             StartFlowRequest startFlowReq = new StartFlowRequest();
-            startFlowReq.setAgent(agent);
+            
             startFlowReq.setOperator(operator);
             startFlowReq.setFlowId(flowId);
 
@@ -425,33 +425,53 @@ public class ContractServiceImpl implements ContractService {
     }
 
     /**
-     * 构建模板表单控件数据（根据实际模板配置调整）
+     * 构建模板表单控件数据（腾讯电子签模板所有必填字段）
      */
     private FormField[] buildFormFields(Order order, Staff staff) {
         List<FormField> fields = new ArrayList<>();
+        String today = java.time.LocalDate.now().toString();
+        String nextYear = java.time.LocalDate.now().plusYears(1).toString();
 
-        // 根据模板中的控件名称/ID填充数据
-        // 以下为常见字段，需根据实际模板调整
-        FormField staffName = new FormField();
-        staffName.setComponentName("服务人员姓名");
-        staffName.setComponentValue(staff.getStaffName());
-        fields.add(staffName);
+        // ========== 合同内容 ==========
+        addField(fields, "劳动合同期限", "1年");
+        addField(fields, "劳动合同试用期", "无");
+        addField(fields, "乙方工作内容", order.getServiceTypeName() != null ? order.getServiceTypeName() : "居家养老服务");
+        addField(fields, "乙方岗位职责", "按照甲方安排，为服务对象提供日常照护、生活照料等养老服务");
+        addField(fields, "乙方工作地点", order.getServiceAddress() != null ? order.getServiceAddress() : "客户家中");
+        addField(fields, "乙方每月基本工资（正式）", "按服务项目结算");
+        addField(fields, "乙方每月基本工资（试用）", "按服务项目结算");
+        addField(fields, "发薪日", "每月15日");
+        addField(fields, "双方约定其他事项", "按照国家相关法律法规执行");
 
-        if (order.getServiceTypeName() != null) {
-            FormField serviceType = new FormField();
-            serviceType.setComponentName("服务类型");
-            serviceType.setComponentValue(order.getServiceTypeName());
-            fields.add(serviceType);
+        // ========== 乙方（员工）信息 ==========
+        addField(fields, "签署人姓名", staff.getStaffName());
+        addField(fields, "签署人证件类型", "身份证");
+        if (staff.getIdCard() != null) {
+            addField(fields, "签署人证件号", staff.getIdCard());
         }
+        addField(fields, "签署人手机号", staff.getPhone() != null ? staff.getPhone() : "");
+        addField(fields, "乙方（员工）联系地址", order.getServiceAddress() != null ? order.getServiceAddress() : "");
 
-        if (order.getServiceAddress() != null) {
-            FormField address = new FormField();
-            address.setComponentName("服务地址");
-            address.setComponentValue(order.getServiceAddress());
-            fields.add(address);
-        }
+        // ========== 甲方（企业）信息 ==========
+        addField(fields, "企业全称", "陕西红泥数智科技有限公司");
+        addField(fields, "统一社会信用代码/注册号", "91610113MA7JQXXX00"); // TODO: 用真实信用代码
+        addField(fields, "法定代表人/经营者姓名", "王凡");
+        addField(fields, "甲方地址", "陕西省西安市");
+        addField(fields, "甲方联系电话", "13800138000");
+
+        // 兼容旧字段名
+        addField(fields, "服务人员姓名", staff.getStaffName());
+        addField(fields, "乙方身份证号", staff.getIdCard() != null ? staff.getIdCard() : "");
 
         return fields.toArray(new FormField[0]);
+    }
+
+    private void addField(List<FormField> fields, String name, String value) {
+        if (value == null || value.isEmpty()) return;
+        FormField field = new FormField();
+        field.setComponentName(name);
+        field.setComponentValue(value);
+        fields.add(field);
     }
 
     /**
@@ -470,7 +490,7 @@ public class ContractServiceImpl implements ContractService {
             Agent agent = buildAgent();
 
             CreateFlowSignUrlRequest req = new CreateFlowSignUrlRequest();
-            req.setAgent(agent);
+            
 
             // 设置操作人
             UserInfo operator = new UserInfo();
@@ -525,7 +545,7 @@ public class ContractServiceImpl implements ContractService {
             Agent agent = buildAgent();
 
             DescribeFileUrlsRequest req = new DescribeFileUrlsRequest();
-            req.setAgent(agent);
+            
             req.setBusinessType("FLOW");
             String[] businessIds = new String[]{flowId};
             req.setBusinessIds(businessIds);
@@ -563,7 +583,7 @@ public class ContractServiceImpl implements ContractService {
             Agent agent = buildAgent();
 
             CancelFlowRequest req = new CancelFlowRequest();
-            req.setAgent(agent);
+            
             req.setFlowId(flowId);
             req.setCancelMessage("管理员取消合同");
 
