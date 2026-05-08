@@ -67,6 +67,7 @@ function getStatusLabel(status: string): string {
 // Table data
 const tableData = ref<Api.Ess.Contract[]>([]);
 const loading = ref(false);
+const checkedRowKeys = ref<string[]>([]);
 const pagination = ref({ page: 1, pageSize: 10, total: 0 });
 
 // Detail drawer
@@ -75,6 +76,7 @@ const detailData = ref<Api.Ess.Contract | null>(null);
 
 // Table columns
 const columns: DataTableColumns<Api.Ess.Contract> = [
+  { type: 'selection' as const, width: 50 },
   { title: '合同编号', key: 'contractNo', width: 180 },
   { title: '合同名称', key: 'contractName', width: 200 },
   { title: '关联订单', key: 'orderNo', width: 160 },
@@ -91,10 +93,12 @@ const columns: DataTableColumns<Api.Ess.Contract> = [
     width: 150,
     fixed: 'right',
     render: row => {
-      const buttons = [];
+      const buttons: any[] = [];
       buttons.push(h(NButton, { size: 'small', onClick: () => showDetail(row) }, () => '详情'));
       if (row.status === 'SIGNED' || row.status === 'COMPLETED') {
+        buttons.push(h(NButton, { size: 'small', onClick: () => handlePreview(row) }, () => '查看'));
         buttons.push(h(NButton, { size: 'small', onClick: () => handleDownload(row) }, () => '下载'));
+        buttons.push(h(NButton, { size: 'small', onClick: () => handlePrint(row) }, () => '打印'));
       }
       return h(NSpace, { size: 'small' }, () => buttons);
     }
@@ -143,6 +147,62 @@ async function handleDownload(row: Api.Ess.Contract) {
   }
 }
 
+// 预览合同（新窗口打开PDF）
+async function handlePreview(row: Api.Ess.Contract) {
+  try {
+    const { data } = await fetchDownloadContract(row.contractId);
+    if (data?.downloadUrl) {
+      window.open(data.downloadUrl, '_blank');
+    } else {
+      message.warning('合同文件暂不可用');
+    }
+  } catch {
+    message.error('获取合同预览链接失败');
+  }
+}
+
+// 打印合同
+async function handlePrint(row: Api.Ess.Contract) {
+  try {
+    const { data } = await fetchDownloadContract(row.contractId);
+    if (data?.downloadUrl) {
+      const printWindow = window.open(data.downloadUrl, '_blank');
+      if (printWindow) {
+        printWindow.onload = () => {
+          printWindow.print();
+        };
+      }
+    }
+  } catch {
+    message.error('打印失败');
+  }
+}
+
+// 批量下载
+const batchDownloading = ref(false);
+async function handleBatchDownload() {
+  if (checkedRowKeys.value.length === 0) {
+    message.warning('请先选择要下载的合同');
+    return;
+  }
+  batchDownloading.value = true;
+  let successCount = 0;
+  for (const contractId of checkedRowKeys.value) {
+    try {
+      const { data } = await fetchDownloadContract(contractId);
+      if (data?.downloadUrl) {
+        window.open(data.downloadUrl, '_blank');
+        successCount++;
+      }
+    } catch {
+      // skip failed
+    }
+  }
+  batchDownloading.value = false;
+  message.success(`已打开 ${successCount}/${checkedRowKeys.value.length} 个合同下载链接`);
+  checkedRowKeys.value = [];
+}
+
 function handleResetSearch() {
   searchContractNo.value = '';
   searchStatus.value = '';
@@ -186,12 +246,21 @@ onMounted(() => {
         </NSpace>
       </div>
 
+      <!-- Batch operations -->
+      <div v-if="checkedRowKeys.length > 0" style="margin-bottom: 12px">
+        <NSpace>
+          <span style="color: #666">已选择 {{ checkedRowKeys.length }} 个合同</span>
+          <NButton type="primary" size="small" :loading="batchDownloading" @click="handleBatchDownload">批量下载</NButton>
+        </NSpace>
+      </div>
+
       <!-- Table -->
       <NDataTable
+        v-model:checked-row-keys="checkedRowKeys"
         :columns="columns"
         :data="tableData"
         :loading="loading"
-        :scroll-x="1200"
+        :scroll-x="1400"
         :row-key="(row: Api.Ess.Contract) => row.contractId"
         :pagination="{
           page: pagination.page,
