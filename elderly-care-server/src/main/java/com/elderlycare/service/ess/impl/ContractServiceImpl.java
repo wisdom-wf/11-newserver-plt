@@ -255,7 +255,14 @@ public class ContractServiceImpl implements ContractService {
         if (contract == null) {
             throw BusinessException.notFound("合同不存在");
         }
-        return getTencentDownloadUrl(contract.getFlowId());
+
+        // 已签署/已完成：获取PDF下载链接
+        if ("SIGNED".equals(contract.getStatus()) || "COMPLETED".equals(contract.getStatus())) {
+            return getTencentDownloadUrl(contract.getFlowId());
+        }
+
+        // 其他状态：获取预览链接（腾讯H5预览页）
+        return getTencentPreviewUrl(contract.getFlowId());
     }
 
     @Override
@@ -546,10 +553,11 @@ public class ContractServiceImpl implements ContractService {
 
         try {
             EssClient client = createEssClient();
-            Agent agent = buildAgent();
 
             DescribeFileUrlsRequest req = new DescribeFileUrlsRequest();
-            
+            UserInfo operator = new UserInfo();
+            operator.setUserId(essConfig.getOperatorId());
+            req.setOperator(operator);
             req.setBusinessType("FLOW");
             String[] businessIds = new String[]{flowId};
             req.setBusinessIds(businessIds);
@@ -568,6 +576,45 @@ public class ContractServiceImpl implements ContractService {
         } catch (Exception e) {
             log.error("调用DescribeFileUrls失败", e);
             return "https://ess.gz.gov.cn/mock-download?flowId=" + flowId;
+        }
+    }
+
+    /**
+     * 获取合同预览链接（未签署的合同用H5预览）
+     */
+    private String getTencentPreviewUrl(String flowId) {
+        log.info("获取腾讯合同预览链接 - flowId: {}", flowId);
+
+        if (essConfig.getOperatorId() == null || essConfig.getOperatorId().isEmpty()) {
+            log.warn("未配置操作人UserId，使用模拟预览链接");
+            return "https://ess.gz.gov.cn/mock-preview?flowId=" + flowId;
+        }
+
+        try {
+            EssClient client = createEssClient();
+
+            CreateFlowSignUrlRequest req = new CreateFlowSignUrlRequest();
+            UserInfo operator = new UserInfo();
+            operator.setUserId(essConfig.getOperatorId());
+            req.setOperator(operator);
+            req.setFlowId(flowId);
+            req.setUrlType(1L); // 1=预览链接（非签署）
+            req.setExpiredOn(3600L); // 1小时有效期
+
+            CreateFlowSignUrlResponse resp = client.CreateFlowSignUrl(req);
+
+            if (resp.getFlowApproverUrlInfos() != null && resp.getFlowApproverUrlInfos().length > 0) {
+                String previewUrl = resp.getFlowApproverUrlInfos()[0].getSignUrl();
+                log.info("获取合同预览链接成功: {}", previewUrl);
+                return previewUrl;
+            }
+
+            log.warn("腾讯电子签返回空预览链接");
+            return "https://ess.gz.gov.cn/mock-preview?flowId=" + flowId;
+
+        } catch (Exception e) {
+            log.error("调用CreateFlowSignUrl(预览)失败", e);
+            return "https://ess.gz.gov.cn/mock-preview?flowId=" + flowId;
         }
     }
 
