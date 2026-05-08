@@ -302,15 +302,18 @@ public class OrderServiceImpl implements OrderService {
 
         // 检查状态是否允许取消
         String status = order.getStatus();
-        if (OrderStatus.CANCELLED.getCode().equals(status) ||
-            OrderStatus.SERVICE_COMPLETED.getCode().equals(status) ||
+        if (OrderStatus.SERVICE_COMPLETED.getCode().equals(status) ||
             OrderStatus.EVALUATED.getCode().equals(status) ||
             OrderStatus.SETTLED.getCode().equals(status)) {
             throw new BusinessException(400, "当前状态不允许取消订单");
         }
 
-        order.setStatus(OrderStatus.CANCELLED.getCode());
+        // 取消后回到待派单状态，可以重新派单
+        order.setStatus(OrderStatus.CREATED.getCode());
         order.setCancelReason(dto.getCancelReason());
+        order.setProviderId(null);
+        order.setStaffId(null);
+        order.setDispatchTime(null);
         order.setUpdateTime(LocalDateTime.now());
         orderMapper.updateById(order);
     }
