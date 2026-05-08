@@ -637,6 +637,7 @@ const expandedNodes = ref<Set<string>>(new Set());
 const contractDetailVisible = ref(false);
 const contractDetailData = ref<any>(null);
 const contractSignLoading = ref(false);
+const contractRefreshLoading = ref(false);
 
 function toggleNode(node: OrderTimelineItem) {
   if (expandedNodes.value.has(node.status)) {
@@ -783,6 +784,43 @@ async function handleSignContract() {
     message.error('获取签署链接失败');
   } finally {
     contractSignLoading.value = false;
+  }
+}
+
+// 刷新合同状态
+async function handleRefreshContractStatus() {
+  if (!contractDetailData.value?.contractId) return;
+  contractRefreshLoading.value = true;
+  try {
+    const { data: contractData } = await fetchGetContractByOrderId(contractDetailData.value.orderId);
+    if (contractData) {
+      contractDetailData.value = contractData;
+      if (contractData.status === 'SIGNED' || contractData.status === 'COMPLETED') {
+        message.success('合同已签署完成，可以接单了');
+      } else {
+        message.info('合同状态已刷新');
+      }
+    }
+  } catch (e) {
+    message.error('刷新合同状态失败');
+  } finally {
+    contractRefreshLoading.value = false;
+  }
+}
+
+// 签署完成后接单
+async function handleAcceptAfterSign() {
+  if (!contractDetailData.value) return;
+  const orderId = contractDetailData.value.orderId;
+  contractDetailVisible.value = false;
+  try {
+    await fetchAcceptOrder(orderId, { staffId: '' });
+    message.success('接单成功');
+    await getData();
+    await getStatistics();
+  } catch (e: any) {
+    const errMsg = e?.message || e?.response?.data?.message || '接单失败';
+    message.error(errMsg);
   }
 }
 
@@ -1462,11 +1500,25 @@ onMounted(() => {
           <NButton @click="contractDetailVisible = false">关闭</NButton>
           <NButton
             v-if="contractDetailData && contractDetailData.status !== 'SIGNED' && contractDetailData.status !== 'COMPLETED'"
+            @click="handleRefreshContractStatus"
+            :loading="contractRefreshLoading"
+          >
+            刷新状态
+          </NButton>
+          <NButton
+            v-if="contractDetailData && contractDetailData.status !== 'SIGNED' && contractDetailData.status !== 'COMPLETED'"
             type="primary"
             :loading="contractSignLoading"
             @click="handleSignContract"
           >
             签署合同
+          </NButton>
+          <NButton
+            v-if="contractDetailData && (contractDetailData.status === 'SIGNED' || contractDetailData.status === 'COMPLETED')"
+            type="primary"
+            @click="handleAcceptAfterSign"
+          >
+            确认接单
           </NButton>
         </NSpace>
       </template>
