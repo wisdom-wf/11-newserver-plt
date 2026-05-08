@@ -11,7 +11,9 @@ import {
   fetchDeleteElder,
   fetchBatchDeleteElder,
   fetchGetElderStatistics,
-  fetchGetElder
+  fetchGetElder,
+  fetchGetElderHealth,
+  fetchSaveElderHealth
 } from '@/service/api';
 import { useNaivePaginatedTable, useTableOperate, defaultTransform } from '@/hooks/common/table';
 import { useNaiveForm } from '@/hooks/common/form';
@@ -93,6 +95,36 @@ async function showDetail(row: Api.Elder.Elder) {
     }
   } finally {
     detailLoading.value = false;
+  }
+}
+
+// 创建健康档案
+async function handleCreateHealthArchive() {
+  if (!detailData.value) return;
+  const elderId = detailData.value.elderId;
+
+  try {
+    // 检查是否已有健康档案
+    const { data: health } = await fetchGetElderHealth(elderId);
+    if (health) {
+      message.info('该客户已有健康档案');
+      router.push({ path: '/business/health-archive', query: { elderId } });
+      return;
+    }
+  } catch {
+    // 404 = 没有健康档案，继续创建
+  }
+
+  try {
+    await fetchSaveElderHealth(elderId, {
+      healthStatus: detailData.value.healthStatus || 'GOOD',
+      medicalHistory: detailData.value.medicalHistory || '',
+      allergyHistory: detailData.value.allergies || ''
+    });
+    message.success('健康档案已创建');
+    router.push({ path: '/business/health-archive', query: { elderId } });
+  } catch (e: any) {
+    message.error(e?.message || '创建健康档案失败');
   }
 }
 
@@ -608,7 +640,10 @@ onMounted(async () => {
 
           <!-- Health Info -->
           <div style="margin-bottom: 24px">
-            <div style="font-size: 16px; font-weight: 600; margin-bottom: 12px; color: #333">健康信息</div>
+            <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 12px">
+              <div style="font-size: 16px; font-weight: 600; color: #333">健康信息</div>
+              <NButton size="small" type="primary" @click="handleCreateHealthArchive">创建健康档案</NButton>
+            </div>
             <div style="color: #999; font-size: 13px">健康状况</div>
             <div style="margin-top: 4px">{{ detailData.healthStatus || '-' }}</div>
             <div style="color: #999; font-size: 13px; margin-top: 8px">既往病史</div>

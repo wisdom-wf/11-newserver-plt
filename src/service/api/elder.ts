@@ -118,6 +118,29 @@ export function fetchGetElderByIdCard(idCard: string) {
   });
 }
 
+// ==================== 健康档案 ====================
+
+/**
+ * 获取客户健康档案
+ */
+export function fetchGetElderHealth(elderId: string) {
+  return request<Api.Elder.ElderHealth>({
+    url: `/api/elders/${elderId}/health`,
+    method: 'get'
+  });
+}
+
+/**
+ * 创建/更新健康档案
+ */
+export function fetchSaveElderHealth(elderId: string, data: Api.Elder.ElderHealthDTO) {
+  return request<Api.Elder.ElderHealth>({
+    url: `/api/elders/${elderId}/health`,
+    method: 'put',
+    data
+  });
+}
+
 // ==================== 健康测量记录 ====================
 
 /**

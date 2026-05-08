@@ -380,6 +380,46 @@ declare namespace Api {
       symptoms: string[];
     }
 
+    /** 健康档案 */
+    interface ElderHealth {
+      healthId: string;
+      elderId: string;
+      bloodType?: number;
+      height?: number;
+      weight?: number;
+      medicalHistory?: string;
+      currentMedication?: string;
+      allergyHistory?: string;
+      chronicDiseases?: string;
+      adlScore?: number;
+      mmseScore?: number;
+      gdsScore?: number;
+      fallRisk?: number;
+      pressureSoreRisk?: number;
+      nutritionStatus?: number;
+      visionStatus?: number;
+      hearingStatus?: number;
+      oralHealth?: number;
+      mobilityStatus?: number;
+      healthRemark?: string;
+      checkupDate?: string;
+      createTime?: string;
+      updateTime?: string;
+    }
+
+    /** 健康档案表单 */
+    interface ElderHealthDTO {
+      healthStatus?: string;
+      medicalHistory?: string;
+      allergyHistory?: string;
+      bloodType?: number;
+      height?: number;
+      weight?: number;
+      currentMedication?: string;
+      chronicDiseases?: string;
+      healthRemark?: string;
+    }
+
     /** 客户健康卡片（用于健康档案页面展示） */
     interface ElderHealthCard {
       /** 客户ID */

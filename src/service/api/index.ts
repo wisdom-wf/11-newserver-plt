@@ -11,6 +11,7 @@ export * from './evaluation';
 export * from './provider';
 export * from './staff';
 export * from './elder';
+export * from './device';
 export * from './financial';
 export * from './cockpit';
 export * from './contract';

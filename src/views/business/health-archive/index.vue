@@ -1,5 +1,6 @@
 <script setup lang="ts">
 import { ref, h, onMounted, computed } from 'vue';
+import { useRoute } from 'vue-router';
 import {
   NButton,
   NCard,
@@ -44,8 +45,12 @@ import {
   fetchGetCareSuggestions,
   fetchGetMedicalSuggestions,
   fetchGetRecentUpdatedElders,
-  fetchUpdateElder
-} from '@/service/api/elder';
+  fetchUpdateElder,
+  fetchGetElderDevices,
+  fetchBindDevice,
+  fetchUnbindDevice,
+  fetchGetDeviceBySn
+} from '@/service/api';
 import { useAuth } from '@/hooks/business/auth';
 
 defineOptions({
@@ -54,6 +59,7 @@ defineOptions({
 
 const message = useMessage();
 const { hasAuth } = useAuth();
+const route = useRoute();
 
 // Elder selection
 const elderOptions = ref<{ label: string; value: string }[]>([]);
@@ -70,6 +76,17 @@ const measurementForm = ref({
   measuredAt: Date.now(),
   remark: ''
 });
+
+// Device management
+const elderDevices = ref<Api.Device.Binding[]>([]);
+const bindDeviceVisible = ref(false);
+const bindDeviceLoading = ref(false);
+const bindDeviceForm = ref({
+  deviceSn: '',
+  measurementType: 'BLOOD_PRESSURE',
+  remark: ''
+});
+const bindDeviceInfo = ref<Api.Device.Device | null>(null);
 
 // Measurement type options
 const measurementTypeOptions = [
@@ -532,11 +549,82 @@ function handleElderChange(value: string) {
   loadMeasurementStats();
   loadReports();
   loadSuggestions();
+  loadElderDevices();
 }
 
-onMounted(() => {
-  loadElders();
-  loadRecentElders();
+// ========== 设备管理 ==========
+
+async function loadElderDevices() {
+  if (!selectedElderId.value) return;
+  try {
+    const { data } = await fetchGetElderDevices(selectedElderId.value);
+    elderDevices.value = data || [];
+  } catch {
+    elderDevices.value = [];
+  }
+}
+
+async function handleQueryDevice() {
+  if (!bindDeviceForm.value.deviceSn) {
+    message.warning('请输入设备序列号');
+    return;
+  }
+  try {
+    const { data } = await fetchGetDeviceBySn(bindDeviceForm.value.deviceSn);
+    bindDeviceInfo.value = data;
+    if (!data) {
+      message.warning('未找到该设备，请确认序列号是否正确');
+    }
+  } catch {
+    bindDeviceInfo.value = null;
+    message.warning('未找到该设备');
+  }
+}
+
+async function handleBindDevice() {
+  if (!bindDeviceForm.value.deviceSn || !selectedElderId.value) {
+    message.warning('请填写完整信息');
+    return;
+  }
+  bindDeviceLoading.value = true;
+  try {
+    await fetchBindDevice({
+      deviceSn: bindDeviceForm.value.deviceSn,
+      elderId: selectedElderId.value,
+      measurementType: bindDeviceForm.value.measurementType,
+      remark: bindDeviceForm.value.remark
+    });
+    message.success('设备绑定成功');
+    bindDeviceVisible.value = false;
+    bindDeviceForm.value = { deviceSn: '', measurementType: 'BLOOD_PRESSURE', remark: '' };
+    bindDeviceInfo.value = null;
+    await loadElderDevices();
+  } catch (e: any) {
+    message.error(e?.message || '绑定失败');
+  } finally {
+    bindDeviceLoading.value = false;
+  }
+}
+
+async function handleUnbindDevice(bindingId: string) {
+  try {
+    await fetchUnbindDevice(bindingId);
+    message.success('已解绑');
+    await loadElderDevices();
+  } catch (e: any) {
+    message.error(e?.message || '解绑失败');
+  }
+}
+
+onMounted(async () => {
+  await loadElders();
+  await loadRecentElders();
+  // 从URL参数读取elderId
+  if (route.query.elderId) {
+    const elderId = route.query.elderId as string;
+    selectedElderId.value = elderId;
+    await handleElderChange(elderId);
+  }
 });
 </script>
 
@@ -624,6 +712,40 @@ onMounted(() => {
           />
 
           <NEmpty v-if="!measurementsLoading && measurements.length === 0" description="暂无测量记录" style="margin-top: 40px" />
+        </NTabPane>
+
+        <!-- 设备管理 -->
+        <NTabPane name="devices" tab="设备管理">
+          <div v-if="selectedElderId">
+            <div style="margin-bottom: 16px">
+              <NButton type="primary" @click="bindDeviceVisible = true">绑定设备</NButton>
+            </div>
+
+            <div v-if="elderDevices.length === 0" style="text-align: center; padding: 40px; color: #999">
+              暂未绑定任何设备，点击"绑定设备"开始
+            </div>
+
+            <div v-for="device in elderDevices" :key="device.bindingId" style="border: 1px solid #eee; border-radius: 8px; padding: 16px; margin-bottom: 12px">
+              <div style="display: flex; justify-content: space-between; align-items: center">
+                <div>
+                  <div style="font-weight: 600">{{ device.measurementTypeName || device.measurementType }}</div>
+                  <div style="color: #666; font-size: 13px; margin-top: 4px">
+                    序列号：{{ device.deviceSn || '-' }}
+                  </div>
+                  <div style="color: #999; font-size: 12px; margin-top: 4px">
+                    绑定时间：{{ device.bindTime || '-' }}
+                  </div>
+                </div>
+                <NSpace>
+                  <NTag :type="device.deviceStatus === 'ACTIVE' ? 'success' : 'default'" size="small">
+                    {{ device.deviceStatus === 'ACTIVE' ? '在线' : '离线' }}
+                  </NTag>
+                  <NButton size="small" type="error" @click="handleUnbindDevice(device.bindingId)">解绑</NButton>
+                </NSpace>
+              </div>
+            </div>
+          </div>
+          <NEmpty v-else description="请先选择客户" />
         </NTabPane>
 
         <NTabPane name="reports" tab="健康报告">
@@ -818,5 +940,48 @@ onMounted(() => {
         </template>
       </NDrawerContent>
     </NDrawer>
+
+    <!-- 绑定设备弹窗 -->
+    <NModal v-model:show="bindDeviceVisible" preset="card" title="绑定设备" style="width: 480px">
+      <div style="margin-bottom: 16px">
+        <div style="color: #999; font-size: 13px; margin-bottom: 8px">设备序列号</div>
+        <NSpace>
+          <NInput v-model:value="bindDeviceForm.deviceSn" placeholder="输入设备序列号" style="width: 280px" />
+          <NButton @click="handleQueryDevice">查询</NButton>
+        </NSpace>
+      </div>
+
+      <div v-if="bindDeviceInfo" style="background: #f5f5f5; padding: 12px; border-radius: 4px; margin-bottom: 16px">
+        <div style="font-size: 13px"><span style="color: #999">设备类型：</span>{{ bindDeviceInfo.deviceType }}</div>
+        <div style="font-size: 13px; margin-top: 4px"><span style="color: #999">设备名称：</span>{{ bindDeviceInfo.deviceName || '-' }}</div>
+        <div style="font-size: 13px; margin-top: 4px"><span style="color: #999">制造商：</span>{{ bindDeviceInfo.manufacturer || '-' }}</div>
+        <div style="font-size: 13px; margin-top: 4px"><span style="color: #999">状态：</span>{{ bindDeviceInfo.statusText }}</div>
+      </div>
+
+      <div style="margin-bottom: 16px">
+        <div style="color: #999; font-size: 13px; margin-bottom: 8px">测量类型</div>
+        <NSelect
+          v-model:value="bindDeviceForm.measurementType"
+          :options="measurementTypeOptions"
+          style="width: 100%"
+        />
+      </div>
+
+      <div style="margin-bottom: 16px">
+        <div style="color: #999; font-size: 13px; margin-bottom: 8px">备注（可选）</div>
+        <NInput v-model:value="bindDeviceForm.remark" placeholder="设备用途说明" />
+      </div>
+
+      <div style="color: #999; font-size: 12px; margin-bottom: 16px">
+        绑定后，设备联网时会自动向系统推送测量数据，数据将自动记录到健康档案中。未绑定设备时，所有指标仍可手动填写。
+      </div>
+
+      <template #footer>
+        <NSpace justify="end">
+          <NButton @click="bindDeviceVisible = false">取消</NButton>
+          <NButton type="primary" :loading="bindDeviceLoading" @click="handleBindDevice">确认绑定</NButton>
+        </NSpace>
+      </template>
+    </NModal>
   </div>
 </template>
