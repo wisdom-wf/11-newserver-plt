@@ -2,12 +2,10 @@ package com.elderlycare.config;
 
 import lombok.Data;
 import org.springframework.boot.context.properties.ConfigurationProperties;
-import org.springframework.context.annotation.Configuration;
-import org.springframework.context.annotation.PropertySource;
+import org.springframework.stereotype.Component;
 
 @Data
-@Configuration
-@PropertySource("classpath:contract-enterprise.yml")
+@Component
 @ConfigurationProperties(prefix = "contract.enterprise")
 public class ContractEnterpriseConfig {
 

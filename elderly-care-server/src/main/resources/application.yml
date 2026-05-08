@@ -47,3 +47,14 @@ tencent:
     default-expire-days: 7
     template-id: ${TENCENT_ESS_TEMPLATE_ID:yD3hVUU127vmx1UEWFeT1SYSvHNbXiDe}
     operator-id: ${TENCENT_ESS_OPERATOR_ID:yD3hWUU1l6zb2oUyPwOVsvRaOmmYqzlL}
+
+# 合同企业信息配置（以后可改为从服务商表动态获取）
+contract:
+  enterprise:
+    name: "陕西红泥数智科技有限公司"
+    credit-code: "91610113MA7JQXXX00"
+    legal-person: "王凡"
+    address: "陕西省西安市"
+    phone: "13800138000"
+    seal-id: "yD3hWUU1lcdbupUuFEBodyMoYCNABTCm"
+    ess-open-id: "yD3hWUU1l669avUhwB3xWL8C12PcHjRR"

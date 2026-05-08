@@ -373,6 +373,12 @@ public class ContractServiceImpl implements ContractService {
             createFlowReq.setFlowName("智慧居家养老服务合同-" + order.getOrderNo());
 
             // 签署方配置 - 必须和模板中的角色顺序一致
+            // 企业方（甲方 - 从配置读取，静默签署不发短信）
+            FlowCreateApprover orgApprover = new FlowCreateApprover();
+            orgApprover.setApproverType(0L); // 企业
+            orgApprover.setOrganizationName(enterpriseConfig.getName());
+            orgApprover.setApproverName(enterpriseConfig.getLegalPerson());
+            orgApprover.setApproverMobile(enterpriseConfig.getPhone());
             orgApprover.setNotifyType("none"); // 企业方不发短信
 
             // 个人方（乙方 - 服务人员，发短信通知签署）
@@ -451,6 +457,11 @@ public class ContractServiceImpl implements ContractService {
         addField(fields, "乙方（员工）联系地址", order.getServiceAddress() != null ? order.getServiceAddress() : "");
 
         // ========== 甲方（企业）信息 ==========
+        addField(fields, "企业全称", enterpriseConfig.getName());
+        addField(fields, "统一社会信用代码/注册号", enterpriseConfig.getCreditCode());
+        addField(fields, "法定代表人/经营者姓名", enterpriseConfig.getLegalPerson());
+        addField(fields, "甲方地址", enterpriseConfig.getAddress());
+        addField(fields, "甲方联系电话", enterpriseConfig.getPhone());
 
         // 兼容旧字段名
         addField(fields, "服务人员姓名", staff.getStaffName());
