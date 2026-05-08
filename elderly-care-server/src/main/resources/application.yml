@@ -41,7 +41,9 @@ tencent:
   ess:
     secret-id: ${TENCENT_ESS_SECRET_ID}
     secret-key: ${TENCENT_ESS_SECRET_KEY}
-    agent-id: 1252521778
+    agent-id: ${TENCENT_ESS_AGENT_ID:1252521778}
     region: ap-guangzhou
-    callback-url: ${TENCENT_ESS_CALLBACK_URL:http://your-domain.com/api/contracts/callback}
+    callback-url: ${TENCENT_ESS_CALLBACK_URL:https://wisdomdance.cn/jxy/api/contracts/callback}
     default-expire-days: 7
+    template-id: ${TENCENT_ESS_TEMPLATE_ID:yD3hVUU127vmx1UEWFeT1SYSvHNbXiDe}
+    operator-id: ${TENCENT_ESS_OPERATOR_ID:yD3hWUU1l6zb2oUyPwOVsvRaOmmYqzlL}

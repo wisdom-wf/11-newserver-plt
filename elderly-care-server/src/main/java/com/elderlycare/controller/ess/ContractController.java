@@ -1,5 +1,6 @@
 package com.elderlycare.controller.ess;
 
+import com.elderlycare.common.PageResult;
 import com.elderlycare.common.Result;
 import com.elderlycare.dto.ess.ContractQueryDTO;
 import com.elderlycare.service.ess.ContractService;
@@ -7,8 +8,6 @@ import com.elderlycare.vo.ess.ContractVO;
 import com.elderlycare.vo.ess.SignUrlVO;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.web.bind.annotation.*;
-
-import java.util.List;
 
 @Slf4j
 @RestController
@@ -22,14 +21,18 @@ public class ContractController {
     }
 
     @GetMapping
-    public Result<List<ContractVO>> getContractList(ContractQueryDTO query) {
-        List<ContractVO> list = contractService.getContractList(query);
+    public Result<PageResult<ContractVO>> getContractList(ContractQueryDTO query) {
+        PageResult<ContractVO> list = contractService.getContractList(query);
         return Result.success(list);
     }
 
     @GetMapping("/{id}")
     public Result<ContractVO> getContractDetail(@PathVariable String id) {
-        return Result.success(new ContractVO());
+        ContractVO contract = contractService.getContractById(id);
+        if (contract == null) {
+            return Result.notFound("合同不存在");
+        }
+        return Result.success(contract);
     }
 
     @GetMapping("/order/{orderId}")
@@ -55,6 +58,12 @@ public class ContractController {
     public Result<String> downloadContract(@PathVariable String id) {
         String downloadUrl = contractService.downloadContract(id);
         return Result.success(downloadUrl);
+    }
+
+    @PostMapping("/{id}/cancel")
+    public Result<Void> cancelContract(@PathVariable String id) {
+        contractService.cancelContract(id);
+        return Result.success();
     }
 
     @PostMapping("/callback")

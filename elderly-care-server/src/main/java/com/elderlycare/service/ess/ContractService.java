@@ -1,5 +1,6 @@
 package com.elderlycare.service.ess;
 
+import com.elderlycare.common.PageResult;
 import com.elderlycare.dto.ess.ContractQueryDTO;
 import com.elderlycare.vo.ess.ContractVO;
 import com.elderlycare.vo.ess.SignUrlVO;
@@ -12,6 +13,11 @@ public interface ContractService {
      * 创建服务合同（派单时自动调用）
      */
     ContractVO createServiceContract(String orderId, String staffId);
+
+    /**
+     * 根据合同ID获取合同
+     */
+    ContractVO getContractById(String contractId);
 
     /**
      * 获取订单关联的合同
@@ -44,7 +50,12 @@ public interface ContractService {
     String downloadContract(String contractId);
 
     /**
-     * 获取合同列表
+     * 取消合同
      */
-    List<ContractVO> getContractList(ContractQueryDTO queryDTO);
+    void cancelContract(String contractId);
+
+    /**
+     * 获取合同列表（分页）
+     */
+    PageResult<ContractVO> getContractList(ContractQueryDTO queryDTO);
 }

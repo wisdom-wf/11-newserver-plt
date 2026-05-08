@@ -25,16 +25,4 @@
         LIMIT 1
     </select>
 
-    <select id="selectContractList" resultMap="BaseResultMap">
-        SELECT * FROM t_ess_contract
-        WHERE deleted = 0
-        <if test="status != null and status != ''">
-            AND status = #{status}
-        </if>
-        <if test="contractNo != null and contractNo != ''">
-            AND contract_no LIKE CONCAT('%', #{contractNo}, '%')
-        </if>
-        ORDER BY create_time DESC
-    </select>
-
 </mapper>

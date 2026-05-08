@@ -5,7 +5,8 @@
       "mcp__MCP_DOCKER__browser_close",
       "Bash(rsync -av --delete dist/ ubuntu@43.153.213.134:/var/www/jxy/)",
       "mcp__MCP_DOCKER__browser_evaluate",
-      "mcp__MCP_DOCKER__browser_run_code"
+      "mcp__MCP_DOCKER__browser_run_code",
+      "Bash(gh api *)"
     ]
   }
 }
