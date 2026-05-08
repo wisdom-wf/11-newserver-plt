@@ -29,7 +29,8 @@ public class WebMvcConfig implements WebMvcConfigurer {
                         "/api/auth/login",
                         "/api/auth/logout",
                         "/api/evaluations/survey/**",
-                        "/api/contracts/callback"
+                        "/api/contracts/callback",
+                        "/api/devices/push"
                 );
 
         // 2. 权限校验拦截器
@@ -42,7 +43,8 @@ public class WebMvcConfig implements WebMvcConfigurer {
                         "/api/auth/userinfo",
                         "/api/menu/**",
                         "/api/evaluations/survey/**",
-                        "/api/contracts/callback"
+                        "/api/contracts/callback",
+                        "/api/devices/push"
                 );
     }
 

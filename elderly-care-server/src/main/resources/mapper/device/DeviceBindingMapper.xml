@@ -1,0 +1,38 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.elderlycare.mapper.device.DeviceBindingMapper">
+
+    <resultMap id="BaseResultMap" type="com.elderlycare.entity.device.DeviceBinding">
+        <id column="binding_id" property="bindingId"/>
+        <result column="device_id" property="deviceId"/>
+        <result column="elder_id" property="elderId"/>
+        <result column="measurement_type" property="measurementType"/>
+        <result column="bind_time" property="bindTime"/>
+        <result column="unbind_time" property="unbindTime"/>
+        <result column="status" property="status"/>
+        <result column="remark" property="remark"/>
+        <result column="create_time" property="createTime"/>
+        <result column="update_time" property="updateTime"/>
+    </resultMap>
+
+    <select id="selectActiveByDeviceId" resultMap="BaseResultMap">
+        SELECT * FROM t_device_binding
+        WHERE device_id = #{deviceId} AND status = 'ACTIVE' AND deleted = 0
+        LIMIT 1
+    </select>
+
+    <select id="selectByElderId" resultMap="BaseResultMap">
+        SELECT b.*, d.device_sn, d.device_type, d.device_name, d.status AS device_status, d.last_push_time
+        FROM t_device_binding b
+        LEFT JOIN t_device d ON b.device_id = d.device_id
+        WHERE b.elder_id = #{elderId} AND b.deleted = 0
+        ORDER BY b.bind_time DESC
+    </select>
+
+    <select id="selectActiveBinding" resultMap="BaseResultMap">
+        SELECT * FROM t_device_binding
+        WHERE device_id = #{deviceId} AND elder_id = #{elderId} AND measurement_type = #{measurementType} AND status = 'ACTIVE' AND deleted = 0
+        LIMIT 1
+    </select>
+
+</mapper>
