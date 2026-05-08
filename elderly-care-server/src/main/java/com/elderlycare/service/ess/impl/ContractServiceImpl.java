@@ -360,6 +360,12 @@ public class ContractServiceImpl implements ContractService {
             // Step 1: CreateFlow - 创建签署流程
             CreateFlowRequest createFlowReq = new CreateFlowRequest();
             createFlowReq.setAgent(agent);
+
+            // 设置操作人（必填）
+            UserInfo operator = new UserInfo();
+            operator.setUserId(essConfig.getOperatorId());
+            createFlowReq.setOperator(operator);
+
             createFlowReq.setFlowName("智慧居家养老服务合同-" + order.getOrderNo());
 
             // 签署方配置
@@ -388,6 +394,7 @@ public class ContractServiceImpl implements ContractService {
             // Step 2: CreateDocument - 创建电子文档（绑定模板）
             CreateDocumentRequest createDocReq = new CreateDocumentRequest();
             createDocReq.setAgent(agent);
+            createDocReq.setOperator(operator);
             createDocReq.setFlowId(flowId);
             createDocReq.setTemplateId(essConfig.getTemplateId());
 
@@ -403,6 +410,7 @@ public class ContractServiceImpl implements ContractService {
             // Step 3: StartFlow - 正式发起签署流程
             StartFlowRequest startFlowReq = new StartFlowRequest();
             startFlowReq.setAgent(agent);
+            startFlowReq.setOperator(operator);
             startFlowReq.setFlowId(flowId);
 
             StartFlowResponse startFlowResp = client.StartFlow(startFlowReq);
@@ -463,6 +471,12 @@ public class ContractServiceImpl implements ContractService {
 
             CreateFlowSignUrlRequest req = new CreateFlowSignUrlRequest();
             req.setAgent(agent);
+
+            // 设置操作人
+            UserInfo operator = new UserInfo();
+            operator.setUserId(essConfig.getOperatorId());
+            req.setOperator(operator);
+
             req.setFlowId(flowId);
 
             // 设置签署人信息
