@@ -85,8 +85,8 @@ function initMockData() {
   updateTrendOptions(opts => {
     (opts.xAxis as any).data = ['1月', '2月', '3月', '4月', '5月', '6月'];
     (opts.series as any)[0].data = [120000, 135000, 150000, 142000, 160000, 175000];
-    opts.series[1].data = [80000, 90000, 95000, 92000, 100000, 110000];
-    opts.series[2].data = [40000, 45000, 55000, 50000, 60000, 65000];
+    (opts.series as any)[1].data = [80000, 90000, 95000, 92000, 100000, 110000];
+    (opts.series as any)[2].data = [40000, 45000, 55000, 50000, 60000, 65000];
     return opts;
   });
   updateServiceOptions(opts => {

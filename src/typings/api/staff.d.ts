@@ -138,6 +138,8 @@ declare namespace Api {
     interface CreateStaffResult extends Staff {
       /** 初始密码（仅创建时返回） */
       password?: string;
+      /** 用户名（仅创建时返回） */
+      username?: string;
       /** 是否已创建账户 */
       accountCreated?: boolean;
     }
@@ -218,16 +220,6 @@ declare namespace Api {
       healthObservations?: string;
       /** 本次给药记录 */
       medicationGiven?: string;
-    }
-
-    /** 创建服务人员结果（包含账户信息） */
-    interface CreateStaffResult {
-      /** 账户是否创建成功 */
-      accountCreated: boolean;
-      /** 系统用户名（手机号） */
-      username?: string;
-      /** 初始密码 */
-      password?: string;
     }
   }
 }

@@ -1,6 +1,6 @@
 <script setup lang="ts">
 import { ref, h, onMounted, watch } from 'vue';
-import { useRoute } from 'vue-router';
+import { useRoute, useRouter } from 'vue-router';
 import {
   NButton,
   NCard,
@@ -60,6 +60,7 @@ defineOptions({
 
 const message = useMessage();
 const route = useRoute();
+const router = useRouter();
 const { routerPushByKey } = useRouterPush();
 const { hasAuth } = useAuth();
 const { formRef } = useNaiveForm();

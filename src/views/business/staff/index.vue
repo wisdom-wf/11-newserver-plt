@@ -196,7 +196,7 @@ const columns: DataTableColumns<Api.Staff.Staff> = [
     width: 200,
     fixed: 'right',
     render: row => {
-      const buttons = [];
+      const buttons: any[] = [];
       buttons.push(h(NButton, { size: 'small', type: 'info', onClick: () => showDetail(row), style: { marginRight: '8px' } }, () => '详情'));
       if (hasAuth('staff:list:edit')) {
         buttons.push(h(NButton, { size: 'small', onClick: () => handleEdit(row.staffId), style: { marginRight: '8px' } }, () => '编辑'));
@@ -296,7 +296,7 @@ watch(
     if (data) {
       form.value = {
         staffName: data.staffName || '',
-        gender: data.gender ?? 0,
+        gender: (data.gender ?? 0) as 0 | 1,
         idCard: data.idCard || '',
         phone: data.phone || '',
         providerId: data.providerId || '',
@@ -423,10 +423,11 @@ async function handleSubmit() {
       const result = await fetchCreateStaff(form.value);
       message.success('添加成功');
       // 如果创建了账户，显示账户信息
-      if (result?.accountCreated && result.username && result.password) {
+      const data = (result as any)?.data || result;
+      if (data?.accountCreated && data.username && data.password) {
         accountInfo.value = {
-          username: result.username,
-          password: result.password,
+          username: data.username,
+          password: data.password,
           staffName: form.value.staffName || ''
         };
         accountModalVisible.value = true;
@@ -615,7 +616,7 @@ onMounted(async () => {
             { label: '状态', value: getStatusLabel(staff.status) },
             ...(staff.serviceTypes ? [{ label: '服务类型', value: staff.serviceTypes.split(',')[0] }] : [])
           ]"
-          :index-value="staff.rating"
+          :index-value="staff.rating ? Number(staff.rating) : undefined"
           index-label="评分"
           photo-width="70"
           scale="0.78"

@@ -412,7 +412,7 @@ async function getData() {
         updateOrderTrendOptions(opts => {
           (opts.xAxis as any).data = orderRes.data.orderTrend.map((item: any) => item.date);
           (opts.series as any)[0].data = orderRes.data.orderTrend.map((item: any) => item.orderCount);
-          opts.series[1].data = orderRes.data.orderTrend.map((item: any) => item.completedCount);
+          (opts.series as any)[1].data = orderRes.data.orderTrend.map((item: any) => item.completedCount);
           return opts;
         });
       }
@@ -504,7 +504,7 @@ function initMockData() {
   updateOrderTrendOptions(opts => {
     (opts.xAxis as any).data = ['周一', '周二', '周三', '周四', '周五', '周六', '周日'];
     (opts.series as any)[0].data = [120, 150, 180, 170, 190, 210, 195];
-    opts.series[1].data = [100, 130, 160, 155, 175, 195, 180];
+    (opts.series as any)[1].data = [100, 130, 160, 155, 175, 195, 180];
     return opts;
   });
   updateServiceBarOptions(opts => {
@@ -524,8 +524,8 @@ function initMockData() {
   updateTrendOptions(opts => {
     (opts.xAxis as any).data = ['1月', '2月', '3月', '4月', '5月', '6月'];
     (opts.series as any)[0].data = [120000, 135000, 150000, 142000, 160000, 175000];
-    opts.series[1].data = [80000, 90000, 95000, 92000, 100000, 110000];
-    opts.series[2].data = [40000, 45000, 55000, 50000, 60000, 65000];
+    (opts.series as any)[1].data = [80000, 90000, 95000, 92000, 100000, 110000];
+    (opts.series as any)[2].data = [40000, 45000, 55000, 50000, 60000, 65000];
     return opts;
   });
   updateServiceAmountOptions(opts => {
