@@ -28,7 +28,8 @@ public class WebMvcConfig implements WebMvcConfigurer {
                 .excludePathPatterns(
                         "/api/auth/login",
                         "/api/auth/logout",
-                        "/api/evaluations/survey/**"
+                        "/api/evaluations/survey/**",
+                        "/api/contracts/callback"
                 );
 
         // 2. 权限校验拦截器
@@ -40,7 +41,8 @@ public class WebMvcConfig implements WebMvcConfigurer {
                         "/api/auth/logout",
                         "/api/auth/userinfo",
                         "/api/menu/**",
-                        "/api/evaluations/survey/**"
+                        "/api/evaluations/survey/**",
+                        "/api/contracts/callback"
                 );
     }
 
