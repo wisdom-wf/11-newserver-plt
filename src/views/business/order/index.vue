@@ -1134,7 +1134,7 @@ async function handleCreateEvaluation() {
   }
 }
 
-onMounted(() => {
+onMounted(async () => {
   // 接收从其他页面跳转过来的过滤参数
   if (route.query.orderNo) {
     searchOrderNo.value = route.query.orderNo as string;
@@ -1142,9 +1142,18 @@ onMounted(() => {
   if (route.query.elderName) {
     searchElderName.value = route.query.elderName as string;
   }
-  getStatistics();
-  getData();
+  await getStatistics();
+  await getData();
   getProviderOptions();
+
+  // 如果带orderNo参数，自动打开第一条订单的详情
+  if (route.query.orderNo) {
+    await new Promise(resolve => setTimeout(resolve, 500));
+    const matchOrder = tableData.value.find((o: any) => o.orderNo === route.query.orderNo);
+    if (matchOrder) {
+      handleDetail(matchOrder);
+    }
+  }
 });
 </script>
 

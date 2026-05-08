@@ -21,12 +21,14 @@ import {
   fetchGetSignUrl,
   fetchDownloadContract
 } from '@/service/api';
+import { useRouterPush } from '@/hooks/common/router';
 
 defineOptions({
   name: 'BusinessContract'
 });
 
 const message = useMessage();
+const { routerPushByKeyWithMetaQuery } = useRouterPush();
 
 // Search
 const searchContractNo = ref('');
@@ -78,8 +80,16 @@ const detailData = ref<Api.Ess.Contract | null>(null);
 const columns: DataTableColumns<Api.Ess.Contract> = [
   { type: 'selection' as const, width: 50 },
   { title: '合同编号', key: 'contractNo', width: 180 },
-  { title: '合同名称', key: 'contractName', width: 200 },
-  { title: '关联订单', key: 'orderNo', width: 160 },
+  {
+    title: '合同名称',
+    key: 'contractName',
+    width: 280,
+    render: row => h('div', { style: 'display: flex; align-items: center; gap: 8px' }, [
+      h('span', {}, row.contractName || '-'),
+      h(NButton, { size: 'tiny', type: 'primary', onClick: () => handlePreview(row) }, () => '查看原文')
+    ])
+  },
+  { title: '关联订单', key: 'orderNo', width: 160, render: row => row.orderNo ? h(NButton, { size: 'tiny', text: true, type: 'primary', onClick: () => routerPushByKeyWithMetaQuery('business_order', { orderNo: row.orderNo }) }, () => row.orderNo) : '-' },
   {
     title: '状态',
     key: 'status',
@@ -90,13 +100,13 @@ const columns: DataTableColumns<Api.Ess.Contract> = [
   {
     title: '操作',
     key: 'actions',
-    width: 150,
+    width: 220,
     fixed: 'right',
     render: row => {
       const buttons: any[] = [];
       buttons.push(h(NButton, { size: 'small', onClick: () => showDetail(row) }, () => '详情'));
+      buttons.push(h(NButton, { size: 'small', onClick: () => handlePreview(row) }, () => '查看'));
       if (row.status === 'SIGNED' || row.status === 'COMPLETED') {
-        buttons.push(h(NButton, { size: 'small', onClick: () => handlePreview(row) }, () => '查看'));
         buttons.push(h(NButton, { size: 'small', onClick: () => handleDownload(row) }, () => '下载'));
         buttons.push(h(NButton, { size: 'small', onClick: () => handlePrint(row) }, () => '打印'));
       }
