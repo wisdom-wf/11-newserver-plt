@@ -166,6 +166,16 @@ declare namespace Api {
       id?: string;
       /** 别名label（兼容前端） */
       label?: string;
+      /** 菜单名称（兼容） */
+      menuName?: string;
+      /** 菜单编码（兼容） */
+      menuCode?: string;
+      /** 菜单类型（兼容） */
+      menuType?: string;
+      /** 路由路径（兼容） */
+      path?: string;
+      /** 组件路径（兼容） */
+      component?: string;
     }
 
     /** 区域 */

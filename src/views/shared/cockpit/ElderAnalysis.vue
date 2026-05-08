@@ -88,7 +88,7 @@ async function getData() {
       elderStats.value = res.data;
       if (res.data.ageDistribution?.length) {
         updateAgePieOptions(opts => {
-          opts.series[0].data = res.data.ageDistribution.map((item: any) => ({
+          (opts.series as any)[0].data = res.data.ageDistribution.map((item: any) => ({
             name: item.ageRange || item.label || '未知',
             value: item.count || 0
           }));
@@ -97,16 +97,16 @@ async function getData() {
       }
       if (res.data.careLevelDistribution?.length) {
         updateCareBarOptions(opts => {
-          opts.xAxis.data = res.data.careLevelDistribution.map(
+          (opts.xAxis as any).data = res.data.careLevelDistribution.map(
             (item: any) => item.levelName || `等级${item.careLevel}`
           );
-          opts.series[0].data = res.data.careLevelDistribution.map((item: any) => item.count || 0);
+          (opts.series as any)[0].data = res.data.careLevelDistribution.map((item: any) => item.count || 0);
           return opts;
         });
       }
       if (res.data.serviceDemandDistribution?.length) {
         updateDemandOptions(opts => {
-          opts.series[0].data = res.data.serviceDemandDistribution.map((item: any) => ({
+          (opts.series as any)[0].data = res.data.serviceDemandDistribution.map((item: any) => ({
             name: item.serviceTypeName || item.serviceType || '未知',
             value: item.count || 0
           }));
@@ -123,7 +123,7 @@ async function getData() {
 
 function initMockData() {
   updateAgePieOptions(opts => {
-    opts.series[0].data = [
+    (opts.series as any)[0].data = [
       { name: '60-69岁', value: 320 },
       { name: '70-79岁', value: 480 },
       { name: '80-89岁', value: 350 },
@@ -132,12 +132,12 @@ function initMockData() {
     return opts;
   });
   updateCareBarOptions(opts => {
-    opts.xAxis.data = ['自理', '轻度失能', '中度失能', '重度失能'];
-    opts.series[0].data = [520, 380, 240, 90];
+    (opts.xAxis as any).data = ['自理', '轻度失能', '中度失能', '重度失能'];
+    (opts.series as any)[0].data = [520, 380, 240, 90];
     return opts;
   });
   updateDemandOptions(opts => {
-    opts.series[0].data = [
+    (opts.series as any)[0].data = [
       { name: '生活照料', value: 420 },
       { name: '医疗护理', value: 280 },
       { name: '助餐服务', value: 350 },

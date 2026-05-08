@@ -14,6 +14,7 @@
     "types": ["vite/client", "node", "unplugin-icons/types/vue", "naive-ui/volar"],
     "strict": true,
     "strictNullChecks": true,
+    "noUncheckedIndexedAccess": false,
     "noUnusedLocals": false,
     "allowSyntheticDefaultImports": true,
     "esModuleInterop": true,

@@ -234,8 +234,8 @@ async function getData() {
 
     if (trendRes.data?.length) {
       updateOrderTrendOptions(opts => {
-        opts.xAxis.data = trendRes.data.map((item: any) => item.date || item.label);
-        opts.series[0].data = trendRes.data.map((item: any) => item.count || item.value || 0);
+        (opts.xAxis as any).data = trendRes.data.map((item: any) => item.date || item.label);
+        (opts.series as any)[0].data = trendRes.data.map((item: any) => item.count || item.value || 0);
         return opts;
       });
     }
@@ -246,7 +246,7 @@ async function getData() {
 
     if (serviceRes.data?.length) {
       updateServicePieOptions(opts => {
-        opts.series[0].data = serviceRes.data.map((item: any) => ({
+        (opts.series as any)[0].data = serviceRes.data.map((item: any) => ({
           name: item.category || item.name || '未知',
           value: item.count || item.value || 0
         }));
@@ -256,7 +256,7 @@ async function getData() {
 
     if (areaRes.data?.length) {
       updateAreaPieOptions(opts => {
-        opts.series[0].data = areaRes.data.map((item: any) => ({
+        (opts.series as any)[0].data = areaRes.data.map((item: any) => ({
           name: item.area || item.name || '未知',
           value: item.count || item.value || 0
         }));
@@ -266,15 +266,15 @@ async function getData() {
 
     if (ageRes.data?.length) {
       updateAgeBarOptions(opts => {
-        opts.xAxis.data = ageRes.data.map((item: any) => item.ageRange || item.label || '未知');
-        opts.series[0].data = ageRes.data.map((item: any) => item.count || 0);
+        (opts.xAxis as any).data = ageRes.data.map((item: any) => item.ageRange || item.label || '未知');
+        (opts.series as any)[0].data = ageRes.data.map((item: any) => item.count || 0);
         return opts;
       });
     }
 
     if (careLevelRes.data?.length) {
       updateCareLevelOptions(opts => {
-        opts.series[0].data = careLevelRes.data.map((item: any) => ({
+        (opts.series as any)[0].data = careLevelRes.data.map((item: any) => ({
           name: item.level || item.name || '未知',
           value: item.count || 0
         }));

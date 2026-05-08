@@ -181,6 +181,10 @@ declare namespace Api {
       careLevelStats: Record<string, number>;
       /** 补贴类型分布 */
       subsidyTypeStats: Record<string, number>;
+      /** 年龄分布 */
+      ageDistribution?: Array<{ ageRange: string; count: number }>;
+      /** 服务需求分布 */
+      serviceDemandDistribution?: Array<{ demandType: string; count: number }>;
     }
 
     /** 测量类型 */

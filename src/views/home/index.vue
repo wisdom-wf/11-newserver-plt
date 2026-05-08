@@ -388,7 +388,7 @@ async function getData() {
       elderStats.value = elderRes.data;
       if (elderRes.data.ageDistribution?.length) {
         updateAgePieOptions(opts => {
-          opts.series[0].data = elderRes.data.ageDistribution.map((item: any) => ({
+          (opts.series as any)[0].data = elderRes.data.ageDistribution.map((item: any) => ({
             name: item.ageRange || item.label || '未知',
             value: item.count || 0
           }));
@@ -397,7 +397,7 @@ async function getData() {
       }
       if (elderRes.data.serviceDemandDistribution?.length) {
         updateDemandOptions(opts => {
-          opts.series[0].data = elderRes.data.serviceDemandDistribution.map((item: any) => ({
+          (opts.series as any)[0].data = elderRes.data.serviceDemandDistribution.map((item: any) => ({
             name: item.serviceTypeName || item.serviceType || '未知',
             value: item.count || 0
           }));
@@ -410,22 +410,22 @@ async function getData() {
       orderStats.value = orderRes.data;
       if (orderRes.data.orderTrend?.length) {
         updateOrderTrendOptions(opts => {
-          opts.xAxis.data = orderRes.data.orderTrend.map((item: any) => item.date);
-          opts.series[0].data = orderRes.data.orderTrend.map((item: any) => item.orderCount);
+          (opts.xAxis as any).data = orderRes.data.orderTrend.map((item: any) => item.date);
+          (opts.series as any)[0].data = orderRes.data.orderTrend.map((item: any) => item.orderCount);
           opts.series[1].data = orderRes.data.orderTrend.map((item: any) => item.completedCount);
           return opts;
         });
       }
       if (orderRes.data.serviceTypeDistribution?.length) {
         updateServiceBarOptions(opts => {
-          opts.xAxis.data = orderRes.data.serviceTypeDistribution.map((item: any) => item.serviceTypeName);
-          opts.series[0].data = orderRes.data.serviceTypeDistribution.map((item: any) => item.orderCount);
+          (opts.xAxis as any).data = orderRes.data.serviceTypeDistribution.map((item: any) => item.serviceTypeName);
+          (opts.series as any)[0].data = orderRes.data.serviceTypeDistribution.map((item: any) => item.orderCount);
           return opts;
         });
       }
       if (orderRes.data.orderSourceDistribution?.length) {
         updateSourceOptions(opts => {
-          opts.series[0].data = orderRes.data.orderSourceDistribution.map((item: any) => ({
+          (opts.series as any)[0].data = orderRes.data.orderSourceDistribution.map((item: any) => ({
             name: item.sourceName || item.orderSource || '未知',
             value: item.count || 0
           }));
@@ -442,13 +442,13 @@ async function getData() {
       qualityStats.value = qualityRes.data;
       if (qualityRes.data.ratingTrend?.length) {
         updateRatingTrendOptions(opts => {
-          opts.xAxis.data = qualityRes.data.ratingTrend.map((item: any) => item.date);
-          opts.series[0].data = qualityRes.data.ratingTrend.map((item: any) => item.averageRating);
+          (opts.xAxis as any).data = qualityRes.data.ratingTrend.map((item: any) => item.date);
+          (opts.series as any)[0].data = qualityRes.data.ratingTrend.map((item: any) => item.averageRating);
           return opts;
         });
       }
       updateEvalOptions(opts => {
-        opts.series[0].data = [
+        (opts.series as any)[0].data = [
           { name: '好评', value: qualityRes.data.positiveCount || 0 },
           { name: '中评', value: qualityRes.data.neutralCount || 0 },
           { name: '差评', value: qualityRes.data.negativeCount || 0 }
@@ -457,8 +457,8 @@ async function getData() {
       });
       if (qualityRes.data.complaintTypes?.length) {
         updateComplaintOptions(opts => {
-          opts.xAxis.data = qualityRes.data.complaintTypes.map((item: any) => item.typeName || item.complaintType);
-          opts.series[0].data = qualityRes.data.complaintTypes.map((item: any) => item.count);
+          (opts.xAxis as any).data = qualityRes.data.complaintTypes.map((item: any) => item.typeName || item.complaintType);
+          (opts.series as any)[0].data = qualityRes.data.complaintTypes.map((item: any) => item.count);
           return opts;
         });
       }
@@ -484,7 +484,7 @@ function initMockData() {
     return opts;
   });
   updateAgePieOptions(opts => {
-    opts.series[0].data = [
+    (opts.series as any)[0].data = [
       { name: '60-69岁', value: 320 },
       { name: '70-79岁', value: 480 },
       { name: '80-89岁', value: 350 },
@@ -493,7 +493,7 @@ function initMockData() {
     return opts;
   });
   updateDemandOptions(opts => {
-    opts.series[0].data = [
+    (opts.series as any)[0].data = [
       { name: '生活照料', value: 420 },
       { name: '医疗护理', value: 280 },
       { name: '助餐服务', value: 350 },
@@ -502,18 +502,18 @@ function initMockData() {
     return opts;
   });
   updateOrderTrendOptions(opts => {
-    opts.xAxis.data = ['周一', '周二', '周三', '周四', '周五', '周六', '周日'];
-    opts.series[0].data = [120, 150, 180, 170, 190, 210, 195];
+    (opts.xAxis as any).data = ['周一', '周二', '周三', '周四', '周五', '周六', '周日'];
+    (opts.series as any)[0].data = [120, 150, 180, 170, 190, 210, 195];
     opts.series[1].data = [100, 130, 160, 155, 175, 195, 180];
     return opts;
   });
   updateServiceBarOptions(opts => {
-    opts.xAxis.data = ['生活照料', '医疗护理', '助餐服务', '康复护理', '精神慰藉', '紧急救援'];
-    opts.series[0].data = [320, 240, 180, 150, 90, 60];
+    (opts.xAxis as any).data = ['生活照料', '医疗护理', '助餐服务', '康复护理', '精神慰藉', '紧急救援'];
+    (opts.series as any)[0].data = [320, 240, 180, 150, 90, 60];
     return opts;
   });
   updateSourceOptions(opts => {
-    opts.series[0].data = [
+    (opts.series as any)[0].data = [
       { name: 'APP下单', value: 450 },
       { name: '电话预约', value: 280 },
       { name: '社区代订', value: 150 },
@@ -522,14 +522,14 @@ function initMockData() {
     return opts;
   });
   updateTrendOptions(opts => {
-    opts.xAxis.data = ['1月', '2月', '3月', '4月', '5月', '6月'];
-    opts.series[0].data = [120000, 135000, 150000, 142000, 160000, 175000];
+    (opts.xAxis as any).data = ['1月', '2月', '3月', '4月', '5月', '6月'];
+    (opts.series as any)[0].data = [120000, 135000, 150000, 142000, 160000, 175000];
     opts.series[1].data = [80000, 90000, 95000, 92000, 100000, 110000];
     opts.series[2].data = [40000, 45000, 55000, 50000, 60000, 65000];
     return opts;
   });
   updateServiceAmountOptions(opts => {
-    opts.series[0].data = [
+    (opts.series as any)[0].data = [
       { name: '生活照料', value: 450000 },
       { name: '医疗护理', value: 320000 },
       { name: '助餐服务', value: 280000 },
@@ -540,12 +540,12 @@ function initMockData() {
     return opts;
   });
   updateRatingTrendOptions(opts => {
-    opts.xAxis.data = ['周一', '周二', '周三', '周四', '周五', '周六', '周日'];
-    opts.series[0].data = [4.5, 4.6, 4.4, 4.7, 4.8, 4.6, 4.9];
+    (opts.xAxis as any).data = ['周一', '周二', '周三', '周四', '周五', '周六', '周日'];
+    (opts.series as any)[0].data = [4.5, 4.6, 4.4, 4.7, 4.8, 4.6, 4.9];
     return opts;
   });
   updateEvalOptions(opts => {
-    opts.series[0].data = [
+    (opts.series as any)[0].data = [
       { name: '好评', value: 850 },
       { name: '中评', value: 120 },
       { name: '差评', value: 30 }
@@ -553,8 +553,8 @@ function initMockData() {
     return opts;
   });
   updateComplaintOptions(opts => {
-    opts.xAxis.data = ['服务态度', '响应速度', '服务质量', '人员素质', '其他'];
-    opts.series[0].data = [15, 8, 12, 5, 3];
+    (opts.xAxis as any).data = ['服务态度', '响应速度', '服务质量', '人员素质', '其他'];
+    (opts.series as any)[0].data = [15, 8, 12, 5, 3];
     return opts;
   });
 }

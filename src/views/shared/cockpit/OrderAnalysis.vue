@@ -123,22 +123,22 @@ async function getData() {
       orderStats.value = res.data;
       if (res.data.orderTrend?.length) {
         updateTrendOptions(opts => {
-          opts.xAxis.data = res.data.orderTrend.map((item: any) => item.date);
-          opts.series[0].data = res.data.orderTrend.map((item: any) => item.orderCount);
+          (opts.xAxis as any).data = res.data.orderTrend.map((item: any) => item.date);
+          (opts.series as any)[0].data = res.data.orderTrend.map((item: any) => item.orderCount);
           opts.series[1].data = res.data.orderTrend.map((item: any) => item.completedCount);
           return opts;
         });
       }
       if (res.data.serviceTypeDistribution?.length) {
         updateServiceOptions(opts => {
-          opts.xAxis.data = res.data.serviceTypeDistribution.map((item: any) => item.serviceTypeName);
-          opts.series[0].data = res.data.serviceTypeDistribution.map((item: any) => item.orderCount);
+          (opts.xAxis as any).data = res.data.serviceTypeDistribution.map((item: any) => item.serviceTypeName);
+          (opts.series as any)[0].data = res.data.serviceTypeDistribution.map((item: any) => item.orderCount);
           return opts;
         });
       }
       if (res.data.orderSourceDistribution?.length) {
         updateSourceOptions(opts => {
-          opts.series[0].data = res.data.orderSourceDistribution.map((item: any) => ({
+          (opts.series as any)[0].data = res.data.orderSourceDistribution.map((item: any) => ({
             name: item.sourceName || item.orderSource || '未知',
             value: item.count || 0
           }));
@@ -155,18 +155,18 @@ async function getData() {
 
 function initMockData() {
   updateTrendOptions(opts => {
-    opts.xAxis.data = ['周一', '周二', '周三', '周四', '周五', '周六', '周日'];
-    opts.series[0].data = [120, 150, 180, 170, 190, 210, 195];
+    (opts.xAxis as any).data = ['周一', '周二', '周三', '周四', '周五', '周六', '周日'];
+    (opts.series as any)[0].data = [120, 150, 180, 170, 190, 210, 195];
     opts.series[1].data = [100, 130, 160, 155, 175, 195, 180];
     return opts;
   });
   updateServiceOptions(opts => {
-    opts.xAxis.data = ['生活照料', '医疗护理', '助餐服务', '康复护理', '精神慰藉', '紧急救援'];
-    opts.series[0].data = [320, 240, 180, 150, 90, 60];
+    (opts.xAxis as any).data = ['生活照料', '医疗护理', '助餐服务', '康复护理', '精神慰藉', '紧急救援'];
+    (opts.series as any)[0].data = [320, 240, 180, 150, 90, 60];
     return opts;
   });
   updateSourceOptions(opts => {
-    opts.series[0].data = [
+    (opts.series as any)[0].data = [
       { name: 'APP下单', value: 450 },
       { name: '电话预约', value: 280 },
       { name: '社区代订', value: 150 },

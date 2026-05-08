@@ -183,6 +183,10 @@ declare namespace Api {
       // 比率
       /** 完成率(%) */
       completionRate: number;
+      /** 订单趋势 */
+      orderTrend?: Array<{ date: string; orderCount: number; completedCount: number }>;
+      /** 服务类型分布 */
+      serviceTypeDistribution?: Array<{ serviceTypeName: string; orderCount: number }>;
       /** 取消率(%) */
       cancelRate: number;
 

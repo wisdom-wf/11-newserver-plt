@@ -103,13 +103,13 @@ async function getData() {
       qualityStats.value = res.data;
       if (res.data.ratingTrend?.length) {
         updateTrendOptions(opts => {
-          opts.xAxis.data = res.data.ratingTrend.map((item: any) => item.date);
-          opts.series[0].data = res.data.ratingTrend.map((item: any) => item.averageRating);
+          (opts.xAxis as any).data = res.data.ratingTrend.map((item: any) => item.date);
+          (opts.series as any)[0].data = res.data.ratingTrend.map((item: any) => item.averageRating);
           return opts;
         });
       }
       updateEvalOptions(opts => {
-        opts.series[0].data = [
+        (opts.series as any)[0].data = [
           { name: '好评', value: res.data.positiveCount || 0 },
           { name: '中评', value: res.data.neutralCount || 0 },
           { name: '差评', value: res.data.negativeCount || 0 }
@@ -118,8 +118,8 @@ async function getData() {
       });
       if (res.data.complaintTypes?.length) {
         updateComplaintOptions(opts => {
-          opts.xAxis.data = res.data.complaintTypes.map((item: any) => item.typeName || item.complaintType);
-          opts.series[0].data = res.data.complaintTypes.map((item: any) => item.count);
+          (opts.xAxis as any).data = res.data.complaintTypes.map((item: any) => item.typeName || item.complaintType);
+          (opts.series as any)[0].data = res.data.complaintTypes.map((item: any) => item.count);
           return opts;
         });
       }
@@ -133,12 +133,12 @@ async function getData() {
 
 function initMockData() {
   updateTrendOptions(opts => {
-    opts.xAxis.data = ['周一', '周二', '周三', '周四', '周五', '周六', '周日'];
-    opts.series[0].data = [4.5, 4.6, 4.4, 4.7, 4.8, 4.6, 4.9];
+    (opts.xAxis as any).data = ['周一', '周二', '周三', '周四', '周五', '周六', '周日'];
+    (opts.series as any)[0].data = [4.5, 4.6, 4.4, 4.7, 4.8, 4.6, 4.9];
     return opts;
   });
   updateEvalOptions(opts => {
-    opts.series[0].data = [
+    (opts.series as any)[0].data = [
       { name: '好评', value: 850 },
       { name: '中评', value: 120 },
       { name: '差评', value: 30 }
@@ -146,8 +146,8 @@ function initMockData() {
     return opts;
   });
   updateComplaintOptions(opts => {
-    opts.xAxis.data = ['服务态度', '响应速度', '服务质量', '人员素质', '其他'];
-    opts.series[0].data = [15, 8, 12, 5, 3];
+    (opts.xAxis as any).data = ['服务态度', '响应速度', '服务质量', '人员素质', '其他'];
+    (opts.series as any)[0].data = [15, 8, 12, 5, 3];
     return opts;
   });
 }
