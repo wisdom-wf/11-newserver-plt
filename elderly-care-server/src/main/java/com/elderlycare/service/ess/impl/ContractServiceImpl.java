@@ -7,6 +7,7 @@ import com.elderlycare.common.BusinessException;
 import com.elderlycare.common.PageResult;
 import com.elderlycare.common.UserContext;
 import com.elderlycare.config.TencentEssConfig;
+import com.elderlycare.config.ContractEnterpriseConfig;
 import com.elderlycare.dto.ess.ContractQueryDTO;
 import com.elderlycare.entity.ess.EssContract;
 import com.elderlycare.entity.order.Order;
@@ -37,17 +38,20 @@ import java.util.*;
 public class ContractServiceImpl implements ContractService {
 
     private final TencentEssConfig essConfig;
+    private final ContractEnterpriseConfig enterpriseConfig;
     private final EssContractMapper contractMapper;
     private final OrderMapper orderMapper;
     private final StaffMapper staffMapper;
     private final ObjectMapper objectMapper;
 
     public ContractServiceImpl(TencentEssConfig essConfig,
+                               ContractEnterpriseConfig enterpriseConfig,
                                EssContractMapper contractMapper,
                                OrderMapper orderMapper,
                                StaffMapper staffMapper,
                                ObjectMapper objectMapper) {
         this.essConfig = essConfig;
+        this.enterpriseConfig = enterpriseConfig;
         this.contractMapper = contractMapper;
         this.orderMapper = orderMapper;
         this.staffMapper = staffMapper;
@@ -369,12 +373,6 @@ public class ContractServiceImpl implements ContractService {
             createFlowReq.setFlowName("智慧居家养老服务合同-" + order.getOrderNo());
 
             // 签署方配置 - 必须和模板中的角色顺序一致
-            // 企业方（甲方 - 陕西红泥数智科技有限公司，静默签署不发短信）
-            FlowCreateApprover orgApprover = new FlowCreateApprover();
-            orgApprover.setApproverType(0L); // 企业
-            orgApprover.setOrganizationName("陕西红泥数智科技有限公司");
-            orgApprover.setApproverName("王凡");
-            orgApprover.setApproverMobile("13800138000"); // 企业经办人手机号
             orgApprover.setNotifyType("none"); // 企业方不发短信
 
             // 个人方（乙方 - 服务人员，发短信通知签署）
@@ -453,11 +451,6 @@ public class ContractServiceImpl implements ContractService {
         addField(fields, "乙方（员工）联系地址", order.getServiceAddress() != null ? order.getServiceAddress() : "");
 
         // ========== 甲方（企业）信息 ==========
-        addField(fields, "企业全称", "陕西红泥数智科技有限公司");
-        addField(fields, "统一社会信用代码/注册号", "91610113MA7JQXXX00"); // TODO: 用真实信用代码
-        addField(fields, "法定代表人/经营者姓名", "王凡");
-        addField(fields, "甲方地址", "陕西省西安市");
-        addField(fields, "甲方联系电话", "13800138000");
 
         // 兼容旧字段名
         addField(fields, "服务人员姓名", staff.getStaffName());
