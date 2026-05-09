@@ -149,8 +149,9 @@ function showDetail(row: Api.Ess.Contract) {
 async function handleDownload(row: Api.Ess.Contract) {
   try {
     const { data } = await fetchDownloadContract(row.contractId);
-    if (data?.downloadUrl) {
-      window.open(data.downloadUrl, '_blank');
+    const url = typeof data === 'string' ? data : (data as any)?.downloadUrl;
+    if (url) {
+      window.open(url, '_blank');
     }
   } catch (e) {
     message.error('下载合同失败');
@@ -161,8 +162,10 @@ async function handleDownload(row: Api.Ess.Contract) {
 async function handlePreview(row: Api.Ess.Contract) {
   try {
     const { data } = await fetchDownloadContract(row.contractId);
-    if (data?.downloadUrl) {
-      window.open(data.downloadUrl, '_blank');
+    // API直接返回URL字符串，非对象
+    const url = typeof data === 'string' ? data : (data as any)?.downloadUrl;
+    if (url) {
+      window.open(url, '_blank');
     } else {
       message.warning('合同文件暂不可用');
     }
@@ -175,8 +178,9 @@ async function handlePreview(row: Api.Ess.Contract) {
 async function handlePrint(row: Api.Ess.Contract) {
   try {
     const { data } = await fetchDownloadContract(row.contractId);
-    if (data?.downloadUrl) {
-      const printWindow = window.open(data.downloadUrl, '_blank');
+    const url = typeof data === 'string' ? data : (data as any)?.downloadUrl;
+    if (url) {
+      const printWindow = window.open(url, '_blank');
       if (printWindow) {
         printWindow.onload = () => {
           printWindow.print();
