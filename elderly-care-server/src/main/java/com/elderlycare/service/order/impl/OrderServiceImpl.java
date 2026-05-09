@@ -2,6 +2,7 @@ package com.elderlycare.service.order.impl;
 
 import java.math.BigDecimal;
 import java.util.Optional;
+import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import com.baomidou.mybatisplus.core.metadata.IPage;
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import com.elderlycare.common.BusinessException;
@@ -308,14 +309,30 @@ public class OrderServiceImpl implements OrderService {
             throw new BusinessException(400, "当前状态不允许取消订单");
         }
 
-        // 取消后回到待派单状态，可以重新派单
-        order.setStatus(OrderStatus.CREATED.getCode());
+        // 设置订单状态为已取消
+        order.setStatus(OrderStatus.CANCELLED.getCode());
         order.setCancelReason(dto.getCancelReason());
         order.setProviderId(null);
         order.setStaffId(null);
         order.setDispatchTime(null);
         order.setUpdateTime(LocalDateTime.now());
         orderMapper.updateById(order);
+
+        // 将关联的预约退回为已确认状态，管理员可重新指定服务商
+        QueryWrapper<Appointment> apptWrapper = new QueryWrapper<>();
+        apptWrapper.eq("order_id", orderId);
+        Appointment appointment = appointmentMapper.selectOne(apptWrapper);
+        if (appointment != null) {
+            appointment.setStatus("CONFIRMED");
+            appointment.setOrderId(null);
+            appointment.setOrderNo(null);
+            appointment.setProviderId(null);
+            appointment.setProviderName(null);
+            appointment.setProviderAddress(null);
+            appointment.setCancelReason(dto.getCancelReason());
+            appointment.setUpdateTime(LocalDateTime.now());
+            appointmentMapper.updateById(appointment);
+        }
     }
 
     @Override

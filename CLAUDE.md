@@ -100,6 +100,67 @@ Services support:
 - Self-pay rates (client-funded)
 - Mixed pricing (subsidy + self-pay)
 
+## 项目技术架构
+
+- **后端**: Spring Boot + MyBatis-Plus + MySQL (Docker)
+- **前端**: Vue 3 + TypeScript + Vite
+- **数据库**: MySQL in Docker container (通过 Docker 连接，非本地)
+- **认证**: BCrypt 密码哈希（标准 16 轮）
+
+## 会话开始前诊断检查
+
+每次会话开始时自动诊断：
+1. **Docker MySQL 连接**: 验证数据库是否可达
+2. **Vue Router 模式**: 检查是 hash 还是 history 模式
+3. **BCrypt 配置**: 验证密码哈希配置
+
+## 通用修复模式
+
+1. **MyBatis-Plus 静默失败**: updateById 可能因 soft-delete 配置而静默失败。使用自定义更新方法或在 mapper 中禁用 soft-delete。
+2. **BCrypt 哈希**: 使用 `new BCryptPasswordEncoder().encode(password)` 正确生成 — 格式错误的哈希会导致登录失败。
+3. **中文编码**: 始终使用 UTF-8。检查数据库字符集、MyBatis mapper 编码和 Vue 响应编码。
+4. **Vue 请求错误处理**: `createFlatRequest` 返回 `{data, error}` 而非抛出异常 — 检查 `error` 属性而非 try/catch。
+
+## 后端调试前置检查
+
+1. 先检查 Spring Boot 日志
+2. 验证 MyBatis mapper XML 与 Java 接口匹配
+3. 确认数据库 schema 与本地一致（生产服务器 schema 不同）
+4. 对于更新：验证 soft-delete 配置
+
+## 前端请求模式
+
+- 始终使用 `error?.response?.data?.message` 显示错误（处理 undefined）
+- 检查请求参数名与后端匹配（pageNum vs page, ON_JOB vs '1'）
+- 对于 history 模式路由，确保后端代理配置正确
+
+## 部署信息
+
+### 访问地址
+- **前端地址**: https://wisdomdance.cn/jxy/home
+- **后端 API**: http://43.153.213.134:8080/api（服务器内部）
+
+### 服务器
+- **IP**: 43.153.213.134
+- **SSH 用户**: ubuntu
+- **密码**: w00135950F
+
+### 部署路径
+- **前端静态文件**: /var/www/jxy/
+- **后端 JAR**: /opt/jxy/ (elderly-care-server-1.0.0.jar)
+- **前端源码**: /Users/works/my-projects/11-newserver-plt/dingfeng-work
+
+### 端口
+- **80/443**: Web 服务
+- **8080**: 后端 API（内部端口，需通过 nginx 反向代理）
+- **22**: SSH
+
+### 数据库
+- MySQL 运行中，字符集 utf8mb4
+
+### 部署脚本
+- 前端部署: `/Users/works/my-projects/11-newserver-plt/deploy-frontend.sh`
+
 ## Documentation
 
 Refer to the specification PDF for detailed business logic, functional requirements, and UI/UX specifications.
