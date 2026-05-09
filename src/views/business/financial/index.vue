@@ -836,7 +836,7 @@ onMounted(() => {
     <NModal v-model:show="staffDetailVisible" title="服务人员详情" preset="card" style="width: 600px">
       <NForm v-if="staffDetailData" label-placement="left" label-width="100">
         <NFormItem label="姓名">{{ staffDetailData.staffName }}</NFormItem>
-        <NFormItem label="性别">{{ staffDetailData.Number(gender) === 1 ? "男" : "女" }}</NFormItem>
+        <NFormItem label="性别">{{ Number(staffDetailData.gender) === 1 ? "男" : "女" }}</NFormItem>
         <NFormItem label="工号">{{ staffDetailData.staffNo || '-' }}</NFormItem>
         <NFormItem label="手机号">{{ staffDetailData.phone || '-' }}</NFormItem>
         <NFormItem label="身份证号">{{ staffDetailData.idCard || '-' }}</NFormItem>
