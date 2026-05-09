@@ -26,7 +26,7 @@ import { useRouterPush } from '@/hooks/common/router';
 import { useAuthStore } from '@/store/modules/auth';
 
 const authStore = useAuthStore();
-const isAdmin = authStore.userInfo.userType === 'ADMIN';
+const isAdmin = authStore.userInfo.userType === 'SYSTEM' || authStore.userInfo.userType === 'ADMIN';
 
 defineOptions({
   name: 'BusinessContract'
