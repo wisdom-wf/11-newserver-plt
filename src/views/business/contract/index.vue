@@ -23,7 +23,10 @@ import {
   fetchDeleteContract
 } from '@/service/api';
 import { useRouterPush } from '@/hooks/common/router';
-import { useAuth } from '@/hooks/business/auth';
+import { useAuthStore } from '@/store/modules/auth';
+
+const authStore = useAuthStore();
+const isAdmin = authStore.userInfo.userType === 'ADMIN';
 
 defineOptions({
   name: 'BusinessContract'
@@ -31,7 +34,6 @@ defineOptions({
 
 const message = useMessage();
 const { routerPushByKeyWithMetaQuery } = useRouterPush();
-const { isAdmin } = useAuth();
 
 // Search
 const searchContractNo = ref('');
