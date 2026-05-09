@@ -436,7 +436,7 @@ const columns: DataTableColumns<Api.Order.Order> = [
         row.status !== 'REJECTED' &&
         hasAuth('order:list:cancel')
       ) {
-        buttons.push(h(NButton, { size: 'small', type: 'error', onClick: () => handleCancel(row) }, () => '取消'));
+        buttons.push(h(NButton, { size: 'small', type: 'error', onClick: () => handleCancel(row) }, () => '退回'));
       }
       return h(NSpace, { size: 'small' }, () => buttons);
     }
@@ -918,7 +918,7 @@ function handleCancel(row: Api.Order.Order) {
 async function handleCancelSubmit() {
   try {
     await fetchCancelOrder(currentOrderId.value, cancelForm.value);
-    message.success('取消成功');
+    message.success('退回成功，预约已返回待分配状态');
     cancelModalVisible.value = false;
     await getData();
     await getStatistics();
@@ -1483,17 +1483,18 @@ onMounted(async () => {
       </template>
     </NModal>
 
-    <!-- Cancel Modal -->
-    <NModal v-model:show="cancelModalVisible" title="取消订单" preset="card" style="width: 500px">
+    <!-- Cancel/Return Modal -->
+    <NModal v-model:show="cancelModalVisible" title="退回订单" preset="card" style="width: 500px">
+      <p style="color: #666; margin-bottom: 16px;">退回后预约将返回待分配状态，管理员可重新指定服务商。</p>
       <NForm :model="cancelForm" label-placement="left" label-width="100">
-        <NFormItem label="取消原因">
-          <NInput v-model:value="cancelForm.reason" type="textarea" placeholder="请输入取消原因" />
+        <NFormItem label="退回原因">
+          <NInput v-model:value="cancelForm.reason" type="textarea" placeholder="请输入退回原因（如：服务商无法处理）" />
         </NFormItem>
       </NForm>
       <template #footer>
         <NSpace justify="end">
           <NButton @click="cancelModalVisible = false">取消</NButton>
-          <NButton type="primary" @click="handleCancelSubmit">确认</NButton>
+          <NButton type="error" @click="handleCancelSubmit">确认退回</NButton>
         </NSpace>
       </template>
     </NModal>
