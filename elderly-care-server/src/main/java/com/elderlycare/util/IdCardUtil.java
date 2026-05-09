@@ -26,14 +26,19 @@ public class IdCardUtil {
     }
 
     /**
-     * 从身份证号计算年龄
+     * 从身份证号计算年龄（按年份差）
      */
     public static Integer calculateAge(String idCard) {
-        LocalDate birthDate = parseBirthDate(idCard);
-        if (birthDate == null) {
+        if (idCard == null || idCard.length() != 18) {
             return null;
         }
-        return Period.between(birthDate, LocalDate.now()).getYears();
+        try {
+            int birthYear = Integer.parseInt(idCard.substring(6, 10));
+            int currentYear = java.time.Year.now().getValue();
+            return currentYear - birthYear;
+        } catch (Exception e) {
+            return null;
+        }
     }
 
     /**
