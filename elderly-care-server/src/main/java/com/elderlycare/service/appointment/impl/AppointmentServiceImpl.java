@@ -809,7 +809,7 @@ public class AppointmentServiceImpl implements AppointmentService {
         createdNode.put("title", "预约已创建");
         createdNode.put("time", appointment.getCreateTime() != null ? appointment.getCreateTime().toString() : null);
         createdNode.put("completed", true);
-        createdNode.put("active", "CREATED".equals(appointment.getStatus()));
+        createdNode.put("active", "PENDING".equals(appointment.getStatus()) && appointment.getCancelReason() == null);
         List<Map<String, String>> createdDetails = new java.util.ArrayList<>();
         addDetail(createdDetails, "预约单号", appointment.getAppointmentNo());
         addDetail(createdDetails, "老人姓名", appointment.getElderName());
@@ -818,7 +818,7 @@ public class AppointmentServiceImpl implements AppointmentService {
         createdNode.put("details", createdDetails);
         nodes.add(createdNode);
 
-        // 确认
+        // 确认（confirmTime有值说明曾经确认过，即使现在退回到PENDING也要显示）
         if (appointment.getConfirmTime() != null || "CONFIRMED".equals(appointment.getStatus())) {
             Map<String, Object> confirmedNode = new HashMap<>();
             confirmedNode.put("status", "CONFIRMED");
@@ -826,7 +826,7 @@ public class AppointmentServiceImpl implements AppointmentService {
             confirmedNode.put("title", "预约已确认");
             confirmedNode.put("time", appointment.getConfirmTime() != null ? appointment.getConfirmTime().toString() : null);
             confirmedNode.put("completed", true);
-            confirmedNode.put("active", "CONFIRMED".equals(appointment.getStatus()) && appointment.getCancelReason() == null);
+            confirmedNode.put("active", false);
             List<Map<String, String>> confirmedDetails = new java.util.ArrayList<>();
             addDetail(confirmedDetails, "服务机构", appointment.getProviderName());
             addDetail(confirmedDetails, "预约时间", appointment.getAppointmentTime());
@@ -834,21 +834,34 @@ public class AppointmentServiceImpl implements AppointmentService {
             nodes.add(confirmedNode);
         }
 
-        // 退回（订单取消后预约退回重新分配）
-        if ("CONFIRMED".equals(appointment.getStatus()) && appointment.getCancelReason() != null) {
+        // 退回（订单取消后预约退回PENDING）
+        if (appointment.getCancelReason() != null && !"CANCELLED".equals(appointment.getStatus()) && !"INVALID".equals(appointment.getStatus())) {
             Map<String, Object> returnNode = new HashMap<>();
             returnNode.put("status", "RETURNED");
             returnNode.put("statusName", "已退回");
             returnNode.put("title", "订单已退回，待重新指定服务商");
             returnNode.put("time", appointment.getUpdateTime() != null ? appointment.getUpdateTime().toString() : null);
             returnNode.put("completed", true);
-            returnNode.put("active", true);
+            returnNode.put("active", false);
             List<Map<String, String>> returnDetails = new java.util.ArrayList<>();
             addDetail(returnDetails, "退回原因", appointment.getCancelReason());
             addDetail(returnDetails, "操作人", "管理员");
-            addDetail(returnDetails, "说明", "服务商无法处理，预约退回待重新指定");
+            addDetail(returnDetails, "说明", "预约已退回待确认，可重新指定服务商");
             returnNode.put("details", returnDetails);
             nodes.add(returnNode);
+
+            // 退回后PENDING状态，显示"待重新确认"为当前活跃节点
+            if ("PENDING".equals(appointment.getStatus())) {
+                Map<String, Object> reConfirmNode = new HashMap<>();
+                reConfirmNode.put("status", "PENDING");
+                reConfirmNode.put("statusName", "待重新确认");
+                reConfirmNode.put("title", "待管理员重新确认并指定服务商");
+                reConfirmNode.put("time", null);
+                reConfirmNode.put("completed", false);
+                reConfirmNode.put("active", true);
+                reConfirmNode.put("details", new java.util.ArrayList<>());
+                nodes.add(reConfirmNode);
+            }
         }
 
         // 完成

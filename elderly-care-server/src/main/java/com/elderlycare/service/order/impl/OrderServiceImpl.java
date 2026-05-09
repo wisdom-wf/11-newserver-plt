@@ -318,17 +318,18 @@ public class OrderServiceImpl implements OrderService {
         order.setUpdateTime(LocalDateTime.now());
         orderMapper.updateById(order);
 
-        // 将关联的预约退回为已确认状态，管理员可重新指定服务商
+        // 将关联的预约退回为待确认状态，管理员可重新指定服务商
         QueryWrapper<Appointment> apptWrapper = new QueryWrapper<>();
         apptWrapper.eq("order_id", orderId);
         Appointment appointment = appointmentMapper.selectOne(apptWrapper);
         if (appointment != null) {
-            appointment.setStatus("CONFIRMED");
+            appointment.setStatus("PENDING");
             appointment.setOrderId(null);
             appointment.setOrderNo(null);
             appointment.setProviderId(null);
             appointment.setProviderName(null);
             appointment.setProviderAddress(null);
+            // 保留confirmTime，时间轴需要展示"已确认"历史节点
             appointment.setCancelReason(dto.getCancelReason());
             appointment.setUpdateTime(LocalDateTime.now());
             appointmentMapper.updateById(appointment);
