@@ -177,6 +177,7 @@
         FROM t_order o
         LEFT JOIN t_service_evaluation e ON o.order_id = e.order_id AND e.deleted = 0
         WHERE o.deleted = 0
+        AND o.status NOT IN ('CANCELLED', 'REJECTED')
         <if test="providerId != null">
             AND o.provider_id = #{providerId}
         </if>
