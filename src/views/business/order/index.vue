@@ -593,6 +593,7 @@ async function handleAddSubmit() {
 
 // Assign modal
 const assignModalVisible = ref(false);
+const assignLoading = ref(false);
 const assignForm = ref({ staffId: '', providerId: '' });
 const currentOrderId = ref('');
 const currentOrderProviderId = ref('');
@@ -717,27 +718,32 @@ async function handleAssignSubmit() {
     message.warning('请选择服务人员');
     return;
   }
-  const { error } = await fetchDispatchOrder(currentOrderId.value, assignForm.value);
-  if (error) {
-    console.error('派单失败:', error);
-    const errMsg = error?.message || error?.response?.data?.message || '派单失败';
-    message.error(errMsg);
-    return;
-  }
-  // 派单成功后查询合同信息并展示
+  assignLoading.value = true;
   try {
-    const { data: contractData } = await fetchGetContractByOrderId(currentOrderId.value);
-    if (contractData) {
-      message.success(`派单成功，合同已创建：${contractData.contractNo}`);
-    } else {
+    const { error } = await fetchDispatchOrder(currentOrderId.value, assignForm.value);
+    if (error) {
+      console.error('派单失败:', error);
+      const errMsg = error?.message || error?.response?.data?.message || '派单失败';
+      message.error(errMsg);
+      return;
+    }
+    // 派单成功后查询合同信息并展示
+    try {
+      const { data: contractData } = await fetchGetContractByOrderId(currentOrderId.value);
+      if (contractData) {
+        message.success(`派单成功，合同已创建：${contractData.contractNo}`);
+      } else {
+        message.success('派单成功');
+      }
+    } catch {
       message.success('派单成功');
     }
-  } catch {
-    message.success('派单成功');
+    assignModalVisible.value = false;
+    await getData();
+    await getStatistics();
+  } finally {
+    assignLoading.value = false;
   }
-  assignModalVisible.value = false;
-  await getData();
-  await getStatistics();
 }
 
 async function handleAccept(row: Api.Order.Order) {
@@ -1448,7 +1454,9 @@ onMounted(async () => {
       <template #footer>
         <NSpace justify="end">
           <NButton @click="assignModalVisible = false">取消</NButton>
-          <NButton type="primary" @click="handleAssignSubmit">确认派单</NButton>
+          <NButton type="primary" :loading="assignLoading" @click="handleAssignSubmit">
+            {{ assignLoading ? '派单中...' : '确认派单' }}
+          </NButton>
         </NSpace>
       </template>
     </NModal>
