@@ -141,9 +141,10 @@ const categoryOptions = [
   { label: '家政服务', value: 'HOME_CARE' }
 ];
 
-function getGenderLabel(gender?: number): string {
-  if (gender === 0) return '女';
-  if (gender === 1) return '男';
+function getGenderLabel(gender?: number | string): string {
+  const g = Number(gender);
+  if (g === 0) return '女';
+  if (g === 1) return '男';
   return '未知';
 }
 
