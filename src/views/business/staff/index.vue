@@ -578,17 +578,10 @@ onMounted(async () => {
         v-model:columns="columnChecks"
         :disabled-delete="checkedRowKeys.length === 0"
         :loading="loading"
+        @add="handleAdd"
         @refresh="getData"
         @delete="handleBatchDelete"
       >
-        <template #prefix>
-          <NButton v-if="hasAuth('staff:list:add')" size="small" ghost type="primary" @click="handleAdd">
-            <template #icon>
-              <icon-ic-round-plus class="text-icon" />
-            </template>
-            {{ $t('common.add') }}
-          </NButton>
-        </template>
       </TableHeaderOperation>
 
       <!-- List View -->

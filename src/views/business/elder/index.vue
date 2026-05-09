@@ -526,17 +526,10 @@ onMounted(async () => {
         v-model:columns="columnChecks"
         :disabled-delete="checkedRowKeys.length === 0"
         :loading="loading"
+        @add="handleOpenAdd"
         @refresh="getData"
         @delete="handleBatchDelete"
       >
-        <template #prefix>
-          <NButton v-if="hasAuth('elder:list:add')" size="small" ghost type="primary" @click="handleOpenAdd">
-            <template #icon>
-              <icon-ic-round-plus class="text-icon" />
-            </template>
-            {{ $t('common.add') }}
-          </NButton>
-        </template>
       </TableHeaderOperation>
 
       <NDataTable
