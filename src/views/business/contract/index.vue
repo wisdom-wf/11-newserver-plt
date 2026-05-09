@@ -19,9 +19,11 @@ import {
   fetchGetContractList,
   fetchGetContractByOrderId,
   fetchGetSignUrl,
-  fetchDownloadContract
+  fetchDownloadContract,
+  fetchDeleteContract
 } from '@/service/api';
 import { useRouterPush } from '@/hooks/common/router';
+import { useAuth } from '@/hooks/business/auth';
 
 defineOptions({
   name: 'BusinessContract'
@@ -29,6 +31,7 @@ defineOptions({
 
 const message = useMessage();
 const { routerPushByKeyWithMetaQuery } = useRouterPush();
+const { isAdmin } = useAuth();
 
 // Search
 const searchContractNo = ref('');
@@ -109,6 +112,9 @@ const columns: DataTableColumns<Api.Ess.Contract> = [
       if (row.status === 'SIGNED' || row.status === 'COMPLETED') {
         buttons.push(h(NButton, { size: 'small', onClick: () => handleDownload(row) }, () => '下载'));
         buttons.push(h(NButton, { size: 'small', onClick: () => handlePrint(row) }, () => '打印'));
+      }
+      if (isAdmin) {
+        buttons.push(h(NButton, { size: 'small', type: 'error', onClick: () => handleDelete(row) }, () => '删除'));
       }
       return h(NSpace, { size: 'small' }, () => buttons);
     }
@@ -194,6 +200,17 @@ async function handlePrint(row: Api.Ess.Contract) {
 
 // 批量下载
 const batchDownloading = ref(false);
+// 删除合同（仅管理员）
+async function handleDelete(row: Api.Ess.Contract) {
+  try {
+    await fetchDeleteContract(row.contractId);
+    message.success('合同已删除');
+    await getData();
+  } catch (e: any) {
+    message.error(e?.message || '删除失败');
+  }
+}
+
 async function handleBatchDownload() {
   if (checkedRowKeys.value.length === 0) {
     message.warning('请先选择要下载的合同');
