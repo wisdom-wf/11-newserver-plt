@@ -20,7 +20,8 @@ import {
   NDrawer,
   NDrawerContent,
   NPopconfirm,
-  NBadge
+  NBadge,
+  NPagination
 } from 'naive-ui';
 import type { DataTableColumns } from 'naive-ui';
 import {
@@ -389,7 +390,7 @@ const columns: DataTableColumns<Api.Order.Order> = [
   {
     title: '操作',
     key: 'actions',
-    width: 260,
+    width: 300,
     fixed: 'right',
     render: row => {
       const buttons: ReturnType<typeof h>[] = [];
@@ -929,11 +930,18 @@ async function handleCancelSubmit() {
 function handleResetSearch() {
   searchOrderNo.value = '';
   searchElderName.value = '';
-  searchProviderId.value = '';
-  searchServiceType.value = '';
-  searchStatus.value = '';
+  searchProviderId.value = null;
+  searchServiceType.value = null;
+  searchStatus.value = null;
   searchDateRange.value = null;
-  getDataByPage(1);
+  pagination.page = 1;
+  getData();
+}
+
+function handleStatusPillClick(statusValue: string | null) {
+  searchStatus.value = statusValue;
+  pagination.page = 1;
+  getData();
 }
 
 // 生成订单时间轴数据 - 参考预约单设计，添加详情信息
@@ -1287,10 +1295,26 @@ onMounted(async () => {
           <span>订单管理</span>
         </div>
       </template>
-      <div style="background: #f5f5f5; padding: 12px; margin-bottom: 12px; border-radius: 4px">
-        <NSpace :wrap="true" align="center">
-          <NInput v-model:value="searchOrderNo" placeholder="订单号" clearable style="width: 150px" />
-          <NInput v-model:value="searchElderName" placeholder="客户姓名" clearable style="width: 100px" />
+      <div style="background: #f5f5f5; padding: 12px; margin-bottom: 12px; border-radius: 8px">
+        <!-- 适老化：状态快捷筛选 Pill -->
+        <div style="margin-bottom: 14px">
+          <div style="font-size: 14px; font-weight: 600; color: #666; margin-bottom: 10px">按状态快速筛选</div>
+          <div style="display: flex; flex-wrap: wrap; gap: 8px">
+            <button
+              v-for="opt in statusOptions"
+              :key="opt.value"
+              :class="searchStatus === opt.value ? 'status-pill active' : 'status-pill'"
+              :style="searchStatus === opt.value ? '' : 'background:#fff;border-color:#d1d5db'"
+              @click="handleStatusPillClick(opt.value)"
+            >
+              {{ opt.label }}
+            </button>
+          </div>
+        </div>
+        <!-- 搜索条件行 -->
+        <div style="display: flex; flex-wrap: wrap; gap: 10px; align-items: center">
+          <NInput v-model:value="searchOrderNo" placeholder="订单号搜索" clearable style="width: 180px" size="medium" />
+          <NInput v-model:value="searchElderName" placeholder="客户姓名" clearable style="width: 140px" size="medium" />
           <NSelect
             v-model:value="searchProviderId"
             :options="providerOptions"
@@ -1298,25 +1322,19 @@ onMounted(async () => {
             clearable
             filterable
             style="width: 180px"
+            :consistent-menu-width="false"
           />
           <NSelect
             v-model:value="searchServiceType"
             :options="serviceTypeOptions"
             placeholder="服务类型"
             clearable
-            style="width: 120px"
-          />
-          <NSelect
-            v-model:value="searchStatus"
-            :options="statusOptions"
-            placeholder="状态"
-            clearable
-            style="width: 120px"
+            style="width: 140px"
           />
           <NDatePicker v-model:value="searchDateRange" type="daterange" clearable style="width: 260px" />
-          <NButton type="primary" @click="getData">搜索</NButton>
-          <NButton @click="handleResetSearch">重置</NButton>
-        </NSpace>
+          <NButton type="primary" @click="() => { getData(); pagination.page = 1; }" style="height: 40px; font-size: 15px; font-weight: 600">搜索</NButton>
+          <NButton @click="handleResetSearch" style="height: 40px; font-size: 15px">重置</NButton>
+        </div>
       </div>
 
       <!-- Use framework's TableHeaderOperation component -->
@@ -1329,77 +1347,170 @@ onMounted(async () => {
         @delete="handleBatchDelete"
       />
 
-      <NDataTable
-        :columns="columns"
-        :data="tableData"
-        :loading="loading"
-        :scroll-x="1600"
-        :row-key="(row: Api.Order.Order) => row.orderId"
-        v-model:checked-row-keys="checkedRowKeys"
-        :row-class-name="() => 'clickable-row'"
-        remote
-        :pagination="mobilePagination"
-      />
+      <!-- 适老化：卡片列表视图（替代表格） -->
+      <div v-if="!loading && tableData.length > 0" style="display: flex; flex-direction: column; gap: 12px; margin-bottom: 16px">
+        <div
+          v-for="row in tableData"
+          :key="row.orderId"
+          class="order-card"
+          @click="handleDetail(row)"
+        >
+          <!-- 卡片主体 -->
+          <div style="display: flex; justify-content: space-between; align-items: flex-start; gap: 16px; margin-bottom: 10px">
+            <!-- 左侧：客户+服务信息 -->
+            <div style="flex: 1; min-width: 0">
+              <div style="display: flex; align-items: center; gap: 10px; margin-bottom: 6px; flex-wrap: wrap">
+                <span style="font-size: 17px; font-weight: 700; color: #333">{{ row.elderName }}</span>
+                <span style="color: #999; font-size: 14px">{{ row.elderPhone || '-' }}</span>
+                <NTag :type="getStatusType(row.status)" size="small" style="font-size: 13px; font-weight: 600">{{ getStatusLabel(row.status) }}</NTag>
+              </div>
+              <div style="color: #555; font-size: 14px; margin-bottom: 4px">
+                <span style="font-weight: 600">{{ row.serviceTypeName || '-' }}</span>
+                <span style="margin: 0 6px; color: #ccc">|</span>
+                <span>{{ formatServiceTime(row.serviceDate, row.serviceTime) }}</span>
+              </div>
+              <div style="color: #888; font-size: 13px">
+                {{ row.providerName || '-' }}
+                <span v-if="row.staffName" style="margin: 0 6px; color: #ccc">|</span>
+                <span v-if="row.staffName">{{ row.staffName }}</span>
+              </div>
+            </div>
+            <!-- 右侧：费用 -->
+            <div style="text-align: right; flex-shrink: 0">
+              <div style="font-size: 20px; font-weight: 800; color: #ee4a07; font-family: 'DIN Alternate', 'Helvetica Neue', Arial, sans-serif">
+                ¥{{ row.actualPrice || row.estimatedPrice || 0 }}
+              </div>
+              <div style="font-size: 12px; color: #999; margin-top: 2px">
+                <span v-if="row.subsidyAmount > 0" style="color: #52c41a">补{{ row.subsidyAmount }}</span>
+                <span v-if="row.subsidyAmount > 0 && row.selfPayAmount > 0" style="margin: 0 3px; color: #d9d9d9">/</span>
+                <span v-if="row.selfPayAmount > 0">自{{ row.selfPayAmount }}</span>
+              </div>
+            </div>
+          </div>
+          <!-- 底部分隔线+操作 -->
+          <div style="display: flex; justify-content: space-between; align-items: center; border-top: 1px solid #f0f0f0; padding-top: 10px; gap: 8px">
+            <span style="font-size: 12px; color: #bbb">{{ row.orderNo }}</span>
+            <!-- 操作按钮行 - 适老化：40px高，不换行 -->
+            <div style="display: flex; gap: 6px; justify-content: flex-end; align-items: center; flex-shrink: 0" @click.stop>
+              <NButton size="small" style="height: 36px; font-size: 13px; font-weight: 600; white-space: nowrap" @click="handleDetail(row)">详情</NButton>
+              <NButton v-if="(row.status === 'CREATED' || row.status === 'PENDING') && hasAuth('order:list:dispatch')" size="small" type="primary" style="height: 36px; font-size: 13px; font-weight: 600; white-space: nowrap" @click="handleAssign(row)">分配</NButton>
+              <NButton v-if="row.status === 'DISPATCHED'" size="small" type="primary" style="height: 36px; font-size: 13px; font-weight: 600; white-space: nowrap" @click="handleAccept(row)">接单</NButton>
+              <NButton v-if="row.status === 'RECEIVED'" size="small" type="primary" style="height: 36px; font-size: 13px; font-weight: 600; white-space: nowrap" @click="handleStart(row)">开始服务</NButton>
+              <NButton v-if="row.status === 'SERVICE_STARTED'" size="small" type="primary" style="height: 36px; font-size: 13px; font-weight: 600; white-space: nowrap" @click="handleComplete(row)">完成服务</NButton>
+              <NPopconfirm
+                v-if="(row.status === 'SERVICE_COMPLETED' || row.status === 'EVALUATED' || row.status === 'SETTLED') && hasAuth('order:list:delete')"
+                @positive-click="handleDelete(row)"
+              >
+                <template #trigger>
+                  <NButton size="small" type="error" style="height: 36px; font-size: 13px; font-weight: 600; white-space: nowrap">删</NButton>
+                </template>
+                确认删除？
+              </NPopconfirm>
+              <NButton
+                v-if="row.status !== 'SERVICE_COMPLETED' && row.status !== 'EVALUATED' && row.status !== 'SETTLED' && row.status !== 'CANCELLED' && row.status !== 'REJECTED' && hasAuth('order:list:cancel')"
+                size="small"
+                type="error"
+                ghost
+                style="height: 36px; font-size: 13px; font-weight: 600; white-space: nowrap"
+                @click="handleCancel(row)"
+              >退回</NButton>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- 无数据状态 -->
+      <div v-if="!loading && tableData.length === 0" style="text-align: center; padding: 60px 0; color: #999; font-size: 15px">
+        暂无订单数据
+      </div>
+
+      <!-- Loading -->
+      <div v-if="loading" style="text-align: center; padding: 40px 0">
+        <NSpin size="large" />
+      </div>
+
+      <!-- 适老化分页 - 卡片列表需手动控制 -->
+      <div v-if="!loading && tableData.length > 0" style="display: flex; justify-content: center; margin-top: 20px; margin-bottom: 8px">
+        <NPagination
+          v-model:page="pagination.page"
+          v-model:page-size="pagination.pageSize"
+          :page-sizes="[10, 20, 50]"
+          :page-count="pagination.pageCount"
+          :show-quick-jumper="true"
+          @update:page="(p) => { pagination.page = p; getData(); }"
+          @update:page-size="(s) => { pagination.pageSize = s; pagination.page = 1; getData(); }"
+        />
+      </div>
     </NCard>
 
     <!-- Add Modal -->
-    <NModal v-model:show="addModalVisible" title="新增订单" preset="card" style="width: 600px">
-      <NForm :model="addForm" label-placement="left" label-width="100">
-        <NFormItem label="客户姓名" required>
-          <NInput v-model:value="addForm.elderName" placeholder="请输入客户姓名" />
-        </NFormItem>
-        <NFormItem label="手机号" required>
-          <NInput v-model:value="addForm.elderPhone" placeholder="请输入手机号" />
-        </NFormItem>
-        <NFormItem label="服务类型" required>
-          <NSelect
-            v-model:value="addForm.serviceTypeCode"
-            :options="addServiceTypeOptions"
-            placeholder="请选择服务类型"
-          />
-        </NFormItem>
-        <NFormItem label="服务日期" required>
-          <NDatePicker
-            v-model:value="addForm.serviceDate"
-            type="date"
-            placeholder="请选择服务日期"
-            style="width: 100%"
-          />
-        </NFormItem>
-        <NFormItem label="服务时间">
-          <NInput v-model:value="addForm.serviceTime" placeholder="如：09:00-11:00" />
-        </NFormItem>
-        <NFormItem label="服务时长">
-          <NInputNumber v-model:value="addForm.serviceDuration" :min="1" placeholder="分钟">
-            <template #suffix>分钟</template>
-          </NInputNumber>
-        </NFormItem>
+    <NModal v-model:show="addModalVisible" title="新增订单" preset="card" style="width: 680px">
+      <NForm :model="addForm" label-placement="top" label-width="120">
+        <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 0 24px">
+          <NFormItem label="客户姓名" required>
+            <NInput v-model:value="addForm.elderName" placeholder="请输入客户姓名" size="large" />
+          </NFormItem>
+          <NFormItem label="手机号" required>
+            <NInput v-model:value="addForm.elderPhone" placeholder="请输入手机号" size="large" />
+          </NFormItem>
+        </div>
+        <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 0 24px">
+          <NFormItem label="服务类型" required>
+            <NSelect
+              v-model:value="addForm.serviceTypeCode"
+              :options="addServiceTypeOptions"
+              placeholder="请选择服务类型"
+              size="large"
+            />
+          </NFormItem>
+          <NFormItem label="服务日期" required>
+            <NDatePicker
+              v-model:value="addForm.serviceDate"
+              type="date"
+              placeholder="请选择服务日期"
+              style="width: 100%"
+              size="large"
+            />
+          </NFormItem>
+        </div>
+        <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 0 24px">
+          <NFormItem label="服务时间">
+            <NInput v-model:value="addForm.serviceTime" placeholder="如：09:00-11:00" size="large" />
+          </NFormItem>
+          <NFormItem label="服务时长（分钟）">
+            <NInputNumber v-model:value="addForm.serviceDuration" :min="1" placeholder="默认60分钟" size="large" style="width: 100%">
+              <template #suffix>分钟</template>
+            </NInputNumber>
+          </NFormItem>
+        </div>
         <NFormItem label="服务地址">
-          <NInput v-model:value="addForm.serviceAddress" type="textarea" placeholder="请输入服务地址" />
+          <NInput v-model:value="addForm.serviceAddress" type="textarea" placeholder="请输入详细服务地址" size="large" />
         </NFormItem>
-        <NFormItem label="预估费用">
-          <NInputNumber v-model:value="addForm.estimatedPrice" :min="0" placeholder="元">
-            <template #suffix>元</template>
-          </NInputNumber>
-        </NFormItem>
-        <NFormItem label="补贴金额">
-          <NInputNumber v-model:value="addForm.subsidyAmount" :min="0" placeholder="元">
-            <template #suffix>元</template>
-          </NInputNumber>
-        </NFormItem>
-        <NFormItem label="自付金额">
-          <NInputNumber v-model:value="addForm.selfPayAmount" :min="0" placeholder="元">
-            <template #suffix>元</template>
-          </NInputNumber>
-        </NFormItem>
+        <div style="display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 0 24px">
+          <NFormItem label="预估费用">
+            <NInputNumber v-model:value="addForm.estimatedPrice" :min="0" placeholder="元" size="large" style="width: 100%">
+              <template #suffix>元</template>
+            </NInputNumber>
+          </NFormItem>
+          <NFormItem label="补贴金额">
+            <NInputNumber v-model:value="addForm.subsidyAmount" :min="0" placeholder="元" size="large" style="width: 100%">
+              <template #suffix>元</template>
+            </NInputNumber>
+          </NFormItem>
+          <NFormItem label="自付金额">
+            <NInputNumber v-model:value="addForm.selfPayAmount" :min="0" placeholder="元" size="large" style="width: 100%">
+              <template #suffix>元</template>
+            </NInputNumber>
+          </NFormItem>
+        </div>
         <NFormItem label="特殊要求">
-          <NInput v-model:value="addForm.specialRequirements" type="textarea" placeholder="请输入特殊要求" />
+          <NInput v-model:value="addForm.specialRequirements" type="textarea" placeholder="如有过敏、行动不便等特殊情况请注明" size="large" />
         </NFormItem>
       </NForm>
       <template #footer>
-        <NSpace justify="end">
-          <NButton @click="addModalVisible = false">取消</NButton>
-          <NButton type="primary" @click="handleAddSubmit">确认</NButton>
+        <NSpace justify="end" style="margin-top: 8px">
+          <NButton size="large" style="height: 48px; font-size: 15px; min-width: 80px" @click="addModalVisible = false">取消</NButton>
+          <NButton type="primary" size="large" style="height: 48px; font-size: 15px; min-width: 100px; font-weight: 700" @click="handleAddSubmit">确认添加</NButton>
         </NSpace>
       </template>
     </NModal>
@@ -1625,6 +1736,33 @@ onMounted(async () => {
             <template v-if="(orderDetailData as any)?.serviceLogs?.length || (orderDetailData as any)?.qualityChecks?.length">
               <NBadge :value="((orderDetailData as any)?.serviceLogs?.length || 0) + ((orderDetailData as any)?.qualityChecks?.length || 0)" :max="99" />
             </template>
+          </NButton>
+        </div>
+
+        <!-- 适老化快捷操作栏 -->
+        <div style="display: flex; gap: 8px; margin-bottom: 16px; padding: 12px; background: #f8f9fa; border-radius: 8px; overflow-x: auto">
+          <NButton
+            size="small"
+            style="height: 36px; font-size: 13px; font-weight: 600; padding: 0 14px; white-space: nowrap; flex-shrink: 0"
+            @click="() => { navigator.clipboard.writeText(orderDetailData?.orderNo || ''); message.success('订单号已复制') }"
+          >
+            复制订单号
+          </NButton>
+          <NButton
+            size="small"
+            style="height: 36px; font-size: 13px; font-weight: 600; padding: 0 14px; white-space: nowrap; flex-shrink: 0"
+            @click="() => { navigator.clipboard.writeText(orderDetailData?.elderPhone || ''); message.success('电话已复制') }"
+          >
+            复制电话
+          </NButton>
+          <NButton
+            v-if="orderDetailData?.elderPhone"
+            size="small"
+            type="primary"
+            style="height: 36px; font-size: 13px; font-weight: 600; padding: 0 14px; white-space: nowrap; flex-shrink: 0"
+            @click="() => window.open(`tel:${orderDetailData?.elderPhone}`)"
+          >
+            拨打电话
           </NButton>
         </div>
 
@@ -1937,15 +2075,16 @@ onMounted(async () => {
 }
 
 .stat-label {
-  font-size: 13px;
+  font-size: 15px;
   color: #666;
   margin-bottom: 8px;
+  font-weight: 600;
 }
 
 .stat-value {
-  font-size: 28px;
-  font-weight: 600;
-  line-height: 1.2;
+  font-size: var(--font-size-stat);
+  font-weight: 800;
+  line-height: 1.1;
 }
 
 .stat-primary {
@@ -2025,16 +2164,23 @@ onMounted(async () => {
 }
 
 .stat-mini-value {
-  font-size: 18px;
-  font-weight: 600;
-  color: #333;
+  font-size: 22px;
+  font-weight: 700;
+  color: #111827;
   line-height: 1.3;
 }
 
 .stat-mini-label {
-  font-size: 12px;
-  color: #999;
+  font-size: 14px;
+  color: #666;
   margin-top: 2px;
+  font-weight: 500;
+}
+
+.stat-sub {
+  font-size: 13px;
+  margin-top: 6px;
+  opacity: 0.85;
 }
 
 ::deep(.n-data-table-tr--checked) {
@@ -2044,6 +2190,7 @@ onMounted(async () => {
 ::deep(.n-data-table-tr--checked:hover) {
   background-color: rgba(24, 160, 88, 0.18) !important;
 }
+
 /* ========== 时间轴样式 - 参考预约单设计 ========== */
 .timeline-container {
   padding: 16px 0;

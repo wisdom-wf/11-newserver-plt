@@ -217,7 +217,7 @@ async function handlePhotoUpload(elderId: string, file: File) {
 // Load elders for selection
 async function loadElders() {
   try {
-    const { data } = await fetchGetElderList({ page: 1, pageSize: 100 });
+    const { data } = await fetchGetElderList({ page: 1, pageSize: 1000 });
     if (data?.records) {
       elderOptions.value = data.records.map(e => ({
         label: `${e.name} (${e.idCard})`,
@@ -641,7 +641,8 @@ onMounted(async () => {
             placeholder="快速选择客户"
             filterable
             clearable
-            style="width: 200px"
+            size="medium"
+            style="width: 280px"
             @update:value="handleElderChange"
           />
         </div>

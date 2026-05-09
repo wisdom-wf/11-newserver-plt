@@ -435,8 +435,14 @@ function handleResetSearch() {
   searchIdCard.value = '';
   searchPhone.value = '';
   searchCareType.value = '';
-  searchStatus.value = '';
+  searchStatus.value = null;
   getDataByPage(1);
+}
+
+function handleStatusPillClick(statusValue: string | null) {
+  searchStatus.value = statusValue;
+  pagination.page = 1;
+  getData();
 }
 
 onMounted(async () => {
@@ -497,28 +503,37 @@ onMounted(async () => {
           <span>客户档案管理</span>
         </div>
       </template>
-      <div style="background: #f5f5f5; padding: 12px; margin-bottom: 12px; border-radius: 4px">
-        <NSpace :wrap="true" align="center">
-          <NInput v-model:value="searchName" placeholder="姓名" clearable style="width: 100px" />
-          <NInput v-model:value="searchIdCard" placeholder="身份证号" clearable style="width: 180px" />
-          <NInput v-model:value="searchPhone" placeholder="手机号" clearable style="width: 130px" />
+      <div style="background: #f5f5f5; padding: 12px; margin-bottom: 12px; border-radius: 8px">
+        <!-- 适老化：状态快捷筛选 Pill -->
+        <div style="margin-bottom: 14px">
+          <div style="font-size: 14px; font-weight: 600; color: #666; margin-bottom: 10px">按状态快速筛选</div>
+          <div style="display: flex; flex-wrap: wrap; gap: 8px">
+            <button
+              v-for="opt in statusOptions"
+              :key="opt.value"
+              :class="searchStatus === opt.value ? 'status-pill active' : 'status-pill'"
+              :style="searchStatus === opt.value ? '' : 'background:#fff;border-color:#d1d5db'"
+              @click="handleStatusPillClick(opt.value)"
+            >
+              {{ opt.label }}
+            </button>
+          </div>
+        </div>
+        <!-- 搜索条件行 -->
+        <div style="display: flex; flex-wrap: wrap; gap: 10px; align-items: center">
+          <NInput v-model:value="searchName" placeholder="姓名搜索" clearable style="width: 160px" size="medium" />
+          <NInput v-model:value="searchIdCard" placeholder="身份证号" clearable style="width: 180px" size="medium" />
+          <NInput v-model:value="searchPhone" placeholder="手机号" clearable style="width: 140px" size="medium" />
           <NSelect
             v-model:value="searchCareType"
             :options="careTypeOptions"
             placeholder="养老类型"
             clearable
-            style="width: 120px"
+            style="width: 140px"
           />
-          <NSelect
-            v-model:value="searchStatus"
-            :options="statusOptions"
-            placeholder="状态"
-            clearable
-            style="width: 100px"
-          />
-          <NButton type="primary" @click="getData">搜索</NButton>
-          <NButton @click="handleResetSearch">重置</NButton>
-        </NSpace>
+          <NButton type="primary" @click="() => { getData(); pagination.page = 1; }" style="height: 40px; font-size: 15px; font-weight: 600">搜索</NButton>
+          <NButton @click="handleResetSearch" style="height: 40px; font-size: 15px">重置</NButton>
+        </div>
       </div>
 
       <!-- Use framework's TableHeaderOperation component -->
