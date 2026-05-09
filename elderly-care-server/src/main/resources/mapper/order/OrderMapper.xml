@@ -42,6 +42,10 @@
         LEFT JOIN t_provider p ON o.provider_id = p.provider_id
         LEFT JOIN t_staff s ON o.staff_id = s.staff_id
         WHERE o.deleted = 0
+        <!-- 默认排除已取消/已拒单的订单（已退回预约），除非用户明确筛选 -->
+        <if test="query.status == null or query.status == ''">
+            AND o.status NOT IN ('CANCELLED', 'REJECTED')
+        </if>
         <if test="query.elderId != null and query.elderId != ''">
             AND o.elder_id = #{query.elderId}
         </if>
