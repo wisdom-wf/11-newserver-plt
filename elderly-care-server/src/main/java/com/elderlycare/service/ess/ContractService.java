@@ -55,6 +55,11 @@ public interface ContractService {
     void cancelContract(String contractId);
 
     /**
+     * 删除合同（逻辑删除）
+     */
+    void deleteContract(String contractId);
+
+    /**
      * 获取合同列表（分页）
      */
     PageResult<ContractVO> getContractList(ContractQueryDTO queryDTO);

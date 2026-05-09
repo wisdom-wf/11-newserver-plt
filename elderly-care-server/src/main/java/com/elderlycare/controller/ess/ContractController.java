@@ -2,6 +2,7 @@ package com.elderlycare.controller.ess;
 
 import com.elderlycare.common.PageResult;
 import com.elderlycare.common.Result;
+import com.elderlycare.common.UserContext;
 import com.elderlycare.dto.ess.ContractQueryDTO;
 import com.elderlycare.service.ess.ContractService;
 import com.elderlycare.vo.ess.ContractVO;
@@ -63,6 +64,17 @@ public class ContractController {
     @PostMapping("/{id}/cancel")
     public Result<Void> cancelContract(@PathVariable String id) {
         contractService.cancelContract(id);
+        return Result.success();
+    }
+
+    /** 删除合同（仅管理员） */
+    @DeleteMapping("/{id}")
+    public Result<Void> deleteContract(@PathVariable String id) {
+        String userType = UserContext.getUserType();
+        if (!"SYSTEM".equals(userType)) {
+            return Result.forbidden("仅管理员可删除合同");
+        }
+        contractService.deleteContract(id);
         return Result.success();
     }
 

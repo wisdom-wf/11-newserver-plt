@@ -289,6 +289,17 @@ public class ContractServiceImpl implements ContractService {
     }
 
     @Override
+    public void deleteContract(String contractId) {
+        EssContract contract = contractMapper.selectById(contractId);
+        if (contract == null) {
+            throw BusinessException.notFound("合同不存在");
+        }
+        // @TableLogic 自动处理逻辑删除
+        contractMapper.deleteById(contractId);
+        log.info("合同已删除: contractId={}, contractNo={}", contractId, contract.getContractNo());
+    }
+
+    @Override
     public PageResult<ContractVO> getContractList(ContractQueryDTO queryDTO) {
         QueryWrapper<EssContract> wrapper = new QueryWrapper<>();
         wrapper.eq("deleted", 0);
