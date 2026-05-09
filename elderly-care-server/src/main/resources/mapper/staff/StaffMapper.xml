@@ -40,7 +40,13 @@
     </resultMap>
 
     <select id="selectStaffPage" resultMap="BaseResultMap">
-        SELECT s.*, p.provider_name
+        SELECT s.staff_id, s.staff_no, s.provider_id, s.staff_name, s.gender, s.birth_date, s.age,
+               s.id_card, s.phone, s.email, s.address, s.emergency_contact, s.emergency_phone,
+               s.education, s.photo_url AS avatar_url, s.status, s.work_status, s.audit_remark,
+               s.hire_date, s.leave_date, s.leave_reason, s.nation, s.political_status,
+               s.marital_status, s.domicile_address, s.residence_address, s.service_types,
+               s.remark, s.create_time, s.update_time, s.deleted,
+               p.provider_name
         FROM t_staff s
         LEFT JOIN t_provider p ON s.provider_id = p.provider_id
         WHERE s.deleted = 0

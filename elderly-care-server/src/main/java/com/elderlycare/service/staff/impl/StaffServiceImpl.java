@@ -29,6 +29,8 @@ import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import com.elderlycare.util.IdCardUtil;
+
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.time.temporal.ChronoUnit;
@@ -112,10 +114,12 @@ public class StaffServiceImpl implements StaffService {
         staff.setStatus("PENDING"); // 待审核
         staff.setHireDate(createDTO.getHireDate());
 
-        // Calculate age from ID card (18-digit Chinese ID card)
-        if (createDTO.getIdCard() != null && createDTO.getIdCard().length() == 18) {
-            int age = calculateAgeFromIdCard(createDTO.getIdCard());
-            staff.setAge(age);
+        // 从身份证号自动计算年龄/性别/出生日期
+        String idCard = createDTO.getIdCard();
+        if (idCard != null && idCard.length() == 18) {
+            staff.setAge(IdCardUtil.calculateAge(idCard));
+            staff.setGender(IdCardUtil.parseGender(idCard));
+            staff.setBirthDate(IdCardUtil.parseBirthDate(idCard));
         }
         staff.setAvatarUrl(createDTO.getAvatarUrl());
         staff.setRemark(createDTO.getRemark());
@@ -232,21 +236,31 @@ public class StaffServiceImpl implements StaffService {
             throw new BusinessException("服务人员不存在");
         }
 
-        // 计算年龄
+        // 从身份证号自动计算年龄/性别/出生日期
         Integer age = null;
-        if (updateDTO.getIdCard() != null && updateDTO.getIdCard().length() == 18) {
-            age = calculateAgeFromIdCard(updateDTO.getIdCard());
+        String gender = updateDTO.getGender();
+        LocalDate birthDate = updateDTO.getBirthDate();
+        String idCard = updateDTO.getIdCard();
+
+        if (idCard != null && idCard.length() == 18) {
+            age = IdCardUtil.calculateAge(idCard);
+            if (gender == null || gender.isEmpty()) {
+                gender = IdCardUtil.parseGender(idCard);
+            }
+            if (birthDate == null) {
+                birthDate = IdCardUtil.parseBirthDate(idCard);
+            }
         }
 
         // 使用自定义SQL更新，绕过逻辑删除限制
         staffMapper.updateStaffById(
             staffId,
             updateDTO.getStaffName(),
-            updateDTO.getGender(),
-            updateDTO.getIdCard(),
+            gender,
+            idCard,
             age,
             updateDTO.getPhone(),
-            updateDTO.getBirthDate(),
+            birthDate,
             updateDTO.getNation(),
             updateDTO.getEducation(),
             updateDTO.getPoliticalStatus(),
@@ -575,7 +589,7 @@ public class StaffServiceImpl implements StaffService {
         vo.setStaffNo(staff.getStaffNo());
         vo.setStaffName(staff.getStaffName());
         vo.setGender(staff.getGender());
-        vo.setGenderText(getGenderText(staff.getGender()));
+        vo.setGenderText(IdCardUtil.getGenderText(staff.getGender()));
         vo.setIdCard(staff.getIdCard());
         vo.setPhone(staff.getPhone());
         vo.setAge(staff.getAge());
