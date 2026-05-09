@@ -117,10 +117,7 @@ const statusOptions = [
   { label: '服务中', value: 'SERVICE_STARTED' },
   { label: '已完成', value: 'SERVICE_COMPLETED' },
   { label: '已评价', value: 'EVALUATED' },
-  { label: '已结算', value: 'SETTLED' },
-  { label: '已取消', value: 'CANCELLED' },
-  { label: '已拒单', value: 'REJECTED' },
-  { label: '已完成', value: 'COMPLETED' }
+  { label: '已结算', value: 'SETTLED' }
 ];
 
 async function getProviderOptions() {
