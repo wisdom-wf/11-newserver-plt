@@ -189,17 +189,20 @@ const columns: DataTableColumns<Api.Appointment.Appointment> = [
         h(NButton, { size: 'small', quaternary: true, type: 'info', onClick: () => showTimeline(row) }, () => '详情')
       );
       if (row.status === 'PENDING') {
+        const isReturned = !!row.cancelReason;
         if (hasAuth('appointment:list:confirm')) {
           buttons.push(
-            h(NButton, { size: 'small', onClick: () => handleConfirm(row) }, () => '确认'),
+            h(NButton, { size: 'small', type: isReturned ? 'warning' : 'default', onClick: () => handleConfirm(row) }, () => isReturned ? '重新确认' : '确认'),
           );
         }
         buttons.push(
           h(NButton, { size: 'small', type: 'info', onClick: () => openEditDrawer(row) }, () => '编辑')
         );
-        buttons.push(
-          h(NButton, { size: 'small', type: 'error', onClick: () => handleInvalidate(row) }, () => '作废')
-        );
+        if (!isReturned) {
+          buttons.push(
+            h(NButton, { size: 'small', type: 'error', onClick: () => handleInvalidate(row) }, () => '作废')
+          );
+        }
       }
       if (row.status === 'CONFIRMED') {
         buttons.push(
@@ -525,7 +528,7 @@ async function handleConfirmSubmit() {
   if (!currentRow.value) return;
   try {
     await fetchConfirmAppointment(currentRow.value.appointmentId, confirmForm.value);
-    message.success('确认成功');
+    message.success(currentRow.value?.cancelReason ? '重新确认成功，新订单已创建' : '确认成功，订单已创建');
     confirmModalVisible.value = false;
     await getData();
     try {
@@ -809,7 +812,7 @@ onMounted(async () => {
     </NCard>
 
     <!-- Confirm Modal -->
-    <NModal v-model:show="confirmModalVisible" title="确认预约" preset="card" style="width: 500px">
+    <NModal v-model:show="confirmModalVisible" :title="currentRow?.cancelReason ? '重新确认预约' : '确认预约'" preset="card" style="width: 500px">
       <NForm :model="confirmForm" label-placement="left" label-width="100">
         <NFormItem label="服务商">
           <NSelect
