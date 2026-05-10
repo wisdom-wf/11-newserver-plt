@@ -235,6 +235,8 @@ const local: App.I18n.Schema = {
     system_dict: 'Dict Management',
     system_role: 'Role Management',
     system_user: 'User Management',
+    system_rd_report: 'R&D Report',
+    'system_rd-report': 'R&D Report',
     business: 'Business Management',
     business_appointment: 'Appointment Management',
     business_order: 'Order Management',

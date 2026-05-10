@@ -15,12 +15,13 @@ export const layouts: Record<RouteLayout, RouteComponent | (() => Promise<RouteC
 };
 
 export const views: Record<LastLevelRouteKey, RouteComponent | (() => Promise<RouteComponent>)> = {
-  403: () => import("@/views/_builtin/403/index.vue"),
-  404: () => import("@/views/_builtin/404/index.vue"),
-  500: () => import("@/views/_builtin/500/index.vue"),
-  "iframe-page": () => import("@/views/_builtin/iframe-page/[url].vue"),
-  login: () => import("@/views/_builtin/login/index.vue"),
+  403: () => import("@/views/__builtin/403/index.vue"),
+  404: () => import("@/views/__builtin/404/index.vue"),
+  500: () => import("@/views/__builtin/500/index.vue"),
+  "iframe-page": () => import("@/views/__builtin/iframe-page/[url].vue"),
+  login: () => import("@/views/__builtin/login/index.vue"),
   appointment: () => import("@/views/appointment/index.vue"),
+  "builtin_rd-report": () => import("@/views/builtin/rd-report/index.vue"),
   business_contract: () => import("@/views/business/contract/index.vue"),
   business_elder: () => import("@/views/business/elder/index.vue"),
   business_evaluation: () => import("@/views/business/evaluation/index.vue"),

@@ -32,6 +32,7 @@ import type { DataTableColumns, UploadFile } from 'naive-ui';
 import {
   fetchGetElderList,
   fetchGetElder,
+  fetchGetElderHealth,
   fetchAddHealthMeasurement,
   fetchAddHealthMeasurements,
   fetchGetHealthMeasurementHistory,
@@ -61,10 +62,34 @@ const message = useMessage();
 const { hasAuth } = useAuth();
 const route = useRoute();
 
+// 语音播报（适老化：AI建议转语音）
+let currentAudio: HTMLAudioElement | null = null;
+let isPlaying = ref(false);
+function playAudio(audioUrl: string) {
+  if (currentAudio && isPlaying.value) {
+    currentAudio.pause();
+    currentAudio = null;
+    isPlaying.value = false;
+    return;
+  }
+  if (currentAudio) {
+    currentAudio.pause();
+    currentAudio = null;
+  }
+  isPlaying.value = true;
+  currentAudio = new Audio(audioUrl);
+  currentAudio.play().catch(() => {
+    isPlaying.value = false;
+    message.warning('您的浏览器不支持自动播放音频');
+  });
+  currentAudio.onended = () => { isPlaying.value = false; };
+}
+
 // Elder selection
 const elderOptions = ref<{ label: string; value: string }[]>([]);
 const selectedElderId = ref<string>('');
 const selectedElder = ref<Api.Elder.Elder | null>(null);
+const elderHealth = ref<Api.Elder.ElderHealth | null>(null);
 const elderLoading = ref(false);
 
 // Measurement form
@@ -131,8 +156,17 @@ const careSuggestions = ref<Api.Elder.CareSuggestionVO | null>(null);
 const medicalSuggestions = ref<Api.Elder.MedicalSuggestionVO | null>(null);
 const suggestionsLoading = ref(false);
 
+// 横向Tab导航配置
+const archiveTabList = [
+  { name: 'overview', label: '健康总览' },
+  { name: 'measurements', label: '健康测量' },
+  { name: 'devices', label: '设备管理' },
+  { name: 'reports', label: '健康报告' },
+  { name: 'suggestions', label: 'AI健康建议' },
+];
+
 // Active tab
-const activeTab = ref('measurements');
+const activeTab = ref('overview');
 
 // Recent updated elders cards
 const recentElders = ref<Api.Elder.ElderHealthCard[]>([]);
@@ -233,16 +267,21 @@ async function loadElders() {
 async function loadElderDetail() {
   if (!selectedElderId.value) {
     selectedElder.value = null;
+    elderHealth.value = null;
     return;
   }
   elderLoading.value = true;
   try {
-    const { data, error } = await fetchGetElder(selectedElderId.value);
-    if (error) {
-      message.error(error.message || '获取客户信息失败');
+    const [elderRes, healthRes] = await Promise.all([
+      fetchGetElder(selectedElderId.value),
+      fetchGetElderHealth(selectedElderId.value),
+    ]);
+    if (elderRes.error) {
+      message.error(elderRes.error.message || '获取客户信息失败');
       return;
     }
-    selectedElder.value = data;
+    selectedElder.value = elderRes.data;
+    elderHealth.value = healthRes.data || null;
   } finally {
     elderLoading.value = false;
   }
@@ -483,6 +522,14 @@ const measurementColumns: DataTableColumns<Api.Elder.HealthMeasurement> = [
 
 // Report table columns
 const reportColumns: DataTableColumns<Api.Elder.HealthReportVO> = [
+  {
+    title: '封面',
+    key: 'coverImageUrl',
+    width: 80,
+    render: row => row.coverImageUrl
+      ? h(NImage, { src: row.coverImageUrl, width: 48, height: 48, objectFit: 'cover', style: 'border-radius:4px', previewDisabled: true })
+      : h('span', { style: 'color:#ccc' }, '无')
+  },
   { title: '报告编号', key: 'reportNo', width: 180 },
   { title: '标题', key: 'title', ellipsis: true },
   { title: '类型', key: 'reportTypeName', width: 100 },
@@ -536,6 +583,20 @@ function getAlertStatusText(status?: string): string {
       return '预警';
     case 'ALERT':
       return '告警';
+    default:
+      return '未知';
+  }
+}
+
+// Get fall risk display name
+function getFallRiskName(fallRisk?: number): string {
+  switch (fallRisk) {
+    case 0:
+      return '低风险';
+    case 1:
+      return '中风险';
+    case 2:
+      return '高风险';
     default:
       return '未知';
   }
@@ -629,217 +690,353 @@ onMounted(async () => {
 </script>
 
 <template>
-  <div>
-    <!-- 最近更新客户卡片区域 -->
-    <NCard :bordered="false" style="margin-bottom: 16px">
-      <template #header>
-        <div style="display: flex; align-items: center; justify-content: space-between; width: 100%">
-          <span>最近更新客户</span>
-          <NSelect
-            v-model:value="selectedElderId"
-            :options="elderOptions"
-            placeholder="快速选择客户"
-            filterable
-            clearable
-            size="medium"
-            style="width: 280px"
-            @update:value="handleElderChange"
-          />
-        </div>
-      </template>
-      <NSpin :show="recentEldersLoading">
-        <div v-if="recentElders.length > 0" style="display: flex; gap: 12px; overflow-x: auto; padding-bottom: 8px; flex-wrap: nowrap; align-items: stretch">
-          <PersonCard
-            v-for="elder in recentElders"
-            :key="elder.elderId"
-            :photo-url="elder.photoUrl"
-            :name="elder.name || '未知'"
-            :subtitle="`${elder.age || '-'}岁 | ${elder.careLevelName || elder.careLevel || '-'}`"
-            :extra-info="elder.genderName ? [{ label: '性别', value: elder.genderName }] : []"
-            :index-value="elder.healthIndex"
-            index-label="健康指数"
-            :selected="selectedElderId === elder.elderId"
-            photo-width="76"
-            scale="0.85"
-            @click="handleElderCardClick(elder.elderId)"
-            @photo-upload="(file) => handlePhotoUpload(elder.elderId, file)"
-          />
-        </div>
-        <NEmpty v-else-if="!recentEldersLoading" description="暂无最近更新的客户" />
-      </NSpin>
-    </NCard>
-
-    <NCard v-if="selectedElderId" :bordered="false">
-      <NTabs v-model:value="activeTab" type="line">
-        <NTabPane name="measurements" tab="健康测量">
-          <div style="margin-bottom: 16px">
-            <NSpace>
-              <NButton type="primary" @click="measurementDrawerVisible = true">新增测量记录</NButton>
-            </NSpace>
+  <div class="health-archive-page">
+    <!-- ===== 档案顶栏：老人信息概览 ===== -->
+    <div v-if="selectedElder" class="archive-header">
+      <div class="archive-header-left">
+        <NAvatar
+          :src="selectedElder.photoUrl"
+          :size="64"
+          round
+          style="flex-shrink:0; border: 3px solid #1E3A5F;"
+        />
+        <div class="elder-info-stack">
+          <div class="elder-name-row">
+            <span class="elder-name">{{ selectedElder.name || '未知' }}</span>
+            <NTag v-if="selectedElder.careLevelName" size="medium" style="background:#EEF2F7; color:#1E3A5F; font-weight:600; border:none;">
+              {{ selectedElder.careLevelName }}
+            </NTag>
           </div>
-
-          <!-- Statistics Cards -->
-          <div v-if="measurementStats.length > 0" style="margin-bottom: 16px; display: flex; gap: 16px; flex-wrap: wrap">
-            <NCard
-              v-for="stat in measurementStats"
+          <div class="elder-meta">
+            <span>{{ selectedElder.age || '-' }}岁</span>
+            <span class="meta-sep">|</span>
+            <span>{{ selectedElder.genderName || '-' }}</span>
+            <span class="meta-sep">|</span>
+            <span>{{ selectedElder.phone || '-' }}</span>
+          </div>
+          <!-- 关键风险标签 -->
+          <div v-if="measurementStats.length > 0" class="elder-risk-tags">
+            <span
+              v-for="stat in measurementStats.filter(s => s.alertStatus !== 'NORMAL').slice(0,3)"
               :key="stat.measurementType"
-              size="small"
-              style="width: 200px"
+              :class="['risk-tag', stat.alertStatus === 'ALERT' ? 'risk-high' : 'risk-warn']"
             >
-              <div style="font-size: 13px; color: #666">{{ stat.measurementTypeName }}</div>
-              <div style="font-size: 24px; font-weight: 600; margin: 8px 0">
-                {{ stat.latestValue || '-' }}
-                <span style="font-size: 12px; color: #999">{{ stat.measurementUnit }}</span>
+              {{ stat.measurementTypeName }} {{ stat.alertStatus === 'ALERT' ? '⚠异常' : '⚡预警' }}
+            </span>
+          </div>
+        </div>
+      </div>
+      <div class="archive-header-right">
+        <NSelect
+          v-model:value="selectedElderId"
+          :options="elderOptions"
+          placeholder="切换客户"
+          filterable
+          clearable
+          size="medium"
+          style="width: 240px"
+          @update:value="handleElderChange"
+        />
+        <NButton type="primary" size="large" @click="reportDrawerVisible = true">
+          生成报告
+        </NButton>
+      </div>
+    </div>
+
+    <NEmpty v-else-if="!elderLoading" description="请从上方选择一位客户查看健康档案" style="margin: 60px 0" />
+
+    <!-- ===== 横向Tab导航 ===== -->
+    <div v-if="selectedElderId" class="archive-tabs-wrapper">
+      <div class="archive-tabs">
+        <button
+          v-for="tab in archiveTabList"
+          :key="tab.name"
+          :class="['tab-btn', { active: activeTab === tab.name }]"
+          @click="activeTab = tab.name"
+        >
+          {{ tab.label }}
+        </button>
+      </div>
+    </div>
+
+    <!-- ===== Tab内容区 ===== -->
+    <div v-if="selectedElderId" class="archive-content">
+      <!-- 健康总览 Tab -->
+      <div v-show="activeTab === 'overview'">
+        <!-- 关键指标4宫格 -->
+        <div v-if="measurementStats.length > 0" class="stat-grid">
+          <div
+            v-for="stat in measurementStats"
+            :key="stat.measurementType"
+            :class="['stat-card', stat.alertStatus !== 'NORMAL' ? 'stat-alert' : '']"
+          >
+            <div class="stat-label">{{ stat.measurementTypeName }}</div>
+            <div class="stat-value">
+              {{ stat.latestValue || '-' }}
+              <span class="stat-unit">{{ stat.measurementUnit }}</span>
+            </div>
+            <div class="stat-range">{{ stat.normalRange || '' }}</div>
+            <div v-if="stat.alertStatus !== 'NORMAL'" :class="['stat-badge', stat.alertStatus === 'ALERT' ? 'badge-danger' : 'badge-warn']">
+              {{ stat.alertStatus === 'ALERT' ? '异常' : '预警' }}
+            </div>
+          </div>
+        </div>
+
+        <!-- 下方两栏：基础信息 + 风险预警 -->
+        <div class="overview-two-col">
+          <NCard title="基础信息" size="small" :bordered="true" style="border-left: 4px solid #1E3A5F;">
+            <div class="info-grid">
+              <div class="info-item">
+                <div class="info-label">血型</div>
+                <div class="info-value">{{ elderHealth?.bloodTypeName || '-' }}</div>
               </div>
-              <div style="font-size: 12px; color: #999">
-                共 {{ stat.count }} 条记录
+              <div class="info-item">
+                <div class="info-label">身高 / 体重</div>
+                <div class="info-value">{{ elderHealth?.height ? elderHealth.height + 'cm' : '-' }} / {{ elderHealth?.weight ? elderHealth.weight + 'kg' : '-' }}</div>
               </div>
-              <NTag
-                v-if="stat.alertStatus !== 'NORMAL'"
-                :type="getAlertStatusColor(stat.alertStatus) as any"
-                size="small"
-                style="margin-top: 4px"
+              <div class="info-item">
+                <div class="info-label">ADL评分</div>
+                <div class="info-value">{{ elderHealth?.adlScore ?? '-' }}</div>
+              </div>
+              <div class="info-item">
+                <div class="info-label">MMSE评分</div>
+                <div class="info-value">{{ elderHealth?.mmseScore ?? '-' }}</div>
+              </div>
+              <div class="info-item">
+                <div class="info-label">跌倒风险</div>
+                <div :class="['info-value', elderHealth?.fallRisk === 2 ? 'val-danger' : elderHealth?.fallRisk === 1 ? 'val-warn' : '']">
+                  {{ getFallRiskName(elderHealth?.fallRisk) }}
+                </div>
+              </div>
+              <div class="info-item">
+                <div class="info-label">护理类型</div>
+                <div class="info-value">{{ selectedElder?.careTypeName || selectedElder?.careType || '-' }}</div>
+              </div>
+            </div>
+          </NCard>
+
+          <NCard title="风险预警" size="small" :bordered="true" style="border-left: 4px solid #B91C1C;">
+            <template #header-extra>
+              <span style="color:#B91C1C; font-size:20px">⚠️</span>
+            </template>
+            <div v-if="careSuggestions && careSuggestions.riskAlerts && careSuggestions.riskAlerts.length > 0">
+              <div
+                v-for="(alert, idx) in careSuggestions.riskAlerts"
+                :key="idx"
+                class="risk-alert-item"
               >
-                {{ getAlertStatusText(stat.alertStatus) }}
+                <span style="color:#B91C1C; margin-right:6px">●</span>
+                {{ alert }}
+              </div>
+            </div>
+            <NEmpty v-else-if="!careSuggestions" description="暂无建议数据，请确保该客户有完整的健康档案" />
+            <div v-else style="color:#2E7D4A; font-size:15px; padding: 8px 0;">
+              ✅ 暂无高风险预警
+            </div>
+          </NCard>
+        </div>
+      </div>
+
+      <!-- 健康测量 Tab -->
+      <div v-show="activeTab === 'measurements'">
+        <div class="tab-toolbar">
+          <NButton type="primary" size="large" @click="measurementDrawerVisible = true">
+            + 新增测量记录
+          </NButton>
+          <NButton v-if="measurementStats.length > 0" size="large" @click="activeTab = 'overview'">
+            ← 查看健康总览
+          </NButton>
+        </div>
+
+        <div v-if="measurementStats.length > 0" class="stat-grid">
+          <div
+            v-for="stat in measurementStats"
+            :key="stat.measurementType"
+            :class="['stat-card', stat.alertStatus !== 'NORMAL' ? 'stat-alert' : '']"
+          >
+            <div class="stat-label">{{ stat.measurementTypeName }}</div>
+            <div class="stat-value">
+              {{ stat.latestValue || '-' }}
+              <span class="stat-unit">{{ stat.measurementUnit }}</span>
+            </div>
+            <div class="stat-count">共 {{ stat.count }} 条</div>
+          </div>
+        </div>
+
+        <NDataTable
+          :columns="measurementColumns"
+          :data="measurements"
+          :loading="measurementsLoading"
+          :row-key="(row: Api.Elder.HealthMeasurement) => row.measurementId"
+          style="margin-top: 16px"
+        />
+        <NEmpty v-if="!measurementsLoading && measurements.length === 0" description="暂无测量记录" style="margin-top: 40px" />
+      </div>
+
+      <!-- 设备管理 Tab -->
+      <div v-show="activeTab === 'devices'">
+        <div class="tab-toolbar">
+          <NButton type="primary" size="large" @click="bindDeviceVisible = true">+ 绑定设备</NButton>
+        </div>
+
+        <div v-if="elderDevices.length === 0" style="text-align:center; padding:60px; color:#94A3B8; font-size:16px">
+          暂未绑定任何设备，点击「绑定设备」扫码开始
+        </div>
+
+        <div v-else class="device-list">
+          <div v-for="device in elderDevices" :key="device.bindingId" class="device-card">
+            <div class="device-info">
+              <div class="device-name">{{ device.measurementTypeName || device.measurementType }}</div>
+              <div class="device-sn">序列号：{{ device.deviceSn || '-' }}</div>
+              <div class="device-bind-time">绑定时间：{{ device.bindTime || '-' }}</div>
+            </div>
+            <div class="device-actions">
+              <NTag :type="device.deviceStatus === 'ACTIVE' ? 'success' : 'default'" size="medium">
+                {{ device.deviceStatus === 'ACTIVE' ? '在线' : '离线' }}
               </NTag>
-            </NCard>
+              <NButton size="medium" type="error" ghost @click="handleUnbindDevice(device.bindingId)">解绑</NButton>
+            </div>
           </div>
+        </div>
+      </div>
 
-          <NDataTable
-            :columns="measurementColumns"
-            :data="measurements"
-            :loading="measurementsLoading"
-            :row-key="(row: Api.Elder.HealthMeasurement) => row.measurementId"
-          />
+      <!-- 健康报告 Tab -->
+      <div v-show="activeTab === 'reports'">
+        <div class="tab-toolbar">
+          <NButton type="primary" size="large" @click="reportDrawerVisible = true">+ 生成报告</NButton>
+        </div>
 
-          <NEmpty v-if="!measurementsLoading && measurements.length === 0" description="暂无测量记录" style="margin-top: 40px" />
-        </NTabPane>
-
-        <!-- 设备管理 -->
-        <NTabPane name="devices" tab="设备管理">
-          <div v-if="selectedElderId">
-            <div style="margin-bottom: 16px">
-              <NButton type="primary" @click="bindDeviceVisible = true">绑定设备</NButton>
+        <div v-if="reports.length > 0" class="report-grid">
+          <div v-for="report in reports" :key="report.reportId" class="report-card">
+            <div class="report-cover">
+              <NImage
+                v-if="report.coverImageUrl"
+                :src="report.coverImageUrl"
+                width="100%"
+                height="120"
+                object-fit="cover"
+                style="border-radius: 12px 12px 0 0"
+                :preview-disabled="true"
+              />
+              <div v-else class="report-cover-placeholder">
+                <span style="font-size:32px">📋</span>
+                <span style="font-size:13px; color:#94A3B8">{{ report.reportTypeName }}</span>
+              </div>
             </div>
-
-            <div v-if="elderDevices.length === 0" style="text-align: center; padding: 40px; color: #999">
-              暂未绑定任何设备，点击"绑定设备"开始
-            </div>
-
-            <div v-for="device in elderDevices" :key="device.bindingId" style="border: 1px solid #eee; border-radius: 8px; padding: 16px; margin-bottom: 12px">
-              <div style="display: flex; justify-content: space-between; align-items: center">
-                <div>
-                  <div style="font-weight: 600">{{ device.measurementTypeName || device.measurementType }}</div>
-                  <div style="color: #666; font-size: 13px; margin-top: 4px">
-                    序列号：{{ device.deviceSn || '-' }}
-                  </div>
-                  <div style="color: #999; font-size: 12px; margin-top: 4px">
-                    绑定时间：{{ device.bindTime || '-' }}
-                  </div>
-                </div>
-                <NSpace>
-                  <NTag :type="device.deviceStatus === 'ACTIVE' ? 'success' : 'default'" size="small">
-                    {{ device.deviceStatus === 'ACTIVE' ? '在线' : '离线' }}
-                  </NTag>
-                  <NButton size="small" type="error" @click="handleUnbindDevice(device.bindingId)">解绑</NButton>
-                </NSpace>
+            <div class="report-info">
+              <div class="report-title">{{ report.title || report.reportTypeName }}</div>
+              <div class="report-date">{{ report.reportDate }}</div>
+              <div class="report-actions">
+                <NButton size="small" type="primary" @click="handleDownloadPdf(report.reportId)">下载PDF</NButton>
+                <NButton v-if="hasAuth('elder:list:delete')" size="small" type="error" ghost @click="handleDeleteReport(report.reportId)">删除</NButton>
               </div>
             </div>
           </div>
-          <NEmpty v-else description="请先选择客户" />
-        </NTabPane>
+        </div>
+        <NEmpty v-else-if="!reportsLoading" description="暂无报告，点击「生成报告」创建" style="margin-top:40px" />
+      </div>
 
-        <NTabPane name="reports" tab="健康报告">
-          <div style="margin-bottom: 16px">
-            <NSpace>
-              <NButton type="primary" @click="reportDrawerVisible = true">生成报告</NButton>
-            </NSpace>
-          </div>
-
-          <NDataTable
-            :columns="reportColumns"
-            :data="reports"
-            :loading="reportsLoading"
-            :row-key="(row: Api.Elder.HealthReportVO) => row.reportId"
-          />
-
-          <NEmpty v-if="!reportsLoading && reports.length === 0" description="暂无报告" style="margin-top: 40px" />
-        </NTabPane>
-
-        <NTabPane name="suggestions" tab="AI健康建议">
-          <NSpin :show="suggestionsLoading">
-            <!-- 护理建议 -->
-            <NCard v-if="careSuggestions" title="护理建议" size="small" style="margin-bottom: 16px">
-              <template #header-extra>
+      <!-- AI健康建议 Tab -->
+      <div v-show="activeTab === 'suggestions'">
+        <NSpin :show="suggestionsLoading">
+          <!-- 护理建议 -->
+          <NCard v-if="careSuggestions" size="large" :bordered="true" style="border-left: 4px solid #1E3A5F; margin-bottom: 16px">
+            <template #header>
+              <div style="display:flex; align-items:center; gap:10px">
+                <span style="font-size:18px; font-weight:700">护理建议</span>
                 <NTag type="info">{{ careSuggestions.careLevelSuggestion }}</NTag>
-              </template>
-              <div v-if="careSuggestions.riskAlerts && careSuggestions.riskAlerts.length > 0" style="margin-bottom: 12px">
-                <NAlert type="warning" :title="'风险预警 (' + careSuggestions.riskAlerts.length + ')'">
-                  <div v-for="(alert, idx) in careSuggestions.riskAlerts" :key="idx" style="margin-bottom: 4px">
-                    {{ alert }}
-                  </div>
-                </NAlert>
               </div>
-              <div v-if="careSuggestions.suggestions && careSuggestions.suggestions.length > 0">
-                <div
-                  v-for="(suggestion, idx) in careSuggestions.suggestions"
-                  :key="idx"
-                  style="padding: 12px; border-bottom: 1px solid #f0f0f0"
-                >
-                  <div style="display: flex; align-items: center; gap: 8px; margin-bottom: 4px">
-                    <NTag :type="suggestion.priority <= 1 ? 'error' : suggestion.priority <= 2 ? 'warning' : 'info'" size="small">
-                      {{ suggestion.typeName }}
-                    </NTag>
-                    <span style="font-size: 12px; color: #999">依据: {{ suggestion.basis }}</span>
-                  </div>
-                  <div>{{ suggestion.content }}</div>
+            </template>
+            <template #header-extra>
+              <NButton
+                v-if="careSuggestions.audioUrl"
+                type="warning"
+                size="medium"
+                round
+                @click="playAudio(careSuggestions.audioUrl)"
+              >
+                {{ isPlaying ? '⏸ 暂停播报' : '🔊 语音播报' }}
+              </NButton>
+            </template>
+
+            <div v-if="careSuggestions.riskAlerts && careSuggestions.riskAlerts.length > 0" style="margin-bottom:16px">
+              <div class="alert-box alert-danger">
+                <span style="margin-right:6px; font-size:18px">⚠️</span>
+                <span style="font-weight:600">风险预警 ({{ careSuggestions.riskAlerts.length }})</span>
+                <div v-for="(alert, idx) in careSuggestions.riskAlerts" :key="idx" style="margin-top:6px; font-size:15px">
+                  {{ alert }}
                 </div>
               </div>
-              <NEmpty v-else description="暂无护理建议" />
-            </NCard>
+            </div>
 
-            <!-- 就医建议 -->
-            <NCard v-if="medicalSuggestions" title="就医建议" size="small">
-              <template #header-extra>
-                <NTag :type="medicalSuggestions.urgencyLevel === 'URGENT' ? 'error' : medicalSuggestions.urgencyLevel === 'WARNING' ? 'warning' : 'success'" size="small">
+            <div v-if="careSuggestions.suggestions && careSuggestions.suggestions.length > 0">
+              <div
+                v-for="(s, idx) in careSuggestions.suggestions"
+                :key="idx"
+                class="suggestion-item"
+              >
+                <div class="suggestion-header">
+                  <NTag :type="s.priority <= 1 ? 'error' : s.priority <= 2 ? 'warning' : 'info'" size="medium">
+                    {{ s.typeName }}
+                  </NTag>
+                  <span class="suggestion-basis">依据: {{ s.basis }}</span>
+                </div>
+                <div class="suggestion-content">{{ s.content }}</div>
+              </div>
+            </div>
+            <NEmpty v-else description="暂无护理建议" />
+          </NCard>
+
+          <!-- 就医建议 -->
+          <NCard v-if="medicalSuggestions" size="large" :bordered="true" style="border-left: 4px solid #E8833A">
+            <template #header>
+              <div style="display:flex; align-items:center; gap:10px">
+                <span style="font-size:18px; font-weight:700">就医建议</span>
+                <NTag
+                  :type="medicalSuggestions.urgencyLevel === 'URGENT' ? 'error' : medicalSuggestions.urgencyLevel === 'WARNING' ? 'warning' : 'success'"
+                  size="medium"
+                >
                   {{ medicalSuggestions.urgencyLevelName }}
                 </NTag>
-              </template>
-              <div v-if="medicalSuggestions.symptoms && medicalSuggestions.symptoms.length > 0" style="margin-bottom: 12px">
-                <div style="color: #999; font-size: 13px; margin-bottom: 4px">异常症状:</div>
-                <NTag v-for="(symptom, idx) in medicalSuggestions.symptoms" :key="idx" type="warning" size="small" style="margin-right: 4px">
-                  {{ symptom }}
-                </NTag>
               </div>
-              <div v-if="medicalSuggestions.suggestedDepartment" style="margin-bottom: 12px">
-                <span style="color: #999; font-size: 13px">建议就诊科室: </span>
-                <span style="font-weight: 500">{{ medicalSuggestions.suggestedDepartment }}</span>
-              </div>
-              <div v-if="medicalSuggestions.suggestions && medicalSuggestions.suggestions.length > 0">
-                <div
-                  v-for="(suggestion, idx) in medicalSuggestions.suggestions"
-                  :key="idx"
-                  style="padding: 12px; border-bottom: 1px solid #f0f0f0"
-                >
-                  <div style="display: flex; align-items: center; gap: 8px; margin-bottom: 4px">
-                    <NTag :type="suggestion.priority <= 1 ? 'error' : suggestion.priority <= 2 ? 'warning' : 'info'" size="small">
-                      {{ suggestion.typeName }}
-                    </NTag>
-                    <span style="font-size: 12px; color: #999">依据: {{ suggestion.basis }}</span>
-                  </div>
-                  <div>{{ suggestion.content }}</div>
+            </template>
+
+            <div v-if="medicalSuggestions.symptoms && medicalSuggestions.symptoms.length > 0" style="margin-bottom:12px">
+              <div style="font-size:13px; color:#5A6478; margin-bottom:6px">异常症状:</div>
+              <NTag v-for="(s, idx) in medicalSuggestions.symptoms" :key="idx" type="warning" size="medium" style="margin-right:6px; margin-bottom:4px">
+                {{ s }}
+              </NTag>
+            </div>
+
+            <div v-if="medicalSuggestions.suggestedDepartment" style="margin-bottom:12px; font-size:15px">
+              <span style="color:#5A6478">建议就诊科室: </span>
+              <span style="font-weight:600; color:#1E3A5F">{{ medicalSuggestions.suggestedDepartment }}</span>
+            </div>
+
+            <div v-if="medicalSuggestions.suggestions && medicalSuggestions.suggestions.length > 0">
+              <div
+                v-for="(s, idx) in medicalSuggestions.suggestions"
+                :key="idx"
+                class="suggestion-item"
+              >
+                <div class="suggestion-header">
+                  <NTag :type="s.priority <= 1 ? 'error' : s.priority <= 2 ? 'warning' : 'info'" size="medium">
+                    {{ s.typeName }}
+                  </NTag>
+                  <span class="suggestion-basis">依据: {{ s.basis }}</span>
                 </div>
+                <div class="suggestion-content">{{ s.content }}</div>
               </div>
-              <NEmpty v-else description="暂无就医建议" />
-            </NCard>
+            </div>
+            <NEmpty v-else description="暂无就医建议" />
+          </NCard>
 
-            <NEmpty v-if="!careSuggestions && !medicalSuggestions" description="暂无AI建议，请确保该客户有完整的健康档案和测量记录" style="margin-top: 40px" />
-          </NSpin>
-        </NTabPane>
-      </NTabs>
-    </NCard>
+          <NEmpty v-if="!careSuggestions && !medicalSuggestions && !suggestionsLoading" description="暂无AI建议，请确保该客户有完整的健康档案和测量记录" style="margin-top:40px" />
+        </NSpin>
+      </div>
+    </div>
 
-    <NEmpty v-if="!selectedElderId" description="请先选择客户" style="margin-top: 100px" />
+    <!-- ===== 生成报告抽屉 ===== -->
 
     <!-- Add Measurement Drawer -->
     <NDrawer v-model:show="measurementDrawerVisible" :width="400" placement="right" closable>
@@ -986,3 +1183,306 @@ onMounted(async () => {
     </NModal>
   </div>
 </template>
+
+<style scoped>
+/* ===== 档案页面整体 ===== */
+.health-archive-page {
+  padding: 0 0 40px;
+}
+
+/* ===== 顶栏：老人信息概览 ===== */
+.archive-header {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 16px;
+  background: #fff;
+  border-radius: 16px;
+  padding: 20px 24px;
+  margin-bottom: 16px;
+  box-shadow: 0 2px 8px rgba(30,58,95,0.08);
+}
+.archive-header-left {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+  flex: 1;
+  min-width: 0;
+}
+.elder-info-stack {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  min-width: 0;
+}
+.elder-name-row {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+.elder-name {
+  font-size: 22px;
+  font-weight: 700;
+  color: #1E3A5F;
+}
+.elder-meta {
+  font-size: 14px;
+  color: #5A6478;
+}
+.meta-sep {
+  margin: 0 6px;
+  color: #CBD5E1;
+}
+.elder-risk-tags {
+  display: flex;
+  gap: 8px;
+  flex-wrap: wrap;
+  margin-top: 4px;
+}
+.risk-tag {
+  display: inline-flex;
+  align-items: center;
+  padding: 3px 10px;
+  border-radius: 9999px;
+  font-size: 12px;
+  font-weight: 600;
+}
+.risk-high {
+  background: #FEF2F2;
+  color: #B91C1C;
+  border: 1px solid #FECACA;
+}
+.risk-warn {
+  background: #FFF4EC;
+  color: #C0620A;
+  border: 1px solid #FDDCB8;
+}
+.archive-header-right {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  flex-shrink: 0;
+}
+
+/* ===== 横向Tab导航 ===== */
+.archive-tabs-wrapper {
+  background: #fff;
+  border-radius: 12px;
+  padding: 8px 12px;
+  margin-bottom: 16px;
+  box-shadow: 0 2px 8px rgba(30,58,95,0.08);
+}
+.archive-tabs {
+  display: flex;
+  gap: 4px;
+}
+.tab-btn {
+  padding: 10px 20px;
+  border-radius: 8px;
+  border: none;
+  background: transparent;
+  color: #5A6478;
+  font-size: 15px;
+  font-weight: 500;
+  cursor: pointer;
+  transition: all 0.2s;
+  font-family: inherit;
+}
+.tab-btn:hover {
+  background: #EEF2F7;
+  color: #1E3A5F;
+}
+.tab-btn.active {
+  background: #1E3A5F;
+  color: #fff;
+  font-weight: 600;
+}
+
+/* ===== Tab内容区 ===== */
+.archive-content {
+  background: #fff;
+  border-radius: 16px;
+  padding: 20px 24px;
+  box-shadow: 0 2px 8px rgba(30,58,95,0.08);
+  min-height: 400px;
+}
+
+/* ===== 指标4宫格 ===== */
+.stat-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+  gap: 16px;
+  margin-bottom: 20px;
+}
+.stat-card {
+  background: #F5F7FA;
+  border-radius: 12px;
+  padding: 16px 20px;
+  position: relative;
+  border: 1.5px solid #E2E8F0;
+  transition: all 0.2s;
+}
+.stat-card:hover {
+  box-shadow: 0 4px 16px rgba(30,58,95,0.12);
+  transform: translateY(-1px);
+}
+.stat-alert {
+  background: #FFF4EC;
+  border-color: #FDDCB8;
+}
+.stat-label {
+  font-size: 13px;
+  color: #5A6478;
+  margin-bottom: 8px;
+  font-weight: 500;
+}
+.stat-value {
+  font-size: 28px;
+  font-weight: 700;
+  color: #1E3A5F;
+  line-height: 1;
+  margin-bottom: 4px;
+}
+.stat-unit {
+  font-size: 13px;
+  font-weight: 400;
+  color: #5A6478;
+}
+.stat-range {
+  font-size: 12px;
+  color: #94A3B8;
+}
+.stat-count {
+  font-size: 12px;
+  color: #94A3B8;
+}
+.stat-badge {
+  display: inline-block;
+  padding: 2px 8px;
+  border-radius: 9999px;
+  font-size: 11px;
+  font-weight: 700;
+  margin-top: 6px;
+}
+.badge-danger { background: #FEE2E2; color: #B91C1C; }
+.badge-warn { background: #FEF3C7; color: #C0620A; }
+
+/* ===== 基础信息+风险预警两栏 ===== */
+.overview-two-col {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 16px;
+}
+@media (max-width: 900px) {
+  .overview-two-col { grid-template-columns: 1fr; }
+}
+.info-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 12px 16px;
+}
+.info-item { display: flex; flex-direction: column; gap: 2px; }
+.info-label {
+  font-size: 12px;
+  color: #94A3B8;
+  font-weight: 500;
+}
+.info-value {
+  font-size: 15px;
+  font-weight: 600;
+  color: #1A1A1A;
+}
+.val-danger { color: #B91C1C !important; }
+.val-warn { color: #C0620A !important; }
+
+.risk-alert-item {
+  font-size: 15px;
+  color: #1A1A1A;
+  padding: 6px 0;
+  border-bottom: 1px solid #F0F0F0;
+}
+.risk-alert-item:last-child { border-bottom: none; }
+
+/* ===== Tab工具栏 ===== */
+.tab-toolbar {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  margin-bottom: 20px;
+}
+
+/* ===== 设备列表卡片 ===== */
+.device-list { display: flex; flex-direction: column; gap: 12px; }
+.device-card {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 16px 20px;
+  background: #F5F7FA;
+  border-radius: 12px;
+  border: 1.5px solid #E2E8F0;
+}
+.device-name { font-size: 16px; font-weight: 600; color: #1E3A5F; margin-bottom: 4px; }
+.device-sn { font-size: 13px; color: #5A6478; }
+.device-bind-time { font-size: 12px; color: #94A3B8; margin-top: 2px; }
+.device-actions { display: flex; align-items: center; gap: 10px; }
+
+/* ===== 报告网格 ===== */
+.report-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(240px, 1fr));
+  gap: 16px;
+}
+.report-card {
+  border-radius: 12px;
+  overflow: hidden;
+  border: 1.5px solid #E2E8F0;
+  background: #fff;
+  transition: all 0.2s;
+}
+.report-card:hover {
+  box-shadow: 0 4px 16px rgba(30,58,95,0.14);
+  transform: translateY(-2px);
+}
+.report-cover { height: 120px; overflow: hidden; background: #EEF2F7; }
+.report-cover-placeholder {
+  height: 120px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 6px;
+  background: linear-gradient(135deg, #EEF2F7 0%, #E2E8F0 100%);
+}
+.report-info { padding: 14px 16px; }
+.report-title { font-size: 15px; font-weight: 600; color: #1A1A1A; margin-bottom: 4px; }
+.report-date { font-size: 12px; color: #94A3B8; margin-bottom: 10px; }
+.report-actions { display: flex; gap: 8px; }
+
+/* ===== 建议项 ===== */
+.suggestion-item {
+  padding: 14px 0;
+  border-bottom: 1px solid #F0F0F0;
+}
+.suggestion-item:last-child { border-bottom: none; }
+.suggestion-header {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  margin-bottom: 8px;
+}
+.suggestion-basis { font-size: 12px; color: #94A3B8; }
+.suggestion-content { font-size: 15px; color: #1A1A1A; line-height: 1.6; }
+
+/* ===== 告警框 ===== */
+.alert-box {
+  border-radius: 10px;
+  padding: 14px 16px;
+  font-size: 14px;
+}
+.alert-danger {
+  background: #FEF2F2;
+  border: 1.5px solid #FECACA;
+  color: #B91C1C;
+}
+</style>

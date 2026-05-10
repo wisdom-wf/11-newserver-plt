@@ -21,6 +21,8 @@ declare module "@elegant-router/types" {
     "404": "/404";
     "500": "/500";
     "appointment": "/appointment";
+    "builtin": "/builtin";
+    "builtin_rd-report": "/builtin/rd-report";
     "business": "/business";
     "business_contract": "/business/contract";
     "business_elder": "/business/elder";
@@ -80,6 +82,7 @@ declare module "@elegant-router/types" {
     | "404"
     | "500"
     | "appointment"
+    | "builtin"
     | "business"
     | "home"
     | "iframe-page"
@@ -109,6 +112,7 @@ declare module "@elegant-router/types" {
     | "iframe-page"
     | "login"
     | "appointment"
+    | "builtin_rd-report"
     | "business_contract"
     | "business_elder"
     | "business_evaluation"

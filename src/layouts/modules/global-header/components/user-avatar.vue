@@ -55,12 +55,11 @@ function logout() {
   });
 }
 
-function handleDropdown(key: DropdownKey) {
+function handleDropdown(key: string) {
   if (key === 'logout') {
     logout();
   } else {
-    // If your other options are jumps from other routes, they will be directly supported here
-    routerPushByKey(key);
+    routerPushByKey(key as any);
   }
 }
 </script>

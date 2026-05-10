@@ -41,6 +41,11 @@ export function createRouteGuard(router: Router) {
       return handleRouteSwitch(to, from);
     }
 
+    // constant routes (like rd-report) are always accessible without login
+    if (to.meta.constant) {
+      return handleRouteSwitch(to, from);
+    }
+
     // the route need login but the user is not logged in, then switch to the login page
     if (!isLogin) {
       return { name: loginRoute, query: { redirect: to.fullPath } };
