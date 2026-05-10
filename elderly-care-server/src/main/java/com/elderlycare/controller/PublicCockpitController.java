@@ -152,6 +152,39 @@ public class PublicCockpitController {
         return Result.success(cockpitService.getRealtimeOrders(null, limit));
     }
 
+    /**
+     * 获取功能上线路线图（从git历史自动提取）
+     */
+    @GetMapping("/roadmap")
+    public Result<List<Map<String, String>>> getRoadmap() {
+        try {
+            ProcessBuilder pb = new ProcessBuilder(
+                "git", "log", "--oneline", "--since=2026-04-01", "--pretty=format:%ad|%s", "--date=short"
+            );
+            pb.directory(new java.io.File("/Users/works/my-projects/11-newserver-plt"));
+            Process process = pb.start();
+            String output = new String(process.getInputStream().readAllBytes());
+            int exitCode = process.waitFor();
+
+            List<Map<String, String>> items = new java.util.ArrayList<>();
+            if (exitCode == 0) {
+                for (String line : output.split("\n")) {
+                    if (line.isBlank()) continue;
+                    String[] parts = line.split("\\|", 2);
+                    if (parts.length == 2) {
+                        Map<String, String> item = new java.util.HashMap<>();
+                        item.put("date", parts[0].trim());
+                        item.put("title", parts[1].trim());
+                        items.add(item);
+                    }
+                }
+            }
+            return Result.success(items);
+        } catch (Exception e) {
+            return Result.success(java.util.List.of());
+        }
+    }
+
     private void validateTokenIfPresent(String token) {
         if (token != null && !token.isEmpty()) {
             if (!publicTokenService.validateToken(token)) {

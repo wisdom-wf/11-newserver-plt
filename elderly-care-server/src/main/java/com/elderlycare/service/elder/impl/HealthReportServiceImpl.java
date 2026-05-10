@@ -15,6 +15,7 @@ import com.elderlycare.mapper.elder.HealthMeasurementMapper;
 import com.elderlycare.mapper.elder.HealthReportMapper;
 import com.elderlycare.mapper.servicelog.ServiceLogMapper;
 import com.elderlycare.service.elder.HealthReportService;
+import com.elderlycare.service.common.AliyunAiService;
 import com.elderlycare.vo.elder.HealthReportVO;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import lombok.RequiredArgsConstructor;
@@ -49,6 +50,7 @@ public class HealthReportServiceImpl implements HealthReportService {
     private final HealthMeasurementMapper measurementMapper;
     private final ServiceLogMapper serviceLogMapper;
     private final ObjectMapper objectMapper;
+    private final AliyunAiService aliyunAiService;
 
     @Override
     @Transactional
@@ -87,7 +89,42 @@ public class HealthReportServiceImpl implements HealthReportService {
         report.setCreateTime(LocalDateTime.now());
         reportMapper.insert(report);
 
+        // AI生成封面图（异步，不阻塞报告保存）
+        try {
+            String coverImageUrl = generateCoverImage(elder, dto);
+            if (coverImageUrl != null) {
+                report.setCoverImageUrl(coverImageUrl);
+                reportMapper.updateById(report);
+            }
+        } catch (Exception e) {
+            log.warn("封面图生成失败，不影响报告: {}", e.getMessage());
+        }
+
         return report;
+    }
+
+    /**
+     * AI生成健康报告封面图
+     */
+    private String generateCoverImage(Elder elder, HealthReportGenerateDTO dto) {
+        String typeName = switch (dto.getReportType()) {
+            case "MONTHLY" -> "月度";
+            case "QUARTERLY" -> "季度";
+            case "YEARLY" -> "年度";
+            default -> "专项";
+        };
+
+        String prompt = String.format(
+            "一幅温馨的适老化健康报告封面图，风格：温暖、清新、专业。\n" +
+            "画面内容：一位慈祥的%d岁左右老年人在温馨的家庭环境中，配有健康图表和绿植点缀。\n" +
+            "色调：暖色系，主色调为蓝色（#1E3A5F政务蓝）和橙色（温暖关怀）。\n" +
+            "要求：竖版构图，适合作为健康报告封面，左下角留白处显示文字\"%s健康报告\"。\n" +
+            "画面要温馨但不失专业感，体现居家养老服务特色。",
+            elder.getAge() != null ? elder.getAge() : 70,
+            typeName
+        );
+
+        return aliyunAiService.generateImage(prompt, "wan2.2-t2i-plus");
     }
 
     @Override

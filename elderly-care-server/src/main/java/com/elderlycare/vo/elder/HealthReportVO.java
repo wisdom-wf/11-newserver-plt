@@ -59,6 +59,11 @@ public class HealthReportVO implements Serializable {
     private String pdfUrl;
 
     /**
+     * 封面图片URL（AI文生图生成）
+     */
+    private String coverImageUrl;
+
+    /**
      * 生成员工ID
      */
     private String staffId;

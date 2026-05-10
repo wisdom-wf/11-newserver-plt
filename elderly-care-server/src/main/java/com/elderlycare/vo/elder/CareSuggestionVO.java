@@ -31,6 +31,9 @@ public class CareSuggestionVO implements Serializable {
     /** 风险提示 */
     private List<String> riskAlerts;
 
+    /** AI建议语音URL（有值时前端显示播放按钮） */
+    private String audioUrl;
+
     /**
      * 单条护理建议
      */

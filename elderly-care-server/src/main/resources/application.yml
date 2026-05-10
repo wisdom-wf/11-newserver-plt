@@ -58,3 +58,10 @@ contract:
     phone: "13800138000"
     seal-id: "yD3hWUU1lcdbupUuFEBodyMoYCNABTCm"
     ess-open-id: "yD3hWUU1l669avUhwB3xWL8C12PcHjRR"
+
+# 阿里云百炼AI配置
+aliyun:
+  bailian:
+    api-key: ${ALIYUN_BAILIAN_API_KEY:}
+    model: qwen-plus
+    max-tokens: 2000

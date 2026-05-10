@@ -3,12 +3,16 @@ package com.elderlycare.controller.elder;
 import com.baomidou.mybatisplus.core.metadata.IPage;
 import com.elderlycare.common.Result;
 import com.elderlycare.common.UserContext;
+import com.elderlycare.common.BusinessException;
 import com.elderlycare.dto.elder.*;
 import com.elderlycare.entity.elder.*;
+import com.elderlycare.mapper.elder.ElderMapper;
 import com.elderlycare.service.elder.ElderService;
 import com.elderlycare.service.elder.HealthAdviceService;
+import com.elderlycare.service.elder.HealthAiSuggestionService;
 import com.elderlycare.service.elder.HealthMeasurementService;
 import com.elderlycare.service.elder.HealthReportService;
+import com.elderlycare.service.common.ImageUnderstandingService;
 import com.elderlycare.vo.elder.*;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpHeaders;
@@ -28,9 +32,12 @@ import java.util.List;
 public class ElderController {
 
     private final ElderService elderService;
+    private final ElderMapper elderMapper;
     private final HealthMeasurementService healthMeasurementService;
     private final HealthReportService healthReportService;
     private final HealthAdviceService healthAdviceService;
+    private final HealthAiSuggestionService healthAiSuggestionService;
+    private final ImageUnderstandingService imageUnderstandingService;
 
     // ==================== 老人档案管理 ====================
 
@@ -397,23 +404,70 @@ public class ElderController {
         return Result.success(balance);
     }
 
-    // ==================== AI健康建议（规则引擎）====================
+    // ==================== AI健康建议（优先缓存，无缓存走规则引擎）====================
 
     /**
-     * 获取护理建议
+     * 获取护理建议（优先从AI缓存读取，无缓存则使用规则引擎）
      */
     @GetMapping("/{elderId}/care-suggestions")
     public Result<CareSuggestionVO> getCareSuggestions(@PathVariable String elderId) {
-        CareSuggestionVO suggestions = healthAdviceService.getCareSuggestions(elderId);
-        return Result.success(suggestions);
+        CareSuggestionVO vo = healthAiSuggestionService.getCareSuggestionVo(elderId);
+        if (vo == null) {
+            // 无缓存，降级到规则引擎
+            vo = healthAdviceService.getCareSuggestions(elderId);
+        }
+        return Result.success(vo);
     }
 
     /**
-     * 获取就医建议
+     * 获取就医建议（优先从AI缓存读取，无缓存则使用规则引擎）
      */
     @GetMapping("/{elderId}/medical-suggestions")
     public Result<MedicalSuggestionVO> getMedicalSuggestions(@PathVariable String elderId) {
-        MedicalSuggestionVO suggestions = healthAdviceService.getMedicalSuggestions(elderId);
-        return Result.success(suggestions);
+        MedicalSuggestionVO vo = healthAiSuggestionService.getMedicalSuggestionVo(elderId);
+        if (vo == null) {
+            vo = healthAdviceService.getMedicalSuggestions(elderId);
+        }
+        return Result.success(vo);
+    }
+
+    // ==================== AI图片识别（qwen-vl-plus）====================
+
+    /**
+     * 识别药品照片，提取结构化信息
+     */
+    @PostMapping("/{elderId}/recognize-prescription")
+    public Result<ImageUnderstandingService.PrescriptionRecognitionResult> recognizePrescription(
+            @PathVariable String elderId,
+            @RequestBody RecognizeImageDTO dto) {
+        Elder elder = elderMapper.selectById(elderId);
+        if (elder == null) {
+            throw new BusinessException(404, "老人档案不存在");
+        }
+        ImageUnderstandingService.PrescriptionRecognitionResult result =
+                imageUnderstandingService.recognizePrescription(dto.getImageData());
+        if (result == null) {
+            throw new BusinessException(500, "图片识别失败，请上传清晰的药品照片");
+        }
+        return Result.success(result);
+    }
+
+    /**
+     * 识别化验单/检查报告
+     */
+    @PostMapping("/{elderId}/recognize-lab-report")
+    public Result<ImageUnderstandingService.LabReportResult> recognizeLabReport(
+            @PathVariable String elderId,
+            @RequestBody RecognizeImageDTO dto) {
+        Elder elder = elderMapper.selectById(elderId);
+        if (elder == null) {
+            throw new BusinessException(404, "老人档案不存在");
+        }
+        ImageUnderstandingService.LabReportResult result =
+                imageUnderstandingService.recognizeLabReport(dto.getImageData());
+        if (result == null) {
+            throw new BusinessException(500, "图片识别失败，请上传清晰的化验单照片");
+        }
+        return Result.success(result);
     }
 }
