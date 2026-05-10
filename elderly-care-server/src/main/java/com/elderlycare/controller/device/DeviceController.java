@@ -28,6 +28,10 @@ public class DeviceController {
             @RequestHeader("X-Device-SN") String deviceSn,
             @RequestBody DevicePushDTO dto
     ) {
+        if (deviceSn == null || deviceSn.isBlank()) {
+            log.warn("设备推送请求缺少X-Device-SN头");
+            return Result.error("缺少设备序列号");
+        }
         log.info("收到设备推送: deviceSn={}", deviceSn);
         dto.setDeviceSn(deviceSn);
         deviceService.handlePushData(dto);

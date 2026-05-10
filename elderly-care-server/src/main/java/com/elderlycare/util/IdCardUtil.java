@@ -1,13 +1,11 @@
 package com.elderlycare.util;
 
+import lombok.extern.slf4j.Slf4j;
 import java.time.LocalDate;
 import java.time.Period;
 import java.time.format.DateTimeFormatter;
 
-/**
- * 身份证号码工具类
- * 18位身份证：第7-14位为出生日期，第17位为性别（奇数男，偶数女）
- */
+@Slf4j
 public class IdCardUtil {
 
     /**
@@ -36,7 +34,8 @@ public class IdCardUtil {
             int birthYear = Integer.parseInt(idCard.substring(6, 10));
             int currentYear = java.time.Year.now().getValue();
             return currentYear - birthYear;
-        } catch (Exception e) {
+        } catch (NumberFormatException e) {
+            log.warn("身份证号格式异常，年份无法解析: {}", idCard);
             return null;
         }
     }

@@ -258,10 +258,16 @@ public class ContractServiceImpl implements ContractService {
 
         // 已签署/已完成：获取PDF下载链接
         if ("SIGNED".equals(contract.getStatus()) || "COMPLETED".equals(contract.getStatus())) {
+            if (contract.getFlowId() == null) {
+                throw new BusinessException(400, "合同流ID为空，无法获取下载链接");
+            }
             return getTencentDownloadUrl(contract.getFlowId());
         }
 
         // 其他状态：获取预览链接（腾讯H5预览页）
+        if (contract.getFlowId() == null) {
+            throw new BusinessException(400, "合同流ID为空，无法获取预览链接");
+        }
         return getTencentPreviewUrl(contract.getFlowId());
     }
 
@@ -504,7 +510,7 @@ public class ContractServiceImpl implements ContractService {
 
         if (essConfig.getOperatorId() == null || essConfig.getOperatorId().isEmpty()) {
             log.warn("未配置操作人UserId，使用模拟签署链接");
-            return "https://ess.gz.gov.cn/mock-sign?flowId=" + flowId;
+            return "https://ess.gz.gov.cn/mock-sign?flowId=" + flowId + "&mock=true";
         }
 
         try {
@@ -543,11 +549,11 @@ public class ContractServiceImpl implements ContractService {
             }
 
             log.warn("腾讯电子签返回空签署链接");
-            return "https://ess.gz.gov.cn/mock-sign?flowId=" + flowId;
+            return "https://ess.gz.gov.cn/mock-sign?flowId=" + flowId + "&mock=true";
 
         } catch (Exception e) {
             log.error("调用CreateFlowSignUrl失败", e);
-            return "https://ess.gz.gov.cn/mock-sign?flowId=" + flowId;
+            return "https://ess.gz.gov.cn/mock-sign?flowId=" + flowId + "&mock=true";
         }
     }
 
@@ -559,7 +565,7 @@ public class ContractServiceImpl implements ContractService {
 
         if (essConfig.getOperatorId() == null || essConfig.getOperatorId().isEmpty()) {
             log.warn("未配置操作人UserId，使用模拟下载链接");
-            return "https://ess.gz.gov.cn/mock-download?flowId=" + flowId;
+            return "https://ess.gz.gov.cn/mock-download?flowId=" + flowId + "&mock=true";
         }
 
         try {
@@ -582,11 +588,11 @@ public class ContractServiceImpl implements ContractService {
             }
 
             log.warn("腾讯电子签返回空下载链接");
-            return "https://ess.gz.gov.cn/mock-download?flowId=" + flowId;
+return "https://ess.gz.gov.cn/mock-download?flowId=" + flowId + "&mock=true";
 
         } catch (Exception e) {
             log.error("调用DescribeFileUrls失败", e);
-            return "https://ess.gz.gov.cn/mock-download?flowId=" + flowId;
+return "https://ess.gz.gov.cn/mock-download?flowId=" + flowId + "&mock=true";
         }
     }
 
@@ -598,7 +604,7 @@ public class ContractServiceImpl implements ContractService {
 
         if (essConfig.getOperatorId() == null || essConfig.getOperatorId().isEmpty()) {
             log.warn("未配置操作人UserId，使用模拟预览链接");
-            return "https://ess.gz.gov.cn/mock-preview?flowId=" + flowId;
+            return "https://ess.gz.gov.cn/mock-preview?flowId=" + flowId + "&mock=true";
         }
 
         try {
@@ -621,11 +627,11 @@ public class ContractServiceImpl implements ContractService {
             }
 
             log.warn("腾讯电子签返回空预览链接");
-            return "https://ess.gz.gov.cn/mock-preview?flowId=" + flowId;
+            return "https://ess.gz.gov.cn/mock-preview?flowId=" + flowId + "&mock=true";
 
         } catch (Exception e) {
             log.error("调用CreateFlowSignUrl(预览)失败", e);
-            return "https://ess.gz.gov.cn/mock-preview?flowId=" + flowId;
+            return "https://ess.gz.gov.cn/mock-preview?flowId=" + flowId + "&mock=true";
         }
     }
 
