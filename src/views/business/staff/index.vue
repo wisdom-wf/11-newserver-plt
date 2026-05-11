@@ -2,6 +2,7 @@
 import { ref, h, onMounted, watch, computed } from 'vue';
 import { NButton, NCard, NTag, NSpace, NInput, NSelect, NDrawer, NDrawerContent, useMessage, NImage, NUpload, NGrid, NGi, NPopconfirm, NTabs, NTabPane, NAvatar, NRate, NEmpty, NSpin, NModal, NAlert, NDescriptions, NDescriptionsItem } from 'naive-ui';
 import PersonCard from '@/components/common/person-card.vue';
+import LazyImage from '@/components/common/lazy-image.vue';
 import type { DataTableColumns } from 'naive-ui';
 import { useNaiveForm, useFormRules } from '@/hooks/common/form';
 import { useNaivePaginatedTable, useTableOperate, defaultTransform } from '@/hooks/common/table';
@@ -695,7 +696,7 @@ onMounted(async () => {
               <!-- Avatar and Basic Info -->
               <div style="display: flex; gap: 16px; margin-bottom: 24px; align-items: flex-start">
                 <div style="width: 80px; height: 80px; border-radius: 8px; overflow: hidden; flex-shrink: 0">
-                  <NImage v-if="detailData.avatarUrl" :src="detailData.avatarUrl" width="80" height="80" object-fit="cover" />
+                  <LazyImage v-if="detailData.avatarUrl" :src="detailData.avatarUrl" :width="80" :height="80" fit="cover" />
                   <NAvatar v-else :size="80" round style="background: #5394ec; color: #fff; font-size: 24px">{{ detailData.staffName?.charAt(0) || '?' }}</NAvatar>
                 </div>
                 <div style="flex: 1">

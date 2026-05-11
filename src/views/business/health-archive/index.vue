@@ -28,6 +28,7 @@ import {
   NAvatar
 } from 'naive-ui';
 import PersonCard from '@/components/common/person-card.vue';
+import LazyImage from '@/components/common/lazy-image.vue';
 import type { DataTableColumns, UploadFile } from 'naive-ui';
 import {
   fetchGetElderList,
@@ -527,7 +528,7 @@ const reportColumns: DataTableColumns<Api.Elder.HealthReportVO> = [
     key: 'coverImageUrl',
     width: 80,
     render: row => row.coverImageUrl
-      ? h(NImage, { src: row.coverImageUrl, width: 48, height: 48, objectFit: 'cover', style: 'border-radius:4px', previewDisabled: true })
+      ? h(LazyImage, { src: row.coverImageUrl, width: 48, height: 48, fit: 'cover' })
       : h('span', { style: 'color:#ccc' }, '无')
   },
   { title: '报告编号', key: 'reportNo', width: 180 },
@@ -694,11 +695,12 @@ onMounted(async () => {
     <!-- ===== 档案顶栏：老人信息概览 ===== -->
     <div v-if="selectedElder" class="archive-header">
       <div class="archive-header-left">
-        <NAvatar
+        <LazyImage
           :src="selectedElder.photoUrl"
-          :size="64"
-          round
-          style="flex-shrink:0; border: 3px solid #1E3A5F;"
+          :width="64"
+          :height="64"
+          fit="cover"
+          style="flex-shrink:0; border-radius:50%; border: 3px solid #1E3A5F;"
         />
         <div class="elder-info-stack">
           <div class="elder-name-row">
@@ -909,14 +911,12 @@ onMounted(async () => {
         <div v-if="reports.length > 0" class="report-grid">
           <div v-for="report in reports" :key="report.reportId" class="report-card">
             <div class="report-cover">
-              <NImage
+              <LazyImage
                 v-if="report.coverImageUrl"
                 :src="report.coverImageUrl"
-                width="100%"
-                height="120"
-                object-fit="cover"
-                style="border-radius: 12px 12px 0 0"
-                :preview-disabled="true"
+                :width="300"
+                :height="120"
+                fit="cover"
               />
               <div v-else class="report-cover-placeholder">
                 <span style="font-size:32px">📋</span>

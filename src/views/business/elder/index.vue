@@ -19,6 +19,7 @@ import { useNaivePaginatedTable, useTableOperate, defaultTransform } from '@/hoo
 import { useNaiveForm } from '@/hooks/common/form';
 import { useAuth } from '@/hooks/business/auth';
 import TableHeaderOperation from '@/components/advanced/table-header-operation.vue';
+import LazyImage from '@/components/common/lazy-image.vue';
 
 defineOptions({
   name: 'BusinessElder'
@@ -667,7 +668,7 @@ onMounted(async () => {
             <div style="display: flex; flex-wrap: wrap; gap: 8px; margin-bottom: 12px">
               <template v-if="detailData.healthPhotos && detailData.healthPhotos.length > 0">
                 <div v-for="(photo, index) in detailData.healthPhotos" :key="index" style="position: relative; width: 80px; height: 80px">
-                  <NImage :src="photo" width="80" height="80" object-fit="cover" style="border-radius: 4px" />
+                  <LazyImage :src="photo" :width="80" :height="80" fit="cover" />
                   <div style="position: absolute; top: -8px; right: -8px; width: 20px; height: 20px; background: #ff4d4f; border-radius: 50%; color: white; font-size: 12px; display: flex; align-items: center; justify-content: center; cursor: pointer" @click="removeDetailPhoto(photo)">×</div>
                 </div>
               </template>

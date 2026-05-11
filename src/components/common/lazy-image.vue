@@ -69,8 +69,10 @@ onUnmounted(() => {
       justifyContent: 'center'
     }"
   >
-    <!-- 占位/加载中 -->
-    <div v-if="!loaded && !error" style="color: #ccc; font-size: 24px">⏳</div>
+    <!-- 占位/加载中：骨架屏脉冲动画 -->
+    <div v-if="!loaded && !error" class="lazy-skeleton">
+      <div class="lazy-shimmer"></div>
+    </div>
 
     <!-- 加载失败 -->
     <div v-if="error" style="color: #ccc; font-size: 24px">📷</div>
@@ -91,3 +93,28 @@ onUnmounted(() => {
     />
   </div>
 </template>
+
+<style scoped>
+.lazy-skeleton {
+  position: absolute;
+  inset: 0;
+  background: #f0f0f0;
+  border-radius: 4px;
+  overflow: hidden;
+}
+.lazy-shimmer {
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(
+    90deg,
+    transparent 0%,
+    rgba(255, 255, 255, 0.4) 50%,
+    transparent 100%
+  );
+  animation: shimmer 1.4s infinite;
+}
+@keyframes shimmer {
+  0% { transform: translateX(-100%); }
+  100% { transform: translateX(100%); }
+}
+</style>
