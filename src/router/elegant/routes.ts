@@ -51,26 +51,6 @@ export const generatedRoutes: GeneratedRoute[] = [
     }
   },
   {
-    name: 'builtin',
-    path: '/builtin',
-    component: 'layout.base',
-    meta: {
-      title: 'builtin',
-      i18nKey: 'route.builtin'
-    },
-    children: [
-      {
-        name: 'builtin_rd-report',
-        path: '/builtin/rd-report',
-        component: 'view.builtin_rd-report',
-        meta: {
-          title: 'builtin_rd-report',
-          i18nKey: 'route.builtin_rd-report'
-        }
-      }
-    ]
-  },
-  {
     name: 'business',
     path: '/business',
     component: 'layout.base',
