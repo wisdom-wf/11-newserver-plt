@@ -1,6 +1,6 @@
 import { test, expect } from '@playwright/test';
 
-const FRONTEND_URL = 'http://localhost:18080';
+const FRONTEND_URL = '';
 const BACKEND_URL = 'https://wisdomdance.cn/jxy/api';
 
 test.describe('STAFF/PROVIDER 动态菜单权限测试', () => {

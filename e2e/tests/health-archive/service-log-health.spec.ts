@@ -10,14 +10,15 @@ import { test, expect, Page } from '@playwright/test';
  * - 表单抽屉有"健康观察备注"和"本次给药记录"字段
  */
 
-const BASE_URL = 'http://localhost:9527';
+const BASE_URL = '';
 const API_BASE = 'https://wisdomdance.cn/jxy/api';
 
 /**
  * Auth via localStorage (SOY_ prefix required by VITE_STORAGE_PREFIX=SOY_)
  */
 async function setupAuth(page: Page) {
-  await page.goto(`${BASE_URL}/login`);
+  await page.goto(`${BASE_URL}/login/pwd-login`);
+  await page.waitForLoadState('networkidle').catch(() => {});
   await page.fill('input[type="text"], input[placeholder*="用户名"]', 'admin');
   await page.fill('input[type="password"]', 'admin123');
   await page.click('button[type="submit"], button:has-text("确认")');

@@ -9,15 +9,15 @@ import { test, expect, Page } from '@playwright/test';
  */
 
 const BACKEND_URL = 'https://wisdomdance.cn/jxy/api';
-const FRONTEND_URL = 'http://localhost:9527';
+const FRONTEND_URL = '';
 
 test.describe('预约确认功能', () => {
   /**
    * 登录辅助函数 - 使用真实账号登录
    */
-  async function login(page: Page) {
-    await page.goto(`${FRONTEND_URL}/login/pwd-login`);
-    await page.waitForLoadState('networkidle').catch(() => {});
+async function login(page: any) {
+  await page.goto(`${FRONTEND_URL}/login/pwd-login`);
+  await page.waitForLoadState('networkidle').catch(() => {});
 
     await page.locator('input[placeholder="请输入用户名"]').fill('admin');
     await page.locator('input[placeholder="请输入密码"]').fill('admin123');

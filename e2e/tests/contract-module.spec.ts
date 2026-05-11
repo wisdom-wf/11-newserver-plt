@@ -5,8 +5,8 @@ import { test, expect } from '@playwright/test';
  * 覆盖范围：合同API + 订单页合同联动 + 合同管理页面
  */
 
-const BASE_URL = 'http://localhost:9527';
-const API_URL = 'http://localhost:8080';
+const BASE_URL = '';  // uses playwright baseURL
+const API_URL = 'https://wisdomdance.cn/jxy/api';
 
 let adminToken = '';
 

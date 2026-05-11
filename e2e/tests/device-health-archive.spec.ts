@@ -11,8 +11,8 @@ import { test, expect } from '@playwright/test';
  * 5. 手动填写测量记录
  */
 
-const BASE_URL = 'http://localhost:9527';
-const API_URL = 'http://localhost:8080';
+const BASE_URL = '';  // uses playwright baseURL
+const API_URL = 'https://wisdomdance.cn/jxy/api';
 
 let adminToken = '';
 

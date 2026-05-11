@@ -1,7 +1,7 @@
 import { test, Page } from '@playwright/test';
 import * as fs from 'fs';
 
-const BASE_URL = 'http://localhost:9527';
+const BASE_URL = '';
 
 async function login(page: Page) {
   await page.goto(`${BASE_URL}/login`);

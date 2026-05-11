@@ -63,7 +63,8 @@ test.describe('Order API Tests', () => {
       headers: { Authorization: `Bearer ${adminToken}` },
       data: {
         elderId,
-        serviceType: 'housekeeping',
+        serviceTypeCode: 'DOOR_TO_DOOR',
+        serviceTypeName: '上门服务',
         scheduledTime: new Date(Date.now() + 86400000).toISOString(),
         address: '测试地址',
         contactName: '测试联系人',
@@ -159,7 +160,8 @@ test.describe('Order API Tests', () => {
       headers: { Authorization: `Bearer ${adminToken}` },
       data: {
         elderId,
-        serviceType: 'housekeeping',
+        serviceTypeCode: 'DOOR_TO_DOOR',
+        serviceTypeName: '上门服务',
         scheduledTime: new Date(Date.now() + 86400000).toISOString(),
         address: '测试地址',
         contactName: '测试联系人',
@@ -186,7 +188,8 @@ test.describe('Order API Tests', () => {
       headers: { Authorization: `Bearer ${adminToken}` },
       data: {
         elderId,
-        serviceType: 'housekeeping',
+        serviceTypeCode: 'DOOR_TO_DOOR',
+        serviceTypeName: '上门服务',
         scheduledTime: new Date(Date.now() + 86400000).toISOString(),
         address: '测试地址',
         contactName: '测试联系人',

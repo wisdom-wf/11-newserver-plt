@@ -8,7 +8,7 @@ import { test, expect, Page } from '@playwright/test';
  *   - 服务日志页面支持 staffId 参数筛选
  *   - StaffController 新增 getServiceLogs API
  */
-const BASE_URL = 'http://localhost:9527';
+const BASE_URL = '';
 const API_BASE = 'https://wisdomdance.cn/jxy/api';
 
 /**

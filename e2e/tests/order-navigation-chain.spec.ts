@@ -10,7 +10,7 @@
 import { test, expect } from '@playwright/test';
 
 const API_BASE = 'https://wisdomdance.cn/jxy/api';
-const FRONTEND = 'http://localhost:9527';
+const FRONTEND = '';
 
 // ============================================================================
 // TC-NAV-API-01~08: API 层验证

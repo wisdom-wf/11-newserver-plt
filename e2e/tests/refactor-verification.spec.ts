@@ -5,7 +5,7 @@ import { test, expect, Page } from '@playwright/test';
  * 测试目标：验证批量删除、满意度调查发起、统计查询等修复
  */
 
-const FRONTEND_URL = 'http://localhost:9527';
+const FRONTEND_URL = '';
 const BACKEND_URL = 'https://wisdomdance.cn/jxy/api';
 
 test.describe('批量删除功能', () => {

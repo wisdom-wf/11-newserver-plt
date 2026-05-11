@@ -10,10 +10,11 @@ import { test, expect, Page } from '@playwright/test';
  * 已知：数据库仅有2条老人记录
  */
 
-const BASE_URL = 'http://localhost:9527';
+const BASE_URL = '';
 
 async function setupAuth(page: Page) {
-  await page.goto(`${BASE_URL}/login`);
+  await page.goto(`${BASE_URL}/login/pwd-login`);
+  await page.waitForLoadState('networkidle').catch(() => {});
   await page.fill('input[type="text"], input[placeholder*="用户名"]', 'admin');
   await page.fill('input[type="password"]', 'admin123');
   await page.click('button[type="submit"], button:has-text("确认")');

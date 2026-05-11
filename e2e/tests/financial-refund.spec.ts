@@ -15,7 +15,7 @@ import { test, expect, Page } from '@playwright/test';
  * - 审核结果：APPROVED / REJECTED
  */
 
-const BASE_URL = 'http://localhost:9527';
+const BASE_URL = '';
 const API_BASE = 'https://wisdomdance.cn/jxy/api';
 
 async function getToken(page: Page, username = 'admin', password = 'admin123') {

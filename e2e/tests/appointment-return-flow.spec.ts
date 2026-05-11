@@ -4,8 +4,8 @@ const BASE_URL = 'https://wisdomdance.cn/jxy';
 
 // Login helper
 async function login(page: any) {
-  await page.goto(`${BASE_URL}/login`);
-  await page.waitForLoadState('networkidle');
+  await page.goto(`${BASE_URL}/login/pwd-login`);
+  await page.waitForLoadState('networkidle').catch(() => {});
   const userInput = page.locator('input[placeholder*="用户"]').first();
   const pwdInput = page.locator('input[type="password"]').first();
   await userInput.fill('admin');

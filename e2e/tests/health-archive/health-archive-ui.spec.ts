@@ -10,7 +10,7 @@ import { test, expect, Page } from '@playwright/test';
  * - Database has at least one elder record
  */
 
-const BASE_URL = 'http://localhost:9527';
+const BASE_URL = '';
 const API_BASE = 'https://wisdomdance.cn/jxy/api';
 
 /**
@@ -18,21 +18,25 @@ const API_BASE = 'https://wisdomdance.cn/jxy/api';
  * This approach is more reliable than UI login in E2E tests
  */
 async function setupAuthenticatedPage(page: Page, username: string, password: string) {
-  await page.goto(`${BASE_URL}/login`);
+  // Login via API and set token in localStorage (matching UI login flow)
+  const loginResp = await page.request.post(`${API_BASE}/auth/login`, {
+    data: { username, password }
+  });
+  if (!loginResp.ok()) return;
 
-  // Fill login form
-  await page.fill('input[type="text"], input[placeholder*="用户名"]', username);
-  await page.fill('input[type="password"]', password);
+  const token = (await loginResp.json()).data?.accessToken;
+  if (!token) return;
 
-  // Click login button
-  await page.click('button[type="submit"], button:has-text("确认")');
-
-  // Wait for redirect away from login (could be /home or /business/**)
-  await page.waitForURL(`**/home**`, { timeout: 15000 });
-
-  // Wait for page to fully load
-  await page.waitForLoadState('networkidle');
-  await page.waitForTimeout(1000);
+  // Set localStorage so subsequent page.goto() calls are authenticated
+  await page.goto(`${BASE_URL}/login/pwd-login`);
+  await page.waitForLoadState('domcontentloaded');
+  await page.evaluate(
+    (tk) => {
+      localStorage.setItem('SOY_accessToken', tk);
+      localStorage.setItem('SOY_token', JSON.stringify(tk));
+    },
+    token
+  );
 }
 
 /**
