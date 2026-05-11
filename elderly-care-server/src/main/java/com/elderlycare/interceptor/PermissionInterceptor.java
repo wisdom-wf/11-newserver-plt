@@ -43,7 +43,27 @@ public class PermissionInterceptor implements HandlerInterceptor {
         if (roles != null && roles.contains("SUPER_ADMIN")) {
             return true;
         }
+
+        // PROVIDER 和 STAFF 角色：放行核心业务查询端点（数据隔离由 Service 层保证）
+        String userType = UserContext.getUserType();
         String requestMethod = request.getMethod();
+        if ("PROVIDER".equals(userType) || "STAFF".equals(userType)) {
+            if (requestMethod.equals("GET")) {
+                return true;
+            }
+            // PROVIDER 放行以下写操作端点（数据隔离由 Service 层保证）
+            if ("PROVIDER".equals(userType) && (
+                    requestUri.contains("/api/financial/settlements") ||
+                    requestUri.contains("/api/orders") ||
+                    requestUri.contains("/api/service-log") ||
+                    requestUri.contains("/api/quality-check") ||
+                    requestUri.contains("/api/evaluations") ||
+                    requestUri.contains("/api/appointment") ||
+                    requestUri.contains("/api/staff")
+            )) {
+                return true;
+            }
+        }
 
         // 检查用户权限列表中是否有匹配的 URL+Method
         List<String> permissionUrls = UserContext.getPermissionUrls();
