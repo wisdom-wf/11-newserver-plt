@@ -1,3 +1,51 @@
+# 变更说明 v2026-05-11
+
+## 主题：移除研发报告模块（route.builtin 清理）
+
+### 背景
+系统顶部左侧出现 `route.builtin` 菜单项（显示"研发报告"子菜单），影响用户体验。研发报告功能从未实际使用，本次彻底移除。
+
+---
+
+## 变更内容
+
+### 1. 删除研发报告视图
+- `src/views/builtin/rd-report/index.vue` — 已删除
+
+### 2. Footer 清理
+`src/layouts/modules/global-footer/index.vue`：
+- 移除 `useRouter` 引入
+- 移除"研发报告"链接和分隔符
+- 仅保留版权信息一行
+
+### 3. 路由生成（elegant-router 自动重生成）
+删视图后 `npm run build` 自动更新以下文件：
+
+| 文件 | 变更 |
+|------|------|
+| `src/router/elegant/routes.ts` | `builtin` + `builtin_rd-report` 路由消失 |
+| `src/router/elegant/imports.ts` | `builtin_rd-report` 组件导入消失 |
+| `src/router/elegant/transform.ts` | `routeMap` 中 rd-report 相关条目消失 |
+| `src/typings/elegant-router.d.ts` | 移除 `BuiltinRdReport` 类型 |
+
+### 4. 翻译清理
+`src/locales/langs/zh-cn.ts` 中以下翻译不再被引用（保留但无效）：
+- `builtin_rd_report: '研发报告'`
+- `'builtin_rd-report': '研发报告'`
+
+---
+
+## 生产部署
+- 前端已部署至 `https://wisdomdance.cn/jxy/`
+- 后端正常运行（pid 1314969，port 8080）
+
+---
+
+## 相关文档
+- 旧版变更记录：`docs/CHANGELOG_20260427.md`
+
+---
+
 # 变更说明 v2026-04-27
 
 ## 主题：预约→订单→服务日志→质检→评价 业务链路串联
