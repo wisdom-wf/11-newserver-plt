@@ -2,7 +2,25 @@
 
 ## 本次变更
 
-### 1. 批量删除接口修复
+### 1. PermissionInterceptor 权限修复
+**问题**：PROVIDER/STAFF 角色调用业务接口全部返回 403
+
+**根因**：生产环境 `t_permission` 表中 FWS1 等 PROVIDER 账号无任何权限记录，导致 `PermissionInterceptor` 拦截所有请求
+
+**修复**：
+- GET 请求：PROVIDER/STAFF 全部放行（数据隔离由 Service 层 `query.setProviderId(autoPid)` 实现）
+- PROVIDER 写操作放行：orders、service-log、quality-check、evaluations、appointment、staff、financial/settlements
+
+**验证**：FWS1 账号 8 个核心 API 端点（GET+POST）全部 HTTP 200 ✅
+
+### 2. Playwright 测试生产环境适配
+**修改**：所有测试文件 API URL 从 `localhost:8080` 切换为 `https://wisdomdance.cn/jxy/api`
+- `playwright.config.ts`：baseURL 改为生产地址
+- 24 个测试文件：API 端点路径补全 `/jxy/api` 前缀
+
+---
+
+### 3. 批量删除接口修复
 **问题**：`Request method 'DELETE' is not supported`
 
 **修复**：
@@ -19,14 +37,14 @@
 - 服务人员 (staff)
 - 服务商管理 (provider)
 
-### 2. 登录接口增强
+### 4. 登录接口增强
 **新增**：手机号登录支持
 
 - 新增 `PhoneLoginDTO` 用于手机号登录
 - 新增验证码服务 `CaptchaService`
 - 后端 `AuthController` / 前端 `auth.ts` 同步更新
 
-### 3. 路由参数传递功能
+### 5. 路由参数传递功能
 **功能**：列表页支持URL参数自动填入搜索条件
 
 - 订单列表：`orderNo`、`elderName` 参数
@@ -39,7 +57,7 @@
 - 新增 `e2e/tests/elder-usability.spec.ts` 老人档案易用性测试
 - 所有6个测试用例通过
 
-### 4. 老人档案易用性测试
+### 6. 老人档案易用性测试
 - TC-1: 搜索效率 - 61ms，2步完成
 - TC-2: 详情查看 - 207ms，1步完成
 - TC-4: 表单验证 - 12个错误提示，清晰明确
