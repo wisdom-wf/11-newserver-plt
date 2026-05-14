@@ -386,7 +386,7 @@ public class StatisticsServiceImpl implements StatisticsService {
             item.setProviderId(toString(row.get("providerId")));
             item.setProviderName(toString(row.get("providerName")));
             item.setOrderCount(toLong(row.get("orderCount")));
-            item.setRating(toDoubleOrNull(row.get("rating")));
+            item.setRating(toDouble(row.get("rating")));
             list.add(item);
         }
         return list;
