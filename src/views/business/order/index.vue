@@ -1205,7 +1205,7 @@ onMounted(async () => {
         <div class="stat-card stat-error">
           <div class="stat-label">已取消</div>
           <div class="stat-value">{{ statistics.cancelled }}</div>
-          <div class="stat-sub">取消率 {{ Number(statistics.cancelRate || 0).toFixed(1) }}%</div>
+          <div class="stat-sub">取消率 {{ statistics.cancelRate != null ? (Number(statistics.cancelRate) === 0 ? '0%' : Number(statistics.cancelRate).toFixed(1) + '%') : '--' }}</div>
         </div>
       </div>
       <!-- 第二行：状态分布 -->
