@@ -175,10 +175,10 @@ const columns: DataTableColumns<any> = [
       const actions = [];
       if (row.status === 'UNPAID' || row.status === 'PENDING') {
         actions.push(
-          h(NButton, { size: 'small', type: 'success', onClick: () => handleConfirm(row), style: { marginRight: '8px' } }, () => '确认结算')
+          h(NButton, { size: 'small', type: 'success', onClick: () => handleConfirm(row), style: 'white-space: nowrap' }, () => '确认结算')
         );
       }
-      return h(NSpace, null, () => actions);
+      return h('div', { style: 'display: flex; flex-wrap: nowrap; gap: 6px; align-items: center' }, () => actions);
     }
   }
 ];

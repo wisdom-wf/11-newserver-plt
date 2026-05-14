@@ -110,16 +110,16 @@ const columns: DataTableColumns<Api.Ess.Contract> = [
     fixed: 'right',
     render: row => {
       const buttons: any[] = [];
-      buttons.push(h(NButton, { size: 'small', onClick: () => showDetail(row) }, () => '详情'));
-      buttons.push(h(NButton, { size: 'small', onClick: () => handlePreview(row) }, () => '查看'));
+      buttons.push(h(NButton, { size: 'small', onClick: () => showDetail(row), style: 'white-space: nowrap' }, () => '详情'));
+      buttons.push(h(NButton, { size: 'small', onClick: () => handlePreview(row), style: 'white-space: nowrap' }, () => '查看'));
       if (row.status === 'SIGNED' || row.status === 'COMPLETED') {
-        buttons.push(h(NButton, { size: 'small', onClick: () => handleDownload(row) }, () => '下载'));
-        buttons.push(h(NButton, { size: 'small', onClick: () => handlePrint(row) }, () => '打印'));
+        buttons.push(h(NButton, { size: 'small', onClick: () => handleDownload(row), style: 'white-space: nowrap' }, () => '下载'));
+        buttons.push(h(NButton, { size: 'small', onClick: () => handlePrint(row), style: 'white-space: nowrap' }, () => '打印'));
       }
       if (isAdmin) {
-        buttons.push(h(NButton, { size: 'small', type: 'error', onClick: () => handleDelete(row) }, () => '删除'));
+        buttons.push(h(NButton, { size: 'small', type: 'error', onClick: () => handleDelete(row), style: 'white-space: nowrap' }, () => '删除'));
       }
-      return h(NSpace, { size: 'small' }, () => buttons);
+      return h('div', { style: 'display: flex; flex-wrap: nowrap; gap: 6px; align-items: center' }, () => buttons);
     }
   }
 ];

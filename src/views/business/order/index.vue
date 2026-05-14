@@ -395,18 +395,18 @@ const columns: DataTableColumns<Api.Order.Order> = [
     render: row => {
       const buttons: ReturnType<typeof h>[] = [];
       // 详情按钮 - 始终显示
-      buttons.push(h(NButton, { size: 'small', onClick: () => handleDetail(row) }, () => '详情'));
+      buttons.push(h(NButton, { size: 'small', onClick: () => handleDetail(row), style: 'white-space: nowrap' }, () => '详情'));
       if ((row.status === 'CREATED' || row.status === 'PENDING') && hasAuth('order:list:dispatch')) {
-        buttons.push(h(NButton, { size: 'small', onClick: () => handleAssign(row) }, () => '分配'));
+        buttons.push(h(NButton, { size: 'small', onClick: () => handleAssign(row), style: 'white-space: nowrap' }, () => '分配'));
       }
       if (row.status === 'DISPATCHED') {
-        buttons.push(h(NButton, { size: 'small', onClick: () => handleAccept(row) }, () => '接单'));
+        buttons.push(h(NButton, { size: 'small', onClick: () => handleAccept(row), style: 'white-space: nowrap' }, () => '接单'));
       }
       if (row.status === 'RECEIVED') {
-        buttons.push(h(NButton, { size: 'small', onClick: () => handleStart(row) }, () => '开始服务'));
+        buttons.push(h(NButton, { size: 'small', onClick: () => handleStart(row), style: 'white-space: nowrap' }, () => '开始服务'));
       }
       if (row.status === 'SERVICE_STARTED') {
-        buttons.push(h(NButton, { size: 'small', onClick: () => handleComplete(row) }, () => '完成服务'));
+        buttons.push(h(NButton, { size: 'small', onClick: () => handleComplete(row), style: 'white-space: nowrap' }, () => '完成服务'));
       }
       // 已完成订单支持删除
       if (
@@ -420,7 +420,7 @@ const columns: DataTableColumns<Api.Order.Order> = [
               onPositiveClick: () => handleDelete(row)
             },
             {
-              trigger: () => h(NButton, { size: 'small', type: 'error' }, { default: () => '删除' }),
+              trigger: () => h(NButton, { size: 'small', type: 'error', style: 'white-space: nowrap' }, { default: () => '删除' }),
               default: () => '确认删除?'
             }
           )
@@ -434,9 +434,9 @@ const columns: DataTableColumns<Api.Order.Order> = [
         row.status !== 'REJECTED' &&
         hasAuth('order:list:cancel')
       ) {
-        buttons.push(h(NButton, { size: 'small', type: 'error', onClick: () => handleCancel(row) }, () => '退回'));
+        buttons.push(h(NButton, { size: 'small', type: 'error', onClick: () => handleCancel(row), style: 'white-space: nowrap' }, () => '退回'));
       }
-      return h(NSpace, { size: 'small' }, () => buttons);
+      return h('div', { style: 'display: flex; flex-wrap: nowrap; gap: 6px; align-items: center' }, () => buttons);
     }
   }
 ];

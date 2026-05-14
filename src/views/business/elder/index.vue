@@ -240,9 +240,9 @@ const columns: DataTableColumns<Api.Elder.Elder> = [
     fixed: 'right',
     render: row => {
       const buttons = [];
-      buttons.push(h(NButton, { size: 'small', type: 'info', onClick: () => showDetail(row), style: { marginRight: '8px' } }, () => '详情'));
+      buttons.push(h(NButton, { size: 'small', type: 'info', onClick: () => showDetail(row), style: 'white-space: nowrap' }, () => '详情'));
       if (hasAuth('elder:list:edit')) {
-        buttons.push(h(NButton, { size: 'small', onClick: () => handleOpenEdit(row.elderId), style: { marginRight: '8px' } }, () => '编辑'));
+        buttons.push(h(NButton, { size: 'small', onClick: () => handleOpenEdit(row.elderId), style: 'white-space: nowrap' }, () => '编辑'));
       }
       if (hasAuth('elder:list:delete')) {
         buttons.push(
@@ -252,13 +252,13 @@ const columns: DataTableColumns<Api.Elder.Elder> = [
               onPositiveClick: () => handleDelete(row.elderId)
             },
             {
-              trigger: () => h(NButton, { size: 'small', type: 'error' }, { default: () => '删除' }),
+              trigger: () => h(NButton, { size: 'small', type: 'error', style: 'white-space: nowrap' }, { default: () => '删除' }),
               default: () => '确认删除?'
             }
           )
         );
       }
-      return h(NSpace, { size: 'small' }, () => buttons);
+      return h('div', { style: 'display: flex; flex-wrap: nowrap; gap: 6px; align-items: center' }, () => buttons);
     }
   }
 ];
