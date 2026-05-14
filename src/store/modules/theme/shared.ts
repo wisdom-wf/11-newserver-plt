@@ -279,14 +279,7 @@ export function getNaiveTheme(
       textColorPressedPrimary: '#FFFFFF',
       borderPrimary: 'none',
       borderHoverPrimary: 'none',
-      borderPressedPrimary: 'none',
-      // Quaternary 按钮政务蓝文字色
-      colorQuaternary: '#1E3A5F',
-      colorHoverQuaternary: '#2B5290',
-      colorPressedQuaternary: '#152B47',
-      textColorQuaternary: '#1E3A5F',
-      textColorHoverQuaternary: '#2B5290',
-      textColorPressedQuaternary: '#152B47'
+      borderPressedPrimary: 'none'
     },
     Card: {
       borderRadius: `${settings.themeRadius + 4}px`,

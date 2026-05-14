@@ -199,9 +199,9 @@ const columns: DataTableColumns<Api.Staff.Staff> = [
     fixed: 'right',
     render: row => {
       const buttons: any[] = [];
-      buttons.push(h(NButton, { size: 'small', type: 'info', onClick: () => showDetail(row), style: 'white-space: nowrap' }, () => '详情'));
+      buttons.push(h(NButton, { size: 'small', type: 'info', onClick: () => showDetail(row), style: { marginRight: '8px' } }, () => '详情'));
       if (hasAuth('staff:list:edit')) {
-        buttons.push(h(NButton, { size: 'small', onClick: () => handleEdit(row.staffId), style: 'white-space: nowrap' }, () => '编辑'));
+        buttons.push(h(NButton, { size: 'small', onClick: () => handleEdit(row.staffId), style: { marginRight: '8px' } }, () => '编辑'));
       }
       if (hasAuth('staff:list:delete')) {
         buttons.push(
@@ -211,13 +211,13 @@ const columns: DataTableColumns<Api.Staff.Staff> = [
               onPositiveClick: () => handleDelete(row.staffId)
             },
             {
-              trigger: () => h(NButton, { size: 'small', type: 'error', style: 'white-space: nowrap' }, { default: () => '删除' }),
+              trigger: () => h(NButton, { size: 'small', type: 'error' }, { default: () => '删除' }),
               default: () => '确认删除?'
             }
           )
         );
       }
-      return h('div', { style: 'display: flex; flex-wrap: nowrap; gap: 6px; align-items: center' }, () => buttons);
+      return h(NSpace, { size: 'small' }, () => buttons);
     }
   }
 ];

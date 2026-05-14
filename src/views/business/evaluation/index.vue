@@ -369,19 +369,19 @@ const columns: DataTableColumns<any> = [
     width: 160,
     fixed: 'right',
     render: row =>
-      h('div', { style: 'display: flex; flex-wrap: nowrap; gap: 6px; align-items: center' }, () => [
-        h(NButton, { size: 'small', type: 'primary', onClick: () => showEvalDetail(row), style: 'white-space: nowrap' }, () => '查看'),
-        h(NButton, { size: 'small', type: 'info', onClick: () => openInviteDialog(row), style: 'white-space: nowrap' }, () => '邀请'),
+      h(NSpace, { size: 'small' }, () => [
+        h(NButton, { size: 'small', type: 'primary', onClick: () => showEvalDetail(row) }, () => '查看'),
+        h(NButton, { size: 'small', type: 'info', onClick: () => openInviteDialog(row) }, () => '邀请'),
         h(NButton, {
           size: 'small',
           type: 'warning',
-          style: 'white-space: nowrap',
+          style: 'margin-left: 4px',
           onClick: () => router.push({ path: '/business/order', query: { orderNo: row.orderNo } })
         }, () => '订单'),
         h(NButton, {
           size: 'small',
           type: 'success',
-          style: 'white-space: nowrap',
+          style: 'margin-left: 4px',
           onClick: () => router.push({ path: '/business/quality', query: { qcId: row.qualityCheckId } })
         }, () => '质检')
       ])

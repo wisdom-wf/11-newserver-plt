@@ -257,11 +257,11 @@ const columns: DataTableColumns<Api.ServiceLog.ServiceLog> = [
     fixed: 'right',
     render: (row: Api.ServiceLog.ServiceLog) => {
       const buttons = [];
-      buttons.push(h(NButton, { size: 'small', onClick: () => showDetail(row), style: 'white-space: nowrap' }, { default: () => '详情' }));
+      buttons.push(h(NButton, { size: 'small', onClick: () => showDetail(row) }, { default: () => '详情' }));
       if (!row.auditStatus || row.auditStatus === 'DRAFT') {
         if (hasAuth('service-log:list:edit')) {
           buttons.push(
-            h(NButton, { size: 'small', type: 'default', onClick: () => handleUpdate(row), style: 'white-space: nowrap' }, { default: () => '更新' }),
+            h(NButton, { size: 'small', type: 'default', onClick: () => handleUpdate(row) }, { default: () => '更新' }),
           );
         }
         buttons.push(
@@ -271,13 +271,13 @@ const columns: DataTableColumns<Api.ServiceLog.ServiceLog> = [
               onPositiveClick: () => handleDelete(row)
             },
             {
-              trigger: () => h(NButton, { size: 'small', type: 'error', style: 'white-space: nowrap' }, { default: () => '删除' }),
+              trigger: () => h(NButton, { size: 'small', type: 'error' }, { default: () => '删除' }),
               default: () => '确认删除?'
             }
           ),
           h(
             NButton,
-            { size: 'small', type: 'primary', onClick: () => handleSubmitReview(row), style: 'white-space: nowrap' },
+            { size: 'small', type: 'primary', onClick: () => handleSubmitReview(row) },
             { default: () => '提交审核' }
           )
         );
@@ -287,7 +287,7 @@ const columns: DataTableColumns<Api.ServiceLog.ServiceLog> = [
         buttons.push(
           h(
             NButton,
-            { size: 'small', type: 'warning', onClick: () => showReviewModal(row), style: 'white-space: nowrap' },
+            { size: 'small', type: 'warning', onClick: () => showReviewModal(row) },
             { default: () => '审核' }
           )
         );
@@ -297,7 +297,7 @@ const columns: DataTableColumns<Api.ServiceLog.ServiceLog> = [
         buttons.push(
           h(
             NButton,
-            { size: 'small', type: 'success', onClick: () => goToCompleteService(row), style: 'white-space: nowrap' },
+            { size: 'small', type: 'success', onClick: () => goToCompleteService(row), style: { marginLeft: '4px' } },
             { default: () => '去完成服务' }
           )
         );
@@ -307,7 +307,7 @@ const columns: DataTableColumns<Api.ServiceLog.ServiceLog> = [
         buttons.push(
           h(
             NButton,
-            { size: 'small', type: 'info', onClick: () => goToEvaluation(row), style: 'white-space: nowrap' },
+            { size: 'small', type: 'info', onClick: () => goToEvaluation(row), style: { marginLeft: '4px' } },
             { default: () => '去评价' }
           )
         );
@@ -317,12 +317,12 @@ const columns: DataTableColumns<Api.ServiceLog.ServiceLog> = [
         buttons.push(
           h(
             NButton,
-            { size: 'small', type: 'default', onClick: () => handleDuplicate(row), style: 'white-space: nowrap' },
+            { size: 'small', type: 'default', onClick: () => handleDuplicate(row), style: { marginLeft: '4px' } },
             { default: () => '复制' }
           )
         );
       }
-      return h('div', { style: 'display: flex; flex-wrap: nowrap; gap: 6px; align-items: center' }, buttons);
+      return h(NSpace, { size: 'small' }, buttons);
     }
   }
 ];

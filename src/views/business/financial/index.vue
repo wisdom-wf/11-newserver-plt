@@ -109,7 +109,6 @@ async function showStaffDetail(row: any) {
 
 // Status options
 const statusOptions = [
-  { label: '全部', value: '' },
   { label: '待结算', value: 'PENDING' },
   { label: '已结算', value: 'SETTLED' },
   { label: '已支付', value: 'PAID' }
@@ -175,10 +174,10 @@ const columns: DataTableColumns<any> = [
       const actions = [];
       if (row.status === 'UNPAID' || row.status === 'PENDING') {
         actions.push(
-          h(NButton, { size: 'small', type: 'success', onClick: () => handleConfirm(row), style: 'white-space: nowrap' }, () => '确认结算')
+          h(NButton, { size: 'small', type: 'success', onClick: () => handleConfirm(row), style: { marginRight: '8px' } }, () => '确认结算')
         );
       }
-      return h('div', { style: 'display: flex; flex-wrap: nowrap; gap: 6px; align-items: center' }, () => actions);
+      return h(NSpace, null, () => actions);
     }
   }
 ];
@@ -252,12 +251,8 @@ function handleResetSearch() {
   getData();
 }
 
-function handleStatusPillClick(statusValue: string | null) {
-  searchStatus.value = statusValue ?? '';
-  getData();
-}
-
 // ========== Service Price Tab ==========
+// Service price list
 const priceLoading = ref(false);
 const priceData = ref<Api.Financial.ServicePrice[]>([]);
 const pricePagination = ref({ page: 1, pageSize: 10, itemCount: 0 });
@@ -728,26 +723,17 @@ onMounted(() => {
         <!-- Settlement Tab -->
         <NTabPane name="settlement" tab="结算管理">
           <div style="background: #f5f5f5; padding: 12px; margin-bottom: 12px; border-radius: 4px">
-            <!-- 适老化：状态快捷筛选 Pill -->
-            <div style="margin-bottom: 14px">
-              <div style="font-size: 14px; font-weight: 600; color: #666; margin-bottom: 10px">按状态快速筛选</div>
-              <div style="display: flex; flex-wrap: wrap; gap: 8px">
-                <button
-                  v-for="opt in statusOptions"
-                  :key="opt.value"
-                  :class="searchStatus === opt.value ? 'status-pill active' : 'status-pill'"
-                  :style="searchStatus === opt.value ? '' : 'background:#fff;border-color:#d1d5db'"
-                  @click="handleStatusPillClick(opt.value)"
-                >
-                  {{ opt.label }}
-                </button>
-              </div>
-            </div>
-            <!-- 搜索条件行 -->
             <NSpace :wrap="true" align="center">
               <NInput v-model:value="searchOrderNo" placeholder="订单号" clearable style="width: 150px" />
               <NInput v-model:value="searchElderName" placeholder="客户姓名" clearable style="width: 100px" />
               <NInput v-model:value="searchProviderName" placeholder="服务商" clearable style="width: 150px" />
+              <NSelect
+                v-model:value="searchStatus"
+                :options="statusOptions"
+                placeholder="结算状态"
+                clearable
+                style="width: 120px"
+              />
               <NDatePicker v-model:value="searchDateRange" type="daterange" clearable style="width: 260px" />
               <NButton type="primary" @click="getData">搜索</NButton>
               <NButton @click="handleResetSearch">重置</NButton>

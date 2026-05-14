@@ -816,7 +816,7 @@ getData();
           </div>
           <div class="stat-body">
             <span class="stat-label">满意度</span>
-            <span class="stat-value">{{ overview.satisfaction != null ? overview.satisfaction.toFixed(1) + '%' : '--' }}</span>
+            <span class="stat-value">{{ Number(overview.satisfaction || 0).toFixed(1) }}%</span>
           </div>
         </div>
       </NGi>
@@ -1048,7 +1048,7 @@ getData();
           </div>
           <div class="stat-body">
             <span class="stat-label">平均评分</span>
-            <span class="stat-value">{{ qualityStats.averageRating != null ? qualityStats.averageRating.toFixed(1) : '--' }}</span>
+            <span class="stat-value">{{ (qualityStats.averageRating || 0).toFixed(1) }}</span>
           </div>
         </div>
       </NGi>
@@ -1061,7 +1061,7 @@ getData();
           </div>
           <div class="stat-body">
             <span class="stat-label">好评率</span>
-            <span class="stat-value">{{ qualityStats.positiveRate != null ? (qualityStats.positiveRate * 100).toFixed(1) + '%' : '--' }}</span>
+            <span class="stat-value">{{ ((qualityStats.positiveRate || 0) * 100).toFixed(1) }}%</span>
           </div>
         </div>
       </NGi>
@@ -1123,7 +1123,7 @@ getData();
                   class="rank-score"
                   :class="item.rating >= 4.5 ? 'score-high' : item.rating >= 3 ? 'score-mid' : 'score-low'"
                 >
-                  {{ item.rating != null ? Number(item.rating).toFixed(1) + '分' : '--' }}
+                  {{ Number(item.rating || 0).toFixed(1) }}分
                 </span>
               </div>
             </div>
