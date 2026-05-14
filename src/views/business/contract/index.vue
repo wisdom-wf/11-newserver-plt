@@ -42,6 +42,7 @@ const searchDateRange = ref<[number, number] | null>(null);
 
 // Status options
 const statusOptions = [
+  { label: '全部', value: '' },
   { label: '草稿', value: 'DRAFT' },
   { label: '已发起', value: 'INITIATED' },
   { label: '签署中', value: 'SIGNING' },
@@ -244,6 +245,12 @@ function handleResetSearch() {
   getData();
 }
 
+function handleStatusPillClick(statusValue: string | null) {
+  searchStatus.value = statusValue ?? '';
+  pagination.value.page = 1;
+  getData();
+}
+
 function handlePageChange(page: number) {
   pagination.value.page = page;
   getData();
@@ -264,15 +271,24 @@ onMounted(() => {
     <NCard title="合同管理" :bordered="false">
       <!-- Search -->
       <div style="background: #f5f5f5; padding: 12px; margin-bottom: 12px; border-radius: 4px">
+        <!-- 适老化：状态快捷筛选 Pill -->
+        <div style="margin-bottom: 14px">
+          <div style="font-size: 14px; font-weight: 600; color: #666; margin-bottom: 10px">按状态快速筛选</div>
+          <div style="display: flex; flex-wrap: wrap; gap: 8px">
+            <button
+              v-for="opt in statusOptions"
+              :key="opt.value"
+              :class="searchStatus === opt.value ? 'status-pill active' : 'status-pill'"
+              :style="searchStatus === opt.value ? '' : 'background:#fff;border-color:#d1d5db'"
+              @click="handleStatusPillClick(opt.value)"
+            >
+              {{ opt.label }}
+            </button>
+          </div>
+        </div>
+        <!-- 搜索条件行 -->
         <NSpace :wrap="true" align="center">
           <NInput v-model:value="searchContractNo" placeholder="合同编号" clearable style="width: 180px" />
-          <NSelect
-            v-model:value="searchStatus"
-            :options="statusOptions"
-            placeholder="合同状态"
-            clearable
-            style="width: 120px"
-          />
           <NDatePicker v-model:value="searchDateRange" type="daterange" clearable style="width: 260px" />
           <NButton type="primary" @click="handlePageChange(1)">搜索</NButton>
           <NButton @click="handleResetSearch">重置</NButton>

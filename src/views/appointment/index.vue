@@ -81,6 +81,7 @@ const searchDateRange = ref<[number, number] | null>(null);
 
 // Status options
 const statusOptions = [
+  { label: '全部', value: '' },
   { label: '待确认', value: 'PENDING' },
   { label: '已确认', value: 'CONFIRMED' },
   { label: '已分配', value: 'ASSIGNED' },
@@ -702,6 +703,11 @@ function handleResetSearch() {
   getDataByPage(1);
 }
 
+function handleStatusPillClick(statusValue: string | null) {
+  searchStatus.value = statusValue ?? '';
+  getDataByPage(1);
+}
+
 onMounted(async () => {
   getStatistics();
   getProviderOptions();
@@ -768,18 +774,27 @@ onMounted(async () => {
         </div>
       </template>
       <div style="background: #f5f5f5; padding: 12px; margin-bottom: 12px; border-radius: 4px">
+        <!-- 适老化：状态快捷筛选 Pill -->
+        <div style="margin-bottom: 14px">
+          <div style="font-size: 14px; font-weight: 600; color: #666; margin-bottom: 10px">按状态快速筛选</div>
+          <div style="display: flex; flex-wrap: wrap; gap: 8px">
+            <button
+              v-for="opt in statusOptions"
+              :key="opt.value"
+              :class="searchStatus === opt.value ? 'status-pill active' : 'status-pill'"
+              :style="searchStatus === opt.value ? '' : 'background:#fff;border-color:#d1d5db'"
+              @click="handleStatusPillClick(opt.value)"
+            >
+              {{ opt.label }}
+            </button>
+          </div>
+        </div>
+        <!-- 搜索条件行 -->
         <NSpace :wrap="true" align="center">
           <span style="font-size: 13px; color: #666">筛选条件:</span>
           <NInput v-model:value="searchAppointmentNo" placeholder="预约单号" clearable style="width: 150px" />
           <NInput v-model:value="searchElderName" placeholder="客户姓名" clearable style="width: 120px" />
           <NInput v-model:value="searchElderPhone" placeholder="客户手机号" clearable style="width: 130px" />
-          <NSelect
-            v-model:value="searchStatus"
-            :options="statusOptions"
-            placeholder="状态"
-            clearable
-            style="width: 120px"
-          />
           <NDatePicker v-model:value="searchDateRange" type="daterange" clearable style="width: 260px" />
           <NButton type="primary" @click="getData">搜索</NButton>
           <NButton @click="handleResetSearch">重置</NButton>
