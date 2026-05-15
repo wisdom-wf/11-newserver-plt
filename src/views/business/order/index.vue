@@ -1295,125 +1295,69 @@ onMounted(async () => {
           <span>订单管理</span>
         </div>
       </template>
-      <div style="background: #f5f5f5; padding: 12px; margin-bottom: 12px; border-radius: 8px">
-        <!-- 适老化：状态快捷筛选 Pill -->
-        <div style="margin-bottom: 14px">
-          <div style="font-size: 14px; font-weight: 600; color: #666; margin-bottom: 10px">按状态快速筛选</div>
-          <div style="display: flex; flex-wrap: wrap; gap: 8px">
-            <button
-              v-for="opt in statusOptions"
-              :key="opt.value"
-              :class="searchStatus === opt.value ? 'status-pill active' : 'status-pill'"
-              :style="searchStatus === opt.value ? '' : 'background:#fff;border-color:#d1d5db'"
-              @click="handleStatusPillClick(opt.value)"
-            >
-              {{ opt.label }}
-            </button>
-          </div>
-        </div>
-        <!-- 搜索条件行 -->
-        <div style="display: flex; flex-wrap: wrap; gap: 10px; align-items: center">
-          <NInput v-model:value="searchOrderNo" placeholder="订单号搜索" clearable style="width: 180px" size="medium" />
-          <NInput v-model:value="searchElderName" placeholder="客户姓名" clearable style="width: 140px" size="medium" />
-          <NSelect
-            v-model:value="searchProviderId"
-            :options="providerOptions"
-            placeholder="服务商"
-            clearable
-            filterable
-            style="width: 180px"
-            :consistent-menu-width="false"
-          />
-          <NSelect
-            v-model:value="searchServiceType"
-            :options="serviceTypeOptions"
-            placeholder="服务类型"
-            clearable
-            style="width: 140px"
-          />
-          <NDatePicker v-model:value="searchDateRange" type="daterange" clearable style="width: 260px" />
-          <NButton type="primary" @click="() => { getData(); pagination.page = 1; }" style="height: 40px; font-size: 15px; font-weight: 600">搜索</NButton>
-          <NButton @click="handleResetSearch" style="height: 40px; font-size: 15px">重置</NButton>
-        </div>
+      <!-- 紧凑搜索区：去灰色盒，Pill内联单行 -->
+      <div style="display: flex; flex-wrap: wrap; gap: 8px; align-items: center; margin-bottom: 12px">
+        <button
+          v-for="opt in statusOptions"
+          :key="opt.value"
+          :class="searchStatus === opt.value ? 'status-pill active' : 'status-pill'"
+          :style="searchStatus === opt.value ? '' : 'background:#fff;border-color:#d1d5db'"
+          @click="handleStatusPillClick(opt.value)"
+          style="height: 32px; padding: 0 12px; border-radius: 16px; font-size: 13px; font-weight: 600"
+        >
+          {{ opt.label }}
+        </button>
+        <div style="width: 1px; height: 22px; background: #e0e0e0; margin: 0 4px" />
+        <NInput v-model:value="searchOrderNo" placeholder="订单号" clearable style="width: 150px" size="small" />
+        <NInput v-model:value="searchElderName" placeholder="客户" clearable style="width: 110px" size="small" />
+        <NSelect v-model:value="searchProviderId" :options="providerOptions" placeholder="服务商" clearable filterable style="width: 150px" size="small" :consistent-menu-width="false" />
+        <NSelect v-model:value="searchServiceType" :options="serviceTypeOptions" placeholder="服务类型" clearable style="width: 130px" size="small" />
+        <NDatePicker v-model:value="searchDateRange" type="daterange" clearable style="width: 220px" size="small" />
+        <NButton type="primary" size="small" @click="() => { getData(); pagination.page = 1; }">搜索</NButton>
+        <NButton size="small" @click="handleResetSearch">重置</NButton>
+        <div style="flex: 1" />
+        <NButton size="small" type="primary" @click="handleAdd">+ 新增</NButton>
       </div>
 
-      <!-- Use framework's TableHeaderOperation component -->
-      <TableHeaderOperation
-        v-model:columns="columnChecks"
-        :disabled-delete="checkedRowKeys.length === 0"
-        :loading="loading"
-        @add="handleAdd"
-        @refresh="getData"
-        @delete="handleBatchDelete"
-      />
-
-      <!-- 适老化：卡片列表视图（替代表格） -->
-      <div v-if="!loading && tableData.length > 0" style="display: flex; flex-direction: column; gap: 12px; margin-bottom: 16px">
+      <!-- 卡片网格：3列紧凑横条 -->
+      <div v-if="!loading && tableData.length > 0" style="display: grid; grid-template-columns: repeat(3, 1fr); gap: 10px; margin-bottom: 16px">
         <div
           v-for="row in tableData"
           :key="row.orderId"
           class="order-card"
           @click="handleDetail(row)"
+          style="border: 1px solid #f0f0f0; border-radius: 8px; padding: 12px; cursor: pointer; background: #fff"
         >
-          <!-- 卡片主体 -->
-          <div style="display: flex; justify-content: space-between; align-items: flex-start; gap: 16px; margin-bottom: 10px">
-            <!-- 左侧：客户+服务信息 -->
-            <div style="flex: 1; min-width: 0">
-              <div style="display: flex; align-items: center; gap: 10px; margin-bottom: 6px; flex-wrap: wrap">
-                <span style="font-size: 17px; font-weight: 700; color: #333">{{ row.elderName }}</span>
-                <span style="color: #999; font-size: 14px">{{ row.elderPhone || '-' }}</span>
-                <NTag :type="getStatusType(row.status)" size="small" style="font-size: 13px; font-weight: 600">{{ getStatusLabel(row.status) }}</NTag>
-              </div>
-              <div style="color: #555; font-size: 14px; margin-bottom: 4px">
-                <span style="font-weight: 600">{{ row.serviceTypeName || '-' }}</span>
-                <span style="margin: 0 6px; color: #ccc">|</span>
-                <span>{{ formatServiceTime(row.serviceDate, row.serviceTime) }}</span>
-              </div>
-              <div style="color: #888; font-size: 13px">
-                {{ row.providerName || '-' }}
-                <span v-if="row.staffName" style="margin: 0 6px; color: #ccc">|</span>
-                <span v-if="row.staffName">{{ row.staffName }}</span>
-              </div>
+          <!-- 第1行：客户名 + 状态 + 金额 -->
+          <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 5px">
+            <div style="display: flex; align-items: center; gap: 8px">
+              <span style="font-size: 15px; font-weight: 700; color: #333">{{ row.elderName }}</span>
+              <NTag :type="getStatusType(row.status)" size="tiny">{{ getStatusLabel(row.status) }}</NTag>
             </div>
-            <!-- 右侧：费用 -->
-            <div style="text-align: right; flex-shrink: 0">
-              <div style="font-size: 20px; font-weight: 800; color: #ee4a07; font-family: 'DIN Alternate', 'Helvetica Neue', Arial, sans-serif">
-                ¥{{ row.actualPrice || row.estimatedPrice || 0 }}
-              </div>
-              <div style="font-size: 12px; color: #999; margin-top: 2px">
-                <span v-if="row.subsidyAmount > 0" style="color: #52c41a">补{{ row.subsidyAmount }}</span>
-                <span v-if="row.subsidyAmount > 0 && row.selfPayAmount > 0" style="margin: 0 3px; color: #d9d9d9">/</span>
-                <span v-if="row.selfPayAmount > 0">自{{ row.selfPayAmount }}</span>
-              </div>
-            </div>
+            <span style="font-size: 16px; font-weight: 800; color: #ee4a07">¥{{ row.actualPrice || row.estimatedPrice || 0 }}</span>
           </div>
-          <!-- 底部分隔线+操作 -->
-          <div style="display: flex; justify-content: space-between; align-items: center; border-top: 1px solid #f0f0f0; padding-top: 10px; gap: 8px">
-            <span style="font-size: 12px; color: #bbb">{{ row.orderNo }}</span>
-            <!-- 操作按钮行 - 适老化：40px高，不换行 -->
-            <div style="display: flex; gap: 6px; justify-content: flex-end; align-items: center; flex-shrink: 0" @click.stop>
-              <NButton size="small" style="height: 36px; font-size: 13px; font-weight: 600; white-space: nowrap" @click="handleDetail(row)">详情</NButton>
-              <NButton v-if="(row.status === 'CREATED' || row.status === 'PENDING') && hasAuth('order:list:dispatch')" size="small" type="primary" style="height: 36px; font-size: 13px; font-weight: 600; white-space: nowrap" @click="handleAssign(row)">分配</NButton>
-              <NButton v-if="row.status === 'DISPATCHED'" size="small" type="primary" style="height: 36px; font-size: 13px; font-weight: 600; white-space: nowrap" @click="handleAccept(row)">接单</NButton>
-              <NButton v-if="row.status === 'RECEIVED'" size="small" type="primary" style="height: 36px; font-size: 13px; font-weight: 600; white-space: nowrap" @click="handleStart(row)">开始服务</NButton>
-              <NButton v-if="row.status === 'SERVICE_STARTED'" size="small" type="primary" style="height: 36px; font-size: 13px; font-weight: 600; white-space: nowrap" @click="handleComplete(row)">完成服务</NButton>
-              <NPopconfirm
-                v-if="(row.status === 'SERVICE_COMPLETED' || row.status === 'EVALUATED' || row.status === 'SETTLED') && hasAuth('order:list:delete')"
-                @positive-click="handleDelete(row)"
-              >
-                <template #trigger>
-                  <NButton size="small" type="error" style="height: 36px; font-size: 13px; font-weight: 600; white-space: nowrap">删</NButton>
-                </template>
+          <!-- 第2行：服务+时间 -->
+          <div style="font-size: 13px; color: #666; margin-bottom: 3px">
+            {{ row.serviceTypeName || '-' }} · {{ formatServiceTime(row.serviceDate, row.serviceTime) }}
+          </div>
+          <!-- 第3行：服务商+护工 -->
+          <div style="font-size: 12px; color: #999; margin-bottom: 8px">
+            {{ row.providerName || '-' }}<span v-if="row.staffName"> · {{ row.staffName }}</span>
+          </div>
+          <!-- 第4行：订单号 + 操作 -->
+          <div style="display: flex; justify-content: space-between; align-items: center; border-top: 1px solid #f5f5f5; padding-top: 8px">
+            <span style="font-size: 11px; color: #bbb">{{ row.orderNo }}</span>
+            <div style="display: flex; gap: 4px; flex-shrink: 0" @click.stop>
+              <NButton v-if="(row.status === 'CREATED' || row.status === 'PENDING') && hasAuth('order:list:dispatch')" size="tiny" type="primary" @click="handleAssign(row)">分配</NButton>
+              <NButton v-if="row.status === 'DISPATCHED'" size="tiny" type="primary" @click="handleAccept(row)">接单</NButton>
+              <NButton v-if="row.status === 'RECEIVED'" size="tiny" type="primary" @click="handleStart(row)">开始</NButton>
+              <NButton v-if="row.status === 'SERVICE_STARTED'" size="tiny" type="primary" @click="handleComplete(row)">完成</NButton>
+              <NButton size="tiny" @click="handleDetail(row)">详情</NButton>
+              <NPopconfirm v-if="(row.status === 'SERVICE_COMPLETED' || row.status === 'EVALUATED' || row.status === 'SETTLED') && hasAuth('order:list:delete')" @positive-click="handleDelete(row)">
+                <template #trigger><NButton size="tiny" type="error">删</NButton></template>
                 确认删除？
               </NPopconfirm>
-              <NButton
-                v-if="row.status !== 'SERVICE_COMPLETED' && row.status !== 'EVALUATED' && row.status !== 'SETTLED' && row.status !== 'CANCELLED' && row.status !== 'REJECTED' && hasAuth('order:list:cancel')"
-                size="small"
-                type="error"
-                ghost
-                style="height: 36px; font-size: 13px; font-weight: 600; white-space: nowrap"
-                @click="handleCancel(row)"
-              >退回</NButton>
+              <NButton v-if="row.status !== 'SERVICE_COMPLETED' && row.status !== 'EVALUATED' && row.status !== 'SETTLED' && row.status !== 'CANCELLED' && row.status !== 'REJECTED' && hasAuth('order:list:cancel')" size="tiny" type="error" ghost @click="handleCancel(row)">退</NButton>
             </div>
           </div>
         </div>
@@ -1429,12 +1373,12 @@ onMounted(async () => {
         <NSpin size="large" />
       </div>
 
-      <!-- 适老化分页 - 卡片列表需手动控制 -->
-      <div v-if="!loading && tableData.length > 0" style="display: flex; justify-content: center; margin-top: 20px; margin-bottom: 8px">
+      <!-- 分页 -->
+      <div v-if="!loading && tableData.length > 0" style="display: flex; justify-content: center; margin-top: 16px">
         <NPagination
           v-model:page="pagination.page"
           v-model:page-size="pagination.pageSize"
-          :page-sizes="[10, 20, 50]"
+          :page-sizes="[12, 24, 48]"
           :page-count="pagination.pageCount"
           :show-quick-jumper="true"
           @update:page="(p) => { pagination.page = p; getData(); }"
