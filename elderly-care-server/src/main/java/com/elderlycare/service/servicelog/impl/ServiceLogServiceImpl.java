@@ -13,6 +13,7 @@ import com.elderlycare.dto.servicelog.SignOutDTO;
 import com.elderlycare.entity.order.Order;
 import com.elderlycare.entity.quality.QualityCheck;
 import com.elderlycare.entity.servicelog.ServiceLog;
+import com.elderlycare.entity.elder.HealthMeasurement;
 import com.elderlycare.mapper.order.OrderMapper;
 import com.elderlycare.mapper.quality.QualityCheckMapper;
 import com.elderlycare.mapper.servicelog.ServiceLogMapper;
@@ -23,6 +24,7 @@ import java.util.List;
 import com.elderlycare.vo.servicelog.ServiceLogStatisticsVO;
 import com.elderlycare.vo.servicelog.ServiceLogVO;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -40,12 +42,14 @@ import com.fasterxml.jackson.databind.ObjectMapper;
  */
 @Service
 @RequiredArgsConstructor
+@Slf4j
 public class ServiceLogServiceImpl implements ServiceLogService {
 
     private final ServiceLogMapper serviceLogMapper;
     private final QualityCheckMapper qualityCheckMapper;
     private final OrderMapper orderMapper;
     private final StaffMapper staffMapper;
+    private final com.elderlycare.mapper.elder.HealthMeasurementMapper healthMeasurementMapper;
     private final ObjectMapper objectMapper = new ObjectMapper();
 
     @Override
@@ -202,7 +206,11 @@ public class ServiceLogServiceImpl implements ServiceLogService {
         if (!"DRAFT".equals(serviceLog.getAuditStatus())) {
             throw new RuntimeException("只有草稿状态才能提交审核");
         }
-        // 校验必填字段
+        // 提示级校验：健康观察字段建议填写（可选，不强制阻断提交）
+        if (serviceLog.getHealthObservations() == null || serviceLog.getHealthObservations().trim().isEmpty()) {
+            log.warn("【建议】服务日志提交时健康观察字段为空，serviceLogId={}", serviceLog.getServiceLogId());
+        }
+        // 核心必填校验：服务日期、服务开始时间、服务结束时间、服务照片
         if (serviceLog.getServiceDate() == null || serviceLog.getServiceDate().isEmpty()) {
             throw new RuntimeException("请填写服务日期");
         }
@@ -240,6 +248,24 @@ public class ServiceLogServiceImpl implements ServiceLogService {
         qualityCheck.setRectifyStatus("PENDING");
         qualityCheck.setCreateTime(LocalDateTime.now());
         qualityCheckMapper.insert(qualityCheck);
+
+        // ========== P0-5: 服务日志提交时自动写入健康档案（健康测量记录）==========
+        // 写入生命体征数据到 t_health_measurement（若有）
+        if (serviceLog.getHealthObservations() != null && !serviceLog.getHealthObservations().isEmpty()) {
+            HealthMeasurement measurement = new HealthMeasurement();
+            measurement.setMeasurementId(IDGenerator.generateId());
+            measurement.setElderId(serviceLog.getElderId());
+            measurement.setServiceLogId(serviceLog.getServiceLogId());
+            measurement.setMeasurementType("HEALTH_OBSERVATION");
+            measurement.setMeasurementValue(serviceLog.getHealthObservations());
+            measurement.setMeasuredAt(serviceLog.getServiceStartTime() != null
+                    ? serviceLog.getServiceStartTime()
+                    : LocalDateTime.now());
+            measurement.setStaffId(serviceLog.getStaffId());
+            measurement.setStaffName(serviceLog.getStaffName());
+            measurement.setCreateTime(LocalDateTime.now());
+            healthMeasurementMapper.insert(measurement);
+        }
     }
 
     @Override

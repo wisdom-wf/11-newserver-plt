@@ -9,6 +9,7 @@ import com.elderlycare.service.order.OrderService;
 import com.elderlycare.service.statistics.StatisticsService;
 import com.elderlycare.vo.order.*;
 import com.elderlycare.vo.statistics.OrderStatisticsVO;
+import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.web.bind.annotation.*;
 
@@ -29,32 +30,30 @@ public class OrderController {
 
     /**
      * 创建订单
-     * POST /api/order/orders
+     * POST /api/orders
      */
     @PostMapping("")
-    public Result<OrderVO> createOrder(@RequestBody CreateOrderDTO dto) {
+    public Result<OrderVO> createOrder(@Valid @RequestBody CreateOrderDTO dto) {
         OrderVO vo = orderService.createOrder(dto);
         return Result.success("订单创建成功", vo);
     }
 
     /**
      * 订单列表
-     * GET /api/order/orders
+     * GET /api/orders
      */
     @GetMapping("")
     public Result<PageResult<OrderVO>> getOrderList(OrderQueryDTO query) {
-        // 数据权限：PROVIDER用户强制只看自己服务商（不接受前端providerId参数）
         String userType = UserContext.getUserType();
         String autoPid = UserContext.getProviderId();
         if ("PROVIDER".equals(userType) && autoPid != null) {
-            query.setProviderId(autoPid);           // 强制覆盖
-            query.setStaffId(null);                  // PROVIDER不用staffId过滤
+            query.setProviderId(autoPid);
+            query.setStaffId(null);
         }
-        // STAFF用户强制只看自己（不接受前端任何providerId参数）
         String staffId = UserContext.getStaffId();
         if ("STAFF".equals(userType) && staffId != null) {
-            query.setStaffId(staffId);               // 强制覆盖
-            query.setProviderId(null);                // STAFF不用providerId过滤
+            query.setStaffId(staffId);
+            query.setProviderId(null);
         }
         PageResult<OrderVO> result = orderService.getOrderList(query);
         return Result.success(result);
@@ -63,7 +62,6 @@ public class OrderController {
     /**
      * 订单详情
      * GET /api/orders/{orderId}
-     * 隔离：PROVIDER/STAFF只能查属于自己的订单
      */
     @GetMapping("/{orderId}")
     public Result<OrderDetailVO> getOrderDetail(@PathVariable String orderId) {
@@ -81,14 +79,13 @@ public class OrderController {
         }
         if ("STAFF".equals(userType) && staffIdCtx != null) {
             // STAFF用户查订单是否属于自己的（通过订单的staffId）
-            // 注：订单不一定有staffId（待派单状态）
         }
         return Result.success(vo);
     }
 
     /**
      * 订单修改
-     * PUT /api/order/orders/{orderId}
+     * PUT /api/orders/{orderId}
      */
     @PutMapping("/{orderId}")
     public Result<OrderVO> updateOrder(@PathVariable String orderId, @RequestBody UpdateOrderDTO dto) {
@@ -98,7 +95,7 @@ public class OrderController {
 
     /**
      * 订单取消
-     * PUT /api/order/orders/{orderId}/cancel
+     * PUT /api/orders/{orderId}/cancel
      */
     @PutMapping("/{orderId}/cancel")
     public Result<Void> cancelOrder(@PathVariable String orderId, @RequestBody CancelOrderDTO dto) {
@@ -120,7 +117,7 @@ public class OrderController {
 
     /**
      * 订单派单
-     * POST /api/order/orders/{orderId}/dispatch
+     * POST /api/orders/{orderId}/dispatch
      */
     @PostMapping("/{orderId}/dispatch")
     public Result<DispatchVO> dispatchOrder(@PathVariable String orderId, @RequestBody DispatchOrderDTO dto) {
@@ -130,7 +127,7 @@ public class OrderController {
 
     /**
      * 订单接单
-     * PUT /api/order/orders/{orderId}/receive
+     * PUT /api/orders/{orderId}/receive
      */
     @PutMapping("/{orderId}/receive")
     public Result<Void> receiveOrder(@PathVariable String orderId, @RequestBody ReceiveOrderDTO dto) {
@@ -140,7 +137,7 @@ public class OrderController {
 
     /**
      * 订单拒单
-     * PUT /api/order/orders/{orderId}/reject
+     * PUT /api/orders/{orderId}/reject
      */
     @PutMapping("/{orderId}/reject")
     public Result<Void> rejectOrder(@PathVariable String orderId, @RequestBody RejectOrderDTO dto) {
@@ -150,7 +147,7 @@ public class OrderController {
 
     /**
      * 查询可派单资源
-     * GET /api/order/orders/{orderId}/available-resources
+     * GET /api/orders/{orderId}/available-resources
      */
     @GetMapping("/{orderId}/available-resources")
     public Result<PageResult<AvailableResourceVO>> getAvailableResources(
@@ -165,7 +162,7 @@ public class OrderController {
 
     /**
      * 开始服务
-     * PUT /api/order/orders/{orderId}/start
+     * PUT /api/orders/{orderId}/start
      */
     @PutMapping("/{orderId}/start")
     public Result<Void> startService(@PathVariable String orderId, @RequestBody StartServiceDTO dto) {
@@ -175,7 +172,7 @@ public class OrderController {
 
     /**
      * 完成服务
-     * PUT /api/order/orders/{orderId}/complete
+     * PUT /api/orders/{orderId}/complete
      */
     @PutMapping("/{orderId}/complete")
     public Result<Void> completeService(@PathVariable String orderId, @RequestBody CompleteServiceDTO dto) {
@@ -185,7 +182,7 @@ public class OrderController {
 
     /**
      * 查询服务记录
-     * GET /api/order/service-records
+     * GET /api/orders/service-records
      */
     @GetMapping("/service-records")
     public Result<PageResult<ServiceRecordVO>> getServiceRecords(ServiceRecordQueryDTO query) {
@@ -198,7 +195,6 @@ public class OrderController {
     /**
      * 获取订单统计
      * GET /api/orders/statistics
-     * 数据隔离：PROVIDER用户强制只看自己服务商
      */
     @GetMapping("/statistics")
     public Result<OrderStatisticsVO> getOrderStatistics() {

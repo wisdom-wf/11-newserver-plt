@@ -18,6 +18,7 @@ import com.elderlycare.service.quality.QualityCheckService;
 import com.elderlycare.vo.quality.QualityCheckStatisticsVO;
 import com.elderlycare.vo.quality.QualityCheckVO;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -32,11 +33,13 @@ import java.util.stream.Collectors;
  */
 @Service
 @RequiredArgsConstructor
+@Slf4j
 public class QualityCheckServiceImpl implements QualityCheckService {
 
     private final QualityCheckMapper qualityCheckMapper;
     private final ServiceLogMapper serviceLogMapper;
     private final OrderMapper orderMapper;
+    private final com.elderlycare.service.evaluation.ServiceEvaluationService evaluationService;
 
     @Override
     public PageResult<QualityCheckVO> getQualityCheckList(QualityCheckQueryDTO query) {
@@ -283,6 +286,20 @@ public class QualityCheckServiceImpl implements QualityCheckService {
                     order.setStatus("COMPLETED");
                     order.setCompleteTime(LocalDateTime.now());
                     orderMapper.updateById(order);
+
+                    // ========== P0-4: 质检合格后自动触发评价邀请 ==========
+                    // 订单完成后自动生成评价链接，发给老人
+                    String elderId = order.getElderId();
+                    String elderName = order.getElderName();
+                    if (elderId != null && elderName != null) {
+                        try {
+                            var invite = evaluationService.generateEvaluationLink(
+                                    order.getOrderId(), elderId, elderName, 72);
+                            log.info("【P0-4】评价链接已生成，订单={}，链接={}", order.getOrderNo(), invite.getSurveyUrl());
+                        } catch (Exception e) {
+                            log.warn("【P0-4】评价链接生成失败，订单={}，error={}", order.getOrderNo(), e.getMessage());
+                        }
+                    }
                 }
             }
             qc.setRectifyStatus(null); // 无需整改
@@ -295,8 +312,9 @@ public class QualityCheckServiceImpl implements QualityCheckService {
                 qc.setRectifyNotice(dto.getRectifyNotice() != null ? dto.getRectifyNotice() : "质检不合格，请及时整改");
                 qc.setRectifyDeadline(dto.getRectifyDeadline() != null ? dto.getRectifyDeadline() : LocalDateTime.now().plusDays(3));
             } else {
-                qc.setRectifyNotice(dto.getRectifyNotice());
-                qc.setRectifyDeadline(dto.getRectifyDeadline());
+                // NEED_RECTIFY：后端自动设置默认值，避免 NPE + 脏数据
+                qc.setRectifyNotice(dto.getRectifyNotice() != null ? dto.getRectifyNotice() : "需整改，请及时处理");
+                qc.setRectifyDeadline(dto.getRectifyDeadline() != null ? dto.getRectifyDeadline() : LocalDateTime.now().plusDays(3));
             }
         }
 

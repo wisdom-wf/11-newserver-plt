@@ -121,6 +121,12 @@ public class ServiceEvaluation implements Serializable {
     private String tags;
 
     /**
+     * 评价图片(多个逗号分隔)
+     */
+    @TableField("evaluation_images")
+    private String images;
+
+    /**
      * 是否匿名(0-否,1-是)
      */
     @TableField("is_anonymous")

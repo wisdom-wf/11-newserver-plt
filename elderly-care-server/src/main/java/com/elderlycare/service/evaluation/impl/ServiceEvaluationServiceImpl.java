@@ -19,6 +19,7 @@ import com.elderlycare.vo.evaluation.EvaluationVO;
 import com.elderlycare.vo.evaluation.ProviderScoreVO;
 import com.elderlycare.vo.evaluation.StaffScoreVO;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.BeanUtils;
 import org.springframework.stereotype.Service;
@@ -38,6 +39,7 @@ import java.util.Map;
  */
 @Service
 @RequiredArgsConstructor
+@Slf4j
 public class ServiceEvaluationServiceImpl extends ServiceImpl<ServiceEvaluationMapper, ServiceEvaluation>
         implements ServiceEvaluationService {
 
@@ -439,10 +441,20 @@ public class ServiceEvaluationServiceImpl extends ServiceImpl<ServiceEvaluationM
         evaluation.setEfficiencyScore(form.getPunctualityScore());
         evaluation.setEnvironmentScore(form.getEnvironmentScore());
 
-        // 计算平均评分
-        BigDecimal avgScore = BigDecimal.valueOf(
-            (form.getServiceScore() + form.getAttitudeScore() + form.getSkillScore() + form.getPunctualityScore()) / 4.0
-        );
+        // 计算平均评分（4项，防范除零）
+        int count = 4;
+        double sum = 0;
+        if (form.getServiceScore() != null) sum += form.getServiceScore();
+        else count--;
+        if (form.getAttitudeScore() != null) sum += form.getAttitudeScore();
+        else count--;
+        if (form.getSkillScore() != null) sum += form.getSkillScore();
+        else count--;
+        if (form.getPunctualityScore() != null) sum += form.getPunctualityScore();
+        else count--;
+        BigDecimal avgScore = count > 0
+                ? BigDecimal.valueOf(sum / count).setScale(2, RoundingMode.HALF_UP)
+                : BigDecimal.ZERO;
         evaluation.setAverageScore(avgScore);
 
         // 设置评价内容
@@ -451,7 +463,7 @@ public class ServiceEvaluationServiceImpl extends ServiceImpl<ServiceEvaluationM
             evaluation.setTags(String.join(",", form.getTags()));
         }
         if (form.getImages() != null && !form.getImages().isEmpty()) {
-            evaluation.setTags(String.join(",", form.getImages()));
+            evaluation.setImages(String.join(",", form.getImages()));
         }
         evaluation.setAnonymous(form.getAnonymous() != null && form.getAnonymous() ? 1 : 0);
         evaluation.setEvaluationTime(LocalDateTime.now());
@@ -462,6 +474,18 @@ public class ServiceEvaluationServiceImpl extends ServiceImpl<ServiceEvaluationM
         evaluation.setTokenUsedIp(ipAddress);
 
         evaluationMapper.updateById(evaluation);
+
+        // ========== P0-4: 评价完成后联动订单状态→EVALUATED ==========
+        try {
+            Order order = orderMapper.selectById(evaluation.getOrderId());
+                if (order != null && !"EVALUATED".equals(order.getStatus())) {
+                    order.setStatus("EVALUATED");
+                    orderMapper.updateById(order);
+                    log.info("【P0-4】订单评价完成，订单={}", order.getOrderNo());
+                }
+        } catch (Exception e) {
+            log.warn("【P0-4】订单状态更新失败，evaluation={}, error={}", evaluation.getEvaluationId(), e.getMessage());
+        }
     }
 
     @Override

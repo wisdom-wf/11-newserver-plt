@@ -1,7 +1,5 @@
 package com.elderlycare.service.order.impl;
 
-import java.math.BigDecimal;
-import java.util.Optional;
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import com.baomidou.mybatisplus.core.metadata.IPage;
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
@@ -9,27 +7,27 @@ import com.elderlycare.common.BusinessException;
 import com.elderlycare.common.IDGenerator;
 import com.elderlycare.common.PageResult;
 import com.elderlycare.dto.order.*;
+import com.elderlycare.entity.appointment.Appointment;
+import com.elderlycare.entity.config.ConfigServiceType;
 import com.elderlycare.entity.order.Order;
 import com.elderlycare.entity.order.OrderDispatch;
 import com.elderlycare.entity.order.OrderStatus;
 import com.elderlycare.entity.order.ServiceRecord;
-import com.elderlycare.entity.appointment.Appointment;
+import com.elderlycare.entity.provider.Provider;
+import com.elderlycare.entity.quality.QualityCheck;
+import com.elderlycare.entity.servicelog.ServiceLog;
+import com.elderlycare.entity.staff.Staff;
+import com.elderlycare.mapper.appointment.AppointmentMapper;
+import com.elderlycare.mapper.config.ConfigServiceTypeMapper;
 import com.elderlycare.mapper.order.OrderDispatchMapper;
 import com.elderlycare.mapper.order.OrderMapper;
 import com.elderlycare.mapper.order.ServiceRecordMapper;
-import com.elderlycare.mapper.appointment.AppointmentMapper;
 import com.elderlycare.mapper.provider.ProviderMapper;
+import com.elderlycare.mapper.quality.QualityCheckMapper;
 import com.elderlycare.mapper.servicelog.ServiceLogMapper;
 import com.elderlycare.mapper.staff.StaffMapper;
-import com.elderlycare.mapper.config.ConfigServiceTypeMapper;
-import com.elderlycare.entity.provider.Provider;
-import com.elderlycare.entity.servicelog.ServiceLog;
-import com.elderlycare.entity.staff.Staff;
-import com.elderlycare.entity.quality.QualityCheck;
-import com.elderlycare.entity.config.ConfigServiceType;
-import com.elderlycare.mapper.quality.QualityCheckMapper;
-import com.elderlycare.service.order.OrderService;
 import com.elderlycare.service.ess.ContractService;
+import com.elderlycare.service.order.OrderService;
 import com.elderlycare.vo.order.*;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -41,6 +39,7 @@ import java.math.BigDecimal;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Optional;
 
 /**
  * 订单服务实现
@@ -402,15 +401,18 @@ public class OrderServiceImpl implements OrderService {
         orderMapper.updateById(order);
 
         // 派单成功后自动创建电子签合同
+        boolean contractOk = false;
         try {
             contractService.createServiceContract(orderId, dto.getStaffId());
+            contractOk = true;
             log.info("电子签合同创建成功，订单号: {}", order.getOrderNo());
         } catch (Exception e) {
-            log.error("电子签合同创建失败，订单号: {}", order.getOrderNo(), e);
-            // 派单成功不因合同创建失败而回滚
+            log.warn("⚠️ 电子签合同创建失败，订单号: {}，请手动处理合同签署", order.getOrderNo(), e);
         }
 
-        return convertToDispatchVO(dispatch);
+        DispatchVO dispatchVO = convertToDispatchVO(dispatch);
+        dispatchVO.setContractCreated(contractOk);
+        return dispatchVO;
     }
 
     @Override
@@ -620,6 +622,10 @@ public class OrderServiceImpl implements OrderService {
         BigDecimal actualFee = dto.getActualServiceFee() != null ? dto.getActualServiceFee() : dto.getActualFee();
         BigDecimal selfPay = dto.getSelfPayAmount();
         BigDecimal subsidy = dto.getSubsidyAmount();
+        // 保存接单人员（可能与派单人员不同，支持临时换人）
+        if (StringUtils.isNotBlank(dto.getStaffId())) {
+            order.setStaffId(dto.getStaffId());
+        }
 
         if (actualFee != null) {
             order.setEstimatedPrice(actualFee);

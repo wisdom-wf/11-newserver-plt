@@ -34,5 +34,8 @@ public class DispatchVO implements Serializable {
 
     private String rejectReason;
 
+    /** 电子签合同是否创建成功，前端据此展示合同状态 */
+    private Boolean contractCreated;
+
     private LocalDateTime createTime;
 }
