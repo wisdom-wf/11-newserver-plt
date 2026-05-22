@@ -1,0 +1,11 @@
+# 视频文件
+*.mp4
+
+# HyperFrames 输出
+output.mp4
+render-output.mp4
+
+# 临时文件
+*.log
+.DS_Store
+Thumbs.db

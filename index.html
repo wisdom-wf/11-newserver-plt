@@ -1,0 +1,377 @@
+<!doctype html>
+<html>
+<head>
+<meta charset="UTF-8">
+<title>社区服务智慧养老平台 - 介绍视频</title>
+<style>
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+  body {
+    font-family: -apple-system, BlinkMacSystemFont, "PingFang SC", "Microsoft YaHei", sans-serif;
+    background: #FFF8E7;
+    overflow: hidden;
+    width: 1920px;
+    height: 1080px;
+  }
+
+  .scene {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 1920px;
+    height: 1080px;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+    gap: 40px;
+    padding: 80px;
+  }
+
+  h1 { font-size: 96px; color: #5D4E37; font-weight: 700; }
+  h2 { font-size: 72px; color: #5D4E37; font-weight: 600; }
+  p { font-size: 48px; color: #7A6B5A; }
+
+  .warm-bg {
+    position: fixed;
+    inset: 0;
+    background: linear-gradient(135deg, #FFF8E7 0%, #FFE4B5 50%, #FFF8E7 100%);
+    z-index: -1;
+  }
+
+  .decorative-circle {
+    position: absolute;
+    border-radius: 50%;
+    background: rgba(245, 166, 35, 0.15);
+  }
+  .circle-1 { width: 400px; height: 400px; top: -100px; right: -100px; }
+  .circle-2 { width: 300px; height: 300px; bottom: -80px; left: -80px; }
+  .circle-3 { width: 200px; height: 200px; top: 40%; left: 10%; }
+
+  .btn-demo {
+    background: linear-gradient(135deg, #F5A623, #FFB84D);
+    color: white;
+    font-size: 56px;
+    font-weight: 700;
+    padding: 30px 80px;
+    border-radius: 20px;
+    box-shadow: 0 8px 24px rgba(245, 166, 35, 0.4);
+  }
+
+  .step-card {
+    background: white;
+    border-radius: 24px;
+    padding: 40px 60px;
+    box-shadow: 0 8px 32px rgba(93, 78, 55, 0.1);
+    display: flex;
+    align-items: center;
+    gap: 30px;
+  }
+  .step-num {
+    width: 80px;
+    height: 80px;
+    background: linear-gradient(135deg, #F5A623, #FFB84D);
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: white;
+    font-size: 48px;
+    font-weight: 700;
+    flex-shrink: 0;
+  }
+  .step-text { font-size: 56px; color: #5D4E37; font-weight: 600; }
+  .step-icon { font-size: 80px; }
+
+  .care-text {
+    font-size: 64px;
+    color: #5D4E37;
+    text-align: center;
+    line-height: 1.5;
+  }
+
+  .qr-container {
+    background: white;
+    border-radius: 24px;
+    padding: 50px 80px;
+    box-shadow: 0 8px 32px rgba(93, 78, 55, 0.15);
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 30px;
+  }
+  .qr-title { font-size: 56px; color: #F5A623; font-weight: 700; }
+  .qr-box {
+    width: 280px;
+    height: 280px;
+    background: #F5A623;
+    border-radius: 16px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 36px;
+    color: white;
+    font-weight: 600;
+  }
+  .qr-hint { font-size: 36px; color: #7A6B5A; }
+
+  /* Caption styles - bottom overlay */
+  .caption-bar {
+    position: absolute;
+    bottom: 0;
+    left: 0;
+    right: 0;
+    height: 120px;
+    background: rgba(93, 78, 55, 0.85);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    z-index: 100;
+  }
+  .caption-text {
+    font-size: 42px;
+    color: white;
+    font-weight: 600;
+    text-align: center;
+    padding: 0 40px;
+  }
+  .caption-text-large {
+    font-size: 56px;
+    color: white;
+    font-weight: 700;
+    text-align: center;
+  }
+
+  /* Scene backgrounds and visibility */
+  #scene1 { background: #FFF8E7; z-index: 1; }
+  #scene2 { background: #FFF8E7; z-index: 2; opacity: 0; visibility: hidden; }
+  #scene3 { background: #FFF8E7; z-index: 3; opacity: 0; visibility: hidden; }
+  #scene4 { background: #FFF8E7; z-index: 4; opacity: 0; visibility: hidden; }
+  #scene5 { background: #FFF8E7; z-index: 5; opacity: 0; visibility: hidden; }
+  #scene6 { background: #FFF8E7; z-index: 6; opacity: 0; visibility: hidden; }
+  #scene7 { background: #FFF8E7; z-index: 7; opacity: 0; visibility: hidden; }
+</style>
+</head>
+<body>
+
+<!-- Background decorations -->
+<div class="warm-bg"></div>
+
+<!-- Root Composition -->
+<div id="root" data-composition-id="elderly-care-intro" data-width="1920" data-height="1080" data-start="0" data-duration="68">
+
+  <!-- Scene 1: Title (0-10s) -->
+  <div id="scene1" class="scene">
+    <div class="decorative-circle circle-1"></div>
+    <div class="decorative-circle circle-2"></div>
+    <h1 id="title-main">延安宝塔</h1>
+    <h1 id="title-sub">智慧养老</h1>
+    <p id="title-desc">丁峰养老 · 让每一次服务，都充满温暖</p>
+    <!-- Caption: Scene 1 -->
+    <div id="cap1" class="caption-bar">
+      <span class="caption-text">智慧养老 · 温暖相伴</span>
+    </div>
+  </div>
+
+  <!-- Scene 2: Feature Intro (10-20s) -->
+  <div id="scene2" class="scene">
+    <p id="feature-label" style="font-size: 36px; color: #F5A623; font-weight: 600;">便捷服务入口</p>
+    <div class="btn-demo" id="feature-btn">📅 预约服务</div>
+    <p id="feature-desc" style="font-size: 42px; margin-top: 20px;">一键预约 · 上门服务 · 安全可靠</p>
+    <!-- Caption: Scene 2 -->
+    <div id="cap2" class="caption-bar">
+      <span class="caption-text">📅 预约服务 简单便捷</span>
+    </div>
+  </div>
+
+  <!-- Scene 3: Step 1 (20-30s) -->
+  <div id="scene3" class="scene">
+    <div class="step-card" id="step1-card">
+      <div class="step-num" id="step1-num">1</div>
+      <div class="step-icon" id="step1-icon">🧑‍⚕️</div>
+      <div class="step-text" id="step1-text">选择服务项目</div>
+    </div>
+    <p id="step1-options" style="font-size: 40px; color: #7A6B5A;">生活照料 · 康复护理 · 助餐服务</p>
+    <!-- Caption: Scene 3 -->
+    <div id="cap3" class="caption-bar">
+      <span class="caption-text">第一步：选择需要的服务</span>
+    </div>
+  </div>
+
+  <!-- Scene 4: Step 2 (30-40s) -->
+  <div id="scene4" class="scene">
+    <div class="step-card" id="step2-card">
+      <div class="step-num" id="step2-num">2</div>
+      <div class="step-icon" id="step2-icon">📅</div>
+      <div class="step-text" id="step2-text">选择预约时间</div>
+    </div>
+    <p id="step2-hint" style="font-size: 40px; color: #7A6B5A;">选择您方便的服务时间</p>
+    <!-- Caption: Scene 4 -->
+    <div id="cap4" class="caption-bar">
+      <span class="caption-text">第二步：选择服务时间</span>
+    </div>
+  </div>
+
+  <!-- Scene 5: Step 3 (40-50s) -->
+  <div id="scene5" class="scene">
+    <div class="step-card" id="step3-card">
+      <div class="step-num" id="step3-num">3</div>
+      <div class="step-icon" id="step3-icon">✅</div>
+      <div class="step-text" id="step3-text">确认预约</div>
+    </div>
+    <p id="step3-status" style="font-size: 36px; color: #F5A623; font-weight: 600;">✓ 预约成功，等待服务人员确认</p>
+    <!-- Caption: Scene 5 -->
+    <div id="cap5" class="caption-bar">
+      <span class="caption-text-large">✅ 预约成功！</span>
+    </div>
+  </div>
+
+  <!-- Scene 6: Care Message (50-60s) -->
+  <div id="scene6" class="scene">
+    <p id="care-quote" class="care-text">"您的每一次预约<br>我们都用心对待"</p>
+    <p id="care-sub" style="font-size: 36px; color: #7A6B5A;">专业服务 · 温暖陪伴 · 安心守护</p>
+    <!-- Caption: Scene 6 -->
+    <div id="cap6" class="caption-bar">
+      <span class="caption-text">用心服务 · 温暖陪伴</span>
+    </div>
+  </div>
+
+  <!-- Scene 7: QR Code (60-68s) -->
+  <div id="scene7" class="scene">
+    <div class="qr-container" id="qr-box">
+      <p class="qr-title" id="qr-label">微信扫码 预约服务</p>
+      <div class="qr-box" id="qr-image"><img src="qr-code.png" alt="QR Code" style="width:100%;height:100%;object-fit:contain;border-radius:12px;"></div>
+      <p class="qr-hint" id="qr-hint">扫描二维码进入预约页面</p>
+    </div>
+    <!-- Caption: Scene 7 -->
+    <div id="cap7" class="caption-bar">
+      <span class="caption-text-large">👆 微信扫码 立即预约</span>
+    </div>
+  </div>
+
+  <!-- Audio narration -->
+  <audio id="narration-full" data-start="0" data-duration="60" data-track-index="10" src="audio/narration_full.mp3" data-volume="1"></audio>
+
+</div>
+
+<script src="https://cdn.jsdelivr.net/npm/gsap@3.14.2/dist/gsap.min.js"></script>
+<script>
+window.__timelines = window.__timelines || {};
+
+const tl = gsap.timeline({ paused: true });
+
+// ============================================
+// Scene 1: Title (0-10s) - Entrance
+// ============================================
+tl.from("#title-main", { y: 60, opacity: 0, duration: 0.6, ease: "power3.out" }, 0.3);
+tl.from("#title-sub", { y: 60, opacity: 0, duration: 0.6, ease: "power3.out" }, 0.7);
+tl.from("#title-desc", { y: 40, opacity: 0, duration: 0.5, ease: "power2.out" }, 1.1);
+// Caption 1
+tl.from("#cap1", { y: 120, opacity: 0, duration: 0.5, ease: "power2.out" }, 1.6);
+tl.to("#cap1", { opacity: 1, duration: 0.3 }, 1.6);
+tl.to("#cap1", { opacity: 0, duration: 0.4 }, 9.0);
+
+// Transition 1→2
+tl.to("#scene1", { opacity: 0, duration: 0.5, ease: "power2.inOut" }, 9.5);
+tl.to("#scene2", { opacity: 1, duration: 0.5, ease: "power2.inOut" }, 9.9);
+tl.set("#scene1", { visibility: "hidden" }, 10.0);
+tl.set("#scene2", { visibility: "visible" }, 9.9);
+
+// ============================================
+// Scene 2: Feature Intro (10-20s) - Entrance
+// ============================================
+tl.from("#feature-label", { y: 30, opacity: 0, duration: 0.5, ease: "power2.out" }, 10.5);
+tl.from("#feature-btn", { y: 40, opacity: 0, scale: 0.9, duration: 0.6, ease: "back.out(1.4)" }, 10.8);
+tl.from("#feature-desc", { y: 30, opacity: 0, duration: 0.5, ease: "power2.out" }, 11.5);
+// Caption 2
+tl.from("#cap2", { y: 120, opacity: 0, duration: 0.5, ease: "power2.out" }, 12.0);
+tl.to("#cap2", { opacity: 1, duration: 0.3 }, 12.0);
+tl.to("#cap2", { opacity: 0, duration: 0.4 }, 19.0);
+
+// Transition 2→3
+tl.to("#scene2", { opacity: 0, duration: 0.5, ease: "power2.inOut" }, 19.5);
+tl.to("#scene3", { opacity: 1, duration: 0.5, ease: "power2.inOut" }, 19.9);
+tl.set("#scene2", { visibility: "hidden" }, 20.0);
+tl.set("#scene3", { visibility: "visible" }, 19.9);
+
+// ============================================
+// Scene 3: Step 1 (20-30s) - Entrance
+// ============================================
+tl.from("#step1-card", { x: -80, opacity: 0, duration: 0.6, ease: "power3.out" }, 20.5);
+tl.from("#step1-options", { y: 30, opacity: 0, duration: 0.5, ease: "power2.out" }, 21.3);
+// Caption 3
+tl.from("#cap3", { y: 120, opacity: 0, duration: 0.5, ease: "power2.out" }, 22.0);
+tl.to("#cap3", { opacity: 1, duration: 0.3 }, 22.0);
+tl.to("#cap3", { opacity: 0, duration: 0.4 }, 29.0);
+
+// Transition 3→4
+tl.to("#scene3", { opacity: 0, duration: 0.5, ease: "power2.inOut" }, 29.5);
+tl.to("#scene4", { opacity: 1, duration: 0.5, ease: "power2.inOut" }, 29.9);
+tl.set("#scene3", { visibility: "hidden" }, 30.0);
+tl.set("#scene4", { visibility: "visible" }, 29.9);
+
+// ============================================
+// Scene 4: Step 2 (30-40s) - Entrance
+// ============================================
+tl.from("#step2-card", { x: 80, opacity: 0, duration: 0.6, ease: "power3.out" }, 30.5);
+tl.from("#step2-hint", { y: 30, opacity: 0, duration: 0.5, ease: "power2.out" }, 31.3);
+// Caption 4
+tl.from("#cap4", { y: 120, opacity: 0, duration: 0.5, ease: "power2.out" }, 32.0);
+tl.to("#cap4", { opacity: 1, duration: 0.3 }, 32.0);
+tl.to("#cap4", { opacity: 0, duration: 0.4 }, 39.0);
+
+// Transition 4→5
+tl.to("#scene4", { opacity: 0, duration: 0.5, ease: "power2.inOut" }, 39.5);
+tl.to("#scene5", { opacity: 1, duration: 0.5, ease: "power2.inOut" }, 39.9);
+tl.set("#scene4", { visibility: "hidden" }, 40.0);
+tl.set("#scene5", { visibility: "visible" }, 39.9);
+
+// ============================================
+// Scene 5: Step 3 (40-50s) - Entrance
+// ============================================
+tl.from("#step3-card", { scale: 0.85, opacity: 0, duration: 0.6, ease: "back.out(1.4)" }, 40.5);
+tl.from("#step3-status", { y: 30, opacity: 0, duration: 0.5, ease: "power2.out" }, 41.5);
+// Caption 5
+tl.from("#cap5", { y: 120, opacity: 0, duration: 0.5, ease: "power2.out" }, 42.0);
+tl.to("#cap5", { opacity: 1, duration: 0.3 }, 42.0);
+tl.to("#cap5", { opacity: 0, duration: 0.4 }, 49.0);
+
+// Transition 5→6
+tl.to("#scene5", { opacity: 0, duration: 0.5, ease: "power2.inOut" }, 49.5);
+tl.to("#scene6", { opacity: 1, duration: 0.5, ease: "power2.inOut" }, 49.9);
+tl.set("#scene5", { visibility: "hidden" }, 50.0);
+tl.set("#scene6", { visibility: "visible" }, 49.9);
+
+// ============================================
+// Scene 6: Care Message (50-60s) - Entrance
+// ============================================
+tl.from("#care-quote", { y: 50, opacity: 0, duration: 0.7, ease: "power3.out" }, 50.5);
+tl.from("#care-sub", { y: 30, opacity: 0, duration: 0.6, ease: "power2.out" }, 51.5);
+// Caption 6
+tl.from("#cap6", { y: 120, opacity: 0, duration: 0.5, ease: "power2.out" }, 52.5);
+tl.to("#cap6", { opacity: 1, duration: 0.3 }, 52.5);
+tl.to("#cap6", { opacity: 0, duration: 0.4 }, 59.0);
+
+// Transition 6→7
+tl.to("#scene6", { opacity: 0, duration: 0.6, ease: "sine.inOut" }, 59.5);
+tl.to("#scene7", { opacity: 1, duration: 0.6, ease: "sine.inOut" }, 60.0);
+tl.set("#scene6", { visibility: "hidden" }, 60.1);
+tl.set("#scene7", { visibility: "visible" }, 60.0);
+
+// ============================================
+// Scene 7: QR Code (60-68s) - 持续显示到音频结束
+// ============================================
+tl.from("#qr-box", { scale: 0.85, opacity: 0, duration: 0.6, ease: "back.out(1.4)" }, 60.5);
+tl.from("#qr-label", { y: 30, opacity: 0, duration: 0.5, ease: "power2.out" }, 61.0);
+tl.from("#qr-image", { scale: 0.8, opacity: 0, duration: 0.6, ease: "back.out(1.4)" }, 61.5);
+tl.from("#qr-hint", { y: 20, opacity: 0, duration: 0.4, ease: "power2.out" }, 62.0);
+// Caption 7 - 持续显示
+tl.from("#cap7", { y: 120, opacity: 0, duration: 0.5, ease: "power2.out" }, 62.5);
+tl.to("#cap7", { opacity: 1, duration: 0.3 }, 62.5);
+
+// 音频结束后淡出
+tl.to("[data-composition-id='elderly-care-intro']", { opacity: 0, duration: 2 }, 66.0);
+
+window.__timelines["elderly-care-intro"] = tl;
+</script>
+</body>
+</html>
