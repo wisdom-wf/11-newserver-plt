@@ -65,10 +65,8 @@ public class ServiceEvaluationServiceImpl extends ServiceImpl<ServiceEvaluationM
         ServiceEvaluation evaluation = new ServiceEvaluation();
         BeanUtils.copyProperties(dto, evaluation);
 
-        // 设置订单相关信息
-        evaluation.setElderId(order.getElderId());
-        evaluation.setProviderId(order.getProviderId());
-        evaluation.setStaffId(order.getStaffId());
+        // 设置订单相关信息（只有dto未传时才从order取值，避免前端传空字符串覆盖）
+        evaluation.setStaffId(StringUtils.isNotBlank(dto.getStaffId()) ? dto.getStaffId() : order.getStaffId());
 
         // 设置总体评分
         evaluation.setOverallScore(dto.getRating());

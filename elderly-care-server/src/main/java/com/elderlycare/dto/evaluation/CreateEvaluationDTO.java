@@ -22,9 +22,9 @@ public class CreateEvaluationDTO implements Serializable {
     private String orderId;
 
     /**
-     * 服务人员ID
+     * 服务人员ID（可选，后端从订单自动获取）
+     * 注意：前端提交时若未传，后端会根据orderId自动填充
      */
-    @NotBlank(message = "服务人员ID不能为空")
     private String staffId;
 
     /**
