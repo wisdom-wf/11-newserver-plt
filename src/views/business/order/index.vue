@@ -1319,45 +1319,48 @@ onMounted(async () => {
         <NButton size="small" type="primary" @click="handleAdd">+ 新增</NButton>
       </div>
 
-      <!-- 卡片网格：3列紧凑横条 -->
-      <div v-if="!loading && tableData.length > 0" style="display: grid; grid-template-columns: repeat(3, 1fr); gap: 10px; margin-bottom: 16px">
+      <!-- 卡片网格：3列（适老化大字版） -->
+      <div v-if="!loading && tableData.length > 0" style="display: grid; grid-template-columns: repeat(3, 1fr); gap: 12px; margin-bottom: 16px">
         <div
           v-for="row in tableData"
           :key="row.orderId"
           class="order-card"
           @click="handleDetail(row)"
-          style="border: 1px solid #f0f0f0; border-radius: 8px; padding: 12px; cursor: pointer; background: #fff"
+          style="border: 1px solid #e8e8e8; border-radius: 10px; padding: 14px; cursor: pointer; background: #fff; box-shadow: 0 1px 4px rgba(0,0,0,0.06)"
         >
           <!-- 第1行：客户名 + 状态 + 金额 -->
-          <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 5px">
-            <div style="display: flex; align-items: center; gap: 8px">
-              <span style="font-size: 15px; font-weight: 700; color: #333">{{ row.elderName }}</span>
-              <NTag :type="getStatusType(row.status)" size="tiny">{{ getStatusLabel(row.status) }}</NTag>
+          <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 6px">
+            <div style="display: flex; align-items: center; gap: 8px; flex-wrap: wrap">
+              <span style="font-size: 17px; font-weight: 700; color: #222">{{ row.elderName }}</span>
+              <span style="font-size: 13px; color: #999">{{ row.elderPhone || '' }}</span>
+              <NTag :type="getStatusType(row.status)" size="small" style="font-size: 13px; font-weight: 600">{{ getStatusLabel(row.status) }}</NTag>
             </div>
-            <span style="font-size: 16px; font-weight: 800; color: #ee4a07">¥{{ row.actualPrice || row.estimatedPrice || 0 }}</span>
+            <span style="font-size: 18px; font-weight: 800; color: #ee4a07; font-family: 'DIN Alternate', 'Helvetica Neue', Arial, sans-serif">¥{{ row.actualPrice || row.estimatedPrice || 0 }}</span>
           </div>
           <!-- 第2行：服务+时间 -->
-          <div style="font-size: 13px; color: #666; margin-bottom: 3px">
-            {{ row.serviceTypeName || '-' }} · {{ formatServiceTime(row.serviceDate, row.serviceTime) }}
+          <div style="font-size: 14px; color: #555; margin-bottom: 4px">
+            <span style="font-weight: 600">{{ row.serviceTypeName || '-' }}</span>
+            <span style="margin: 0 6px; color: #ccc">|</span>
+            <span>{{ formatServiceTime(row.serviceDate, row.serviceTime) }}</span>
           </div>
           <!-- 第3行：服务商+护工 -->
-          <div style="font-size: 12px; color: #999; margin-bottom: 8px">
-            {{ row.providerName || '-' }}<span v-if="row.staffName"> · {{ row.staffName }}</span>
+          <div style="font-size: 13px; color: #888; margin-bottom: 10px">
+            {{ row.providerName || '-' }}<span v-if="row.staffName" style="margin: 0 6px; color: #ccc">|</span><span v-if="row.staffName">{{ row.staffName }}</span>
           </div>
           <!-- 第4行：订单号 + 操作 -->
-          <div style="display: flex; justify-content: space-between; align-items: center; border-top: 1px solid #f5f5f5; padding-top: 8px">
-            <span style="font-size: 11px; color: #bbb">{{ row.orderNo }}</span>
-            <div style="display: flex; gap: 4px; flex-shrink: 0" @click.stop>
-              <NButton v-if="(row.status === 'CREATED' || row.status === 'PENDING') && hasAuth('order:list:dispatch')" size="tiny" type="primary" @click="handleAssign(row)">分配</NButton>
-              <NButton v-if="row.status === 'DISPATCHED'" size="tiny" type="primary" @click="handleAccept(row)">接单</NButton>
-              <NButton v-if="row.status === 'RECEIVED'" size="tiny" type="primary" @click="handleStart(row)">开始</NButton>
-              <NButton v-if="row.status === 'SERVICE_STARTED'" size="tiny" type="primary" @click="handleComplete(row)">完成</NButton>
-              <NButton size="tiny" @click="handleDetail(row)">详情</NButton>
+          <div style="display: flex; justify-content: space-between; align-items: center; border-top: 1px solid #f0f0f0; padding-top: 10px; gap: 8px">
+            <span style="font-size: 12px; color: #bbb">{{ row.orderNo }}</span>
+            <div style="display: flex; gap: 6px; flex-shrink: 0; flex-wrap: nowrap" @click.stop>
+              <NButton v-if="(row.status === 'CREATED' || row.status === 'PENDING') && hasAuth('order:list:dispatch')" size="small" type="primary" style="height: 34px; font-size: 13px; font-weight: 600; white-space: nowrap" @click="handleAssign(row)">派单</NButton>
+              <NButton v-if="row.status === 'DISPATCHED'" size="small" type="primary" style="height: 34px; font-size: 13px; font-weight: 600; white-space: nowrap" @click="handleAccept(row)">接单</NButton>
+              <NButton v-if="row.status === 'RECEIVED'" size="small" type="primary" style="height: 34px; font-size: 13px; font-weight: 600; white-space: nowrap" @click="handleStart(row)">开始</NButton>
+              <NButton v-if="row.status === 'SERVICE_STARTED'" size="small" type="primary" style="height: 34px; font-size: 13px; font-weight: 600; white-space: nowrap" @click="handleComplete(row)">完成</NButton>
+              <NButton size="small" style="height: 34px; font-size: 13px; font-weight: 600; white-space: nowrap" @click="handleDetail(row)">详情</NButton>
               <NPopconfirm v-if="(row.status === 'SERVICE_COMPLETED' || row.status === 'EVALUATED' || row.status === 'SETTLED') && hasAuth('order:list:delete')" @positive-click="handleDelete(row)">
-                <template #trigger><NButton size="tiny" type="error">删</NButton></template>
+                <template #trigger><NButton size="small" type="error" style="height: 34px; font-size: 13px; font-weight: 600; white-space: nowrap">删除</NButton></template>
                 确认删除？
               </NPopconfirm>
-              <NButton v-if="row.status !== 'SERVICE_COMPLETED' && row.status !== 'EVALUATED' && row.status !== 'SETTLED' && row.status !== 'CANCELLED' && row.status !== 'REJECTED' && hasAuth('order:list:cancel')" size="tiny" type="error" ghost @click="handleCancel(row)">退</NButton>
+              <NButton v-if="row.status !== 'SERVICE_COMPLETED' && row.status !== 'EVALUATED' && row.status !== 'SETTLED' && row.status !== 'CANCELLED' && row.status !== 'REJECTED' && hasAuth('order:list:cancel')" size="small" type="error" ghost style="height: 34px; font-size: 13px; font-weight: 600; white-space: nowrap" @click="handleCancel(row)">退回</NButton>
             </div>
           </div>
         </div>
@@ -1899,12 +1902,12 @@ onMounted(async () => {
                 </NTag>
               </div>
               <NButton
-                type="primary"
-                size="tiny"
-                @click="routerPushByKey('business_service-log', { query: { orderNo: orderDetailData.orderNo } })"
+                :type="orderDetailData.serviceLogs?.length > 0 ? 'primary' : 'default'"
+                :disabled="!orderDetailData.serviceLogs?.length"
+                size="small"
+                @click="orderDetailData.serviceLogs?.length > 0 && routerPushByKey('business_service-log', { query: { logId: orderDetailData.serviceLogs[0].serviceLogId } })"
               >
-                <template #icon><icon:material-symbols:add /></template>
-                新建日志
+                关联日志
               </NButton>
             </div>
             <div v-if="orderDetailData.serviceLogs && orderDetailData.serviceLogs.length > 0">
@@ -1953,12 +1956,12 @@ onMounted(async () => {
                 </NTag>
               </div>
               <NButton
-                type="warning"
-                size="tiny"
-                @click="routerPushByKey('business_quality', { query: { orderNo: orderDetailData.orderNo } })"
+                :type="orderDetailData.qualityChecks?.length > 0 ? 'warning' : 'default'"
+                :disabled="!orderDetailData.qualityChecks?.length"
+                size="small"
+                @click="orderDetailData.qualityChecks?.length > 0 && routerPushByKey('business_quality', { query: { qcId: orderDetailData.qualityChecks[0].qualityCheckId } })"
               >
-                <template #icon><icon:material-symbols:add /></template>
-                新建质检
+                关联质检
               </NButton>
             </div>
             <div v-if="orderDetailData.qualityChecks && orderDetailData.qualityChecks.length > 0">
