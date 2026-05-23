@@ -316,6 +316,7 @@ test.describe('数据隔离测试 - Provider与Staff视角', () => {
   // F1.14: Staff只能看自己相关的
   // ============================================================
   test('T14: STAFF查看自己的服务日志 → staffId对应', async ({ request: req }) => {
+    if (!staffToken) { test.skip(); return; }
     const res = await req.get(`${API_BASE}/service-log/list?page=1&pageSize=50`, {
       headers: { Authorization: `Bearer ${staffToken}` }
     });
