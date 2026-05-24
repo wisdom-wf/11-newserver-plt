@@ -555,31 +555,15 @@ onMounted(async () => {
 
 <template>
   <div>
-    <!-- Statistics Cards -->
-    <NCard title="服务人员统计" :bordered="false" style="margin-bottom: 16px">
-      <div class="statistics-grid">
-        <div class="stat-card stat-primary">
-          <div class="stat-label">总人数</div>
-          <div class="stat-value">{{ statistics.total }}</div>
-        </div>
-        <div class="stat-card stat-success">
-          <div class="stat-label">在职</div>
-          <div class="stat-value">{{ statistics.active }}</div>
-        </div>
-        <div class="stat-card stat-warning">
-          <div class="stat-label">待上岗</div>
-          <div class="stat-value">{{ statistics.pending }}</div>
-        </div>
-        <div class="stat-card stat-error">
-          <div class="stat-label">已离职</div>
-          <div class="stat-value">{{ statistics.inactive }}</div>
-        </div>
-        <div class="stat-card stat-info">
-          <div class="stat-label">平均评分</div>
-          <div class="stat-value">{{ Number(statistics.avgRating || 0).toFixed(1) }}</div>
-        </div>
-      </div>
-    </NCard>
+    <!-- Statistics Strip - compact single row -->
+    <div style="display: flex; align-items: center; gap: 0; margin-bottom: 12px; font-size: 13px; color: #666">
+      <span style="font-weight: 600; margin-right: 16px; font-size: 14px">服务人员统计</span>
+      <span style="padding: 4px 14px; background: #1890ff18; color: #1890ff; border-radius: 4px; font-weight: 600">总人数 {{ statistics.total }}</span>
+      <span style="padding: 4px 14px; background: #52c41a18; color: #52c41a; border-radius: 4px; font-weight: 600; margin-left: 8px">在职 {{ statistics.active }}</span>
+      <span style="padding: 4px 14px; background: #fa8c1618; color: #fa8c16; border-radius: 4px; font-weight: 600; margin-left: 8px">待上岗 {{ statistics.pending }}</span>
+      <span style="padding: 4px 14px; background: #ff4d4f18; color: #ff4d4f; border-radius: 4px; font-weight: 600; margin-left: 8px">已离职 {{ statistics.inactive }}</span>
+      <span style="padding: 4px 14px; background: #722ed118; color: #722ed1; border-radius: 4px; font-weight: 600; margin-left: 8px">平均评分 {{ Number(statistics.avgRating || 0).toFixed(1) }}</span>
+    </div>
 
     <!-- Table -->
     <NCard :bordered="false" style="margin-bottom: 16px">
@@ -607,36 +591,39 @@ onMounted(async () => {
         </div>
       </template>
       <div style="background: #f5f5f5; padding: 12px; margin-bottom: 12px; border-radius: 8px">
-        <!-- 适老化：状态快捷筛选 Pill -->
-        <div style="margin-bottom: 14px">
-          <div style="font-size: 14px; font-weight: 600; color: #666; margin-bottom: 10px">按状态快速筛选</div>
-          <div style="display: flex; flex-wrap: wrap; gap: 8px">
-            <button
-              v-for="opt in statusOptions"
-              :key="opt.value"
-              :class="searchStatus === opt.value ? 'status-pill active' : 'status-pill'"
-              :style="searchStatus === opt.value ? '' : 'background:#fff;border-color:#d1d5db'"
-              @click="handleStatusPillClick(opt.value)"
-            >
-              {{ opt.label }}
-            </button>
-          </div>
-        </div>
-
-        <!-- 适老化：保险状态快捷筛选 Pill -->
-        <div style="margin-bottom: 14px">
-          <div style="font-size: 14px; font-weight: 600; color: #666; margin-bottom: 10px">按参保状态快速筛选</div>
-          <div style="display: flex; flex-wrap: wrap; gap: 8px">
-            <button
-              v-for="opt in insuranceStatusOptions"
-              :key="opt.value"
-              :class="searchInsuranceStatus === opt.value ? 'status-pill active' : 'status-pill'"
-              :style="searchInsuranceStatus === opt.value ? `background:${opt.color}20;border-color:${opt.color};color:${opt.color}` : 'background:#fff;border-color:#d1d5db'"
-              @click="handleInsuranceStatusPillClick(opt.value)"
-            >
-              {{ opt.label }}
-            </button>
-          </div>
+        <!-- 适老化：状态快捷筛选 Pill - 合并一行 -->
+        <div style="display: flex; flex-wrap: wrap; gap: 8px; align-items: center; margin-bottom: 10px">
+          <span style="font-size: 13px; color: #999; font-weight: 500; margin-right: 4px">在职状态</span>
+          <button
+            :class="!searchStatus ? 'status-pill active' : 'status-pill'"
+            :style="!searchStatus ? '' : 'background:#fff;border-color:#d1d5db'"
+            @click="handleStatusPillClick('')"
+          >全部</button>
+          <button
+            v-for="opt in statusOptions"
+            :key="opt.value"
+            :class="searchStatus === opt.value ? 'status-pill active' : 'status-pill'"
+            :style="searchStatus === opt.value ? '' : 'background:#fff;border-color:#d1d5db'"
+            @click="handleStatusPillClick(opt.value)"
+          >
+            {{ opt.label }}
+          </button>
+          <span style="width: 1px; height: 20px; background: #e5e5e5; margin: 0 6px"></span>
+          <span style="font-size: 13px; color: #999; font-weight: 500; margin-right: 4px">参保状态</span>
+          <button
+            :class="searchInsuranceStatus === null ? 'status-pill active' : 'status-pill'"
+            :style="searchInsuranceStatus === null ? '' : 'background:#fff;border-color:#d1d5db'"
+            @click="handleInsuranceStatusPillClick(null)"
+          >全部</button>
+          <button
+            v-for="opt in insuranceStatusOptions"
+            :key="opt.value"
+            :class="searchInsuranceStatus === opt.value ? 'status-pill active' : 'status-pill'"
+            :style="searchInsuranceStatus === opt.value ? `background:${opt.color}20;border-color:${opt.color};color:${opt.color}` : 'background:#fff;border-color:#d1d5db'"
+            @click="handleInsuranceStatusPillClick(opt.value)"
+          >
+            {{ opt.label }}
+          </button>
         </div>
         <!-- 搜索条件行 -->
         <div style="display: flex; flex-wrap: wrap; gap: 10px; align-items: center">

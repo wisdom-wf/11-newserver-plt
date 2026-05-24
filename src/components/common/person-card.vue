@@ -7,6 +7,10 @@
 import { computed, ref } from 'vue';
 import { NImage, NAvatar, NUpload, NButton, NTag, NProgress } from 'naive-ui';
 import type { UploadFile } from 'naive-ui';
+// Track image load error for fallback to avatar
+const imageError = ref(false);
+function handleImageError() { imageError.value = true; }
+function handleImageLoad() { imageError.value = false; }
 
 interface Props {
   /** 照片URL */
@@ -150,12 +154,16 @@ function handleActionClick(e: Event) {
         }"
       >
         <NImage
-          v-if="photoUrl"
+          v-if="photoUrl && !imageError"
           :src="photoUrl"
           :style="{ width: photoWidth + 'px', height: computedPhotoHeight + 'px', objectFit: 'cover' }"
+          :preview-src="photoUrl"
+          :show-toolbar="false"
+          @error="handleImageError"
+          @load="handleImageLoad"
         />
         <NAvatar
-          v-else
+          v-if="!photoUrl || imageError"
           :size="Math.min(photoWidth, computedPhotoHeight) - 12"
           round
           :style="{ position: 'absolute', top: '50%', left: '50%', transform: 'translate(-50%, -50%)' }"
