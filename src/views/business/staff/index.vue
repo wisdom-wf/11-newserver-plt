@@ -367,7 +367,7 @@ function getInsuranceStatusColor(val?: number): string {
   return '#999';
 }
 
-const columns: DataTableColumns<Api.Staff.Staff> = [
+const tableColumns: DataTableColumns<Api.Staff.Staff> = [
   { type: 'selection' },
   { title: '工号', key: 'staffNo', width: 110 },
   { title: '姓名', key: 'staffName', width: 90 },
@@ -434,6 +434,7 @@ const {
   mobilePagination,
   getData,
   getDataByPage,
+  columns: filteredColumns,
   columnChecks
 } = useNaivePaginatedTable<Api.Common.PaginatingQueryRecord<Api.Staff.Staff>, Api.Staff.Staff>({
   apiFn: async params => {
@@ -453,7 +454,7 @@ const {
     pageSize: 10
   },
   transform: defaultTransform,
-  columns: () => columns
+  columns: () => tableColumns
 });
 
 // Use framework's table operate hook
@@ -834,7 +835,7 @@ onMounted(async () => {
       <!-- List View -->
       <NDataTable
         v-if="viewType === 'list'"
-        :columns="columns"
+        :columns="filteredColumns"
         :data="tableData"
         :loading="loading"
         :scroll-x="1400"

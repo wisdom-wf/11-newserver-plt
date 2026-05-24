@@ -6,6 +6,7 @@ import type { PaginationData, TableColumnCheck, UseTableOptions } from '@sa/hook
 import type { FlatResponseData } from '@sa/axios';
 import { jsonClone } from '@sa/utils';
 import { useAppStore } from '@/store/modules/app';
+import { localStg } from '@/utils/storage';
 import { $t } from '@/locales';
 
 export type UseNaiveTableOptions<ResponseData, ApiData, Pagination extends boolean> = Omit<

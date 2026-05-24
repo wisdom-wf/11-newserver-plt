@@ -1,4 +1,4 @@
-import { computed, ref } from 'vue';
+import { computed, ref, watch } from 'vue';
 import type { Ref, VNodeChild } from 'vue';
 import useBoolean from './use-boolean';
 import useLoading from './use-loading';
@@ -73,7 +73,28 @@ export default function useTable<ResponseData, ApiData, Column, Pagination exten
 
   const data = ref([]) as Ref<ApiData[]>;
 
-  const columnChecks = ref(getColumnChecks(columns())) as Ref<TableColumnCheck[]>;
+  // Simple storage for column checks using localStorage
+  const storageKey = `table_column_checks_${columns.toString().slice(0, 50)}`;
+
+  function loadSavedChecks(): TableColumnCheck[] | null {
+    try {
+      const json = localStorage.getItem(storageKey);
+      return json ? JSON.parse(json) : null;
+    } catch {
+      return null;
+    }
+  }
+
+  function saveChecks(checks: TableColumnCheck[]) {
+    try {
+      localStorage.setItem(storageKey, JSON.stringify(checks));
+    } catch {}
+  }
+
+  // Load saved column checks from storage
+  const savedChecks = loadSavedChecks();
+
+  const columnChecks = ref(savedChecks || getColumnChecks(columns())) as Ref<TableColumnCheck[]>;
 
   const $columns = computed(() => getColumns(columns(), columnChecks.value));
 
@@ -111,6 +132,15 @@ export default function useTable<ResponseData, ApiData, Column, Pagination exten
   if (immediate) {
     getData();
   }
+
+  // Watch columnChecks and save to storage
+  watch(
+    columnChecks,
+    newChecks => {
+      saveChecks(newChecks);
+    },
+    { deep: true }
+  );
 
   return {
     loading,
