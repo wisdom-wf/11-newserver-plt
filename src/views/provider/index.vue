@@ -82,7 +82,7 @@ function getCategoryLabel(category?: string): string {
 }
 
 // Table columns
-const columns: DataTableColumns<Api.Provider.Provider> = [
+const tableColumns: DataTableColumns<Api.Provider.Provider> = [
   { type: 'selection' },
   { title: '服务商名称', key: 'providerName', width: 200 },
   { title: '信用代码', key: 'creditCode', width: 180 },
@@ -146,6 +146,7 @@ const {
   mobilePagination,
   getData,
   getDataByPage,
+  columns: filteredColumns,
   columnChecks
 } = useNaivePaginatedTable<Api.Common.PaginatingQueryRecord<Api.Provider.Provider>, Api.Provider.Provider>({
   apiFn: async params => {
@@ -164,7 +165,7 @@ const {
     pageSize: 10
   },
   transform: defaultTransform,
-  columns: () => columns
+  columns: () => tableColumns
 });
 
 // Use framework's table operate hook
@@ -378,7 +379,7 @@ onMounted(() => {
       </TableHeaderOperation>
 
       <NDataTable
-        :columns="columns"
+        :columns="filteredColumns"
         :data="tableData"
         :loading="loading"
         :scroll-x="1400"

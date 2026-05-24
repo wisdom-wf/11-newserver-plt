@@ -131,7 +131,7 @@ function getStatusLabel(status: string): string {
 }
 
 // Table columns
-const columns: DataTableColumns<Api.Appointment.Appointment> = [
+const tableColumns: DataTableColumns<Api.Appointment.Appointment> = [
   { type: 'selection' },
   { title: '预约单号', key: 'appointmentNo', width: 160 },
   { title: '客户姓名', key: 'elderName', width: 100 },
@@ -222,6 +222,7 @@ const {
   mobilePagination,
   getData,
   getDataByPage,
+  columns: filteredColumns,
   columnChecks
 } = useNaivePaginatedTable<Api.Common.PaginatingQueryRecord<Api.Appointment.Appointment>, Api.Appointment.Appointment>({
   apiFn: async params => {
@@ -245,7 +246,7 @@ const {
     pageSize: 10
   },
   transform: defaultTransform,
-  columns: () => columns
+  columns: () => tableColumns
 });
 
 // Table checked row keys
@@ -800,7 +801,7 @@ onMounted(async () => {
       />
 
       <NDataTable
-        :columns="columns"
+        :columns="filteredColumns"
         :data="tableData"
         :loading="loading"
         :scroll-x="1400"

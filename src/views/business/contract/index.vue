@@ -82,7 +82,7 @@ const detailVisible = ref(false);
 const detailData = ref<Api.Ess.Contract | null>(null);
 
 // Table columns
-const columns: DataTableColumns<Api.Ess.Contract> = [
+const tableColumns: DataTableColumns<Api.Ess.Contract> = [
   { type: 'selection' as const, width: 50 },
   { title: '合同编号', key: 'contractNo', width: 180 },
   {
