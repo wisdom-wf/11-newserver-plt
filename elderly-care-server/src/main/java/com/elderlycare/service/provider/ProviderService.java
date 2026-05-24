@@ -70,4 +70,11 @@ public interface ProviderService extends IService<Provider> {
      * 根据ID列表查询服务商
      */
     List<Provider> listByIds(List<String> providerIds);
+
+    /**
+     * 更新服务商状态
+     * @param providerId 服务商ID
+     * @param status 状态: ENABLED-正常, DISABLED-禁用, DEMOTED-已降级, ELIMINATED-已淘汰
+     */
+    void updateProviderStatus(String providerId, String status);
 }

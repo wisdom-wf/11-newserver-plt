@@ -214,4 +214,16 @@ public class ProviderServiceImpl extends ServiceImpl<ProviderMapper, Provider> i
     public String resetProviderAdminPassword(String providerId) {
         return providerAccountService.resetProviderAdminPassword(providerId);
     }
+
+    @Override
+    public void updateProviderStatus(String providerId, String status) {
+        Provider provider = baseMapper.selectById(providerId);
+        if (provider == null) {
+            throw BusinessException.notFound("服务商不存在");
+        }
+        Provider updateProvider = new Provider();
+        updateProvider.setProviderId(providerId);
+        updateProvider.setStatus(status);
+        baseMapper.updateById(updateProvider);
+    }
 }

@@ -66,7 +66,7 @@ public class Provider implements Serializable {
     private String description;
 
     /**
-     * 状态: ENABLED-启用, DISABLED-禁用
+     * 状态: ENABLED-正常, DISABLED-禁用, DEMOTED-已降级, ELIMINATED-已淘汰
      */
     private String status;
 

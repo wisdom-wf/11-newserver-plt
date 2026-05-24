@@ -301,4 +301,19 @@ public class ProviderController {
         serviceTypeService.deleteServiceType(serviceTypeId);
         return Result.success();
     }
+
+    // ==================== 服务商状态管理 ====================
+
+    /**
+     * 更新服务商状态
+     * PUT /api/providers/{providerId}/status
+     * 状态值: ENABLED-正常, DISABLED-禁用, DEMOTED-已降级, ELIMINATED-已淘汰
+     */
+    @PutMapping("/{providerId}/status")
+    public Result<Void> updateProviderStatus(
+            @PathVariable String providerId,
+            @RequestBody ProviderStatusUpdateDTO dto) {
+        providerService.updateProviderStatus(providerId, dto.getStatus());
+        return Result.success();
+    }
 }
