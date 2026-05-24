@@ -119,6 +119,7 @@ const searchName = ref('');
 const searchPhone = ref('');
 const searchServiceCategory = ref('');
 const searchStatus = ref('');
+const searchInsuranceStatus = ref<number | null>(null);
 
 // Gender options
 const genderOptions = [
@@ -131,6 +132,14 @@ const statusOptions = [
   { label: '待上岗', value: 'PENDING' },
   { label: '在职', value: 'ON_JOB' },
   { label: '离职', value: 'OFF_JOB' }
+];
+
+// Insurance status options (平台统一集采保险)
+const insuranceStatusOptions = [
+  { label: '未参保', value: 0, color: '#999' },
+  { label: '正在参保', value: 1, color: '#52c41a' },
+  { label: '已参保', value: 2, color: '#1890ff' },
+  { label: '已过期', value: 3, color: '#ff4d4f' }
 ];
 
 // Provider options for dropdown
@@ -172,6 +181,22 @@ function getStatusLabel(status?: string): string {
   if (status === 'ON_JOB') return '在职';
   if (status === 'OFF_JOB') return '离职';
   return status || '';
+}
+
+function getInsuranceStatusLabel(val?: number): string {
+  if (val === 0) return '未参保';
+  if (val === 1) return '正在参保';
+  if (val === 2) return '已参保';
+  if (val === 3) return '已过期';
+  return val === undefined || val === null ? '' : '未知';
+}
+
+function getInsuranceStatusColor(val?: number): string {
+  if (val === 0) return '#999';
+  if (val === 1) return '#52c41a';
+  if (val === 2) return '#1890ff';
+  if (val === 3) return '#ff4d4f';
+  return '#999';
 }
 
 const columns: DataTableColumns<Api.Staff.Staff> = [
@@ -241,6 +266,7 @@ const {
     if (searchPhone.value) queryParams.phone = searchPhone.value;
     if (searchServiceCategory.value) queryParams.serviceType = searchServiceCategory.value;
     if (searchStatus.value) queryParams.status = searchStatus.value;
+    if (searchInsuranceStatus.value !== null) queryParams.insuranceStatus = searchInsuranceStatus.value;
     return fetchGetStaffList(queryParams);
   },
   apiParams: {
@@ -273,7 +299,8 @@ const form = ref({
   emergencyContact: '',
   emergencyPhone: '',
   remark: '',
-  status: 'PENDING' as 'PENDING' | 'ON_JOB' | 'OFF_JOB'
+  status: 'PENDING' as 'PENDING' | 'ON_JOB' | 'OFF_JOB',
+  insuranceStatus: 0 as 0 | 1 | 2 | 3
 });
 
 // Reset form to empty state
@@ -287,7 +314,8 @@ function resetForm() {
     emergencyContact: '',
     emergencyPhone: '',
     remark: '',
-    status: 'PENDING'
+    status: 'PENDING',
+    insuranceStatus: 0
   };
 }
 
@@ -305,7 +333,8 @@ watch(
         emergencyContact: data.emergencyContact || '',
         emergencyPhone: data.emergencyPhone || '',
         remark: data.remark || '',
-        status: (data.status as 'PENDING' | 'ON_JOB' | 'OFF_JOB') || 'PENDING'
+        status: (data.status as 'PENDING' | 'ON_JOB' | 'OFF_JOB') || 'PENDING',
+        insuranceStatus: data.insuranceStatus ?? 0
       };
     } else {
       resetForm();
@@ -460,11 +489,30 @@ function handleResetSearch() {
   searchPhone.value = '';
   searchServiceCategory.value = '';
   searchStatus.value = null;
+  searchInsuranceStatus.value = null;
   getDataByPage(1);
+}
+
+// Quick update insurance status inline
+async function quickUpdateInsuranceStatus(staffId: string, newStatus: number) {
+  try {
+    await fetchUpdateStaffInsuranceStatus(staffId, newStatus);
+    message.success('参保状态已更新');
+    getData();
+  } catch (e) {
+    console.error('Failed to update insurance status', e);
+    message.error('更新失败');
+  }
 }
 
 function handleStatusPillClick(statusValue: string | null) {
   searchStatus.value = statusValue;
+  pagination.page = 1;
+  getData();
+}
+
+function handleInsuranceStatusPillClick(val: number | null) {
+  searchInsuranceStatus.value = val;
   pagination.page = 1;
   getData();
 }
@@ -569,6 +617,22 @@ onMounted(async () => {
               :class="searchStatus === opt.value ? 'status-pill active' : 'status-pill'"
               :style="searchStatus === opt.value ? '' : 'background:#fff;border-color:#d1d5db'"
               @click="handleStatusPillClick(opt.value)"
+            >
+              {{ opt.label }}
+            </button>
+          </div>
+        </div>
+
+        <!-- 适老化：保险状态快捷筛选 Pill -->
+        <div style="margin-bottom: 14px">
+          <div style="font-size: 14px; font-weight: 600; color: #666; margin-bottom: 10px">按参保状态快速筛选</div>
+          <div style="display: flex; flex-wrap: wrap; gap: 8px">
+            <button
+              v-for="opt in insuranceStatusOptions"
+              :key="opt.value"
+              :class="searchInsuranceStatus === opt.value ? 'status-pill active' : 'status-pill'"
+              :style="searchInsuranceStatus === opt.value ? `background:${opt.color}20;border-color:${opt.color};color:${opt.color}` : 'background:#fff;border-color:#d1d5db'"
+              @click="handleInsuranceStatusPillClick(opt.value)"
             >
               {{ opt.label }}
             </button>
