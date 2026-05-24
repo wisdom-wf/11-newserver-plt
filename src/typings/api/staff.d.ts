@@ -52,6 +52,8 @@ declare namespace Api {
       remark?: string;
       /** 状态 */
       status?: string;
+      /** 参保状态 0-未参保 1-正在参保 2-已参保 3-已过期 */
+      insuranceStatus?: number;
     }
 
     /** 服务人员详情 */

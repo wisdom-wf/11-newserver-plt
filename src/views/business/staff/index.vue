@@ -732,6 +732,9 @@ onMounted(async () => {
           <NFormItem label="状态">
             <NSelect v-model:value="form.status" :options="statusOptions" style="width: 150px" />
           </NFormItem>
+          <NFormItem label="参保状态">
+            <NSelect v-model:value="form.insuranceStatus" :options="insuranceStatusOptions" style="width: 150px" />
+          </NFormItem>
           <NFormItem label="备注">
             <NInput v-model:value="form.remark" type="textarea" placeholder="请输入备注" />
           </NFormItem>
@@ -805,6 +808,32 @@ onMounted(async () => {
                 <div v-if="detailData.username" style="margin-top: 12px">
                   <NButton size="small" type="warning" @click="resetPassword">重置密码</NButton>
                 </div>
+              </div>
+
+              <!-- Insurance & Honors -->
+              <div style="margin-bottom: 24px">
+                <div style="font-size: 14px; font-weight: 600; margin-bottom: 12px; color: #333">保险与荣誉</div>
+                <NGrid :cols="2" :x-gap="16">
+                  <NGi><div style="color: #999; font-size: 13px">参保状态</div>
+                    <div style="margin-top: 4px">
+                      <NTag :type="detailData.insuranceStatus === 2 ? 'success' : detailData.insuranceStatus === 1 ? 'warning' : 'default'" size="small">
+                        {{ ['', '未参保', '正在参保', '已参保', '已过期'][detailData.insuranceStatus ?? 0] || '未参保' }}
+                      </NTag>
+                    </div>
+                  </NGi>
+                  <NGi><div style="color: #999; font-size: 13px">月度之星</div>
+                    <div style="margin-top: 4px">
+                      <NTag v-if="detailData.monthlyStar === 1" type="warning">🏅 月度之星</NTag>
+                      <span v-else style="color: #ccc">—</span>
+                    </div>
+                  </NGi>
+                  <NGi><div style="color: #999; font-size: 13px">季度之星</div>
+                    <div style="margin-top: 4px">
+                      <NTag v-if="detailData.quarterlyStar === 1" type="info">🏆 季度之星</NTag>
+                      <span v-else style="color: #ccc">—</span>
+                    </div>
+                  </NGi>
+                </NGrid>
               </div>
 
               <!-- Emergency Contact -->
