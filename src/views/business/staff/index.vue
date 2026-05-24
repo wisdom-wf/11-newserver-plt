@@ -667,28 +667,31 @@ onMounted(async () => {
 
       <!-- Card View - 使用PersonCard组件 -->
       <div v-else style="display: flex; flex-wrap: wrap; gap: 12px">
-        <PersonCard
-          v-for="staff in tableData"
-          :key="staff.staffId"
-          :photo-url="staff.avatarUrl"
-          :name="staff.staffName || '未知'"
-          :subtitle="staff.phone || '-'"
-          :staff-no="staff.staffNo || ''"
-          :insurance-status="staff.insuranceStatus"
-          :monthly-star="staff.monthlyStar === true || staff.monthlyStar === 1"
-          :quarterly-star="staff.quarterlyStar === true || staff.quarterlyStar === 1"
-          :extra-info="[
-            { label: '在职', value: getStatusLabel(staff.status), color: staff.status === 'ON_JOB' ? '#52c41a' : staff.status === 'PENDING' ? '#fa8c16' : '#ff4d4f' },
-            ...(staff.serviceTypes ? [{ label: '服务类型', value: staff.serviceTypes.split(',')[0] }] : [])
-          ]"
-          :index-value="staff.rating ? Number(staff.rating) : undefined"
-          index-label="评分"
-          photo-width="85"
-          scale="1"
-          :show-upload-btn="true"
-          @click="showDetail(staff)"
-          @photo-upload="(file) => handlePhotoUpload(staff.staffId, file)"
-        />
+        <div style="display: grid; grid-template-columns: repeat(3, 1fr); gap: 14px; width: 100%">
+          <PersonCard
+            v-for="staff in tableData"
+            :key="staff.staffId"
+            :photo-url="staff.avatarUrl"
+            :name="staff.staffName || '未知'"
+            :subtitle="staff.phone || '-'"
+            :staff-no="staff.staffNo || ''"
+            :insurance-status="staff.insuranceStatus"
+            :monthly-star="staff.monthlyStar === true || staff.monthlyStar === 1"
+            :quarterly-star="staff.quarterlyStar === true || staff.quarterlyStar === 1"
+            :extra-info="[
+              { label: '在职', value: getStatusLabel(staff.status), color: staff.status === 'ON_JOB' ? '#52c41a' : staff.status === 'PENDING' ? '#fa8c16' : '#ff4d4f' },
+              ...(staff.serviceTypes ? [{ label: '服务类型', value: staff.serviceTypes.split(',')[0] }] : [])
+            ]"
+            :index-value="staff.rating ? Number(staff.rating) : undefined"
+            index-label="评分"
+            photo-width="85"
+            scale="1"
+            :show-upload-btn="true"
+            @click="showDetail(staff)"
+            @photo-upload="(file) => handlePhotoUpload(staff.staffId, file)"
+          />
+        </div>
+        <NEmpty v-if="tableData.length === 0" description="暂无数据" style="width: 100%; margin-top: 40px" />
         <NEmpty v-if="tableData.length === 0" description="暂无数据" style="width: 100%; margin-top: 40px" />
       </div>
     </NCard>
