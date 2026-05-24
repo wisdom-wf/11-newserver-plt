@@ -1,0 +1,525 @@
+<!doctype html>
+<html>
+<head>
+<meta charset="UTF-8">
+<title>丁峰养老 - 满意度调查</title>
+<style>
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+  body {
+    font-family: "Noto Sans SC", "PingFang SC", "Microsoft YaHei", sans-serif;
+    background: #FFF8E7;
+    overflow: hidden;
+    width: 1920px;
+    height: 1080px;
+  }
+
+  .scene {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 1920px;
+    height: 1080px;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+    gap: 40px;
+    padding: 80px;
+  }
+
+  h1 { font-size: 96px; color: #5D4E37; font-weight: 700; }
+  h2 { font-size: 72px; color: #5D4E37; font-weight: 600; }
+  p { font-size: 48px; color: #7A6B5A; }
+
+  .warm-bg {
+    position: fixed;
+    inset: 0;
+    background: linear-gradient(135deg, #FFF8E7 0%, #FFE4B5 50%, #FFF8E7 100%);
+    z-index: -1;
+  }
+
+  .decorative-circle {
+    position: absolute;
+    border-radius: 50%;
+    background: rgba(245, 166, 35, 0.15);
+  }
+  .circle-1 { width: 400px; height: 400px; top: -100px; right: -100px; }
+  .circle-2 { width: 300px; height: 300px; bottom: -80px; left: -80px; }
+
+  /* 品牌水印 */
+  .brand-watermark {
+    position: absolute;
+    top: 80px;
+    right: 80px;
+    font-size: 28px;
+    color: #F5A623;
+    opacity: 0;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    z-index: 50;
+    font-weight: 600;
+  }
+
+  /* 调查问卷 */
+  .survey-card {
+    background: white;
+    border-radius: 24px;
+    padding: 40px 60px;
+    box-shadow: 0 8px 32px rgba(93, 78, 55, 0.1);
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 20px;
+  }
+  .survey-icon { font-size: 64px; }
+  .survey-text { font-size: 48px; color: #5D4E37; font-weight: 600; }
+
+  /* 评分星级 */
+  .star-rating {
+    display: flex;
+    gap: 15px;
+  }
+  .star { font-size: 72px; }
+
+  /* 调查内容 */
+  .survey-items {
+    display: flex;
+    gap: 25px;
+    flex-wrap: wrap;
+    justify-content: center;
+  }
+  .survey-item {
+    background: white;
+    border-radius: 20px;
+    padding: 30px 50px;
+    box-shadow: 0 6px 24px rgba(93, 78, 55, 0.08);
+    display: flex;
+    align-items: center;
+    gap: 15px;
+  }
+  .survey-item-icon { font-size: 48px; }
+  .survey-item-text { font-size: 36px; color: #5D4E37; font-weight: 500; }
+
+  /* 反馈闭环 */
+  .feedback-loop {
+    display: flex;
+    gap: 20px;
+    align-items: center;
+  }
+  .feedback-step {
+    background: white;
+    border-radius: 20px;
+    padding: 30px 50px;
+    box-shadow: 0 6px 24px rgba(93, 78, 55, 0.08);
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 15px;
+  }
+  .feedback-icon { font-size: 48px; }
+  .feedback-text { font-size: 32px; color: #5D4E37; font-weight: 500; }
+  .feedback-arrow { font-size: 40px; color: #F5A623; }
+
+  /* 数据价值 */
+  .value-display {
+    background: white;
+    border-radius: 24px;
+    padding: 50px 80px;
+    box-shadow: 0 8px 32px rgba(93, 78, 55, 0.1);
+    display: flex;
+    align-items: center;
+    gap: 40px;
+  }
+  .value-icon { font-size: 64px; }
+  .value-text { font-size: 48px; color: #5D4E37; font-weight: 600; }
+
+  /* 激励机制 */
+  .reward-card {
+    background: linear-gradient(135deg, #F5A623, #FFB84D);
+    color: white;
+    border-radius: 24px;
+    padding: 40px 80px;
+    box-shadow: 0 8px 32px rgba(245, 166, 35, 0.3);
+    display: flex;
+    align-items: center;
+    gap: 30px;
+  }
+  .reward-icon { font-size: 64px; }
+  .reward-text { font-size: 48px; font-weight: 600; }
+
+  /* 总结页 */
+  .summary-box {
+    background: white;
+    border-radius: 24px;
+    padding: 60px 100px;
+    box-shadow: 0 8px 32px rgba(93, 78, 55, 0.1);
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 30px;
+  }
+  .summary-brand { font-size: 72px; color: #F5A623; font-weight: 700; }
+  .summary-text { font-size: 56px; color: #5D4E37; font-weight: 600; }
+
+  /* 结尾品牌页 */
+  .brand-end {
+    background: linear-gradient(135deg, #FFF8E7, #FFE4B5);
+    border-radius: 30px;
+    padding: 80px 120px;
+    box-shadow: 0 12px 40px rgba(245, 166, 35, 0.2);
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 40px;
+  }
+  .brand-logo { font-size: 80px; }
+  .brand-slogan { font-size: 64px; color: #5D4E37; font-weight: 700; }
+
+  /* Caption styles */
+  .caption-bar {
+    position: absolute;
+    bottom: 0;
+    left: 0;
+    right: 0;
+    height: 120px;
+    background: rgba(93, 78, 55, 0.85);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    z-index: 100;
+  }
+  .caption-text {
+    font-size: 42px;
+    color: white;
+    font-weight: 600;
+    text-align: center;
+    padding: 0 40px;
+  }
+
+  /* Scene visibility */
+  #scene1 { background: #FFF8E7; z-index: 1; }
+  #scene2 { background: #FFF8E7; z-index: 2; opacity: 0; visibility: hidden; }
+  #scene3 { background: #FFF8E7; z-index: 3; opacity: 0; visibility: hidden; }
+  #scene4 { background: #FFF8E7; z-index: 4; opacity: 0; visibility: hidden; }
+  #scene5 { background: #FFF8E7; z-index: 5; opacity: 0; visibility: hidden; }
+  #scene6 { background: #FFF8E7; z-index: 6; opacity: 0; visibility: hidden; }
+  #scene7 { background: #FFF8E7; z-index: 7; opacity: 0; visibility: hidden; }
+  #scene8 { background: #FFF8E7; z-index: 8; opacity: 0; visibility: hidden; }
+</style>
+</head>
+<body>
+
+<!-- Background decorations -->
+<div class="warm-bg"></div>
+
+<!-- Root Composition -->
+<div id="root" data-composition-id="satisfaction-survey" data-width="1920" data-height="1080" data-start="0" data-duration="82">
+
+  <!-- 品牌水印（全场景） -->
+  <div class="brand-watermark" id="watermark">🏠 丁峰养老</div>
+
+  <!-- Scene 1: 标题页 + 客户视角 (0-8s) -->
+  <div id="scene1" class="scene">
+    <div class="decorative-circle circle-1"></div>
+    <div class="decorative-circle circle-2"></div>
+    <div class="survey-card" id="intro-card">
+      <div class="survey-icon" id="intro-icon">👂</div>
+      <div class="survey-text" id="intro-text">每一次服务结束后<br>我们想问：您满意吗？</div>
+    </div>
+    <!-- Caption -->
+    <div id="cap1" class="caption-bar">
+      <span class="caption-text">您的声音，我们倾听</span>
+    </div>
+  </div>
+
+  <!-- Scene 2: 调查时机设计 (8-20s) -->
+  <div id="scene2" class="scene">
+    <h2 id="timing-title">完善的满意度调查系统</h2>
+    <div class="survey-items" id="timing-items">
+      <div class="survey-item" id="timing-1">
+        <div class="survey-item-icon">✅</div>
+        <div class="survey-item-text">服务完成后</div>
+      </div>
+      <div class="survey-item" id="timing-2">
+        <div class="survey-item-icon">📲</div>
+        <div class="survey-item-text">自动推送</div>
+      </div>
+      <div class="survey-item" id="timing-3">
+        <div class="survey-item-icon">✏️</div>
+        <div class="survey-item-text">方便填写</div>
+      </div>
+    </div>
+    <!-- Caption -->
+    <div id="cap2" class="caption-bar">
+      <span class="caption-text">服务完成后 · 自动推送 · 方便填写</span>
+    </div>
+  </div>
+
+  <!-- Scene 3: 调查内容设计 (20-35s) -->
+  <div id="scene3" class="scene">
+    <h2 id="content-title">多维度调查内容</h2>
+    <div class="survey-items" id="content-items">
+      <div class="survey-item" id="content-1">
+        <div class="survey-item-icon">😊</div>
+        <div class="survey-item-text">服务态度</div>
+      </div>
+      <div class="survey-item" id="content-2">
+        <div class="survey-item-icon">🎓</div>
+        <div class="survey-item-text">专业程度</div>
+      </div>
+      <div class="survey-item" id="content-3">
+        <div class="survey-item-icon">⏰</div>
+        <div class="survey-item-text">准时性</div>
+      </div>
+    </div>
+    <p id="content-desc" style="font-size: 40px; color: #7A6B5A; margin-top: 30px;">从一到五打分，或直接写下文字反馈</p>
+    <!-- Caption -->
+    <div id="cap3" class="caption-bar">
+      <span class="caption-text">服务态度 · 专业程度 · 满意度打分 · 文字反馈</span>
+    </div>
+  </div>
+
+  <!-- Scene 4: 反馈闭环机制 (35-47s) -->
+  <div id="scene4" class="scene">
+    <h2 id="loop-title">问题追踪 · 服务商改进 · 结果反馈</h2>
+    <div class="feedback-loop" id="feedback-loop">
+      <div class="feedback-step" id="feedback-1">
+        <div class="feedback-icon">📊</div>
+        <div class="feedback-text">问题追踪</div>
+      </div>
+      <div class="feedback-arrow">→</div>
+      <div class="feedback-step" id="feedback-2">
+        <div class="feedback-icon">🔧</div>
+        <div class="feedback-text">服务商改进</div>
+      </div>
+      <div class="feedback-arrow">→</div>
+      <div class="feedback-step" id="feedback-3">
+        <div class="feedback-icon">✓</div>
+        <div class="feedback-text">结果反馈</div>
+      </div>
+    </div>
+    <!-- Caption -->
+    <div id="cap4" class="caption-bar">
+      <span class="caption-text">问题追踪 · 服务商改进 · 结果反馈</span>
+    </div>
+  </div>
+
+  <!-- Scene 5: 数据价值应用 (47-62s) -->
+  <div id="scene5" class="scene">
+    <h2 id="value-title">您的声音，是平台升级的动力</h2>
+    <div class="value-display" id="value-display">
+      <div class="value-icon">📈</div>
+      <div class="value-text">持续优化服务</div>
+    </div>
+    <p id="value-desc" style="font-size: 40px; color: #7A6B5A; margin-top: 30px;">您的反馈都被用来优化服务、人员培训和平台升级</p>
+    <!-- Caption -->
+    <div id="cap5" class="caption-bar">
+      <span class="caption-text">服务优化 · 人员培训 · 平台升级</span>
+    </div>
+  </div>
+
+  <!-- Scene 6: 客户激励机制 (62-74s) -->
+  <div id="scene6" class="scene">
+    <h2 id="reward-title">感谢您的参与</h2>
+    <div class="reward-card" id="reward-card">
+      <div class="reward-icon">🎁</div>
+      <div class="reward-text">积分奖励机制</div>
+    </div>
+    <p id="reward-desc" style="font-size: 40px; color: #7A6B5A; margin-top: 30px;">参与调查就能获得积分，积分可兑换优惠券和礼品</p>
+    <!-- Caption -->
+    <div id="cap6" class="caption-bar">
+      <span class="caption-text">积分奖励 · 优惠活动 · 感谢回馈</span>
+    </div>
+  </div>
+
+  <!-- Scene 7: 总结 + CTA (74-82s) -->
+  <div id="scene7" class="scene">
+    <div class="summary-box" id="summary-box">
+      <div class="summary-brand" id="summary-brand">丁峰养老</div>
+      <div class="summary-text" id="summary-text">听见声音 · 温暖改进<br>共同成长</div>
+    </div>
+    <!-- Caption -->
+    <div id="cap7" class="caption-bar">
+      <span class="caption-text">丁峰养老 · 听见声音 · 温暖改进</span>
+    </div>
+  </div>
+
+  <!-- Scene 8: 品牌结束 (82-90s) -->
+  <div id="scene8" class="scene">
+    <div class="brand-end" id="brand-end">
+      <div class="brand-logo" id="brand-logo">🏠 丁峰养老</div>
+      <div class="brand-slogan" id="brand-slogan">感谢有您</div>
+    </div>
+    <!-- Caption -->
+    <div id="cap8" class="caption-bar">
+      <span class="caption-text">丁峰养老 · 感谢有您</span>
+    </div>
+  </div>
+
+  <!-- Audio narration -->
+  <audio id="narration-full" data-start="0" data-duration="82" data-track-index="10" src="audio/narration_full.mp3" data-volume="1"></audio>
+
+</div>
+
+<script src="https://cdn.jsdelivr.net/npm/gsap@3.14.2/dist/gsap.min.js"></script>
+<script>
+window.__timelines = window.__timelines || {};
+
+const tl = gsap.timeline({ paused: true });
+
+// ============================================
+// 品牌水印 - 每个场景淡入
+// ============================================
+// Scene 1-7 水印淡入
+for (let i = 0; i < 7; i++) {
+  tl.from("#watermark", { opacity: 0, duration: 0.4, ease: "power2.out" }, i * 10 + 0.5);
+}
+// Scene 8 不需要水印（有品牌logo）
+
+// ============================================
+// Scene 1: 标题页 + 客户视角 (0-8s)
+// ============================================
+tl.from("#intro-card", { y: 60, opacity: 0, duration: 0.6, ease: "power3.out" }, 0.5);
+tl.from("#intro-icon", { scale: 0, duration: 0.5, ease: "back.out(1.4)" }, 0.8);
+tl.from("#intro-text", { y: 30, opacity: 0, duration: 0.5, ease: "power2.out" }, 1.2);
+// Caption 1
+tl.from("#cap1", { y: 120, opacity: 0, duration: 0.5, ease: "power2.out" }, 2.0);
+tl.to("#cap1", { opacity: 1, duration: 0.3 }, 2.0);
+tl.to("#cap1", { opacity: 0, duration: 0.4 }, 7.0);
+
+// Transition 1→2
+tl.to("#scene1", { opacity: 0, duration: 0.5, ease: "power2.inOut" }, 7.5);
+tl.to("#scene2", { opacity: 1, duration: 0.5, ease: "power2.inOut" }, 7.9);
+tl.set("#scene1", { visibility: "hidden" }, 8.0);
+tl.set("#scene2", { visibility: "visible" }, 7.9);
+
+// ============================================
+// Scene 2: 调查时机设计 (8-20s)
+// ============================================
+tl.from("#timing-title", { y: 40, opacity: 0, duration: 0.5, ease: "power2.out" }, 8.5);
+tl.from("#timing-1", { scale: 0.8, opacity: 0, duration: 0.5, ease: "back.out(1.4)" }, 9.2);
+tl.from("#timing-2", { scale: 0.8, opacity: 0, duration: 0.5, ease: "back.out(1.4)" }, 9.8);
+tl.from("#timing-3", { scale: 0.8, opacity: 0, duration: 0.5, ease: "back.out(1.4)" }, 10.4);
+// Caption 2
+tl.from("#cap2", { y: 120, opacity: 0, duration: 0.5, ease: "power2.out" }, 11.5);
+tl.to("#cap2", { opacity: 1, duration: 0.3 }, 11.5);
+tl.to("#cap2", { opacity: 0, duration: 0.4 }, 19.0);
+
+// Transition 2→3
+tl.to("#scene2", { opacity: 0, duration: 0.5, ease: "power2.inOut" }, 19.5);
+tl.to("#scene3", { opacity: 1, duration: 0.5, ease: "power2.inOut" }, 19.9);
+tl.set("#scene2", { visibility: "hidden" }, 20.0);
+tl.set("#scene3", { visibility: "visible" }, 19.9);
+
+// ============================================
+// Scene 3: 调查内容设计 (20-35s)
+// ============================================
+tl.from("#content-title", { y: 40, opacity: 0, duration: 0.5, ease: "power2.out" }, 20.5);
+tl.from("#content-1", { scale: 0.8, opacity: 0, duration: 0.5, ease: "back.out(1.4)" }, 21.2);
+tl.from("#content-2", { scale: 0.8, opacity: 0, duration: 0.5, ease: "back.out(1.4)" }, 21.8);
+tl.from("#content-3", { scale: 0.8, opacity: 0, duration: 0.5, ease: "back.out(1.4)" }, 22.4);
+tl.from("#content-desc", { y: 30, opacity: 0, duration: 0.5, ease: "power2.out" }, 23.2);
+// Caption 3
+tl.from("#cap3", { y: 120, opacity: 0, duration: 0.5, ease: "power2.out" }, 24.0);
+tl.to("#cap3", { opacity: 1, duration: 0.3 }, 24.0);
+tl.to("#cap3", { opacity: 0, duration: 0.4 }, 34.0);
+
+// Transition 3→4
+tl.to("#scene3", { opacity: 0, duration: 0.5, ease: "power2.inOut" }, 34.5);
+tl.to("#scene4", { opacity: 1, duration: 0.5, ease: "power2.inOut" }, 34.9);
+tl.set("#scene3", { visibility: "hidden" }, 35.0);
+tl.set("#scene4", { visibility: "visible" }, 34.9);
+
+// ============================================
+// Scene 4: 反馈闭环机制 (35-47s)
+// ============================================
+tl.from("#loop-title", { y: 40, opacity: 0, duration: 0.5, ease: "power2.out" }, 35.5);
+tl.from("#feedback-loop", { y: 50, opacity: 0, duration: 0.6, ease: "power3.out" }, 36.2);
+tl.from("#feedback-1", { scale: 0.8, opacity: 0, duration: 0.5, ease: "back.out(1.4)" }, 37.0);
+tl.from("#feedback-2", { scale: 0.8, opacity: 0, duration: 0.5, ease: "back.out(1.4)" }, 37.6);
+tl.from("#feedback-3", { scale: 0.8, opacity: 0, duration: 0.5, ease: "back.out(1.4)" }, 38.2);
+// Caption 4
+tl.from("#cap4", { y: 120, opacity: 0, duration: 0.5, ease: "power2.out" }, 39.5);
+tl.to("#cap4", { opacity: 1, duration: 0.3 }, 39.5);
+tl.to("#cap4", { opacity: 0, duration: 0.4 }, 46.0);
+
+// Transition 4→5
+tl.to("#scene4", { opacity: 0, duration: 0.5, ease: "power2.inOut" }, 46.5);
+tl.to("#scene5", { opacity: 1, duration: 0.5, ease: "power2.inOut" }, 46.9);
+tl.set("#scene4", { visibility: "hidden" }, 47.0);
+tl.set("#scene5", { visibility: "visible" }, 46.9);
+
+// ============================================
+// Scene 5: 数据价值应用 (47-62s)
+// ============================================
+tl.from("#value-title", { y: 40, opacity: 0, duration: 0.5, ease: "power2.out" }, 47.5);
+tl.from("#value-display", { y: 50, opacity: 0, duration: 0.6, ease: "power3.out" }, 48.2);
+tl.from("#value-icon", { scale: 0.8, opacity: 0, duration: 0.5, ease: "back.out(1.4)" }, 49.0);
+tl.from("#value-desc", { y: 30, opacity: 0, duration: 0.5, ease: "power2.out" }, 50.0);
+// Caption 5
+tl.from("#cap5", { y: 120, opacity: 0, duration: 0.5, ease: "power2.out" }, 51.0);
+tl.to("#cap5", { opacity: 1, duration: 0.3 }, 51.0);
+tl.to("#cap5", { opacity: 0, duration: 0.4 }, 61.0);
+
+// Transition 5→6
+tl.to("#scene5", { opacity: 0, duration: 0.5, ease: "power2.inOut" }, 61.5);
+tl.to("#scene6", { opacity: 1, duration: 0.5, ease: "power2.inOut" }, 61.9);
+tl.set("#scene5", { visibility: "hidden" }, 62.0);
+tl.set("#scene6", { visibility: "visible" }, 61.9);
+
+// ============================================
+// Scene 6: 客户激励机制 (62-74s)
+// ============================================
+tl.from("#reward-title", { y: 40, opacity: 0, duration: 0.5, ease: "power2.out" }, 62.5);
+tl.from("#reward-card", { y: 50, opacity: 0, duration: 0.6, ease: "power3.out" }, 63.2);
+tl.from("#reward-icon", { scale: 0.8, opacity: 0, duration: 0.5, ease: "back.out(1.4)" }, 64.0);
+tl.from("#reward-desc", { y: 30, opacity: 0, duration: 0.5, ease: "power2.out" }, 65.0);
+// Caption 6
+tl.from("#cap6", { y: 120, opacity: 0, duration: 0.5, ease: "power2.out" }, 66.0);
+tl.to("#cap6", { opacity: 1, duration: 0.3 }, 66.0);
+tl.to("#cap6", { opacity: 0, duration: 0.4 }, 73.0);
+
+// Transition 6→7
+tl.to("#scene6", { opacity: 0, duration: 0.5, ease: "power2.inOut" }, 73.5);
+tl.to("#scene7", { opacity: 1, duration: 0.5, ease: "power2.inOut" }, 73.9);
+tl.set("#scene6", { visibility: "hidden" }, 74.0);
+tl.set("#scene7", { visibility: "visible" }, 73.9);
+
+// ============================================
+// Scene 7: 总结 + CTA (74-82s)
+// ============================================
+tl.from("#summary-box", { scale: 0.85, opacity: 0, duration: 0.6, ease: "back.out(1.4)" }, 74.5);
+tl.from("#summary-brand", { y: 30, opacity: 0, duration: 0.5, ease: "power2.out" }, 75.2);
+tl.from("#summary-text", { y: 30, opacity: 0, duration: 0.5, ease: "power2.out" }, 75.8);
+// Caption 7
+tl.from("#cap7", { y: 120, opacity: 0, duration: 0.5, ease: "power2.out" }, 76.5);
+tl.to("#cap7", { opacity: 1, duration: 0.3 }, 76.5);
+tl.to("#cap7", { opacity: 0, duration: 0.4 }, 81.0);
+
+// Transition 7→8
+tl.to("#scene7", { opacity: 0, duration: 0.5, ease: "power2.inOut" }, 81.5);
+tl.to("#scene8", { opacity: 1, duration: 0.5, ease: "power2.inOut" }, 81.9);
+tl.set("#scene7", { visibility: "hidden" }, 82.0);
+tl.set("#scene8", { visibility: "visible" }, 81.9);
+
+// Scene 8 不需要水印，隐藏它
+tl.set("#watermark", { opacity: 0 }, 81.9);
+
+// ============================================
+// Scene 8: 品牌结束 (82-90s)
+// ============================================
+tl.from("#brand-end", { scale: 0.85, opacity: 0, duration: 0.6, ease: "back.out(1.4)" }, 82.5);
+tl.from("#brand-logo", { y: 30, opacity: 0, duration: 0.5, ease: "power2.out" }, 83.2);
+tl.from("#brand-slogan", { y: 30, opacity: 0, duration: 0.5, ease: "power2.out" }, 83.8);
+// Caption 8 - 持续显示
+tl.from("#cap8", { y: 120, opacity: 0, duration: 0.5, ease: "power2.out" }, 84.0);
+tl.to("#cap8", { opacity: 1, duration: 0.3 }, 84.0);
+
+// 音频结束后淡出
+tl.to("[data-composition-id='satisfaction-survey']", { opacity: 0, duration: 2 }, 80.0);
+
+window.__timelines["satisfaction-survey"] = tl;
+</script>
+</body>
+</html>

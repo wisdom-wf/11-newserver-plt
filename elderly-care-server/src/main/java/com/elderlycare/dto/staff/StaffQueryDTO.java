@@ -66,4 +66,9 @@ public class StaffQueryDTO implements Serializable {
      * 入职日期结束
      */
     private LocalDate hireDateEnd;
+
+    /**
+     * 参保状态 0-未参保 1-正在参保 2-已参保 3-已过期
+     */
+    private Integer insuranceStatus;
 }

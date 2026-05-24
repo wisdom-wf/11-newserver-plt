@@ -162,6 +162,9 @@ public class StaffServiceImpl implements StaffService {
         result.setRemark(staff.getRemark());
         result.setCreateTime(staff.getCreateTime());
         result.setUpdateTime(staff.getUpdateTime());
+        result.setInsuranceStatus(staff.getInsuranceStatus());
+        result.setMonthlyStar(staff.getMonthlyStar());
+        result.setQuarterlyStar(staff.getQuarterlyStar());
 
         // 如果需要创建账户
         if (createAccount) {
@@ -620,6 +623,9 @@ public class StaffServiceImpl implements StaffService {
         vo.setRemark(staff.getRemark());
         vo.setCreateTime(staff.getCreateTime());
         vo.setUpdateTime(staff.getUpdateTime());
+        vo.setInsuranceStatus(staff.getInsuranceStatus());
+        vo.setMonthlyStar(staff.getMonthlyStar());
+        vo.setQuarterlyStar(staff.getQuarterlyStar());
 
         // 查询账户信息
         if (staff.getPhone() != null) {

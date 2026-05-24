@@ -192,4 +192,19 @@ public class StaffVO implements Serializable {
      * 是否已创建系统账户
      */
     private Boolean hasAccount;
+
+    /**
+     * 参保状态 0-未参保 1-正在参保 2-已参保 3-已过期
+     */
+    private Integer insuranceStatus;
+
+    /**
+     * 月度之星 0-否 1-是
+     */
+    private Integer monthlyStar;
+
+    /**
+     * 季度之星 0-否 1-是
+     */
+    private Integer quarterlyStar;
 }

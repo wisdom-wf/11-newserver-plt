@@ -48,6 +48,7 @@ public class StaffController {
             @RequestParam(required = false) String phone,
             @RequestParam(required = false) String status,
             @RequestParam(required = false) String providerId,
+            @RequestParam(required = false) Integer insuranceStatus,
             @RequestParam(defaultValue = "1") Integer page,
             @RequestParam(defaultValue = "10") Integer pageSize) {
         StaffQueryDTO queryDTO = new StaffQueryDTO();
@@ -55,6 +56,7 @@ public class StaffController {
         queryDTO.setStaffNo(staffNo);
         queryDTO.setPhone(phone);
         queryDTO.setStatus(status);
+        queryDTO.setInsuranceStatus(insuranceStatus);
         String userType = UserContext.getUserType();
         String autoPid = UserContext.getProviderId();
         // PROVIDER用户强制只看自己员工；非PROVIDER用户可按参数查询

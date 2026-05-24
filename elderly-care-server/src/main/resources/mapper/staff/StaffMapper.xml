@@ -37,6 +37,9 @@
         <result column="update_by" property="updateBy"/>
         <result column="update_time" property="updateTime"/>
         <result column="remark" property="remark"/>
+        <result column="insurance_status" property="insuranceStatus"/>
+        <result column="monthly_star" property="monthlyStar"/>
+        <result column="quarterly_star" property="quarterlyStar"/>
     </resultMap>
 
     <select id="selectStaffPage" resultMap="BaseResultMap">
@@ -45,7 +48,7 @@
                s.education, s.photo_url AS avatar_url, s.status, s.work_status, s.audit_remark,
                s.hire_date, s.leave_date, s.leave_reason, s.nation, s.political_status,
                s.marital_status, s.domicile_address, s.residence_address, s.service_types,
-               s.remark, s.create_time, s.update_time, s.deleted,
+               s.remark, s.create_time, s.update_time, s.deleted, s.insurance_status, s.monthly_star, s.quarterly_star,
                p.provider_name
         FROM t_staff s
         LEFT JOIN t_provider p ON s.provider_id = p.provider_id
@@ -76,6 +79,9 @@
         </if>
         <if test="query.hireDateEnd != null">
             AND s.hire_date &lt;= #{query.hireDateEnd}
+        </if>
+        <if test="query.insuranceStatus != null">
+            AND s.insurance_status = #{query.insuranceStatus}
         </if>
         ORDER BY s.create_time DESC
     </select>
@@ -111,6 +117,9 @@
             <if test="avatarUrl != null">photo_url = #{avatarUrl},</if>
             <if test="remark != null">remark = #{remark},</if>
             <if test="status != null">status = #{status},</if>
+            <if test="insuranceStatus != null">insurance_status = #{insuranceStatus},</if>
+            <if test="monthlyStar != null">monthly_star = #{monthlyStar},</if>
+            <if test="quarterlyStar != null">quarterly_star = #{quarterlyStar},</if>
             update_time = NOW()
         </set>
         WHERE staff_id = #{staffId}

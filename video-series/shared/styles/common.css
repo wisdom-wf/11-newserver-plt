@@ -1,0 +1,165 @@
+/* 智慧养老平台系列视频 - 公共样式 */
+
+/* 基础样式 */
+* { margin: 0; padding: 0; box-sizing: border-box; }
+body {
+  font-family: -apple-system, BlinkMacSystemFont, "PingFang SC", "Microsoft YaHei", sans-serif;
+  background: #FFF8E7;
+  overflow: hidden;
+  width: 1920px;
+  height: 1080px;
+}
+
+/* 场景通用样式 */
+.scene {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 1920px;
+  height: 1080px;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+  gap: 40px;
+  padding: 80px;
+}
+
+/* 文字样式 */
+h1 { font-size: 96px; color: #5D4E37; font-weight: 700; }
+h2 { font-size: 72px; color: #5D4E37; font-weight: 600; }
+h3 { font-size: 56px; color: #5D4E37; font-weight: 600; }
+p { font-size: 48px; color: #7A6B5A; }
+p.large { font-size: 56px; }
+p.small { font-size: 40px; }
+p.important { color: #F5A623; font-weight: 600; }
+
+/* 背景装饰 */
+.warm-bg {
+  position: fixed;
+  inset: 0;
+  background: linear-gradient(135deg, #FFF8E7 0%, #FFE4B5 50%, #FFF8E7 100%);
+  z-index: -1;
+}
+
+.decorative-circle {
+  position: absolute;
+  border-radius: 50%;
+  background: rgba(245, 166, 35, 0.15);
+}
+.circle-1 { width: 400px; height: 400px; top: -100px; right: -100px; }
+.circle-2 { width: 300px; height: 300px; bottom: -80px; left: -80px; }
+.circle-3 { width: 200px; height: 200px; top: 40%; left: 10%; }
+
+/* 品牌水印 */
+.brand-watermark {
+  position: absolute;
+  top: 80px;
+  right: 80px;
+  font-size: 28px;
+  color: #F5A623;
+  opacity: 0;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  z-index: 50;
+  font-weight: 600;
+}
+
+/* 卡片通用样式 */
+.card {
+  background: white;
+  border-radius: 24px;
+  padding: 40px 60px;
+  box-shadow: 0 8px 32px rgba(93, 78, 55, 0.1);
+}
+
+.card-large {
+  background: white;
+  border-radius: 24px;
+  padding: 50px 80px;
+  box-shadow: 0 8px 32px rgba(93, 78, 55, 0.1);
+}
+
+/* 按钮样式 */
+.btn-primary {
+  background: linear-gradient(135deg, #F5A623, #FFB84D);
+  color: white;
+  font-size: 56px;
+  font-weight: 700;
+  padding: 30px 80px;
+  border-radius: 20px;
+  box-shadow: 0 8px 24px rgba(245, 166, 35, 0.4);
+}
+
+/* 字幕条样式 */
+.caption-bar {
+  position: absolute;
+  bottom: 0;
+  left: 0;
+  right: 0;
+  height: 120px;
+  background: rgba(93, 78, 55, 0.85);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 100;
+}
+.caption-text {
+  font-size: 42px;
+  color: white;
+  font-weight: 600;
+  text-align: center;
+  padding: 0 40px;
+}
+.caption-text-large {
+  font-size: 56px;
+  color: white;
+  font-weight: 700;
+  text-align: center;
+}
+
+/* Emoji图标大小 */
+.emoji-xl { font-size: 80px; }
+.emoji-lg { font-size: 64px; }
+.emoji-md { font-size: 48px; }
+.emoji-sm { font-size: 36px; }
+
+/* Flex布局工具类 */
+.flex-row {
+  display: flex;
+  align-items: center;
+  gap: 30px;
+}
+.flex-col {
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
+}
+.flex-wrap {
+  flex-wrap: wrap;
+}
+
+/* 居中 */
+.text-center { text-align: center; }
+.items-center { align-items: center; }
+.justify-center { justify-content: center; }
+
+/* 场景可见性控制 */
+.scene-visible { visibility: visible; }
+.scene-hidden { visibility: hidden; }
+
+/* GSAP动画通用类 */
+.animate-enter {
+  animation: enterAnimation 0.5s ease-out;
+}
+@keyframes enterAnimation {
+  from {
+    opacity: 0;
+    transform: translateY(30px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
