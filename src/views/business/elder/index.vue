@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { ref, h, onMounted } from 'vue';
+import { ref, h, onMounted, watch } from 'vue';
 import { useRoute, useRouter } from 'vue-router';
 import { NButton, NCard, NTag, NSpace, NInput, NSelect, NDrawer, NDrawerContent, useMessage, NImage, NImageGroup, NUpload, NInputNumber, useDialog, NGrid, NGi, NPopconfirm } from 'naive-ui';
 import type { DataTableColumns } from 'naive-ui';
@@ -205,7 +205,7 @@ function getCareLevelLabel(level?: string): string {
 }
 
 // Table columns
-const columns: DataTableColumns<Api.Elder.Elder> = [
+const tableColumns: DataTableColumns<Api.Elder.Elder> = [
   { type: 'selection' },
   { title: '姓名', key: 'name', width: 100 },
   { title: '性别', key: 'gender', width: 60, render: row => getGenderLabel(row.gender) },
@@ -256,6 +256,7 @@ const {
   mobilePagination,
   getData,
   getDataByPage,
+  columns: filteredColumns,
   columnChecks
 } = useNaivePaginatedTable<Api.Common.PaginatingQueryRecord<Api.Elder.Elder>, Api.Elder.Elder>({
   apiFn: async params => {
@@ -274,7 +275,7 @@ const {
     pageSize: 10
   },
   transform: defaultTransform,
-  columns: () => columns
+  columns: () => tableColumns
 });
 
 // Use framework's table operate hook
@@ -519,7 +520,7 @@ onMounted(async () => {
       </TableHeaderOperation>
 
       <NDataTable
-        :columns="columns"
+        :columns="filteredColumns"
         :data="tableData"
         :loading="loading"
         :scroll-x="1500"
