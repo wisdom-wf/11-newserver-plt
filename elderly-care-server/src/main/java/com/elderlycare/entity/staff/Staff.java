@@ -112,6 +112,9 @@ public class Staff implements Serializable {
      */
     private Integer insuranceStatus; // 0-未参保 1-正在参保 2-已参保（生效） 3-已过期
 
+    private Integer monthlyStar; // 0-否 1-是（月度之星）
+    private Integer quarterlyStar; // 0-否 1-是（季度之星）
+
     private String status;
 
     /**

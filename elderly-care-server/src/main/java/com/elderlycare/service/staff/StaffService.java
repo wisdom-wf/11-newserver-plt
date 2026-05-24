@@ -3,6 +3,7 @@ package com.elderlycare.service.staff;
 import com.elderlycare.common.PageResult;
 import com.elderlycare.dto.staff.*;
 import com.elderlycare.vo.staff.*;
+import com.elderlycare.common.Result;
 
 /**
  * 服务人员Service接口
@@ -121,5 +122,5 @@ public interface StaffService {
      * 重置服务人员密码
      */
     void resetPassword(String staffId);
-}
     Result<?> updateInsuranceStatus(Long staffId, Integer insuranceStatus, String remark);
+}

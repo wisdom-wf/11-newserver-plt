@@ -292,7 +292,6 @@ public class StaffController {
         staffService.resetPassword(staffId);
         return Result.success();
     }
-}
     /**
      * 更新服务人员保险状态
      * 管理员可修改，用于平台统一集采保险的状态管理
@@ -305,4 +304,5 @@ public class StaffController {
             @RequestParam(required = false) String remark) {
         return staffService.updateInsuranceStatus(staffId, insuranceStatus, remark);
     }
+}
 

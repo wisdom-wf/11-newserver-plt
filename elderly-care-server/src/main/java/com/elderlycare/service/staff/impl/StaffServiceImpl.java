@@ -5,6 +5,7 @@ import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import com.elderlycare.common.BusinessException;
 import com.elderlycare.common.IDGenerator;
 import com.elderlycare.common.PageResult;
+import com.elderlycare.common.Result;
 import com.elderlycare.common.DateUtil;
 import com.elderlycare.dto.staff.*;
 import com.elderlycare.entity.staff.Staff;
@@ -24,6 +25,7 @@ import com.elderlycare.mapper.UserRoleMapper;
 import com.elderlycare.service.staff.StaffService;
 import com.elderlycare.vo.staff.*;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
@@ -40,6 +42,7 @@ import java.util.stream.Collectors;
 /**
  * 服务人员Service实现
  */
+@Slf4j
 @Service
 @RequiredArgsConstructor
 public class StaffServiceImpl implements StaffService {
