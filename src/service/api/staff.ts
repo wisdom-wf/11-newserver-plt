@@ -117,3 +117,47 @@ export function fetchResetStaffPassword(staffId: string) {
     method: 'post'
   });
 }
+
+// ==================== 资质管理 ====================
+
+/**
+ * 获取服务人员资质列表
+ */
+export function fetchGetStaffQualifications(staffId: string) {
+  return request<Api.Staff.Qualification[]>({
+    url: `/api/staff/${staffId}/qualifications`,
+    method: 'get'
+  });
+}
+
+/**
+ * 添加服务人员资质
+ */
+export function fetchAddStaffQualification(staffId: string, data: Api.Staff.QualificationForm) {
+  return request<Api.Staff.Qualification>({
+    url: `/api/staff/${staffId}/qualifications`,
+    method: 'post',
+    data
+  });
+}
+
+/**
+ * 更新服务人员资质
+ */
+export function fetchUpdateStaffQualification(qualificationId: string, data: Api.Staff.QualificationForm) {
+  return request<Api.Staff.Qualification>({
+    url: `/api/staff/qualifications/${qualificationId}`,
+    method: 'put',
+    data
+  });
+}
+
+/**
+ * 删除服务人员资质
+ */
+export function fetchDeleteStaffQualification(qualificationId: string) {
+  return request({
+    url: `/api/staff/qualifications/${qualificationId}`,
+    method: 'delete'
+  });
+}

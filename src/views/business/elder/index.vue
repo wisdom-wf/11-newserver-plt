@@ -154,13 +154,11 @@ const searchName = ref('');
 const searchIdCard = ref('');
 const searchPhone = ref('');
 const searchCareType = ref('');
-const searchStatus = ref('');
 
-// Gender options
+// Gender options - 性别由身份证号自动计算，不再手动选择
 const genderOptions = [
-  { label: '男', value: 'MALE' },
-  { label: '女', value: 'FEMALE' },
-  { label: '未知', value: 'UNKNOWN' }
+  { label: '男', value: 1 },
+  { label: '女', value: 0 }
 ];
 
 // Care type options
@@ -184,15 +182,11 @@ const careLevelOptions = [
   { label: '三级护理', value: 'NORMAL' }
 ];
 
-// Status options
-const statusOptions = [
-  { label: '启用', value: 'ACTIVE' },
-  { label: '禁用', value: 'SUSPENDED' }
-];
-
-function getGenderLabel(gender?: string): string {
-  const option = genderOptions.find(o => o.value === gender);
-  return option?.label || gender || '';
+function getGenderLabel(gender?: number | string): string {
+  const g = Number(gender);
+  if (g === 1) return '男';
+  if (g === 0) return '女';
+  return '未知';
 }
 
 function getCareTypeLabel(careType?: string): string {
@@ -223,15 +217,6 @@ const columns: DataTableColumns<Api.Elder.Elder> = [
   { title: '补贴类型', key: 'subsidyType', width: 100, render: row => getSubsidyTypeLabel(row.subsidyType) },
   { title: '护理等级', key: 'careLevel', width: 100, render: row => getCareLevelLabel(row.careLevel) },
   { title: '服务商', key: 'providerName', width: 150 },
-  {
-    title: '状态',
-    key: 'status',
-    width: 80,
-    render: row =>
-      h(NTag, { type: row.status === 'ACTIVE' ? 'success' : 'error', size: 'small' }, () =>
-        row.status === 'ACTIVE' ? '正常' : '禁用'
-      )
-  },
   { title: '创建时间', key: 'createTime', width: 170 },
   {
     title: '操作',
@@ -282,7 +267,6 @@ const {
     if (searchIdCard.value) queryParams.idCard = searchIdCard.value;
     if (searchPhone.value) queryParams.phone = searchPhone.value;
     if (searchCareType.value) queryParams.careType = searchCareType.value;
-    if (searchStatus.value) queryParams.status = searchStatus.value;
     return fetchGetElderList(queryParams);
   },
   apiParams: {
@@ -309,7 +293,7 @@ const {
 // Form data
 const form = ref({
   name: '',
-  gender: 'UNKNOWN' as Api.Elder.Gender,
+  gender: 0 as number,
   idCard: '',
   phone: '',
   birthDate: '',
@@ -321,9 +305,19 @@ const form = ref({
   emergencyContact: '',
   emergencyPhone: '',
   healthStatus: 'GOOD' as Api.Elder.HealthStatus,
-  remark: '',
-  status: '1' as Api.Common.EnableStatus
+  remark: ''
 });
+
+// Watch idCard to auto-calculate gender
+watch(
+  () => form.value.idCard,
+  idCard => {
+    if (idCard && idCard.length === 18) {
+      const genderDigit = parseInt(idCard.charAt(16));
+      form.value.gender = genderDigit % 2 === 0 ? 0 : 1;
+    }
+  }
+);
 
 async function getStatistics() {
   try {
@@ -339,7 +333,7 @@ async function getStatistics() {
 function resetForm() {
   form.value = {
     name: '',
-    gender: 'UNKNOWN',
+    gender: 0,
     idCard: '',
     phone: '',
     birthDate: '',
@@ -351,8 +345,7 @@ function resetForm() {
     emergencyContact: '',
     emergencyPhone: '',
     healthStatus: 'GOOD',
-    remark: '',
-    status: 'ENABLED' as Api.Common.EnableStatus
+    remark: ''
   };
 }
 
@@ -366,7 +359,7 @@ async function handleOpenEdit(id: string) {
   if (row) {
     form.value = {
       name: row.name,
-      gender: (row.gender || 'UNKNOWN') as Api.Elder.Gender,
+      gender: Number(row.gender) || 0,
       idCard: row.idCard,
       phone: row.phone || '',
       birthDate: row.birthDate || '',
@@ -378,8 +371,7 @@ async function handleOpenEdit(id: string) {
       emergencyContact: row.emergencyContact || '',
       emergencyPhone: row.emergencyPhone || '',
       healthStatus: (row.healthStatus || 'GOOD') as Api.Elder.HealthStatus,
-      remark: row.remark || '',
-      status: (row.status || 'ENABLED') as Api.Common.EnableStatus
+      remark: row.remark || ''
     };
     handleEdit(id);
   }
@@ -436,14 +428,7 @@ function handleResetSearch() {
   searchIdCard.value = '';
   searchPhone.value = '';
   searchCareType.value = '';
-  searchStatus.value = null;
   getDataByPage(1);
-}
-
-function handleStatusPillClick(statusValue: string | null) {
-  searchStatus.value = statusValue;
-  pagination.page = 1;
-  getData();
 }
 
 onMounted(async () => {
@@ -505,21 +490,6 @@ onMounted(async () => {
         </div>
       </template>
       <div style="background: #f5f5f5; padding: 12px; margin-bottom: 12px; border-radius: 8px">
-        <!-- 适老化：状态快捷筛选 Pill -->
-        <div style="margin-bottom: 14px">
-          <div style="font-size: 14px; font-weight: 600; color: #666; margin-bottom: 10px">按状态快速筛选</div>
-          <div style="display: flex; flex-wrap: wrap; gap: 8px">
-            <button
-              v-for="opt in statusOptions"
-              :key="opt.value"
-              :class="searchStatus === opt.value ? 'status-pill active' : 'status-pill'"
-              :style="searchStatus === opt.value ? '' : 'background:#fff;border-color:#d1d5db'"
-              @click="handleStatusPillClick(opt.value)"
-            >
-              {{ opt.label }}
-            </button>
-          </div>
-        </div>
         <!-- 搜索条件行 -->
         <div style="display: flex; flex-wrap: wrap; gap: 10px; align-items: center">
           <NInput v-model:value="searchName" placeholder="姓名搜索" clearable style="width: 160px" size="medium" />
@@ -567,9 +537,6 @@ onMounted(async () => {
           <NFormItem label="姓名" path="name">
             <NInput v-model:value="form.name" placeholder="请输入姓名" />
           </NFormItem>
-          <NFormItem label="性别">
-            <NSelect v-model:value="form.gender" :options="genderOptions" style="width: 120px" />
-          </NFormItem>
           <NFormItem label="身份证号" path="idCard">
             <NInput v-model:value="form.idCard" placeholder="请输入身份证号" />
           </NFormItem>
@@ -593,9 +560,6 @@ onMounted(async () => {
           </NFormItem>
           <NFormItem label="紧急联系电话">
             <NInput v-model:value="form.emergencyPhone" placeholder="请输入紧急联系电话" />
-          </NFormItem>
-          <NFormItem label="状态">
-            <NSelect v-model:value="form.status" :options="statusOptions" style="width: 100px" />
           </NFormItem>
           <NFormItem label="备注">
             <NInput v-model:value="form.remark" type="textarea" placeholder="请输入备注" />

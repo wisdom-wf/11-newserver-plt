@@ -223,5 +223,61 @@ declare namespace Api {
       /** 本次给药记录 */
       medicationGiven?: string;
     }
+
+    /** 服务人员资质 */
+    interface Qualification {
+      /** 资质ID */
+      qualificationId: string;
+      /** 服务人员ID */
+      staffId: string;
+      /** 服务人员姓名 */
+      staffName?: string;
+      /** 资质类型：0-身份证，1-健康证，2-职业资格证，3-培训证书，4-无犯罪记录证明，5-其他 */
+      qualificationType: number;
+      /** 资质类型文本 */
+      qualificationTypeText?: string;
+      /** 资质名称 */
+      qualificationName: string;
+      /** 资质编号 */
+      qualificationNo?: string;
+      /** 发证机关 */
+      issuingAuthority?: string;
+      /** 发证日期 */
+      issueDate?: string;
+      /** 有效期至 */
+      expireDate?: string;
+      /** 资质证书图片URL */
+      certificateUrls?: string;
+      /** 状态：0-有效，1-即将到期，2-已过期 */
+      status: number;
+      /** 状态文本 */
+      statusText?: string;
+      /** 备注 */
+      remark?: string;
+      /** 创建时间 */
+      createTime?: string;
+      /** 更新时间 */
+      updateTime?: string;
+    }
+
+    /** 服务人员资质表单 */
+    interface QualificationForm {
+      /** 资质类型：0-身份证，1-健康证，2-职业资格证，3-培训证书，4-无犯罪记录证明，5-其他 */
+      qualificationType: number;
+      /** 资质名称 */
+      qualificationName: string;
+      /** 资质编号 */
+      qualificationNo?: string;
+      /** 发证机关 */
+      issuingAuthority?: string;
+      /** 发证日期 */
+      issueDate?: string;
+      /** 有效期至 */
+      expireDate?: string;
+      /** 资质证书图片URL，多个用逗号分隔 */
+      certificateUrls?: string;
+      /** 备注 */
+      remark?: string;
+    }
   }
 }

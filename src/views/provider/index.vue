@@ -61,10 +61,12 @@ const categoryOptions = [
   { label: '家政服务', value: 'HOME_CARE' }
 ];
 
-// Status options (与后端数据库一致: ENABLED=启用, DISABLED=禁用)
+// Status options: ENABLED=正常, DISABLED=禁用, DEMOTED=已降级, ELIMINATED=已淘汰
 const statusOptions = [
   { label: '正常', value: 'ENABLED' },
-  { label: '禁用', value: 'DISABLED' }
+  { label: '禁用', value: 'DISABLED' },
+  { label: '已降级', value: 'DEMOTED' },
+  { label: '已淘汰', value: 'ELIMINATED' }
 ];
 
 // Provider type options
@@ -91,10 +93,16 @@ const columns: DataTableColumns<Api.Provider.Provider> = [
     title: '状态',
     key: 'status',
     width: 80,
-    render: row =>
-      h(NTag, { type: row.status === 'ENABLED' ? 'success' : 'error', size: 'small' }, () =>
-        row.status === 'ENABLED' ? '正常' : '禁用'
-      )
+    render: row => {
+      const statusMap: Record<string, { type: 'success' | 'warning' | 'error' | 'info'; label: string }> = {
+        ENABLED: { type: 'success', label: '正常' },
+        DISABLED: { type: 'error', label: '禁用' },
+        DEMOTED: { type: 'warning', label: '已降级' },
+        ELIMINATED: { type: 'error', label: '已淘汰' }
+      };
+      const config = statusMap[row.status] || { type: 'info', label: row.status };
+      return h(NTag, { type: config.type, size: 'small' }, () => config.label);
+    }
   },
   { title: '创建时间', key: 'createTime', width: 170 },
   {

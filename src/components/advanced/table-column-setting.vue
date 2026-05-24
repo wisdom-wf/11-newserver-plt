@@ -1,6 +1,5 @@
 <script setup lang="ts" generic="T extends Record<string, unknown>, K = never">
 import { computed } from 'vue';
-import { VueDraggable } from 'vue-draggable-plus';
 import { $t } from '@/locales';
 
 defineOptions({
@@ -82,22 +81,19 @@ function toggleSelectAll(checked: boolean) {
         </NCheckbox>
       </div>
       <NDivider class="!my-4px" />
-      <VueDraggable v-model="columns" :animation="150" filter=".none_draggable" class="max-h-[200px] overflow-y-auto">
+      <div class="max-h-[200px] overflow-y-auto">
         <div
           v-for="item in columns"
           :key="item.key"
           class="h-36px flex-y-center justify-between gap-6px"
           :class="{ hidden: !item.visible }"
         >
-          <div class="h-full flex-y-center flex-1 rd-4px hover:(bg-primary bg-opacity-20)">
-            <icon-mdi-drag class="mr-8px h-full cursor-move text-icon" />
-            <NCheckbox v-model:checked="item.checked" class="none_draggable flex-1">
-              <template v-if="typeof item.title === 'function'">
-                <component :is="item.title" />
-              </template>
-              <template v-else>{{ item.title }}</template>
-            </NCheckbox>
-          </div>
+          <NCheckbox v-model:checked="item.checked" class="flex-1">
+            <template v-if="typeof item.title === 'function'">
+              <component :is="item.title" />
+            </template>
+            <template v-else>{{ item.title }}</template>
+          </NCheckbox>
           <ButtonIcon
             :disabled="!item.checked"
             :focusable="false"
@@ -109,7 +105,7 @@ function toggleSelectAll(checked: boolean) {
             <icon-octicon-pin-slash-16 v-else />
           </ButtonIcon>
         </div>
-      </VueDraggable>
+      </div>
     </div>
   </NPopover>
 </template>
