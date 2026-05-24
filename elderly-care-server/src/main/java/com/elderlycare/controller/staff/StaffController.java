@@ -293,3 +293,16 @@ public class StaffController {
         return Result.success();
     }
 }
+    /**
+     * 更新服务人员保险状态
+     * 管理员可修改，用于平台统一集采保险的状态管理
+     * insuranceStatus: 0-未参保 1-正在参保 2-已参保（生效） 3-已过期
+     */
+    @PutMapping("/{staffId}/insurance-status")
+    public Result<?> updateInsuranceStatus(
+            @PathVariable Long staffId,
+            @RequestParam Integer insuranceStatus,
+            @RequestParam(required = false) String remark) {
+        return staffService.updateInsuranceStatus(staffId, insuranceStatus, remark);
+    }
+

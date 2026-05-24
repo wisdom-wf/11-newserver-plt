@@ -122,3 +122,4 @@ public interface StaffService {
      */
     void resetPassword(String staffId);
 }
+    Result<?> updateInsuranceStatus(Long staffId, Integer insuranceStatus, String remark);

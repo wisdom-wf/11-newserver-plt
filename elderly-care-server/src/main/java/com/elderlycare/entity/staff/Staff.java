@@ -110,6 +110,8 @@ public class Staff implements Serializable {
     /**
      * 员工状态：ON_JOB-在职，OFF_JOB-离职
      */
+    private Integer insuranceStatus; // 0-未参保 1-正在参保 2-已参保（生效） 3-已过期
+
     private String status;
 
     /**

@@ -903,4 +903,19 @@ public class StaffServiceImpl implements StaffService {
             }
         }
     }
+
+    @Override
+    public Result<?> updateInsuranceStatus(Long staffId, Integer insuranceStatus, String remark) {
+        if (insuranceStatus == null || insuranceStatus < 0 || insuranceStatus > 3) {
+            return Result.error("保险状态值无效，请填写0-3之间的值");
+        }
+        Staff staff = staffMapper.selectById(staffId);
+        if (staff == null) {
+            return Result.error("服务人员不存在");
+        }
+        staff.setInsuranceStatus(insuranceStatus);
+        staffMapper.updateById(staff);
+        log.info("更新服务人员保险状态: staffId={}, insuranceStatus={}, remark={}", staffId, insuranceStatus, remark);
+        return Result.success("保险状态已更新");
+    }
 }
