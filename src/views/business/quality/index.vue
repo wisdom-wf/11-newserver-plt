@@ -394,7 +394,7 @@ function getCheckMethodLabel(checkMethod: string): string {
   return option?.label || checkMethod;
 }
 
-const columns: DataTableColumns<Api.Quality.QualityCheck> = [
+const tableColumns: DataTableColumns<Api.Quality.QualityCheck> = [
   { type: 'selection' },
   { title: '质检编号', key: 'checkNo', width: 160 },
   { title: '订单号', key: 'orderNo', width: 160 },
@@ -537,7 +537,7 @@ const tableHookResult = useNaivePaginatedTable<Api.Common.PaginatingQueryRecord<
     pageSize: 10
   },
   transform: defaultTransform,
-  columns: () => columns
+  columns: () => tableColumns
 });
 
 const {
@@ -547,25 +547,12 @@ const {
   mobilePagination,
   getData,
   getDataByPage,
-  columnChecks: rawColumnChecks
+  columns: filteredColumns,
+  columnChecks
 } = tableHookResult;
-
-// Ensure columnChecks is always an array (writable ref for v-model)
-const columnChecks = ref<Array<{ prop: string; label: string; checked: boolean }>>([]);
 
 // Table checked row keys
 const checkedRowKeys = ref<string[]>([]);
-
-// Watch rawColumnChecks and sync to columnChecks
-watch(
-  () => rawColumnChecks.value,
-  val => {
-    if (val && val.length > 0) {
-      columnChecks.value = val;
-    }
-  },
-  { immediate: true, deep: true }
-);
 
 function handleResetSearch() {
   searchOrderNo.value = '';
@@ -695,7 +682,7 @@ onMounted(async () => {
       />
 
       <NDataTable
-        :columns="columns"
+        :columns="filteredColumns"
         :data="tableData"
         :loading="loading"
         :scroll-x="1400"

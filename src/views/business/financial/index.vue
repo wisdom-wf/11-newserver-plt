@@ -131,7 +131,7 @@ function getStatusLabel(status: string): string {
   return option?.label || status;
 }
 
-const columns: DataTableColumns<any> = [
+const tableColumns: DataTableColumns<any> = [
   { title: '结算单号', key: 'settlementNo', width: 160 },
   { title: '订单号', key: 'orderNo', width: 160 },
   { title: '服务商', key: 'providerName', width: 150 },
@@ -215,7 +215,7 @@ const tableHookResult = useNaivePaginatedTable<any, any>({
     pageSize: 10
   },
   transform: defaultTransform,
-  columns: () => columns
+  columns: () => tableColumns
 });
 
 const {
@@ -225,22 +225,9 @@ const {
   mobilePagination,
   getData,
   getDataByPage,
-  columnChecks: rawColumnChecks
+  columns: filteredColumns,
+  columnChecks
 } = tableHookResult;
-
-// Ensure columnChecks is always an array (writable ref for v-model)
-const columnChecks = ref<Array<{ prop: string; label: string; checked: boolean }>>([]);
-
-// Watch rawColumnChecks and sync to columnChecks
-watch(
-  () => rawColumnChecks.value,
-  val => {
-    if (val && val.length > 0) {
-      columnChecks.value = val;
-    }
-  },
-  { immediate: true, deep: true }
-);
 
 function handleResetSearch() {
   searchOrderNo.value = '';
@@ -748,7 +735,7 @@ onMounted(() => {
           />
 
           <NDataTable
-            :columns="columns"
+            :columns="filteredColumns"
             :data="tableData"
             :loading="loading"
             :scroll-x="1500"

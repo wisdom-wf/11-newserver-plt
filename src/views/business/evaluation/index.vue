@@ -324,7 +324,7 @@ function getSatisfactionLabel(level: string): string {
   return map[level] || level;
 }
 
-const columns: DataTableColumns<any> = [
+const tableColumns: DataTableColumns<any> = [
   { type: 'selection' },
   { title: '评价编号', key: 'evaluationId', width: 160 },
   { title: '订单号', key: 'orderId', width: 160 },
@@ -409,7 +409,7 @@ const tableHookResult = useNaivePaginatedTable<any, any>({
     pageSize: 10
   },
   transform: defaultTransform,
-  columns: () => columns
+  columns: () => tableColumns
 });
 
 const {
@@ -419,23 +419,11 @@ const {
   mobilePagination,
   getData,
   getDataByPage,
-  columnChecks: rawColumnChecks
+  columns: filteredColumns,
+  columnChecks
 } = tableHookResult;
 
 const checkedRowKeys = ref<Array<string | number>>([]);
-
-const columnChecks = ref<Array<{ prop: string; label: string; checked: boolean }>>(
-  rawColumnChecks.value ? [...rawColumnChecks.value] : []
-);
-watch(
-  () => rawColumnChecks.value,
-  val => {
-    if (val && val.length > 0) {
-      columnChecks.value = [...val];
-    }
-  },
-  { immediate: true, deep: true }
-);
 
 async function getStatistics() {
   try {
@@ -564,7 +552,7 @@ onMounted(() => {
         @delete="handleBatchDelete"
       />
       <NDataTable
-        :columns="columns"
+        :columns="filteredColumns"
         :data="tableData"
         :loading="loading"
         :scroll-x="1200"
