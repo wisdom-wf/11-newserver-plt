@@ -111,4 +111,26 @@ public class StaffUpdateDTO implements Serializable {
      * 状态：PENDING-待上岗，ON_JOB-在职，OFF_JOB-离职
      */
     private String status;
+
+    /**
+     * 参保状态：0未参保/1正在参保/2已参保/3已过期
+     */
+    private Integer insuranceStatus;
+
+    /**
+     * 月度之星：0否/1是
+     */
+    private Integer monthlyStar;
+
+    /**
+     * 季度之星：0否/1是
+     */
+    private Integer quarterlyStar;
+
+    public Integer getInsuranceStatus() { return insuranceStatus; }
+    public void setInsuranceStatus(Integer insuranceStatus) { this.insuranceStatus = insuranceStatus; }
+    public Integer getMonthlyStar() { return monthlyStar; }
+    public void setMonthlyStar(Integer monthlyStar) { this.monthlyStar = monthlyStar; }
+    public Integer getQuarterlyStar() { return quarterlyStar; }
+    public void setQuarterlyStar(Integer quarterlyStar) { this.quarterlyStar = quarterlyStar; }
 }

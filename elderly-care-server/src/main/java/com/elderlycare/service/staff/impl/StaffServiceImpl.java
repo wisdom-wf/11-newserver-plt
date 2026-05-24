@@ -281,7 +281,10 @@ public class StaffServiceImpl implements StaffService {
             updateDTO.getLeaveReason(),
             updateDTO.getAvatarUrl(),
             updateDTO.getRemark(),
-            updateDTO.getStatus()
+            updateDTO.getStatus(),
+            updateDTO.getInsuranceStatus(),
+            updateDTO.getMonthlyStar(),
+            updateDTO.getQuarterlyStar()
         );
 
         return convertToStaffVO(staffMapper.selectStaffById(staffId));

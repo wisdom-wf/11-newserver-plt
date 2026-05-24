@@ -41,5 +41,9 @@ public interface StaffMapper extends BaseMapper<Staff> {
                        @Param("leaveDate") java.time.LocalDate leaveDate,
                        @Param("leaveReason") String leaveReason,
                        @Param("avatarUrl") String avatarUrl,
-                       @Param("remark") String remark, @Param("status") String status);
+                       @Param("remark") String remark,
+                   @Param("status") String status,
+                   @Param("insuranceStatus") Integer insuranceStatus,
+                   @Param("monthlyStar") Integer monthlyStar,
+                   @Param("quarterlyStar") Integer quarterlyStar);
 }
