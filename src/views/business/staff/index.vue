@@ -673,14 +673,18 @@ onMounted(async () => {
           :photo-url="staff.avatarUrl"
           :name="staff.staffName || '未知'"
           :subtitle="staff.phone || '-'"
+          :staff-no="staff.staffNo || ''"
+          :insurance-status="staff.insuranceStatus"
+          :monthly-star="staff.monthlyStar === true || staff.monthlyStar === 1"
+          :quarterly-star="staff.quarterlyStar === true || staff.quarterlyStar === 1"
           :extra-info="[
-            { label: '状态', value: getStatusLabel(staff.status) },
+            { label: '在职', value: getStatusLabel(staff.status), color: staff.status === 'ON_JOB' ? '#52c41a' : staff.status === 'PENDING' ? '#fa8c16' : '#ff4d4f' },
             ...(staff.serviceTypes ? [{ label: '服务类型', value: staff.serviceTypes.split(',')[0] }] : [])
           ]"
           :index-value="staff.rating ? Number(staff.rating) : undefined"
           index-label="评分"
-          photo-width="70"
-          scale="0.78"
+          photo-width="85"
+          scale="1"
           :show-upload-btn="true"
           @click="showDetail(staff)"
           @photo-upload="(file) => handlePhotoUpload(staff.staffId, file)"
