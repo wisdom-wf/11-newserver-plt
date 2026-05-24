@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { ref, h, onMounted } from 'vue';
+import { ref, h, onMounted, watch } from 'vue';
 import {
   NButton,
   NCard,
@@ -12,7 +12,8 @@ import {
   NDescriptions,
   NDescriptionsItem,
   NDrawer,
-  NDrawerContent
+  NDrawerContent,
+  NDataTable
 } from 'naive-ui';
 import type { DataTableColumns } from 'naive-ui';
 import {
@@ -24,6 +25,8 @@ import {
 } from '@/service/api';
 import { useRouterPush } from '@/hooks/common/router';
 import { useAuthStore } from '@/store/modules/auth';
+import { useNaivePaginatedTable, defaultTransform } from '@/hooks/common/table';
+import TableHeaderOperation from '@/components/advanced/table-header-operation.vue';
 
 const authStore = useAuthStore();
 const isAdmin = authStore.userInfo.userType === 'SYSTEM' || authStore.userInfo.userType === 'ADMIN';
@@ -71,12 +74,6 @@ function getStatusLabel(status: string): string {
   return option?.label || status;
 }
 
-// Table data
-const tableData = ref<Api.Ess.Contract[]>([]);
-const loading = ref(false);
-const checkedRowKeys = ref<string[]>([]);
-const pagination = ref({ page: 1, pageSize: 10, total: 0 });
-
 // Detail drawer
 const detailVisible = ref(false);
 const detailData = ref<Api.Ess.Contract | null>(null);
@@ -123,31 +120,38 @@ const tableColumns: DataTableColumns<Api.Ess.Contract> = [
   }
 ];
 
-async function getData() {
-  loading.value = true;
-  try {
-    const params: any = {
-      page: pagination.value.page,
-      pageSize: pagination.value.pageSize
+// Use framework's table hook
+const {
+  data: tableData,
+  loading,
+  pagination,
+  mobilePagination,
+  getData,
+  getDataByPage,
+  columns: filteredColumns,
+  columnChecks
+} = useNaivePaginatedTable<Api.Common.PaginatingQueryRecord<Api.Ess.Contract>, Api.Ess.Contract>({
+  apiFn: async params => {
+    const queryParams: any = {
+      page: params.page,
+      pageSize: params.pageSize
     };
-    if (searchContractNo.value) params.contractNo = searchContractNo.value;
+    if (searchContractNo.value) queryParams.contractNo = searchContractNo.value;
     if (searchStatus.value) params.status = searchStatus.value;
     if (searchDateRange.value) {
-      params.startDate = new Date(searchDateRange.value[0]).toISOString().split('T')[0];
-      params.endDate = new Date(searchDateRange.value[1]).toISOString().split('T')[0];
+      queryParams.startDate = new Date(searchDateRange.value[0]).toISOString().split('T')[0];
+      queryParams.endDate = new Date(searchDateRange.value[1]).toISOString().split('T')[0];
     }
-    const { data } = await fetchGetContractList(params);
-    if (data) {
-      // 兼容后端返回的数组格式
-      tableData.value = Array.isArray(data) ? data : (data.records || []);
-      pagination.value.total = Array.isArray(data) ? data.length : (data.total || 0);
-    }
-  } catch (e) {
-    console.error('Failed to get contract list', e);
-  } finally {
-    loading.value = false;
-  }
-}
+    const { data } = await fetchGetContractList(queryParams);
+    return data;
+  },
+  apiParams: {
+    page: 1,
+    pageSize: 10
+  },
+  transform: defaultTransform,
+  columns: () => tableColumns
+});
 
 function showDetail(row: Api.Ess.Contract) {
   detailData.value = row;
@@ -235,28 +239,6 @@ async function handleBatchDownload() {
   message.success(`已打开 ${successCount}/${checkedRowKeys.value.length} 个合同下载链接`);
   checkedRowKeys.value = [];
 }
-
-function handleResetSearch() {
-  searchContractNo.value = '';
-  searchStatus.value = '';
-  searchDateRange.value = null;
-  pagination.value.page = 1;
-  getData();
-}
-
-function handlePageChange(page: number) {
-  pagination.value.page = page;
-  getData();
-}
-
-function handlePageSizeChange(pageSize: number) {
-  pagination.value.pageSize = pageSize;
-  getData();
-}
-
-onMounted(() => {
-  getData();
-});
 </script>
 
 <template>
@@ -288,20 +270,23 @@ onMounted(() => {
       </div>
 
       <!-- Table -->
+      <TableHeaderOperation
+        v-model:columns="columnChecks"
+        :disabled-delete="checkedRowKeys.length === 0"
+        :loading="loading"
+        @refresh="getData"
+        @delete="handleBatchDelete"
+      />
+
       <NDataTable
         v-model:checked-row-keys="checkedRowKeys"
-        :columns="columns"
+        :columns="filteredColumns"
         :data="tableData"
         :loading="loading"
         :scroll-x="1400"
         :row-key="(row: Api.Ess.Contract) => row.contractId"
-        :pagination="{
-          page: pagination.page,
-          pageSize: pagination.pageSize,
-          total: pagination.total,
-          'onUpdate:page': handlePageChange,
-          'onUpdate:pageSize': handlePageSizeChange
-        }"
+        remote
+        :pagination="mobilePagination"
       />
     </NCard>
 
