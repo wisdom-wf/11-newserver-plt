@@ -1,6 +1,6 @@
 <script setup lang="ts">
 import { ref, h, onMounted, watch, computed } from 'vue';
-import { NButton, NCard, NTag, NSpace, NInput, NSelect, NDrawer, NDrawerContent, useMessage, NImage, NImageGroup, NUpload, NGrid, NGi, NPopconfirm, NTabs, NTabPane, NAvatar, NRate, NEmpty, NSpin, NModal, NAlert, NDescriptions, NDescriptionsItem, NForm, NFormItem, NDatePicker, NInputNumber } from 'naive-ui';
+import { NButton, NCard, NTag, NSpace, NInput, NSelect, NDrawer, NDrawerContent, useMessage, NImage, NImageGroup, NUpload, NGrid, NGi, NPopconfirm, NTabs, NTabPane, NAvatar, NRate, NEmpty, NSpin, NModal, NAlert, NDescriptions, NDescriptionsItem, NForm, NFormItem, NDatePicker, NInputNumber, type UploadFile } from 'naive-ui';
 import PersonCard from '@/components/common/person-card.vue';
 import LazyImage from '@/components/common/lazy-image.vue';
 import type { DataTableColumns } from 'naive-ui';
@@ -132,7 +132,9 @@ function handleCustomConfirm() {
 }
 
 // 处理图片上传
-async function handleImageUpload(file: File) {
+async function handleImageUpload(opt: { file: UploadFile }) {
+  const file = opt.file;
+  if (!file || !file.file) return false;
   const staffId = detailData.value?.staffId;
   if (!staffId) return false;
 
@@ -141,7 +143,7 @@ async function handleImageUpload(file: File) {
     const reader = new FileReader();
     reader.onload = (e) => resolve(e.target?.result as string);
     reader.onerror = reject;
-    reader.readAsDataURL(file);
+    reader.readAsDataURL(file.file as Blob);
   });
 
   const type = selectedQualificationType.value;
@@ -170,11 +172,11 @@ async function handleImageUpload(file: File) {
   if (existing) {
     // 追加模式：添加到现有图片后面
     const newUrls = existing.certificateUrls
-      ? existing.certificateUrls.split(',').concat(base64)
-      : base64;
+      ? existing.certificateUrls.split('|||').concat(base64)
+      : [base64];
     const { error } = await fetchUpdateStaffQualification(existing.qualificationId, {
       ...existing,
-      certificateUrls: newUrls.join(',')
+      certificateUrls: newUrls.join('|||')
     } as Api.Staff.QualificationForm);
     if (error) {
       message.error('上传失败');
@@ -202,10 +204,10 @@ async function handleImageUpload(file: File) {
 
 // 删除资质图片（单张）
 async function deleteQualificationImage(qual: Api.Staff.Qualification, url: string) {
-  const urls = qual.certificateUrls.split(',').filter(u => u !== url);
+  const urls = qual.certificateUrls.split('|||').filter(u => u !== url);
   const { error } = await fetchUpdateStaffQualification(qual.qualificationId, {
     ...qual,
-    certificateUrls: urls.join(',')
+    certificateUrls: urls.join('|||')
   } as Api.Staff.QualificationForm);
   if (error) {
     message.error('删除失败');
@@ -1104,7 +1106,7 @@ onMounted(async () => {
                 :max="1"
                 accept="image/*"
                 :show-file-list="false"
-                :custom-request="(opt: any) => handleImageUpload(opt.file)"
+                :custom-request="(opt: any) => handleImageUpload(opt)"
               >
                 <NButton type="primary" size="small">+ 上传证书</NButton>
               </NUpload>
@@ -1152,7 +1154,7 @@ onMounted(async () => {
                 <!-- 图片列表（右上角删除按钮） -->
                 <div v-if="qual.certificateUrls" style="display: flex; gap: 8px; flex-wrap: wrap; position: relative">
                   <div
-                    v-for="(url, idx) in qual.certificateUrls.split(',')"
+                    v-for="(url, idx) in qual.certificateUrls.split('|||')"
                     :key="idx"
                     style="position: relative; display: inline-block"
                   >
@@ -1160,6 +1162,7 @@ onMounted(async () => {
                       :src="url"
                       width="60"
                       height="60"
+                      :preview="true"
                       style="object-fit: cover; border-radius: 6px; border: 1px solid #eee; cursor: pointer"
                     />
                     <NButton
