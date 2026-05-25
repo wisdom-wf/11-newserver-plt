@@ -66,11 +66,177 @@ const detailActiveTab = ref('basic');
 const qualifications = ref<Api.Staff.Qualification[]>([]);
 const qualificationsLoading = ref(false);
 
-// Qualification modal state
-const qualificationModalVisible = ref(false);
-const qualificationModalLoading = ref(false);
-const qualificationForm = ref<Partial<Api.Staff.QualificationForm>>({});
-const qualificationEditingId = ref<string | null>(null);
+// === 新资质管理交互状态 ===
+// 下拉选项（含自定义）
+const qualificationTypeOptions = [
+  { label: '身份证', value: 0 },
+  { label: '健康证', value: 1 },
+  { label: '职业资格证', value: 2 },
+  { label: '培训证书', value: 3 },
+  { label: '无犯罪记录证明', value: 4 },
+  { label: '其他', value: 5 },
+  { label: '+ 自定义资质', value: -1, isCustom: true }
+];
+
+// 当前选择的资质类型
+const selectedQualificationType = ref<number | null>(null);
+// 是否显示自定义输入框
+const showCustomInput = ref(false);
+// 自定义资质名称
+const customQualificationName = ref('');
+
+// 上传确认对话框
+const uploadConfirmVisible = ref(false);
+const pendingUploadUrls = ref<string[]>([]);
+
+// 计算：某类型是否已上传过资质
+function hasQualificationOfType(type: number): boolean {
+  return qualifications.value.some(q => q.qualificationType === type);
+}
+
+// 计算：下拉选项带绿标
+function getQualificationOptionsWithBadge() {
+  return qualificationTypeOptions.map(opt => {
+    if (opt.isCustom) return { ...opt, badge: null };
+    const has = hasQualificationOfType(opt.value as number);
+    return { ...opt, hasUploaded: has };
+  });
+}
+
+// 处理类型选择
+function handleQualificationTypeSelect(val: number) {
+  if (val === -1) {
+    // 自定义
+    showCustomInput.value = true;
+    selectedQualificationType.value = null;
+    return;
+  }
+  selectedQualificationType.value = val;
+  showCustomInput.value = false;
+
+  // 如果该类型已有资质，弹出覆盖确认
+  const existing = qualifications.value.find(q => q.qualificationType === val);
+  if (existing && existing.certificateUrls) {
+    uploadConfirmVisible.value = true;
+  }
+}
+
+// 处理自定义确认
+function handleCustomConfirm() {
+  if (!customQualificationName.value.trim()) {
+    message.warning('请输入资质名称');
+    return;
+  }
+  showCustomInput.value = false;
+  // 自定义类型用 -1 标记，实际保存时用输入的名称
+}
+
+// 处理图片上传
+async function handleImageUpload(file: File) {
+  const staffId = detailData.value?.staffId;
+  if (!staffId) return false;
+
+  // 转为Base64
+  const base64 = await new Promise<string>((resolve, reject) => {
+    const reader = new FileReader();
+    reader.onload = (e) => resolve(e.target?.result as string);
+    reader.onerror = reject;
+    reader.readAsDataURL(file);
+  });
+
+  const type = selectedQualificationType.value;
+  const isCustom = type === null && customQualificationName.value.trim();
+
+  if (isCustom) {
+    // 自定义类型：先创建资质记录
+    const name = customQualificationName.value.trim();
+    const { data, error } = await fetchAddStaffQualification(staffId, {
+      qualificationType: 5, // 其他类型
+      qualificationName: name,
+      certificateUrls: base64
+    } as Api.Staff.QualificationForm);
+    if (error) {
+      message.error('上传失败');
+      return false;
+    }
+    message.success('✓ 已保存');
+    customQualificationName.value = '';
+    loadQualifications(staffId);
+    return false;
+  }
+
+  // 固定类型
+  const existing = qualifications.value.find(q => q.qualificationType === type);
+  if (existing) {
+    // 追加模式：添加到现有图片后面
+    const newUrls = existing.certificateUrls
+      ? existing.certificateUrls.split(',').concat(base64)
+      : base64;
+    const { error } = await fetchUpdateStaffQualification(existing.qualificationId, {
+      ...existing,
+      certificateUrls: newUrls.join(',')
+    } as Api.Staff.QualificationForm);
+    if (error) {
+      message.error('上传失败');
+      return false;
+    }
+    message.success('✓ 已添加');
+    loadQualifications(staffId);
+    return false;
+  }
+
+  // 新建资质
+  const { error } = await fetchAddStaffQualification(staffId, {
+    qualificationType: type!,
+    qualificationName: ['', '身份证', '健康证', '职业资格证', '培训证书', '无犯罪记录证明', '其他'][type!],
+    certificateUrls: base64
+  } as Api.Staff.QualificationForm);
+  if (error) {
+    message.error('上传失败');
+    return false;
+  }
+  message.success('✓ 已保存');
+  loadQualifications(staffId);
+  return false;
+}
+
+// 删除资质图片（单张）
+async function deleteQualificationImage(qual: Api.Staff.Qualification, url: string) {
+  const urls = qual.certificateUrls.split(',').filter(u => u !== url);
+  const { error } = await fetchUpdateStaffQualification(qual.qualificationId, {
+    ...qual,
+    certificateUrls: urls.join(',')
+  } as Api.Staff.QualificationForm);
+  if (error) {
+    message.error('删除失败');
+    return;
+  }
+  message.success('已删除');
+  loadQualifications(detailData.value!.staffId);
+}
+
+// 删除整个资质
+async function deleteQualification(qualificationId: string) {
+  const { error } = await fetchDeleteStaffQualification(qualificationId);
+  if (error) {
+    message.error(error.message || '删除失败');
+    return;
+  }
+  message.success('删除成功');
+  loadQualifications(detailData.value!.staffId);
+}
+
+// 覆盖确认回调
+function handleOverwriteConfirm() {
+  uploadConfirmVisible.value = false;
+  // 用户选择覆盖，触发上传
+}
+
+// 追加确认回调
+function handleAddConfirm() {
+  uploadConfirmVisible.value = false;
+  // 用户选择追加，不做任何事，等待上传
+}
 
 async function showDetail(row: Api.Staff.Staff) {
   detailLoading.value = true;
@@ -131,143 +297,12 @@ function onTabChange(tab: string) {
   }
 }
 
-function showQualificationModal(qual?: Api.Staff.Qualification) {
-  if (qual) {
-    qualificationEditingId.value = qual.qualificationId;
-    qualificationForm.value = {
-      qualificationType: qual.qualificationType,
-      qualificationName: qual.qualificationName,
-      qualificationNo: qual.qualificationNo,
-      issuingAuthority: qual.issuingAuthority,
-      issueDate: qual.issueDate,
-      expireDate: qual.expireDate,
-      certificateUrls: qual.certificateUrls,
-      remark: qual.remark
-    };
-  } else {
-    qualificationEditingId.value = null;
-    qualificationForm.value = { qualificationType: 1 }; // 默认健康证
-  }
-  qualificationModalVisible.value = true;
+// 资质类型名称映射
+function getQualificationTypeName(type: number): string {
+  const names = ['', '身份证', '健康证', '职业资格证', '培训证书', '无犯罪记录证明', '其他'];
+  return names[type] || '其他';
 }
 
-async function saveQualification() {
-  // 简单校验：必须选择资质类型
-  if (qualificationForm.value.qualificationType === undefined || qualificationForm.value.qualificationType === null) {
-    message.error('请选择资质类型');
-    return;
-  }
-  // 简单校验：必须上传证书图片
-  if (!qualificationForm.value.certificateUrls) {
-    message.error('请上传证书照片');
-    return;
-  }
-  if (!qualificationEditingId.value) {
-    // Add new qualification
-    const { data, error } = await fetchAddStaffQualification(detailData.value!.staffId, qualificationForm.value as Api.Staff.QualificationForm);
-    if (error) {
-      message.error(error.message || '添加失败');
-      return;
-    }
-    message.success('添加成功');
-    qualificationModalVisible.value = false;
-    loadQualifications(detailData.value!.staffId);
-  } else {
-    // Update existing qualification
-    const { data, error } = await fetchUpdateStaffQualification(qualificationEditingId.value, qualificationForm.value as Api.Staff.QualificationForm);
-    if (error) {
-      message.error(error.message || '更新失败');
-      return;
-    }
-    message.success('更新成功');
-    qualificationModalVisible.value = false;
-    loadQualifications(detailData.value!.staffId);
-  }
-}
-
-async function deleteQualification(qualificationId: string) {
-  const { error } = await fetchDeleteStaffQualification(qualificationId);
-  if (error) {
-    message.error(error.message || '删除失败');
-    return;
-  }
-  message.success('删除成功');
-  loadQualifications(detailData.value!.staffId);
-}
-
-function parsePhotos(photos: string | string[] | undefined): string[] {
-  if (!photos) return [];
-  if (Array.isArray(photos)) return photos;
-  if (typeof photos === 'string') {
-    try {
-      return JSON.parse(photos);
-    } catch {
-      return photos.split(',').filter(Boolean);
-    }
-  }
-  return [];
-}
-
-// 资质图片上传处理 - 即时保存模式
-async function handleQualificationUpload({ file }: { file: File }) {
-  // 1. 校验资质类型
-  if (qualificationForm.value.qualificationType === undefined || qualificationForm.value.qualificationType === null) {
-    message.warning('请先选择资质类型');
-    return false;
-  }
-
-  // 2. 转为Base64
-  const base64 = await new Promise<string>((resolve, reject) => {
-    const reader = new FileReader();
-    reader.onload = (e) => resolve(e.target?.result as string);
-    reader.onerror = reject;
-    reader.readAsDataURL(file);
-  });
-
-  // 3. 即时保存
-  const staffId = detailData.value?.staffId;
-  if (qualificationEditingId.value) {
-    // 编辑模式：更新现有资质
-    const { error } = await fetchUpdateStaffQualification(qualificationEditingId.value, {
-      ...qualificationForm.value,
-      certificateUrls: base64
-    } as Api.Staff.QualificationForm);
-    if (error) {
-      message.error('保存失败');
-      return false;
-    }
-    message.success('✓ 已保存');
-    loadQualifications(staffId!);
-    // 编辑现有资质后，关闭弹窗
-    qualificationModalVisible.value = false;
-  } else {
-    // 新增模式：创建新资质
-    const { error } = await fetchAddStaffQualification(staffId!, {
-      qualificationType: qualificationForm.value.qualificationType!,
-      qualificationName: ['身份证', '健康证', '职业资格证', '培训证书', '无犯罪记录证明', '其他'][qualificationForm.value.qualificationType!] || '其他',
-      certificateUrls: base64
-    } as Api.Staff.QualificationForm);
-    if (error) {
-      message.error('保存失败');
-      return false;
-    }
-    message.success('✓ 资质已保存');
-    loadQualifications(staffId!);
-    // 新增后重置表单（保持弹窗打开，可继续添加）
-    qualificationForm.value.certificateUrls = '';
-    // qualificationModalVisible 保持打开
-  }
-
-  return false; // 阻止默认上传
-}
-
-// 获取资质文件列表（用于编辑时预览）
-function getQualificationFileList(urls?: string): { id: string; url: string; status: 'finished' }[] {
-  if (!urls) return [];
-  return parsePhotos(urls).map((url, idx) => ({ id: String(idx), url, status: 'finished' as const }));
-}
-
-// Form validation rules
 const rules = {
   staffName: [defaultRequiredRule],
   phone: [defaultRequiredRule],
@@ -1041,72 +1076,103 @@ onMounted(async () => {
             </div>
           </NTabPane>
           <NTabPane name="qualifications" tab="资质">
-            <div style="max-height: calc(100vh - 220px); overflow-y: auto">
-              <div v-if="qualificationsLoading" style="text-align: center; padding: 40px 0">
-                <NSpin size="medium" />
-              </div>
-              <div v-else-if="qualifications.length === 0" style="text-align: center; padding: 40px 0">
-                <NEmpty description="暂无资质信息">
-                  <template #extra>
-                    <NButton type="primary" size="small" @click="showQualificationModal()">添加资质</NButton>
-                  </template>
-                </NEmpty>
-              </div>
-              <div v-else>
-                <div style="margin-bottom: 16px; display: flex; justify-content: space-between; align-items: center">
-                  <span style="color: #666; font-size: 13px">共 {{ qualifications.length }} 个资质</span>
-                  <NButton type="primary" size="small" @click="showQualificationModal()">+ 添加资质</NButton>
+            <!-- 顶部交互区：下拉框 + 上传按钮（固定不动） -->
+            <div style="padding: 12px 16px; background: #f8f9ff; border-radius: 8px; margin-bottom: 16px; display: flex; gap: 12px; align-items: flex-start">
+              <!-- 资质类型下拉 -->
+              <NSelect
+                v-model:value="selectedQualificationType"
+                :options="qualificationTypeOptions.map(opt => ({
+                  ...opt,
+                  label: opt.isCustom ? opt.label : (opt.label + (hasQualificationOfType(opt.value as number) ? ' ✓' : ''))
+                }))"
+                placeholder="选择资质类型，上传证书"
+                style="width: 220px"
+                @update:value="handleQualificationTypeSelect"
+              />
+              <!-- 自定义名称输入（显示在右侧） -->
+              <NInput
+                v-if="showCustomInput"
+                v-model:value="customQualificationName"
+                placeholder="输入自定义资质名称"
+                style="width: 160px"
+                @keyup.enter="handleCustomConfirm"
+              />
+              <!-- 上传按钮（选择类型后显示） -->
+              <NUpload
+                v-if="selectedQualificationType !== null || showCustomInput"
+                :multiple="false"
+                :max="1"
+                accept="image/*"
+                :show-file-list="false"
+                :custom-request="(opt: any) => handleImageUpload(opt.file)"
+              >
+                <NButton type="primary" size="small">+ 上传证书</NButton>
+              </NUpload>
+            </div>
+
+            <!-- 上传确认对话框 -->
+            <NModal
+              v-model:show="uploadConfirmVisible"
+              preset="dialog"
+              title="该类型已有证书"
+              content="要覆盖现有证书还是添加新图片？"
+              positive-text="覆盖"
+              negative-text="添加"
+              @positive-click="handleOverwriteConfirm"
+              @negative-click="handleAddConfirm"
+            />
+
+            <!-- 资质列表（可滚动） -->
+            <div v-if="qualificationsLoading" style="text-align: center; padding: 40px 0">
+              <NSpin size="medium" />
+            </div>
+            <div v-else-if="qualifications.length === 0" style="text-align: center; padding: 40px 0; color: #999">
+              暂无资质，点击上方下拉框添加
+            </div>
+            <div v-else style="display: flex; flex-direction: column; gap: 12px">
+              <div
+                v-for="qual in qualifications"
+                :key="qual.qualificationId"
+                style="background: #fff; border: 1px solid #e8e8e8; border-radius: 8px; padding: 14px"
+              >
+                <div style="display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 10px">
+                  <div style="display: flex; align-items: center; gap: 10px">
+                    <NTag :type="qual.qualificationType === 1 ? 'success' : 'info'" size="small">
+                      {{ qual.qualificationName || getQualificationTypeName(qual.qualificationType) }}
+                    </NTag>
+                    <span v-if="qual.certificateUrls" style="color: #52c41a; font-size: 12px">✓ 已上传</span>
+                  </div>
+                  <NPopconfirm @positive-click="deleteQualification(qual.qualificationId)">
+                    <template #trigger>
+                      <NButton size="tiny" type="error">删除全部</NButton>
+                    </template>
+                    确定要删除该资质吗？
+                  </NPopconfirm>
                 </div>
-                <div style="display: flex; flex-direction: column; gap: 12px">
-                  <div v-for="qual in qualifications" :key="qual.qualificationId" style="background: #fff; border: 1px solid #e8e8e8; border-radius: 8px; padding: 14px">
-                    <div style="display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 10px">
-                      <div style="display: flex; align-items: center; gap: 10px">
-                        <NTag :type="qual.qualificationType === 1 ? 'success' : 'info'" size="small">
-                          {{ ['身份证', '健康证', '职业资格证', '培训证书', '无犯罪记录证明', '其他'][qual.qualificationType] || '其他' }}
-                        </NTag>
-                        <span style="font-weight: 600; font-size: 14px">{{ qual.qualificationName || '未命名' }}</span>
-                      </div>
-                      <NTag v-if="qual.certificateUrls" type="success" size="small">
-                        ✓ 已保存
-                      </NTag>
-                      <NTag v-else type="warning" size="small">
-                        待上传
-                      </NTag>
-                    </div>
-                    <div style="display: grid; grid-template-columns: repeat(2, 1fr); gap: 6px; font-size: 13px; color: #888; margin-bottom: 10px">
-                      <div>编号: {{ qual.qualificationNo || '-' }}</div>
-                      <div>有效期: {{ qual.expireDate || '-' }}</div>
-                      <div>发证机关: {{ qual.issuingAuthority || '-' }}</div>
-                      <div>发证日期: {{ qual.issueDate || '-' }}</div>
-                    </div>
-                    <div v-if="qual.certificateUrls" style="margin-bottom: 10px">
-                      <div style="font-size: 12px; color: #999; margin-bottom: 6px">
-                        证书图片 ({{ qual.certificateUrls.split(',').length }}张)
-                      </div>
-                      <div style="display: flex; gap: 6px; flex-wrap: wrap">
-                        <NImageGroup v-if="qual.certificateUrls">
-                          <NImage
-                            v-for="(url, idx) in qual.certificateUrls.split(',')"
-                            :key="idx"
-                            :src="url"
-                            width="50"
-                            height="50"
-                            style="object-fit: cover; border-radius: 4px; cursor: pointer; border: 1px solid #eee"
-                          />
-                        </NImageGroup>
-                      </div>
-                    </div>
-                    <div style="display: flex; gap: 8px; justify-content: flex-end; border-top: 1px solid #f0f0f0; padding-top: 10px; margin-top: 4px">
-                      <NButton size="tiny" @click="showQualificationModal(qual)">编辑</NButton>
-                      <NPopconfirm @positive-click="deleteQualification(qual.qualificationId)">
-                        <template #trigger>
-                          <NButton size="tiny" type="error">删除</NButton>
-                        </template>
-                        确定要删除该资质吗？
-                      </NPopconfirm>
-                    </div>
+                <!-- 图片列表（右上角删除按钮） -->
+                <div v-if="qual.certificateUrls" style="display: flex; gap: 8px; flex-wrap: wrap; position: relative">
+                  <div
+                    v-for="(url, idx) in qual.certificateUrls.split(',')"
+                    :key="idx"
+                    style="position: relative; display: inline-block"
+                  >
+                    <NImage
+                      :src="url"
+                      width="60"
+                      height="60"
+                      style="object-fit: cover; border-radius: 6px; border: 1px solid #eee; cursor: pointer"
+                    />
+                    <NButton
+                      size="tiny"
+                      type="error"
+                      style="position: absolute; top: -6px; right: -6px; min-width: 20px; height: 20px; padding: 0; border-radius: 50%"
+                      @click.stop="deleteQualificationImage(qual, url)"
+                    >
+                      ×
+                    </NButton>
                   </div>
                 </div>
+                <div v-else style="color: #999; font-size: 13px">暂无图片</div>
               </div>
             </div>
           </NTabPane>
@@ -1168,52 +1234,7 @@ onMounted(async () => {
       </template>
     </NModal>
 
-    <!-- 资质管理弹窗 - 即时保存模式 -->
-    <NModal v-model:show="qualificationModalVisible" preset="card" :title="qualificationEditingId ? '编辑资质' : '添加资质'" :style="{ width: '480px' }">
-      <div style="padding: 8px 0">
-        <div style="margin-bottom: 16px">
-          <div style="font-size: 13px; color: #666; margin-bottom: 8px">资质类型</div>
-          <NSelect
-            v-model:value="qualificationForm.qualificationType"
-            :options="[
-              { label: '身份证', value: 0 },
-              { label: '健康证', value: 1 },
-              { label: '职业资格证', value: 2 },
-              { label: '培训证书', value: 3 },
-              { label: '无犯罪记录证明', value: 4 },
-              { label: '其他', value: 5 }
-            ]"
-            placeholder="请选择资质类型"
-            style="width: 100%"
-            :disabled="!!qualificationEditingId"
-          />
-        </div>
-        <div style="margin-bottom: 16px">
-          <div style="font-size: 13px; color: #666; margin-bottom: 8px">证书图片</div>
-          <NUpload
-            accept="image/*"
-            :multiple="false"
-            :max="1"
-            :custom-request="handleQualificationUpload"
-            list-type="image-card"
-          >
-            <div style="display: flex; flex-direction: column; align-items: center; gap: 8px; padding: 24px; background: #f8f8f8; border-radius: 8px; cursor: pointer">
-              <icon:upload color="#5394ec" :depth="2" :size="32" />
-              <span style="color: #666; font-size: 13px">点击上传证书照片</span>
-              <span style="color: #999; font-size: 12px">上传后自动保存</span>
-            </div>
-          </NUpload>
-        </div>
-        <div v-if="qualificationEditingId" style="background: #f0f9eb; border-radius: 8px; padding: 12px; display: flex; align-items: center; gap: 8px">
-          <icon:check-circle color="#52c41a" :depth="2" />
-          <span style="color: #52c41a; font-size: 13px">已保存，可继续上传替换</span>
-        </div>
       </div>
-      <template #footer>
-        <NButton @click="qualificationModalVisible = false">关闭</NButton>
-      </template>
-    </NModal>
-  </div>
 </template>
 
 <style scoped>
