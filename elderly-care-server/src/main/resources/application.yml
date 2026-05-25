@@ -41,17 +41,19 @@ tencent:
   ess:
     secret-id: ${TENCENT_ESS_SECRET_ID}
     secret-key: ${TENCENT_ESS_SECRET_KEY}
-    agent-id: ${TENCENT_ESS_AGENT_ID:1252521778}
+    agent-id: ${TENCENT_ESS_AGENT_ID:yD3h9UU1axunqxUumZK21EeQkEj8LQ4v}
     region: ap-guangzhou
-    callback-url: ${TENCENT_ESS_CALLBACK_URL:https://wisdomdance.cn/jxy/api/contracts/callback}
+    callback-url: https://wisdomdance.cn/jxy/api/contracts/callback
+    callback-token: 0AEB8A76DD374FA1A85137D56B499844
+    callback-encryption-key: E8446D4606BE49348E2B4E5F009DDC09
     default-expire-days: 7
-    template-id: ${TENCENT_ESS_TEMPLATE_ID:yD3hVUU127vmx1UEWFeT1SYSvHNbXiDe}
-    operator-id: ${TENCENT_ESS_OPERATOR_ID:yD3hWUU1l6zb2oUyPwOVsvRaOmmYqzlL}
+    template-id: ${TENCENT_ESS_TEMPLATE_ID:yD3h9UU1a9h5ddUuqu5e4S1XqK3dlK6u}
+    operator-id: ${TENCENT_ESS_OPERATOR_ID:yD3h9UU1axunqxUumZK21EeQkEj8LQ4v}
 
 # 合同企业信息配置（以后可改为从服务商表动态获取）
 contract:
   enterprise:
-    name: "陕西红泥数智科技有限公司"
+    name: "延安家享悠网络科技有限公司"
     credit-code: "91610113MA7JQXXX00"
     legal-person: "王凡"
     address: "陕西省西安市"

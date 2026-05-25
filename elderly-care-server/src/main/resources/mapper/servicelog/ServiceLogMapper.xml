@@ -52,7 +52,19 @@
     </resultMap>
 
     <select id="selectServiceLogPage" resultMap="BaseResultMap">
-        SELECT * FROM service_log
+        SELECT service_log_id, log_no, order_id, order_no,
+               elder_id, elder_name, elder_phone, elder_address,
+               staff_id, staff_name, staff_phone,
+               provider_id, provider_name,
+               service_type_code, service_type_name,
+               service_date, service_start_time, service_end_time,
+               service_duration, service_status, actual_duration,
+               service_score, service_comment, elder_signature,
+               anomaly_type, anomaly_desc, anomaly_status,
+               audit_status, review_comment, reviewer_id, reviewer_name, review_time,
+               sign_in_time, sign_in_location, sign_out_time, sign_out_location,
+               departure_time, deleted, create_time, update_time
+        FROM service_log
         WHERE deleted = 0
         <if test="query.orderNo != null and query.orderNo != ''">
             AND order_no LIKE CONCAT('%', #{query.orderNo}, '%')

@@ -68,9 +68,14 @@ public class StaffQualification implements Serializable {
     private Integer status;
 
     /**
+     * 审核状态
+     */
+    private String auditStatus;
+
+    /**
      * 删除标记：0-未删除，1-已删除
      */
-    @TableLogic(value = "1", delval = "0")
+    @TableLogic(value = "0", delval = "1")
     private Integer deleted;
 
     /**

@@ -35,6 +35,16 @@ public class TencentEssConfig {
     private String callbackUrl;
 
     /**
+     * 回调签名验证token
+     */
+    private String callbackToken;
+
+    /**
+     * 回调加密key
+     */
+    private String callbackEncryptionKey;
+
+    /**
      * 默认过期天数
      */
     private Integer defaultExpireDays = 7;

@@ -64,30 +64,6 @@ public class StaffServiceImpl implements StaffService {
     /** STAFF角色ID */
     private static final String STAFF_ROLE_ID = "R005";
 
-    /**
-     * 根据身份证号计算年龄（18位中国身份证）
-     * 身份证号格式：6位地区码 + 8位出生日期(YYYYMMDD) + 3位顺序码 + 1位性别码 + 1位校验码
-     */
-    private int calculateAgeFromIdCard(String idCard) {
-        if (idCard == null || idCard.length() != 18) {
-            return 0;
-        }
-        try {
-            int birthYear = Integer.parseInt(idCard.substring(6, 10));
-            int birthMonth = Integer.parseInt(idCard.substring(10, 12));
-            int birthDay = Integer.parseInt(idCard.substring(12, 14));
-            LocalDate birthDate = LocalDate.of(birthYear, birthMonth, birthDay);
-            LocalDate today = LocalDate.now();
-            int age = today.getYear() - birthYear;
-            if (today.getMonthValue() < birthMonth ||
-                (today.getMonthValue() == birthMonth && today.getDayOfMonth() < birthDay)) {
-                age--;
-            }
-            return age;
-        } catch (Exception e) {
-            return 0;
-        }
-    }
 
     // ==================== 服务人员管理 ====================
 
@@ -137,7 +113,7 @@ public class StaffServiceImpl implements StaffService {
         result.setStaffNo(staff.getStaffNo());
         result.setStaffName(staff.getStaffName());
         result.setGender(staff.getGender());
-        result.setGenderText(getGenderText(staff.getGender()));
+        result.setGenderText(IdCardUtil.getGenderText(staff.getGender()));
         result.setIdCard(staff.getIdCard());
         result.setPhone(staff.getPhone());
         result.setAge(staff.getAge());
@@ -726,14 +702,6 @@ public class StaffServiceImpl implements StaffService {
 
     // ==================== 枚举文本转换 ====================
 
-    private String getGenderText(String gender) {
-        if (gender == null) return "";
-        return switch (gender) {
-            case "FEMALE" -> "女";
-            case "MALE" -> "男";
-            default -> "未知";
-        };
-    }
 
     private String getEducationText(String education) {
         if (education == null) return "";
