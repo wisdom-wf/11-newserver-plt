@@ -59,6 +59,7 @@ public class StaffQualification implements Serializable {
     /**
      * 资质证书图片URL，多个用逗号分隔
      */
+    @TableField("attachment_url")
     private String certificateUrls;
 
     /**
