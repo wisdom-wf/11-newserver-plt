@@ -88,6 +88,10 @@ const customQualificationName = ref('');
 // 上传确认对话框
 const uploadConfirmVisible = ref(false);
 const pendingUploadUrls = ref<string[]>([]);
+// 上传中状态
+const uploadLoading = ref(false);
+// 用于强制刷新NUpload组件
+const uploadKey = ref(0);
 
 // 计算：某类型是否已上传过资质
 function hasQualificationOfType(type: number): boolean {
@@ -138,23 +142,63 @@ async function handleImageUpload(opt: { file: UploadFile }) {
   const staffId = detailData.value?.staffId;
   if (!staffId) return false;
 
-  // 转为Base64
-  const base64 = await new Promise<string>((resolve, reject) => {
-    const reader = new FileReader();
-    reader.onload = (e) => resolve(e.target?.result as string);
-    reader.onerror = reject;
-    reader.readAsDataURL(file.file as Blob);
-  });
+  uploadLoading.value = true;
+  try {
+    // 转为Base64
+    message.loading('正在处理图片...', { duration: 0 });
+    const base64 = await new Promise<string>((resolve, reject) => {
+      const reader = new FileReader();
+      reader.onload = (e) => resolve(e.target?.result as string);
+      reader.onerror = reject;
+      reader.readAsDataURL(file.file as Blob);
+    });
+    message.destroyAll();
 
-  const type = selectedQualificationType.value;
-  const isCustom = type === null && customQualificationName.value.trim();
+    const type = selectedQualificationType.value;
+    const isCustom = type === null && customQualificationName.value.trim();
 
-  if (isCustom) {
-    // 自定义类型：先创建资质记录
-    const name = customQualificationName.value.trim();
-    const { data, error } = await fetchAddStaffQualification(staffId, {
-      qualificationType: 5, // 其他类型
-      qualificationName: name,
+    if (isCustom) {
+      // 自定义类型：先创建资质记录
+      const name = customQualificationName.value.trim();
+      const { data, error } = await fetchAddStaffQualification(staffId, {
+        qualificationType: 5, // 其他类型
+        qualificationName: name,
+        certificateUrls: base64
+      } as Api.Staff.QualificationForm);
+      if (error) {
+        message.error('上传失败');
+        return false;
+      }
+      message.success('✓ 已保存');
+      customQualificationName.value = '';
+      loadQualifications(staffId);
+      return false;
+    }
+
+    // 固定类型
+    const existing = qualifications.value.find(q => q.qualificationType === type);
+    if (existing) {
+      // 追加模式：添加到现有图片后面
+      const newUrls = existing.certificateUrls
+        ? existing.certificateUrls.split('|||').concat(base64)
+        : [base64];
+      const { error } = await fetchUpdateStaffQualification(existing.qualificationId, {
+        ...existing,
+        certificateUrls: newUrls.join('|||')
+      } as Api.Staff.QualificationForm);
+      if (error) {
+        message.error('上传失败');
+        return false;
+      }
+      message.success('✓ 已添加');
+      loadQualifications(staffId);
+      return false;
+    }
+
+    // 新建资质
+    const { error } = await fetchAddStaffQualification(staffId, {
+      qualificationType: type!,
+      qualificationName: ['身份证', '健康证', '职业资格证', '培训证书', '无犯罪记录证明', '其他'][type!],
       certificateUrls: base64
     } as Api.Staff.QualificationForm);
     if (error) {
@@ -162,44 +206,11 @@ async function handleImageUpload(opt: { file: UploadFile }) {
       return false;
     }
     message.success('✓ 已保存');
-    customQualificationName.value = '';
     loadQualifications(staffId);
     return false;
+  } finally {
+    uploadLoading.value = false;
   }
-
-  // 固定类型
-  const existing = qualifications.value.find(q => q.qualificationType === type);
-  if (existing) {
-    // 追加模式：添加到现有图片后面
-    const newUrls = existing.certificateUrls
-      ? existing.certificateUrls.split('|||').concat(base64)
-      : [base64];
-    const { error } = await fetchUpdateStaffQualification(existing.qualificationId, {
-      ...existing,
-      certificateUrls: newUrls.join('|||')
-    } as Api.Staff.QualificationForm);
-    if (error) {
-      message.error('上传失败');
-      return false;
-    }
-    message.success('✓ 已添加');
-    loadQualifications(staffId);
-    return false;
-  }
-
-  // 新建资质
-  const { error } = await fetchAddStaffQualification(staffId, {
-    qualificationType: type!,
-    qualificationName: ['', '身份证', '健康证', '职业资格证', '培训证书', '无犯罪记录证明', '其他'][type!],
-    certificateUrls: base64
-  } as Api.Staff.QualificationForm);
-  if (error) {
-    message.error('上传失败');
-    return false;
-  }
-  message.success('✓ 已保存');
-  loadQualifications(staffId);
-  return false;
 }
 
 // 删除资质图片（单张）
@@ -286,6 +297,8 @@ async function loadQualifications(staffId: string) {
       return;
     }
     qualifications.value = data || [];
+    // 强制刷新NUpload组件，解决上传后按钮状态异常问题
+    uploadKey.value++;
   } catch (e) {
     console.error('Failed to load qualifications', e);
   } finally {
@@ -301,7 +314,7 @@ function onTabChange(tab: string) {
 
 // 资质类型名称映射
 function getQualificationTypeName(type: number): string {
-  const names = ['', '身份证', '健康证', '职业资格证', '培训证书', '无犯罪记录证明', '其他'];
+  const names = ['身份证', '健康证', '职业资格证', '培训证书', '无犯罪记录证明', '其他'];
   return names[type] || '其他';
 }
 
@@ -1101,6 +1114,7 @@ onMounted(async () => {
               />
               <!-- 上传按钮（选择类型后显示） -->
               <NUpload
+                :key="uploadKey"
                 v-if="selectedQualificationType !== null || showCustomInput"
                 :multiple="false"
                 :max="1"
@@ -1108,7 +1122,9 @@ onMounted(async () => {
                 :show-file-list="false"
                 :custom-request="(opt: any) => handleImageUpload(opt)"
               >
-                <NButton type="primary" size="small">+ 上传证书</NButton>
+                <NButton type="primary" size="small" :loading="uploadLoading">
+                  {{ uploadLoading ? '处理中...' : '+ 上传证书' }}
+                </NButton>
               </NUpload>
             </div>
 
