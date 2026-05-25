@@ -211,7 +211,7 @@ function parsePhotos(photos: string | string[] | undefined): string[] {
 // 资质图片上传处理 - 即时保存模式
 async function handleQualificationUpload({ file }: { file: File }) {
   // 1. 校验资质类型
-  if (!qualificationForm.value.qualificationType && !qualificationEditingId.value) {
+  if (qualificationForm.value.qualificationType === undefined || qualificationForm.value.qualificationType === null) {
     message.warning('请先选择资质类型');
     return false;
   }
@@ -238,6 +238,8 @@ async function handleQualificationUpload({ file }: { file: File }) {
     }
     message.success('✓ 已保存');
     loadQualifications(staffId!);
+    // 编辑现有资质后，关闭弹窗
+    qualificationModalVisible.value = false;
   } else {
     // 新增模式：创建新资质
     const { error } = await fetchAddStaffQualification(staffId!, {
@@ -251,11 +253,10 @@ async function handleQualificationUpload({ file }: { file: File }) {
     }
     message.success('✓ 资质已保存');
     loadQualifications(staffId!);
+    // 新增后重置表单（保持弹窗打开，可继续添加）
+    qualificationForm.value.certificateUrls = '';
+    // qualificationModalVisible 保持打开
   }
-
-  // 4. 重置表单，可继续上传
-  qualificationForm.value.certificateUrls = '';
-  qualificationModalVisible.value = false;
 
   return false; // 阻止默认上传
 }
@@ -856,8 +857,8 @@ onMounted(async () => {
             :subtitle="staff.phone || '-'"
             :staff-no="staff.staffNo || ''"
             :insurance-status="staff.insuranceStatus"
-            :monthly-star="staff.monthlyStar === true || staff.monthlyStar === 1"
-            :quarterly-star="staff.quarterlyStar === true || staff.quarterlyStar === 1"
+            :monthly-star="staff.monthlyStar === 1"
+            :quarterly-star="staff.quarterlyStar === 1"
             :extra-info="[
               { label: '在职', value: getStatusLabel(staff.status), color: staff.status === 'ON_JOB' ? '#52c41a' : staff.status === 'PENDING' ? '#fa8c16' : '#ff4d4f' },
               ...(staff.serviceTypes ? [{ label: '服务类型', value: staff.serviceTypes.split(',')[0] }] : [])

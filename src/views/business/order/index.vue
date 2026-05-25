@@ -50,7 +50,7 @@ import {
   fetchGetSignUrl
 } from '@/service/api';
 import { useRouterPush } from '@/hooks/common/router';
-import { useNaivePaginatedTable, defaultTransform } from '@/hooks/common/table';
+import { useNaivePaginatedTable, useTableOperate, defaultTransform } from '@/hooks/common/table';
 import { useNaiveForm } from '@/hooks/common/form';
 import { useAuth } from '@/hooks/business/auth';
 import TableHeaderOperation from '@/components/advanced/table-header-operation.vue';
@@ -350,7 +350,7 @@ function formatServiceTime(serviceDate: string | undefined, serviceTime: string 
 }
 
 // Table columns
-const columns: DataTableColumns<Api.Order.Order> = [
+const tableColumns: DataTableColumns<Api.Order.Order> = [
   { type: 'selection' },
   { title: '订单号', key: 'orderNo', width: 160 },
   {
@@ -442,7 +442,13 @@ const columns: DataTableColumns<Api.Order.Order> = [
 ];
 
 // Use framework's table hook
-const tableHookResult = useNaivePaginatedTable<Api.Common.PaginatingQueryRecord<Api.Order.Order>, Api.Order.Order>({
+const {
+  data: tableData,
+  loading,
+  pagination,
+  getData,
+  getDataByPage
+} = useNaivePaginatedTable<Api.Common.PaginatingQueryRecord<Api.Order.Order>, Api.Order.Order>({
   apiFn: async params => {
     const queryParams: any = {
       page: params.page,
@@ -464,35 +470,10 @@ const tableHookResult = useNaivePaginatedTable<Api.Common.PaginatingQueryRecord<
     pageSize: 10
   },
   transform: defaultTransform,
-  columns: () => columns
+  columns: () => tableColumns
 });
 
-const {
-  data: tableData,
-  loading,
-  pagination,
-  mobilePagination,
-  getData,
-  getDataByPage,
-  columnChecks: rawColumnChecks
-} = tableHookResult;
-
-// Ensure columnChecks is always an array (writable ref for v-model)
-const columnChecks = ref<Array<{ prop: string; label: string; checked: boolean }>>([]);
-
-// Watch rawColumnChecks and sync to columnChecks
-watch(
-  () => rawColumnChecks.value,
-  val => {
-    if (val && val.length > 0) {
-      columnChecks.value = val;
-    }
-  },
-  { immediate: true, deep: true }
-);
-
-// Table checked row keys
-const checkedRowKeys = ref<string[]>([]);
+const { checkedRowKeys } = useTableOperate(tableData, 'orderId', getData);
 
 // Add modal
 const addModalVisible = ref(false);
@@ -686,7 +667,7 @@ async function handleAssign(row: Api.Order.Order) {
     if (data?.records) {
       staffOptions.value = data.records.map((staff: any) => ({
         label: `${staff.staffName || staff.name} - ${staff.phone || '无电话'}`,
-        value: staff.staffId || staff.id,
+        value: staff.staffId,
         phone: staff.phone,
         serviceTypes: staff.serviceTypes || staff.serviceTypeNames || '-'
       }));
@@ -1083,12 +1064,19 @@ async function handleDetail(row: Api.Order.Order) {
     const { data: orderData } = await fetchGetOrder(row.orderId);
     if (!orderData) return;
 
-    // 只单独查评价（OrderDetailVO 不含评价字段）
-    const evaluationRes = await fetchGetEvaluationByOrderId(row.orderId).catch(() => null);
+    // 并行获取评价、服务日志、质检记录
+    const [evaluationRes, serviceLogRes, qualityCheckRes] = await Promise.all([
+      fetchGetEvaluationByOrderId(row.orderId).catch(() => null),
+      fetchGetServiceLogByOrderId(row.orderId).catch(() => null),
+      fetchGetQualityCheckByOrderId(row.orderId).catch(() => null)
+    ]);
+
     const evaluation = evaluationRes?.data;
+    const serviceLog = serviceLogRes?.data;
+    const qualityCheck = qualityCheckRes?.data;
 
     orderDetailData.value = orderData;
-    orderTimelineData.value = generateOrderTimeline(orderData, { evaluation });
+    orderTimelineData.value = generateOrderTimeline(orderData, { evaluation, serviceLog, qualityCheck });
     orderDetailVisible.value = true;
   } catch (e) {
     console.error('Failed to get order detail', e);
