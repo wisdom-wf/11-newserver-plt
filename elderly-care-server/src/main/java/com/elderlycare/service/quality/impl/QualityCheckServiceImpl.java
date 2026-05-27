@@ -112,16 +112,20 @@ public class QualityCheckServiceImpl implements QualityCheckService {
 
     @Override
     public void createQualityCheck(QualityCheckVO vo) {
+        Order order = orderMapper.selectByIdWithNames(vo.getOrderId());
+        if (order == null) {
+            throw BusinessException.notFound("订单不存在");
+        }
         QualityCheck qualityCheck = new QualityCheck();
         qualityCheck.setCheckNo("QC" + System.currentTimeMillis());
-        qualityCheck.setOrderId(vo.getOrderId());
-        qualityCheck.setOrderNo(vo.getOrderNo());
+        qualityCheck.setOrderId(order.getOrderId());
+        qualityCheck.setOrderNo(order.getOrderNo());
         qualityCheck.setServiceLogId(vo.getServiceLogId());
         qualityCheck.setServiceCategory(vo.getServiceCategory());
-        qualityCheck.setProviderId(vo.getProviderId());
-        qualityCheck.setProviderName(vo.getProviderName());
-        qualityCheck.setStaffId(vo.getStaffId());
-        qualityCheck.setStaffName(vo.getStaffName());
+        qualityCheck.setProviderId(order.getProviderId());
+        qualityCheck.setProviderName(order.getProviderName());
+        qualityCheck.setStaffId(order.getStaffId());
+        qualityCheck.setStaffName(order.getStaffName());
         qualityCheck.setCheckType(vo.getCheckType());
         qualityCheck.setCheckMethod(vo.getCheckMethod());
         qualityCheck.setCheckScore(vo.getCheckScore());
@@ -195,6 +199,9 @@ public class QualityCheckServiceImpl implements QualityCheckService {
     @Override
     public QualityCheckStatisticsVO getStatistics(String areaId, String providerId, String startDate, String endDate) {
         LambdaQueryWrapper<QualityCheck> wrapper = new LambdaQueryWrapper<>();
+        if (providerId != null && !providerId.isEmpty()) {
+            wrapper.eq(QualityCheck::getProviderId, providerId);
+        }
 
         QualityCheckStatisticsVO stats = new QualityCheckStatisticsVO();
 
@@ -203,20 +210,16 @@ public class QualityCheckServiceImpl implements QualityCheckService {
         stats.setTotal(total.intValue());
 
         // 合格数
-        wrapper.eq(QualityCheck::getCheckResult, "QUALIFIED");
-        Long qualifiedCount = qualityCheckMapper.selectCount(wrapper.clone());
+        Long qualifiedCount = qualityCheckMapper.selectCount(wrapper.clone().eq(QualityCheck::getCheckResult, "QUALIFIED"));
         stats.setQualifiedCount(qualifiedCount.intValue());
-        wrapper.clear();
 
         // 不合格数
-        wrapper.eq(QualityCheck::getCheckResult, "UNQUALIFIED");
-        stats.setUnqualifiedCount(qualityCheckMapper.selectCount(wrapper.clone()).intValue());
-        wrapper.clear();
+        stats.setUnqualifiedCount(qualityCheckMapper.selectCount(
+                wrapper.clone().eq(QualityCheck::getCheckResult, "UNQUALIFIED")).intValue());
 
         // 需整改数
-        wrapper.eq(QualityCheck::getCheckResult, "NEED_RECTIFY");
-        stats.setNeedRectifyCount(qualityCheckMapper.selectCount(wrapper.clone()).intValue());
-        wrapper.clear();
+        stats.setNeedRectifyCount(qualityCheckMapper.selectCount(
+                wrapper.clone().eq(QualityCheck::getCheckResult, "NEED_RECTIFY")).intValue());
 
         // 合格率
         if (total > 0) {
@@ -224,11 +227,11 @@ public class QualityCheckServiceImpl implements QualityCheckService {
                     .divide(BigDecimal.valueOf(total), 2, BigDecimal.ROUND_HALF_UP);
             stats.setQualifiedRate(rate);
         } else {
-            stats.setQualifiedRate(BigDecimal.ZERO);
+            stats.setQualifiedRate(null);
         }
 
         // 平均评分（无数据时返回null，前端formatter处理）
-        stats.setAvgScore(qualityCheckMapper.avgCheckScore());  // null则保持null
+        stats.setAvgScore(qualityCheckMapper.avgCheckScore(providerId));  // null则保持null
 
         return stats;
     }

@@ -81,6 +81,7 @@ public class QualityCheckController {
     @GetMapping("/order/{orderId}")
     public Result<QualityCheckVO> getQualityCheckByOrderId(@PathVariable String orderId) {
         QualityCheckVO vo = qualityCheckService.getQualityCheckByOrderId(orderId);
+        assertCanAccessQualityCheck(vo);
         return Result.success(vo);
     }
 
@@ -91,6 +92,7 @@ public class QualityCheckController {
     @GetMapping("/service-log/{serviceLogId}")
     public Result<QualityCheckVO> getQualityCheckByServiceLogId(@PathVariable String serviceLogId) {
         QualityCheckVO vo = qualityCheckService.getQualityCheckByServiceLogId(serviceLogId);
+        assertCanAccessQualityCheck(vo);
         return Result.success(vo);
     }
 
@@ -122,6 +124,7 @@ public class QualityCheckController {
      */
     @PutMapping("/{id}")
     public Result<Void> updateQualityCheck(@PathVariable String id, @RequestBody QualityCheckVO vo) {
+        assertCanAccessQualityCheck(qualityCheckService.getQualityCheck(id));
         qualityCheckService.updateQualityCheck(id, vo);
         return Result.successMsg("质检更新成功");
     }
@@ -132,6 +135,7 @@ public class QualityCheckController {
      */
     @PutMapping("/{id}/rectify")
     public Result<Void> submitRectify(@PathVariable String id, @RequestBody Map<String, Object> params) {
+        assertCanAccessQualityCheck(qualityCheckService.getQualityCheck(id));
         qualityCheckService.submitRectify(id, params);
         return Result.successMsg("整改提交成功");
     }
@@ -142,6 +146,7 @@ public class QualityCheckController {
      */
     @PutMapping("/{id}/recheck")
     public Result<Void> recheck(@PathVariable String id, @RequestBody Map<String, Object> params) {
+        assertCanAccessQualityCheck(qualityCheckService.getQualityCheck(id));
         qualityCheckService.recheck(id, params);
         return Result.successMsg("复检成功");
     }
@@ -154,6 +159,7 @@ public class QualityCheckController {
      */
     @PutMapping("/{id}/inspect")
     public Result<Void> inspect(@PathVariable String id, @RequestBody InspectionDTO dto) {
+        assertCanAccessQualityCheck(qualityCheckService.getQualityCheck(id));
         qualityCheckService.inspect(id, dto);
         return Result.successMsg("质检执行完成");
     }
@@ -168,6 +174,9 @@ public class QualityCheckController {
             @RequestParam(required = false) String providerId,
             @RequestParam(required = false) String startDate,
             @RequestParam(required = false) String endDate) {
+        if ("PROVIDER".equals(UserContext.getUserType()) && UserContext.getProviderId() != null) {
+            providerId = UserContext.getProviderId();
+        }
         QualityCheckStatisticsVO result = qualityCheckService.getStatistics(areaId, providerId, startDate, endDate);
         return Result.success(result);
     }
@@ -178,7 +187,25 @@ public class QualityCheckController {
      */
     @PostMapping("/batch")
     public Result<Void> batchDeleteQualityCheck(@RequestBody List<String> ids) {
+        for (String id : ids) {
+            assertCanAccessQualityCheck(qualityCheckService.getQualityCheck(id));
+        }
         qualityCheckService.batchDeleteQualityCheck(ids);
         return Result.successMsg("批量删除成功");
+    }
+
+    private void assertCanAccessQualityCheck(QualityCheckVO vo) {
+        if (vo == null) {
+            return;
+        }
+        String userType = UserContext.getUserType();
+        String autoPid = UserContext.getProviderId();
+        if ("PROVIDER".equals(userType) && autoPid != null && !autoPid.equals(vo.getProviderId())) {
+            throw BusinessException.fail("无权查看其他服务商的质检记录");
+        }
+        String staffId = UserContext.getStaffId();
+        if ("STAFF".equals(userType) && staffId != null && !staffId.equals(vo.getStaffId())) {
+            throw BusinessException.fail("无权查看其他人员的质检记录");
+        }
     }
 }

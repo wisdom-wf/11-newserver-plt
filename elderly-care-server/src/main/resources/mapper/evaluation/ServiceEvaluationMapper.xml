@@ -5,6 +5,7 @@
     <resultMap id="BaseResultMap" type="com.elderlycare.entity.evaluation.ServiceEvaluation">
         <id column="evaluation_id" property="evaluationId"/>
         <result column="order_id" property="orderId"/>
+        <result column="order_no" property="orderNo"/>
         <result column="staff_id" property="staffId"/>
         <result column="provider_id" property="providerId"/>
         <result column="elder_id" property="elderId"/>
@@ -36,6 +37,7 @@
         SELECT
             se.evaluation_id,
             se.order_id,
+            o.order_no,
             se.staff_id,
             s.staff_name,
             se.provider_id,
@@ -108,6 +110,7 @@
         SELECT
             se.evaluation_id,
             se.order_id,
+            o.order_no,
             se.staff_id,
             s.staff_name AS staff_name,
             se.provider_id,

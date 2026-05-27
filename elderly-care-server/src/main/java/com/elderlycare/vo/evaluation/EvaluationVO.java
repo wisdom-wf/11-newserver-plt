@@ -16,6 +16,8 @@ public class EvaluationVO implements Serializable {
 
     private String orderId;
 
+    private String orderNo;
+
     private String staffId;
 
     private String staffName;

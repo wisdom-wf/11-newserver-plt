@@ -30,9 +30,6 @@ import java.math.RoundingMode;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
 
 /**
  * 服务评价Service实现
@@ -65,8 +62,10 @@ public class ServiceEvaluationServiceImpl extends ServiceImpl<ServiceEvaluationM
         ServiceEvaluation evaluation = new ServiceEvaluation();
         BeanUtils.copyProperties(dto, evaluation);
 
-        // 设置订单相关信息（只有dto未传时才从order取值，避免前端传空字符串覆盖）
-        evaluation.setStaffId(StringUtils.isNotBlank(dto.getStaffId()) ? dto.getStaffId() : order.getStaffId());
+        // Association ownership always comes from the order, not request payload data.
+        evaluation.setProviderId(order.getProviderId());
+        evaluation.setElderId(order.getElderId());
+        evaluation.setStaffId(order.getStaffId());
 
         // 设置总体评分
         evaluation.setOverallScore(dto.getRating());
@@ -116,16 +115,16 @@ public class ServiceEvaluationServiceImpl extends ServiceImpl<ServiceEvaluationM
         vo.setProviderId(providerId);
 
         if (evaluations == null || evaluations.isEmpty()) {
-            vo.setAverageRating(BigDecimal.ZERO);
+            vo.setAverageRating(null);
             vo.setEvaluationCount(0);
             vo.setFiveStarCount(0);
             vo.setFourStarCount(0);
             vo.setThreeStarCount(0);
             vo.setTwoStarCount(0);
             vo.setOneStarCount(0);
-            vo.setAverageAttitudeScore(BigDecimal.ZERO);
-            vo.setAverageQualityScore(BigDecimal.ZERO);
-            vo.setAverageEfficiencyScore(BigDecimal.ZERO);
+            vo.setAverageAttitudeScore(null);
+            vo.setAverageQualityScore(null);
+            vo.setAverageEfficiencyScore(null);
             return vo;
         }
 
@@ -177,16 +176,16 @@ public class ServiceEvaluationServiceImpl extends ServiceImpl<ServiceEvaluationM
         vo.setStaffId(staffId);
 
         if (evaluations == null || evaluations.isEmpty()) {
-            vo.setAverageRating(BigDecimal.ZERO);
+            vo.setAverageRating(null);
             vo.setEvaluationCount(0);
             vo.setFiveStarCount(0);
             vo.setFourStarCount(0);
             vo.setThreeStarCount(0);
             vo.setTwoStarCount(0);
             vo.setOneStarCount(0);
-            vo.setAverageAttitudeScore(BigDecimal.ZERO);
-            vo.setAverageQualityScore(BigDecimal.ZERO);
-            vo.setAverageEfficiencyScore(BigDecimal.ZERO);
+            vo.setAverageAttitudeScore(null);
+            vo.setAverageQualityScore(null);
+            vo.setAverageEfficiencyScore(null);
             return vo;
         }
 
@@ -246,7 +245,7 @@ public class ServiceEvaluationServiceImpl extends ServiceImpl<ServiceEvaluationM
 
         if (evaluations == null || evaluations.isEmpty()) {
             vo.setTotalCount(0L);
-            vo.setAverageRating(BigDecimal.ZERO);
+            vo.setAverageRating(null);
             vo.setFiveStarCount(0L);
             vo.setFourStarCount(0L);
             vo.setThreeStarCount(0L);
@@ -279,8 +278,6 @@ public class ServiceEvaluationServiceImpl extends ServiceImpl<ServiceEvaluationM
         vo.setTotalCount((long) count);
         if (count > 0) {
             vo.setAverageRating(BigDecimal.valueOf(totalRating).divide(BigDecimal.valueOf(count), 2, RoundingMode.HALF_UP));
-        } else {
-            vo.setAverageRating(BigDecimal.ZERO);
         }
         vo.setFiveStarCount(fiveStar);
         vo.setFourStarCount(fourStar);
@@ -335,8 +332,8 @@ public class ServiceEvaluationServiceImpl extends ServiceImpl<ServiceEvaluationM
         ServiceEvaluation evaluation = new ServiceEvaluation();
         evaluation.setEvaluationId(IDGenerator.generateId());
         evaluation.setOrderId(orderId);
-        evaluation.setElderId(elderId);
-        evaluation.setElderName(elderName);
+        evaluation.setElderId(order.getElderId());
+        evaluation.setElderName(order.getElderName());
         evaluation.setProviderId(order.getProviderId());
         evaluation.setProviderName(order.getProviderName());
         evaluation.setStaffId(order.getStaffId());
@@ -355,8 +352,8 @@ public class ServiceEvaluationServiceImpl extends ServiceImpl<ServiceEvaluationM
         vo.setToken(token);
         vo.setSurveyUrl("/jxy/public/survey?token=" + token);
         vo.setOrderId(orderId);
-        vo.setElderId(elderId);
-        vo.setElderName(elderName);
+        vo.setElderId(order.getElderId());
+        vo.setElderName(order.getElderName());
         vo.setProviderId(order.getProviderId());
         vo.setProviderName(order.getProviderName());
         vo.setStaffId(order.getStaffId());

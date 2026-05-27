@@ -81,14 +81,7 @@ public class EvaluationController {
     @GetMapping("/{evaluationId}")
     public Result<EvaluationVO> getEvaluationById(@PathVariable String evaluationId) {
         EvaluationVO vo = evaluationService.getEvaluationById(evaluationId);
-        // 隔离校验：PROVIDER用户只能看自己公司的评价
-        String userType = UserContext.getUserType();
-        String myProviderId = UserContext.getProviderId();
-        if ("PROVIDER".equals(userType) && myProviderId != null && vo != null) {
-            if (!myProviderId.equals(vo.getProviderId())) {
-                throw BusinessException.fail("无权访问其他公司的评价信息");
-            }
-        }
+        assertCanAccessEvaluation(vo.getProviderId(), vo.getStaffId());
         return Result.success(vo);
     }
 
@@ -98,6 +91,9 @@ public class EvaluationController {
     @GetMapping("/order/{orderId}")
     public Result<ServiceEvaluation> getEvaluationByOrderId(@PathVariable String orderId) {
         ServiceEvaluation evaluation = evaluationService.getEvaluationByOrderId(orderId);
+        if (evaluation != null) {
+            assertCanAccessEvaluation(evaluation.getProviderId(), evaluation.getStaffId());
+        }
         return Result.success(evaluation);
     }
 
@@ -140,9 +136,23 @@ public class EvaluationController {
     public Result<Void> replyEvaluation(
             @PathVariable String evaluationId,
             @RequestBody java.util.Map<String, String> body) {
+        EvaluationVO vo = evaluationService.getEvaluationById(evaluationId);
+        assertCanAccessEvaluation(vo.getProviderId(), vo.getStaffId());
         String replyContent = body.get("reply");
         evaluationService.replyEvaluation(evaluationId, replyContent);
         return Result.success();
+    }
+
+    private void assertCanAccessEvaluation(String providerId, String staffId) {
+        String userType = UserContext.getUserType();
+        String myProviderId = UserContext.getProviderId();
+        if ("PROVIDER".equals(userType) && myProviderId != null && !myProviderId.equals(providerId)) {
+            throw BusinessException.fail("无权访问其他公司的评价信息");
+        }
+        String myStaffId = UserContext.getStaffId();
+        if ("STAFF".equals(userType) && myStaffId != null && !myStaffId.equals(staffId)) {
+            throw BusinessException.fail("无权访问其他人员的评价信息");
+        }
     }
 
     // ==================== 客户反馈接口 ====================
@@ -201,6 +211,11 @@ public class EvaluationController {
             @RequestParam String elderId,
             @RequestParam String elderName,
             @RequestParam(required = false, defaultValue = "72") Integer expireHours) {
+        Order order = orderMapper.selectById(orderId);
+        if (order == null) {
+            throw BusinessException.notFound("订单不存在");
+        }
+        assertCanAccessEvaluation(order.getProviderId(), order.getStaffId());
         com.elderlycare.vo.evaluation.EvaluationInviteVO vo = evaluationService.generateEvaluationLink(
             orderId, elderId, elderName, expireHours);
         return Result.success(vo);
@@ -237,6 +252,8 @@ public class EvaluationController {
      */
     @PutMapping("/invite/{token}/invalidate")
     public Result<Void> invalidateInvite(@PathVariable String token) {
+        com.elderlycare.vo.evaluation.EvaluationInviteVO vo = evaluationService.validateToken(token);
+        assertCanAccessEvaluation(vo.getProviderId(), vo.getStaffId());
         evaluationService.invalidateInvite(token);
         return Result.success();
     }
@@ -247,6 +264,10 @@ public class EvaluationController {
      */
     @PostMapping("/batch")
     public Result<Void> batchDeleteEvaluations(@RequestBody List<String> evaluationIds) {
+        for (String evaluationId : evaluationIds) {
+            EvaluationVO vo = evaluationService.getEvaluationById(evaluationId);
+            assertCanAccessEvaluation(vo.getProviderId(), vo.getStaffId());
+        }
         evaluationService.batchDeleteEvaluation(evaluationIds);
         return Result.successMsg("批量删除成功");
     }

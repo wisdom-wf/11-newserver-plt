@@ -24,6 +24,12 @@ public class ServiceEvaluation implements Serializable {
     private String orderId;
 
     /**
+     * 订单编号(联表)
+     */
+    @TableField(exist = false)
+    private String orderNo;
+
+    /**
      * 服务人员ID
      */
     private String staffId;
