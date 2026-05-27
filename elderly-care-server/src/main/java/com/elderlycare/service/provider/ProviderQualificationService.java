@@ -23,6 +23,11 @@ public interface ProviderQualificationService extends IService<ProviderQualifica
     List<QualificationVO> getQualificationsByProviderId(String providerId);
 
     /**
+     * 根据资质ID获取资质
+     */
+    QualificationVO getQualificationById(String qualificationId);
+
+    /**
      * 删除资质
      */
     void deleteQualification(String qualificationId);

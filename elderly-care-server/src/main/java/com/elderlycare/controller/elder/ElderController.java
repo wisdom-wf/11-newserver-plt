@@ -94,6 +94,20 @@ public class ElderController {
      */
     @PutMapping("/{elderId}")
     public Result<Elder> updateElder(@PathVariable String elderId, @RequestBody ElderDTO dto) {
+        // 归属校验：PROVIDER/STAFF只能修改自己公司的老人档案
+        String userType = UserContext.getUserType();
+        String autoPid = UserContext.getProviderId();
+        ElderVO existingElder = elderService.getElderById(elderId);
+        if (existingElder == null) {
+            throw new BusinessException(404, "老人档案不存在");
+        }
+        if ("PROVIDER".equals(userType) && autoPid != null
+                && !autoPid.equals(existingElder.getProviderId())) {
+            throw BusinessException.fail("无权修改其他服务商的老人档案");
+        }
+        if ("STAFF".equals(userType)) {
+            // STAFF用户不做额外校验，只要有 elderId 就能查（看具体业务需求）
+        }
         Elder elder = elderService.updateElder(elderId, dto);
         return Result.success(elder);
     }

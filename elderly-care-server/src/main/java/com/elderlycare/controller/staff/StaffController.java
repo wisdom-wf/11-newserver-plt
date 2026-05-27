@@ -101,6 +101,20 @@ public class StaffController {
     public Result<StaffVO> updateStaff(
             @PathVariable String staffId,
             @RequestBody StaffUpdateDTO updateDTO) {
+        // 归属校验：PROVIDER用户只能更新自己公司的员工
+        String userType = UserContext.getUserType();
+        String autoPid = UserContext.getProviderId();
+        StaffVO existingStaff = staffService.getStaffById(staffId);
+        if ("PROVIDER".equals(userType) && autoPid != null
+                && !autoPid.equals(existingStaff.getProviderId())) {
+            throw BusinessException.fail("无权修改其他服务商的员工信息");
+        }
+        if ("STAFF".equals(userType)) {
+            String staffIdCtx = UserContext.getStaffId();
+            if (staffIdCtx == null || !staffIdCtx.equals(staffId)) {
+                throw BusinessException.fail("无权修改其他服务人员信息");
+            }
+        }
         StaffVO vo = staffService.updateStaff(staffId, updateDTO);
         return Result.success(vo);
     }
@@ -146,6 +160,20 @@ public class StaffController {
     public Result<QualificationVO> addQualification(
             @PathVariable String staffId,
             @RequestBody QualificationCreateDTO createDTO) {
+        // 归属校验：PROVIDER/STAFF只能给自己公司的员工添加资质
+        String userType = UserContext.getUserType();
+        String autoPid = UserContext.getProviderId();
+        StaffVO staff = staffService.getStaffById(staffId);
+        if ("PROVIDER".equals(userType) && autoPid != null
+                && !autoPid.equals(staff.getProviderId())) {
+            throw BusinessException.fail("无权为其他服务商的员工添加资质");
+        }
+        if ("STAFF".equals(userType)) {
+            String staffIdCtx = UserContext.getStaffId();
+            if (staffIdCtx == null || !staffIdCtx.equals(staffId)) {
+                throw BusinessException.fail("无权为其他服务人员添加资质");
+            }
+        }
         QualificationVO vo = staffService.addQualification(staffId, createDTO);
         return Result.success(vo);
     }
@@ -164,8 +192,26 @@ public class StaffController {
      */
     @PutMapping("/qualifications/{qualificationId}")
     public Result<QualificationVO> updateQualification(
-            @PathVariable String qualificationId,
+            @PathVariable Long qualificationId,
             @RequestBody QualificationUpdateDTO updateDTO) {
+        // 归属校验：通过资质ID查询员工，再校验provider归属
+        QualificationVO existing = staffService.getQualificationById(qualificationId);
+        if (existing == null) {
+            throw BusinessException.fail("资质不存在");
+        }
+        StaffVO staff = staffService.getStaffById(existing.getStaffId());
+        String userType = UserContext.getUserType();
+        String autoPid = UserContext.getProviderId();
+        if ("PROVIDER".equals(userType) && autoPid != null
+                && !autoPid.equals(staff.getProviderId())) {
+            throw BusinessException.fail("无权修改其他服务商的员工资质");
+        }
+        if ("STAFF".equals(userType)) {
+            String staffIdCtx = UserContext.getStaffId();
+            if (staffIdCtx == null || !staffIdCtx.equals(existing.getStaffId())) {
+                throw BusinessException.fail("无权修改其他服务人员的资质");
+            }
+        }
         QualificationVO vo = staffService.updateQualification(qualificationId, updateDTO);
         return Result.success(vo);
     }
@@ -174,7 +220,25 @@ public class StaffController {
      * 删除资质
      */
     @DeleteMapping("/qualifications/{qualificationId}")
-    public Result<Void> deleteQualification(@PathVariable String qualificationId) {
+    public Result<Void> deleteQualification(@PathVariable Long qualificationId) {
+        // 归属校验：通过资质ID查询员工，再校验provider归属
+        QualificationVO existing = staffService.getQualificationById(qualificationId);
+        if (existing == null) {
+            throw BusinessException.fail("资质不存在");
+        }
+        StaffVO staff = staffService.getStaffById(existing.getStaffId());
+        String userType = UserContext.getUserType();
+        String autoPid = UserContext.getProviderId();
+        if ("PROVIDER".equals(userType) && autoPid != null
+                && !autoPid.equals(staff.getProviderId())) {
+            throw BusinessException.fail("无权删除其他服务商的员工资质");
+        }
+        if ("STAFF".equals(userType)) {
+            String staffIdCtx = UserContext.getStaffId();
+            if (staffIdCtx == null || !staffIdCtx.equals(existing.getStaffId())) {
+                throw BusinessException.fail("无权删除其他服务人员的资质");
+            }
+        }
         staffService.deleteQualification(qualificationId);
         return Result.success();
     }

@@ -8,9 +8,13 @@ import com.elderlycare.dto.servicelog.DepartureDTO;
 import com.elderlycare.dto.servicelog.ServiceLogQueryDTO;
 import com.elderlycare.dto.servicelog.SignInDTO;
 import com.elderlycare.dto.servicelog.SignOutDTO;
+import com.elderlycare.service.elder.ElderService;
 import com.elderlycare.service.servicelog.ServiceLogService;
+import com.elderlycare.service.staff.StaffService;
+import com.elderlycare.vo.elder.ElderVO;
 import com.elderlycare.vo.servicelog.ServiceLogStatisticsVO;
 import com.elderlycare.vo.servicelog.ServiceLogVO;
+import com.elderlycare.vo.staff.StaffVO;
 import lombok.RequiredArgsConstructor;
 import org.springframework.web.bind.annotation.*;
 
@@ -26,6 +30,8 @@ import java.util.Map;
 public class ServiceLogController {
 
     private final ServiceLogService serviceLogService;
+    private final StaffService staffService;
+    private final ElderService elderService;
 
     /**
      * 获取服务日志列表
@@ -92,6 +98,39 @@ public class ServiceLogController {
      */
     @PostMapping
     public Result<String> submitServiceLog(@RequestBody ServiceLogVO vo) {
+        // 归属校验：PROVIDER/STAFF用户提交的serviceLog必须属于自己
+        String userType = UserContext.getUserType();
+        String autoPid = UserContext.getProviderId();
+        String staffIdCtx = UserContext.getStaffId();
+
+        if ("PROVIDER".equals(userType) && autoPid != null) {
+            // PROVIDER用户：providerId必须是自己
+            if (vo.getProviderId() != null && !autoPid.equals(vo.getProviderId())) {
+                throw BusinessException.fail("无权为其他服务商创建服务日志");
+            }
+            // staffId必须是本公司的人员
+            if (vo.getStaffId() != null) {
+                StaffVO staff = staffService.getStaffById(vo.getStaffId());
+                if (staff != null && !autoPid.equals(staff.getProviderId())) {
+                    throw BusinessException.fail("无权为其他服务商的员工创建服务日志");
+                }
+            }
+            // elderId必须是本公司的老人
+            if (vo.getElderId() != null) {
+                ElderVO elder = elderService.getElderById(vo.getElderId());
+                if (elder != null && !autoPid.equals(elder.getProviderId())) {
+                    throw BusinessException.fail("无权为其他服务商的老人创建服务日志");
+                }
+            }
+        }
+
+        if ("STAFF".equals(userType) && staffIdCtx != null) {
+            // STAFF用户：只能创建自己的服务日志
+            if (!staffIdCtx.equals(vo.getStaffId())) {
+                throw BusinessException.fail("无权为其他服务人员创建服务日志");
+            }
+        }
+
         String serviceLogId = serviceLogService.submitServiceLog(vo);
         return Result.<String>success(serviceLogId);
     }
@@ -102,6 +141,29 @@ public class ServiceLogController {
      */
     @PutMapping("/{id}")
     public Result<Void> updateServiceLog(@PathVariable String id, @RequestBody ServiceLogVO vo) {
+        // 归属校验：更新时校验记录是否属于当前用户
+        String userType = UserContext.getUserType();
+        String autoPid = UserContext.getProviderId();
+        String staffIdCtx = UserContext.getStaffId();
+
+        // 先获取已有记录
+        ServiceLogVO existing = serviceLogService.getServiceLog(id);
+        if (existing == null) {
+            throw BusinessException.fail("服务日志不存在");
+        }
+
+        if ("PROVIDER".equals(userType) && autoPid != null) {
+            if (!autoPid.equals(existing.getProviderId())) {
+                throw BusinessException.fail("无权修改其他服务商的服务日志");
+            }
+        }
+
+        if ("STAFF".equals(userType) && staffIdCtx != null) {
+            if (!staffIdCtx.equals(existing.getStaffId())) {
+                throw BusinessException.fail("无权修改其他服务人员的服务日志");
+            }
+        }
+
         serviceLogService.updateServiceLog(id, vo);
         return Result.successMsg("服务日志更新成功");
     }

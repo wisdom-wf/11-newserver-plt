@@ -58,14 +58,19 @@ public interface StaffService {
     java.util.List<QualificationVO> getQualifications(String staffId);
 
     /**
+     * 根据资质ID获取资质
+     */
+    QualificationVO getQualificationById(Long qualificationId);
+
+    /**
      * 更新资质
      */
-    QualificationVO updateQualification(String qualificationId, QualificationUpdateDTO updateDTO);
+    QualificationVO updateQualification(Long qualificationId, QualificationUpdateDTO updateDTO);
 
     /**
      * 删除资质
      */
-    void deleteQualification(String qualificationId);
+    void deleteQualification(Long qualificationId);
 
     // ==================== 排班管理 ====================
 

@@ -199,6 +199,18 @@ public class ProviderController {
      */
     @DeleteMapping("/certificates/{certId}")
     public Result<Void> deleteQualification(@PathVariable String certId) {
+        // 归属校验：PROVIDER用户只能删除自己公司的资质
+        String userType = UserContext.getUserType();
+        String autoPid = UserContext.getProviderId();
+        if ("PROVIDER".equals(userType) && autoPid != null) {
+            QualificationVO cert = qualificationService.getQualificationById(certId);
+            if (cert == null) {
+                throw BusinessException.fail("资质不存在");
+            }
+            if (!autoPid.equals(cert.getProviderId())) {
+                throw BusinessException.fail("无权删除其他服务商的资质");
+            }
+        }
         qualificationService.deleteQualification(certId);
         return Result.success();
     }

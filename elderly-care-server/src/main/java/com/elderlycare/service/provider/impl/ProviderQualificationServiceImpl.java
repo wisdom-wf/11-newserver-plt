@@ -63,6 +63,17 @@ public class ProviderQualificationServiceImpl
     }
 
     @Override
+    public QualificationVO getQualificationById(String qualificationId) {
+        ProviderQualification qualification = baseMapper.selectById(qualificationId);
+        if (qualification == null) {
+            return null;
+        }
+        QualificationVO vo = new QualificationVO();
+        BeanUtils.copyProperties(qualification, vo);
+        return vo;
+    }
+
+    @Override
     @Transactional(rollbackFor = Exception.class)
     public void deleteQualification(String qualificationId) {
         ProviderQualification qualification = baseMapper.selectById(qualificationId);

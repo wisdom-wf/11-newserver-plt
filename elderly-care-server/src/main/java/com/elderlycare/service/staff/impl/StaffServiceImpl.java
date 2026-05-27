@@ -323,9 +323,15 @@ public class StaffServiceImpl implements StaffService {
     }
 
     @Override
+    public QualificationVO getQualificationById(Long qualificationId) {
+        StaffQualification qualification = qualificationMapper.selectByQualificationId(String.valueOf(qualificationId));
+        return convertToQualificationVO(qualification);
+    }
+
+    @Override
     @Transactional
-    public QualificationVO updateQualification(String qualificationId, QualificationUpdateDTO updateDTO) {
-        StaffQualification qualification = qualificationMapper.selectByQualificationId(qualificationId);
+    public QualificationVO updateQualification(Long qualificationId, QualificationUpdateDTO updateDTO) {
+        StaffQualification qualification = qualificationMapper.selectByQualificationId(String.valueOf(qualificationId));
         if (qualification == null) {
             throw new BusinessException("资质不存在");
         }
@@ -361,8 +367,8 @@ public class StaffServiceImpl implements StaffService {
 
     @Override
     @Transactional
-    public void deleteQualification(String qualificationId) {
-        StaffQualification qualification = qualificationMapper.selectByQualificationId(qualificationId);
+    public void deleteQualification(Long qualificationId) {
+        StaffQualification qualification = qualificationMapper.selectByQualificationId(String.valueOf(qualificationId));
         if (qualification == null) {
             throw new BusinessException("资质不存在");
         }
