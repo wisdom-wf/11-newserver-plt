@@ -1,8 +1,0 @@
-file 'ep01-intro_with_audio.mp4'
-file '../episode-01-provider/平台功能介绍系列视频001.mp4'
-file 'ep02-intro_with_audio.mp4'
-file '../episode-02-staff/平台功能介绍系列视频002.mp4'
-file 'ep03-intro_with_audio.mp4'
-file '../episode-03-quality/平台功能介绍系列视频003.mp4'
-file 'ep04-intro_with_audio.mp4'
-file '../episode-04-satisfaction/平台功能介绍系列视频004.mp4'
