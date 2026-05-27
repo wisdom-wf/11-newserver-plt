@@ -34,6 +34,7 @@ import {
   fetchSubmitRectify,
   fetchRecheck,
   fetchCreateQualityCheck,
+  fetchGetOrderList,
   fetchInspect,
   fetchGetServiceLog,
   fetchBatchDeleteQualityCheck
@@ -42,6 +43,7 @@ import { useNaivePaginatedTable, defaultTransform } from '@/hooks/common/table';
 import { useAuth } from '@/hooks/business/auth';
 import TableHeaderOperation from '@/components/advanced/table-header-operation.vue';
 import FlowIndicator from '@/components/business/FlowIndicator.vue';
+import { formatPercent, formatScore } from '@/utils/formatter';
 
 defineOptions({
   name: 'BusinessQuality'
@@ -54,6 +56,7 @@ const route = useRoute();
 // Create dialog state
 const createDialogVisible = ref(false);
 const createLoading = ref(false);
+const createOrderNo = ref('');
 const createForm = ref<Api.Quality.QualityCheckForm>({
   orderId: '',
   checkType: 'RANDOM',
@@ -159,6 +162,7 @@ async function showQualityDetail(row: Api.Quality.QualityCheck) {
 
 // Create dialog
 function openCreateDialog() {
+  createOrderNo.value = '';
   createForm.value = {
     orderId: '',
     serviceLogId: '',
@@ -187,12 +191,24 @@ function goToCompleteService(row: Api.Quality.QualityCheck) {
 }
 
 async function handleCreateSubmit() {
-  if (!createForm.value.orderId) {
-    message.warning('请输入订单ID');
+  const orderNo = createOrderNo.value.trim();
+  if (!orderNo) {
+    message.warning('请输入订单编号');
     return;
   }
   createLoading.value = true;
   try {
+    const { data: orderPage, error: orderError } = await fetchGetOrderList({ orderNo, page: 1, pageSize: 10 } as any);
+    if (orderError) {
+      message.error(orderError.message || '定位订单失败');
+      return;
+    }
+    const order = orderPage?.records?.find(item => item.orderNo === orderNo);
+    if (!order) {
+      message.warning(`未找到订单：${orderNo}`);
+      return;
+    }
+    createForm.value.orderId = order.orderId;
     const payload = { ...createForm.value };
     if (payload.rectifyDeadline) {
       payload.rectifyDeadline = new Date(payload.rectifyDeadline).toISOString().split('T')[0];
@@ -582,6 +598,8 @@ onMounted(async () => {
   // 接收服务日志跳转来的订单号参数
   if (route.query.orderNo) {
     searchOrderNo.value = String(route.query.orderNo);
+    createOrderNo.value = String(route.query.orderNo);
+    message.info(`已定位到订单：${createOrderNo.value}`);
   }
   // 接收服务日志跳转来的serviceLogId（预填创建表单并自动打开创建对话框）
   if (route.query.serviceLogId) {
@@ -629,11 +647,11 @@ onMounted(async () => {
         </div>
         <div class="stat-card stat-info">
           <div class="stat-label">合格率</div>
-          <div class="stat-value">{{ statistics.qualifiedRate }}%</div>
+          <div class="stat-value">{{ formatPercent(statistics.qualifiedRate, false) }}</div>
         </div>
         <div class="stat-card stat-info">
           <div class="stat-label">平均评分</div>
-          <div class="stat-value">{{ Number(statistics.avgScore || 0).toFixed(1) }}</div>
+          <div class="stat-value">{{ formatScore(statistics.avgScore) }}</div>
         </div>
       </div>
     </NCard>
@@ -979,8 +997,8 @@ onMounted(async () => {
       :segmented="{ content: true, footer: true }"
     >
       <NForm label-placement="left" label-width="100">
-        <NFormItem label="订单ID" required>
-          <NInput v-model:value="createForm.orderId" placeholder="请输入订单ID" />
+        <NFormItem label="订单编号" required>
+          <NInput v-model:value="createOrderNo" placeholder="请输入订单编号" />
         </NFormItem>
         <NFormItem label="质检类型">
           <NSelect

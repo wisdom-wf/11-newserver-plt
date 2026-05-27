@@ -34,6 +34,10 @@ declare namespace Api {
       id?: string;
       /** 订单ID */
       orderId: string;
+      /** 用户可见的订单编号 */
+      orderNo?: string;
+      /** 服务人员ID（后端会按订单校准） */
+      staffId?: string;
       /** 服务评分（总体评分） */
       serviceScore: number;
       /** 态度评分 */
@@ -48,6 +52,10 @@ declare namespace Api {
       overallScore: number;
       /** 评价内容 */
       content?: string;
+      /** 评价标签 */
+      tags?: string;
+      /** 是否匿名 */
+      anonymous?: number;
       /** 评价图片 */
       images?: string[];
       /** 关联质检单ID（从质检详情跳转时带入） */
@@ -62,6 +70,8 @@ declare namespace Api {
       evaluationId: string;
       /** 订单ID */
       orderId: string;
+      /** 用户可见的订单编号 */
+      orderNo?: string;
       /** 关联质检单ID */
       qualityCheckId?: string;
       /** 关联服务日志ID */
@@ -96,6 +106,8 @@ declare namespace Api {
       averageScore?: number;
       /** 评价内容 */
       content?: string;
+      /** 评价图片 */
+      images?: string[];
       /** 评价标签 */
       tags?: string;
       /** 是否匿名 */
@@ -122,29 +134,19 @@ declare namespace Api {
     /** 评价统计 */
     interface Statistics {
       /** 总数 */
-      total: number;
+      totalCount: number;
       /** 平均综合评分 */
-      avgOverallScore: number;
-      /** 平均服务评分 */
-      avgServiceScore: number;
-      /** 平均态度评分 */
-      avgAttitudeScore: number;
-      /** 平均技能评分 */
-      avgSkillScore: number;
-      /** 平均准时评分 */
-      avgPunctualityScore: number;
-      /** 非常满意数 */
-      verySatisfiedCount: number;
-      /** 满意数 */
-      satisfiedCount: number;
-      /** 一般数 */
-      neutralCount: number;
-      /** 不满意数 */
-      dissatisfiedCount: number;
-      /** 非常不满意数 */
-      veryDissatisfiedCount: number;
-      /** 满意率 */
-      satisfactionRate: number;
+      averageRating: number | null;
+      /** 五星数 */
+      fiveStarCount: number;
+      /** 四星数 */
+      fourStarCount: number;
+      /** 三星数 */
+      threeStarCount: number;
+      /** 二星数 */
+      twoStarCount: number;
+      /** 一星数 */
+      oneStarCount: number;
     }
 
     /** 评价邀请信息 */

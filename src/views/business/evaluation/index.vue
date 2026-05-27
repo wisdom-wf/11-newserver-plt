@@ -34,6 +34,7 @@ import {
   fetchGetEvaluation,
   fetchReplyEvaluation,
   fetchCreateEvaluation,
+  fetchGetOrderList,
   fetchGetQualityCheckByOrderId,
   fetchGenerateEvaluationLink,
   fetchInvalidateInvite,
@@ -43,6 +44,7 @@ import { useNaivePaginatedTable, defaultTransform } from '@/hooks/common/table';
 import { useAuth } from '@/hooks/business/auth';
 import TableHeaderOperation from '@/components/advanced/table-header-operation.vue';
 import FlowIndicator from '@/components/business/FlowIndicator.vue';
+import { formatScore } from '@/utils/formatter';
 
 defineOptions({
   name: 'BusinessEvaluation'
@@ -55,12 +57,14 @@ const route = useRoute();
 // Create dialog state
 const createDialogVisible = ref(false);
 const createLoading = ref(false);
+const createOrderNo = ref('');
 const createForm = ref<Api.Evaluation.EvaluationForm>({
   orderId: '',
   serviceScore: 5,
   attitudeScore: 5,
   skillScore: 5,
   punctualityScore: 5,
+  environmentScore: 5,
   overallScore: 5,
   content: '',
   images: []
@@ -90,7 +94,7 @@ const satisfactionOptions = [
 // 计算当前流程步骤
 const currentFlowStep = computed(() => {
   // 如果有已评价的，进入已完成评价阶段
-  if (statistics.value.total > 0) {
+  if (statistics.value.totalCount > 0) {
     return 'evaluated';
   }
   // 默认是服务完成阶段
@@ -107,12 +111,14 @@ const flowSteps = [
 ];
 
 function openCreateDialog() {
+  createOrderNo.value = '';
   createForm.value = {
     orderId: '',
     serviceScore: 5,
     attitudeScore: 5,
     skillScore: 5,
     punctualityScore: 5,
+    environmentScore: 5,
     overallScore: 5,
     content: '',
     images: []
@@ -120,13 +126,30 @@ function openCreateDialog() {
   createDialogVisible.value = true;
 }
 
-async function handleCreateSubmit() {
-  if (!createForm.value.orderId) {
-    message.warning('请输入订单ID');
-    return;
+async function resolveCreateOrderId() {
+  const orderNo = createOrderNo.value.trim();
+  if (!orderNo) {
+    message.warning('请输入订单编号');
+    return false;
   }
+  const { data, error } = await fetchGetOrderList({ orderNo, page: 1, pageSize: 10 } as any);
+  if (error) {
+    message.error(error.message || '定位订单失败');
+    return false;
+  }
+  const order = data?.records?.find(item => item.orderNo === orderNo);
+  if (!order) {
+    message.warning(`未找到订单：${orderNo}`);
+    return false;
+  }
+  createForm.value.orderId = order.orderId;
+  return true;
+}
+
+async function handleCreateSubmit() {
   createLoading.value = true;
   try {
+    if (!(await resolveCreateOrderId())) return;
     const { error } = await fetchCreateEvaluation(createForm.value);
     if (error) {
       message.error(error.message || '创建评价失败');
@@ -201,18 +224,13 @@ function copyLink() {
 // Statistics
 const { hasAuth } = useAuth();
 const statistics = ref<Api.Evaluation.Statistics>({
-  total: 0,
-  avgOverallScore: 0,
-  avgServiceScore: 0,
-  avgAttitudeScore: 0,
-  avgSkillScore: 0,
-  avgPunctualityScore: 0,
-  verySatisfiedCount: 0,
-  satisfiedCount: 0,
-  neutralCount: 0,
-  dissatisfiedCount: 0,
-  veryDissatisfiedCount: 0,
-  satisfactionRate: 0
+  totalCount: 0,
+  averageRating: null,
+  fiveStarCount: 0,
+  fourStarCount: 0,
+  threeStarCount: 0,
+  twoStarCount: 0,
+  oneStarCount: 0
 });
 
 // Search
@@ -463,7 +481,8 @@ onMounted(() => {
   // 接收质检详情跳转来的订单编号，自动搜索并打开新建评价对话框
   if (route.query.orderNo) {
     searchOrderNo.value = String(route.query.orderNo);
-    createForm.value.orderId = String(route.query.orderNo); // orderId与orderNo相同，方便快速填写
+    createOrderNo.value = String(route.query.orderNo);
+    message.info(`已定位到订单：${createOrderNo.value}`);
     nextTick(() => {
       getData();
       createDialogVisible.value = true;
@@ -488,31 +507,31 @@ onMounted(() => {
       <div class="statistics-grid">
         <div class="stat-card stat-primary">
           <div class="stat-label">总评价数</div>
-          <div class="stat-value">{{ statistics.total }}</div>
+          <div class="stat-value">{{ statistics.totalCount }}</div>
         </div>
         <div class="stat-card stat-info">
           <div class="stat-label">平均综合评分</div>
-          <div class="stat-value">{{ Number(statistics.avgOverallScore || 0).toFixed(1) }}</div>
+          <div class="stat-value">{{ formatScore(statistics.averageRating) }}</div>
         </div>
         <div class="stat-card stat-success">
-          <div class="stat-label">非常满意</div>
-          <div class="stat-value">{{ statistics.verySatisfiedCount }}</div>
+          <div class="stat-label">五星</div>
+          <div class="stat-value">{{ statistics.fiveStarCount }}</div>
         </div>
         <div class="stat-card stat-info">
-          <div class="stat-label">满意</div>
-          <div class="stat-value">{{ statistics.satisfiedCount }}</div>
+          <div class="stat-label">四星</div>
+          <div class="stat-value">{{ statistics.fourStarCount }}</div>
         </div>
         <div class="stat-card stat-warning">
-          <div class="stat-label">一般</div>
-          <div class="stat-value">{{ statistics.neutralCount }}</div>
+          <div class="stat-label">三星</div>
+          <div class="stat-value">{{ statistics.threeStarCount }}</div>
         </div>
         <div class="stat-card stat-error">
-          <div class="stat-label">不满意</div>
-          <div class="stat-value">{{ statistics.dissatisfiedCount }}</div>
+          <div class="stat-label">二星</div>
+          <div class="stat-value">{{ statistics.twoStarCount }}</div>
         </div>
         <div class="stat-card stat-error">
-          <div class="stat-label">非常不满意</div>
-          <div class="stat-value">{{ statistics.veryDissatisfiedCount }}</div>
+          <div class="stat-label">一星</div>
+          <div class="stat-value">{{ statistics.oneStarCount }}</div>
         </div>
       </div>
     </NCard>
@@ -692,8 +711,8 @@ onMounted(() => {
       :segmented="{ content: true, footer: true }"
     >
       <NForm label-placement="left" label-width="100">
-        <NFormItem label="订单ID" required>
-          <NInput v-model:value="createForm.orderId" placeholder="请输入订单ID" />
+        <NFormItem label="订单编号" required>
+          <NInput v-model:value="createOrderNo" placeholder="请输入订单编号" />
         </NFormItem>
         <NFormItem label="服务评分">
           <NInputNumber v-model:value="createForm.serviceScore" :min="1" :max="5" style="width: 100px" />
@@ -706,6 +725,9 @@ onMounted(() => {
         </NFormItem>
         <NFormItem label="准时评分">
           <NInputNumber v-model:value="createForm.punctualityScore" :min="1" :max="5" style="width: 100px" />
+        </NFormItem>
+        <NFormItem label="环境评分">
+          <NInputNumber v-model:value="createForm.environmentScore" :min="1" :max="5" style="width: 100px" />
         </NFormItem>
         <NFormItem label="综合评分">
           <NInputNumber v-model:value="createForm.overallScore" :min="1" :max="5" style="width: 100px" />

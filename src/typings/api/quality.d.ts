@@ -139,9 +139,9 @@ declare namespace Api {
       /** 需整改数 */
       needRectifyCount: number;
       /** 合格率 */
-      qualifiedRate: number;
+      qualifiedRate: number | null;
       /** 平均评分 */
-      avgScore: number;
+      avgScore: number | null;
       /** 好评数 */
       positiveCount?: number;
       /** 中评数 */
