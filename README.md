@@ -200,8 +200,11 @@ docker start mysql-dev
 # 创建数据库
 docker exec mysql-dev mysql -u root -proot -e "CREATE DATABASE IF NOT EXISTS elderly_care CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci;"
 
-# 导入初始数据 (需要先执行建表SQL)
-docker exec -i mysql-dev mysql -u root -proot elderly_care < sql/init.sql
+# 按生产初始化顺序导入 schema/基础数据
+docker exec -i mysql-dev mysql -u root -proot --default-character-set=utf8mb4 < elderly-care-server/sql/production/01_init.sql
+docker exec -i mysql-dev mysql -u root -proot elderly_care --default-character-set=utf8mb4 < elderly-care-server/sql/production/02_area_data.sql
+docker exec -i mysql-dev mysql -u root -proot elderly_care --default-character-set=utf8mb4 < elderly-care-server/sql/production/03_menu_permissions.sql
+docker exec -i mysql-dev mysql -u root -proot elderly_care --default-character-set=utf8mb4 < elderly-care-server/sql/production/04_permissions.sql
 ```
 
 ### 后端启动
@@ -236,7 +239,7 @@ pnpm dev
 pnpm build
 ```
 
-访问地址: http://localhost:3000
+访问地址: http://localhost:9527
 
 ### 登录信息
 
@@ -284,7 +287,8 @@ GET  /api/auth/userinfo  # 获取用户信息
 - `t_user` - 用户表
 - `t_role` - 角色表
 
-详细表结构请参考 `sql/init.sql`
+生产初始化顺序请参考 `elderly-care-server/sql/production/README.sql`；当前 schema
+来源仍在治理中，详见 `docs/diagnostics/工程目录治理诊断与实施计划_20260527.md`。
 
 ## 开发指南
 

@@ -1,4 +1,4 @@
-# Playwright artifacts
+# Browser/E2E generated artifacts
 .playwright-mcp/
 .playwright-cli/
 playwright-report/
@@ -6,18 +6,16 @@ test-results/
 e2e/screenshots/
 e2e/test-results/
 
-# Screenshots (including tracked ones - local development artifacts)
-e2e/screenshots/
+# Build and documentation generator output
+**/bin/
+**/obj/
 
-# Hermes
+# Agent/workspace state
 .hermes/
-
-# Workbuddy / MCP temp
 .workbuddy/
 .connect_chrome.js
 
-# Temporary
+# Operating system, editor and log files
 .DS_Store
 *.log
-.DS_Store
 .vscode/

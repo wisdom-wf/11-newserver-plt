@@ -2,6 +2,19 @@
 
 This file provides guidance to Claude Code (claude.ai/code) when working with code in this repository.
 
+## Current Continuation Entry
+
+This repository is implemented and under active remediation; the legacy "planning phase" text
+below is no longer authoritative. Before changing code, read:
+
+1. `AGENTS.md` for current project conventions and business rules.
+2. `docs/diagnostics/CLAUDE_CODE_HANDOFF_20260527.md` for active findings, completed cleanup,
+   working tree boundaries and the next execution sequence.
+3. `docs/diagnostics/工程目录治理诊断与实施计划_20260527.md` for repository organization work.
+
+Do not revert existing dirty changes or the pre-existing deletion of video assets. Never commit
+credentials; deployment passwords and application secrets must be supplied out of band.
+
 ## Project Overview
 
 This is a **Smart Home-Based Elderly Care Service Management Platform** (智慧居家养老服务管理平台) for government oversight and service provider management in the elderly care industry.
@@ -54,15 +67,13 @@ The system integrates with multiple existing government systems:
 
 ## Project Status
 
-This project is currently in the **planning phase**. The repository contains:
+This project has an implemented Spring Boot backend and Vue frontend. Historical requirements remain in the repository:
 - Specification document (PDF): `智慧居家养老服务管理平台V20230707(3).pdf`
 - UI reference materials: screenshots and design mockups
 - **Complete requirements documentation** (10 documents in `docs/requirements/`):
   - Requirements overview and 8 subsystem specifications
   - Total: ~150,000 words, covering 100+ functional modules
   - 100+ data models, 50+ RESTful APIs
-
-No source code has been implemented yet.
 
 ## Requirements Documentation
 
@@ -143,7 +154,7 @@ Services support:
 ### 服务器
 - **IP**: 43.153.213.134
 - **SSH 用户**: ubuntu
-- **密码**: w00135950F
+- **认证信息**: 不在仓库中保存；通过密钥或本地安全配置提供
 
 ### 部署路径
 - **前端静态文件**: /var/www/jxy/
@@ -605,4 +616,3 @@ curl -s "http://localhost:8080/api/providers/{id}" -H "Authorization: Bearer $TO
 4. **验证通过后再让用户测试** — 不能把未经验证的修改直接交给用户测
 
 **核心原则**：数据库是唯一真相，代码中的实体定义可能过时，必须以数据库为准。
-
