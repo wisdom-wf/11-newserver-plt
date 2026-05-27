@@ -4,7 +4,8 @@
 set -e
 
 SERVER="ubuntu@43.153.213.134"
-PASS="w00135950F"
+: "${DEPLOY_PASSWORD:?请先设置 DEPLOY_PASSWORD 环境变量}"
+export SSHPASS="$DEPLOY_PASSWORD"
 DIST_DIR="/Users/works/my-projects/11-newserver-plt/dingfeng-work/dist"
 
 echo "[1/2] 构建前端..."
@@ -13,7 +14,7 @@ npm run build 2>&1 | tail -3
 
 echo "[2/2] 部署到服务器（追加模式）..."
 cd "$DIST_DIR"
-tar cf - . | sshpass -p "$PASS" ssh -o StrictHostKeyChecking=no $SERVER '
+tar cf - . | sshpass -e ssh -o StrictHostKeyChecking=no "$SERVER" '
   sudo mkdir -p /var/www/jxy
   cd /tmp && rm -rf jxy_dist && tar xf -
   # 只复制新文件，不删除旧文件
