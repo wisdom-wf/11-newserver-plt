@@ -87,7 +87,10 @@ const customQualificationName = ref('');
 
 // 上传确认对话框
 const uploadConfirmVisible = ref(false);
-const pendingUploadUrls = ref<string[]>([]);
+// 上传模式: 'overwrite' | 'add' | null
+const uploadMode = ref<'overwrite' | 'add' | null>(null);
+// 暂存待处理的图片base64
+const pendingBase64 = ref<string | null>(null);
 // 上传中状态
 const uploadLoading = ref(false);
 // 用于强制刷新NUpload组件
@@ -144,6 +147,21 @@ async function handleImageUpload(opt: { file: UploadFile }) {
 
   uploadLoading.value = true;
   try {
+    // Validate file size (max 5MB)
+    const MAX_SIZE = 5 * 1024 * 1024;
+    if (file.file.size > MAX_SIZE) {
+      message.error('图片大小不能超过5MB');
+      uploadLoading.value = false;
+      return false;
+    }
+    // Validate MIME type
+    const ALLOWED_TYPES = ['image/jpeg', 'image/png', 'image/webp'];
+    if (!ALLOWED_TYPES.includes(file.file.type)) {
+      message.error('只能上传 JPG/PNG/WEBP 格式的图片');
+      uploadLoading.value = false;
+      return false;
+    }
+
     // 转为Base64
     message.loading('正在处理图片...', { duration: 0 });
     const base64 = await new Promise<string>((resolve, reject) => {
@@ -178,20 +196,11 @@ async function handleImageUpload(opt: { file: UploadFile }) {
     // 固定类型
     const existing = qualifications.value.find(q => q.qualificationType === type);
     if (existing) {
-      // 追加模式：添加到现有图片后面
-      const newUrls = existing.certificateUrls
-        ? existing.certificateUrls.split('|||').concat(base64)
-        : [base64];
-      const { error } = await fetchUpdateStaffQualification(existing.qualificationId, {
-        ...existing,
-        certificateUrls: newUrls.join('|||')
-      } as Api.Staff.QualificationForm);
-      if (error) {
-        message.error('上传失败');
-        return false;
-      }
-      message.success('✓ 已添加');
-      loadQualifications(staffId);
+      // 有已有资质，暂存图片并弹出确认对话框让用户选择覆盖或追加
+      pendingBase64.value = base64;
+      uploadMode.value = null;
+      uploadConfirmVisible.value = true;
+      uploadLoading.value = false;
       return false;
     }
 
@@ -240,15 +249,56 @@ async function deleteQualification(qualificationId: string) {
 }
 
 // 覆盖确认回调
-function handleOverwriteConfirm() {
+async function handleOverwriteConfirm() {
   uploadConfirmVisible.value = false;
-  // 用户选择覆盖，触发上传
+  if (!pendingBase64.value || !detailData.value?.staffId) return;
+  const type = selectedQualificationType.value;
+  const existing = qualifications.value.find(q => q.qualificationType === type);
+  if (!existing) return;
+  uploadLoading.value = true;
+  try {
+    const { error } = await fetchUpdateStaffQualification(existing.qualificationId, {
+      ...existing,
+      certificateUrls: pendingBase64.value
+    } as Api.Staff.QualificationForm);
+    if (error) {
+      message.error('覆盖失败');
+      return;
+    }
+    message.success('✓ 已覆盖');
+    pendingBase64.value = null;
+    loadQualifications(detailData.value.staffId);
+  } finally {
+    uploadLoading.value = false;
+  }
 }
 
 // 追加确认回调
-function handleAddConfirm() {
+async function handleAddConfirm() {
   uploadConfirmVisible.value = false;
-  // 用户选择追加，不做任何事，等待上传
+  if (!pendingBase64.value || !detailData.value?.staffId) return;
+  const type = selectedQualificationType.value;
+  const existing = qualifications.value.find(q => q.qualificationType === type);
+  if (!existing) return;
+  uploadLoading.value = true;
+  try {
+    const newUrls = existing.certificateUrls
+      ? existing.certificateUrls.split('|||').concat(pendingBase64.value)
+      : [pendingBase64.value];
+    const { error } = await fetchUpdateStaffQualification(existing.qualificationId, {
+      ...existing,
+      certificateUrls: newUrls.join('|||')
+    } as Api.Staff.QualificationForm);
+    if (error) {
+      message.error('添加失败');
+      return;
+    }
+    message.success('✓ 已添加');
+    pendingBase64.value = null;
+    loadQualifications(detailData.value.staffId);
+  } finally {
+    uploadLoading.value = false;
+  }
 }
 
 async function showDetail(row: Api.Staff.Staff) {

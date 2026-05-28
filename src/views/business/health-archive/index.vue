@@ -226,6 +226,18 @@ function handleElderCardClick(elderId: string) {
 
 // Handle photo upload for elder card
 async function handlePhotoUpload(elderId: string, file: File) {
+  // Validate file size (max 5MB)
+  const MAX_SIZE = 5 * 1024 * 1024;
+  if (file.size > MAX_SIZE) {
+    message.error('图片大小不能超过5MB');
+    return false;
+  }
+  // Validate MIME type
+  const ALLOWED_TYPES = ['image/jpeg', 'image/png', 'image/webp'];
+  if (!ALLOWED_TYPES.includes(file.type)) {
+    message.error('只能上传 JPG/PNG/WEBP 格式的图片');
+    return false;
+  }
   const reader = new FileReader();
   reader.onload = async (e) => {
     if (e.target?.result) {

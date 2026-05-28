@@ -456,12 +456,16 @@ const allCertificates = computed(() => {
                     >
                       {{ cert.qualificationName }}
                     </div>
-                    <div
-                      style="position: absolute; top: -6px; right: -6px; width: 18px; height: 18px; background: #ff4d4f; border-radius: 50%; color: white; text-align: center; line-height: 18px; font-size: 10px; cursor: pointer"
-                      @click.stop="handleDeleteCert(cert.qualificationId)"
-                    >
-                      ×
-                    </div>
+                    <NPopconfirm @positive-click="handleDeleteCert(cert.qualificationId)">
+                      <template #trigger>
+                        <div
+                          style="position: absolute; top: -6px; right: -6px; width: 18px; height: 18px; background: #ff4d4f; border-radius: 50%; color: white; text-align: center; line-height: 18px; font-size: 10px; cursor: pointer"
+                        >
+                          ×
+                        </div>
+                      </template>
+                      确定要删除该证书吗？
+                    </NPopconfirm>
                   </div>
                 </div>
                 <NEmpty v-else-if="!detailData?.qualifications?.length" description="暂无资质证书" />
