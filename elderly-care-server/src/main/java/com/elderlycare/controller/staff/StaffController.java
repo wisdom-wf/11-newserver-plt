@@ -191,6 +191,24 @@ public class StaffController {
     }
 
     /**
+     * 获取服务人员资质列表（预览模式，不含图片URL）
+     */
+    @GetMapping("/{staffId}/qualifications/preview")
+    public Result<List<QualificationVO>> getQualificationsPreview(@PathVariable String staffId) {
+        List<QualificationVO> list = staffService.getQualificationsPreview(staffId);
+        return Result.success(list);
+    }
+
+    /**
+     * 获取指定资质的图片URL
+     */
+    @GetMapping("/qualifications/{qualificationId}/images")
+    public Result<String> getQualificationImages(@PathVariable Long qualificationId) {
+        String images = staffService.getQualificationImages(qualificationId);
+        return Result.success(images);
+    }
+
+    /**
      * 更新资质
      */
     @PutMapping("/qualifications/{qualificationId}")

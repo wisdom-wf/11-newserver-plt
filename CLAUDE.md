@@ -151,10 +151,11 @@ Services support:
 - **前端地址**: https://wisdomdance.cn/jxy/home
 - **后端 API**: http://43.153.213.134:8080/api（服务器内部）
 
-### 服务器
+### 服务器 SSH 连接
 - **IP**: 43.153.213.134
 - **SSH 用户**: ubuntu
-- **认证信息**: 不在仓库中保存；通过密钥或本地安全配置提供
+- **免密登录别名**: `ssh wisdomdance`（已配置 SSH key 认证）
+- **SCP 传文件**: `scp file wisdomdance:/path/`
 
 ### 部署路径
 - **前端静态文件**: /var/www/jxy/
@@ -171,6 +172,8 @@ Services support:
 
 ### 部署脚本
 - 前端部署: `/Users/works/my-projects/11-newserver-plt/deploy-frontend.sh`
+- 后端部署: `/Users/works/my-projects/11-newserver-plt/deploy-backend.sh`
+- 部署时环境变量 `DEPLOY_PASSWORD` 需设为服务器密码（或使用免密 SSH key 手动执行）
 
 ## Documentation
 

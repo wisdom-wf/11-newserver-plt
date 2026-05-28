@@ -63,6 +63,17 @@ public interface StaffService {
     QualificationVO getQualificationById(Long qualificationId);
 
     /**
+     * 获取服务人员资质列表（不含图片URL，仅预览）
+     */
+    java.util.List<QualificationVO> getQualificationsPreview(String staffId);
+
+    /**
+     * 获取指定资质的图片URL
+     * @return certificateUrls 字符串
+     */
+    String getQualificationImages(Long qualificationId);
+
+    /**
      * 更新资质
      */
     QualificationVO updateQualification(Long qualificationId, QualificationUpdateDTO updateDTO);

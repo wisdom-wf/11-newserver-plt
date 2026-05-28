@@ -323,6 +323,23 @@ public class StaffServiceImpl implements StaffService {
     }
 
     @Override
+    public List<QualificationVO> getQualificationsPreview(String staffId) {
+        List<StaffQualification> qualifications = qualificationMapper.selectByStaffId(staffId);
+        return qualifications.stream()
+                .map(this::convertToQualificationVOPreview)
+                .collect(Collectors.toList());
+    }
+
+    @Override
+    public String getQualificationImages(Long qualificationId) {
+        StaffQualification qualification = qualificationMapper.selectByQualificationId(String.valueOf(qualificationId));
+        if (qualification == null) {
+            return null;
+        }
+        return qualification.getCertificateUrls();
+    }
+
+    @Override
     public QualificationVO getQualificationById(Long qualificationId) {
         StaffQualification qualification = qualificationMapper.selectByQualificationId(String.valueOf(qualificationId));
         return convertToQualificationVO(qualification);
@@ -643,6 +660,34 @@ public class StaffServiceImpl implements StaffService {
         vo.setIssueDate(qualification.getIssueDate());
         vo.setExpireDate(qualification.getExpireDate());
         vo.setCertificateUrls(qualification.getCertificateUrls());
+        vo.setStatus(qualification.getStatus());
+        vo.setStatusText(getQualificationStatusText(qualification.getStatus()));
+        vo.setRemark(qualification.getRemark());
+        vo.setCreateTime(qualification.getCreateTime());
+        vo.setUpdateTime(qualification.getUpdateTime());
+        return vo;
+    }
+
+    /**
+     * 转换为资质VO（预览模式，不含certificateUrls）
+     */
+    private QualificationVO convertToQualificationVOPreview(StaffQualification qualification) {
+        if (qualification == null) {
+            return null;
+        }
+        QualificationVO vo = new QualificationVO();
+        vo.setQualificationId(qualification.getQualificationId());
+        vo.setStaffId(qualification.getStaffId());
+        vo.setQualificationType(qualification.getQualificationType());
+        vo.setQualificationTypeText(getQualificationTypeText(qualification.getQualificationType()));
+        vo.setQualificationName(qualification.getQualificationName());
+        vo.setQualificationNo(qualification.getQualificationNo());
+        vo.setIssuingAuthority(qualification.getIssuingAuthority());
+        vo.setIssueDate(qualification.getIssueDate());
+        vo.setExpireDate(qualification.getExpireDate());
+        // 预览模式不返回certificateUrls，只返回是否有图片的标记
+        vo.setCertificateUrls(qualification.getCertificateUrls() != null && !qualification.getCertificateUrls().isEmpty()
+                ? "HAS_IMAGES" : null);
         vo.setStatus(qualification.getStatus());
         vo.setStatusText(getQualificationStatusText(qualification.getStatus()));
         vo.setRemark(qualification.getRemark());
