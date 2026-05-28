@@ -85,7 +85,7 @@ export async function fetchGetProviderOptions(params?: { areaId?: string; servic
     method: 'get',
     params: {
       ...params,
-      pageSize: 1000 // 获取全部，用于下拉选择
+      pageSize: 50 // 下拉选择最多50条
     }
   });
 

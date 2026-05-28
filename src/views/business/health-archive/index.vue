@@ -169,6 +169,12 @@ const archiveTabList = [
 // Active tab
 const activeTab = ref('overview');
 
+// Lazy loading: track which tabs have loaded data
+const loadedTabs = ref<Set<string>>(new Set());
+
+// Race condition protection: abort controller for request cancellation
+let currentElderVersion = '';
+
 // Recent updated elders cards
 const recentElders = ref<Api.Elder.ElderHealthCard[]>([]);
 const recentEldersLoading = ref(false);
@@ -249,10 +255,10 @@ async function handlePhotoUpload(elderId: string, file: File) {
   return false;
 }
 
-// Load elders for selection
+// Load elders for selection (max 50 records per query)
 async function loadElders() {
   try {
-    const { data } = await fetchGetElderList({ page: 1, pageSize: 1000 });
+    const { data } = await fetchGetElderList({ page: 1, pageSize: 50 });
     if (data?.records) {
       elderOptions.value = data.records.map(e => ({
         label: `${e.name} (${e.idCard})`,
@@ -271,12 +277,15 @@ async function loadElderDetail() {
     elderHealth.value = null;
     return;
   }
+  const requestVersion = currentElderVersion;
   elderLoading.value = true;
   try {
     const [elderRes, healthRes] = await Promise.all([
       fetchGetElder(selectedElderId.value),
       fetchGetElderHealth(selectedElderId.value),
     ]);
+    // Discard stale response if elder changed during request
+    if (requestVersion !== currentElderVersion) return;
     if (elderRes.error) {
       message.error(elderRes.error.message || '获取客户信息失败');
       return;
@@ -284,31 +293,39 @@ async function loadElderDetail() {
     selectedElder.value = elderRes.data;
     elderHealth.value = healthRes.data || null;
   } finally {
-    elderLoading.value = false;
+    if (requestVersion === currentElderVersion) {
+      elderLoading.value = false;
+    }
   }
 }
 
 // Load measurements
 async function loadMeasurements() {
   if (!selectedElderId.value) return;
+  const requestVersion = currentElderVersion;
   measurementsLoading.value = true;
   try {
     const { data, error } = await fetchGetHealthMeasurementHistory(selectedElderId.value, { limit: 50 });
+    if (requestVersion !== currentElderVersion) return;
     if (error) {
       message.error(error.message || '获取测量记录失败');
       return;
     }
     measurements.value = data || [];
   } finally {
-    measurementsLoading.value = false;
+    if (requestVersion === currentElderVersion) {
+      measurementsLoading.value = false;
+    }
   }
 }
 
 // Load measurement statistics
 async function loadMeasurementStats() {
   if (!selectedElderId.value) return;
+  const requestVersion = currentElderVersion;
   try {
     const { data, error } = await fetchGetAllMeasurementStatistics(selectedElderId.value);
+    if (requestVersion !== currentElderVersion) return;
     if (error) {
       message.error(error.message || '获取统计失败');
       return;
@@ -322,28 +339,34 @@ async function loadMeasurementStats() {
 // Load reports
 async function loadReports() {
   if (!selectedElderId.value) return;
+  const requestVersion = currentElderVersion;
   reportsLoading.value = true;
   try {
     const { data, error } = await fetchGetHealthReportList(selectedElderId.value);
+    if (requestVersion !== currentElderVersion) return;
     if (error) {
       message.error(error.message || '获取报告失败');
       return;
     }
     reports.value = data || [];
   } finally {
-    reportsLoading.value = false;
+    if (requestVersion === currentElderVersion) {
+      reportsLoading.value = false;
+    }
   }
 }
 
 // Load AI suggestions
 async function loadSuggestions() {
   if (!selectedElderId.value) return;
+  const requestVersion = currentElderVersion;
   suggestionsLoading.value = true;
   try {
     const [careRes, medicalRes] = await Promise.all([
       fetchGetCareSuggestions(selectedElderId.value),
       fetchGetMedicalSuggestions(selectedElderId.value)
     ]);
+    if (requestVersion !== currentElderVersion) return;
     if (careRes.error) {
       console.error('Failed to load care suggestions', careRes.error);
     } else {
@@ -357,7 +380,24 @@ async function loadSuggestions() {
   } catch (e) {
     console.error('Failed to load suggestions', e);
   } finally {
-    suggestionsLoading.value = false;
+    if (requestVersion === currentElderVersion) {
+      suggestionsLoading.value = false;
+    }
+  }
+}
+
+// Load elder devices
+async function loadElderDevices() {
+  if (!selectedElderId.value) return;
+  const requestVersion = currentElderVersion;
+  try {
+    const { data } = await fetchGetElderDevices(selectedElderId.value);
+    if (requestVersion !== currentElderVersion) return;
+    elderDevices.value = data || [];
+  } catch {
+    if (requestVersion === currentElderVersion) {
+      elderDevices.value = [];
+    }
   }
 }
 
@@ -606,25 +646,39 @@ function getFallRiskName(fallRisk?: number): string {
 // Watch for elder selection change
 function handleElderChange(value: string) {
   selectedElderId.value = value;
+  // Increment version to invalidate pending requests
+  currentElderVersion = `${value}_${Date.now()}`;
+  // Reset loaded tabs for new elder
+  loadedTabs.value = new Set();
   loadElderDetail();
-  loadMeasurements();
-  loadMeasurementStats();
-  loadReports();
-  loadSuggestions();
-  loadElderDevices();
+  // Lazy load: only load overview tab data initially
+  if (!loadedTabs.value.has('overview')) {
+    loadMeasurementStats();
+    loadedTabs.value.add('overview');
+  }
+}
+
+// Handle tab change with lazy loading
+function handleTabChange(tabName: string) {
+  activeTab.value = tabName;
+  // Lazy load tab data only on first activation
+  if (tabName === 'measurements' && !loadedTabs.value.has('measurements')) {
+    loadMeasurements();
+    loadMeasurementStats();
+    loadedTabs.value.add('measurements');
+  } else if (tabName === 'devices' && !loadedTabs.value.has('devices')) {
+    loadElderDevices();
+    loadedTabs.value.add('devices');
+  } else if (tabName === 'reports' && !loadedTabs.value.has('reports')) {
+    loadReports();
+    loadedTabs.value.add('reports');
+  } else if (tabName === 'suggestions' && !loadedTabs.value.has('suggestions')) {
+    loadSuggestions();
+    loadedTabs.value.add('suggestions');
+  }
 }
 
 // ========== 设备管理 ==========
-
-async function loadElderDevices() {
-  if (!selectedElderId.value) return;
-  try {
-    const { data } = await fetchGetElderDevices(selectedElderId.value);
-    elderDevices.value = data || [];
-  } catch {
-    elderDevices.value = [];
-  }
-}
 
 async function handleQueryDevice() {
   if (!bindDeviceForm.value.deviceSn) {
@@ -754,7 +808,7 @@ onMounted(async () => {
           v-for="tab in archiveTabList"
           :key="tab.name"
           :class="['tab-btn', { active: activeTab === tab.name }]"
-          @click="activeTab = tab.name"
+          @click="handleTabChange(tab.name)"
         >
           {{ tab.label }}
         </button>
