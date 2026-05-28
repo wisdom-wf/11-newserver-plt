@@ -105,6 +105,9 @@ public class StaffController {
         String userType = UserContext.getUserType();
         String autoPid = UserContext.getProviderId();
         StaffVO existingStaff = staffService.getStaffById(staffId);
+        if (existingStaff == null) {
+            throw BusinessException.notFound("服务人员不存在");
+        }
         if ("PROVIDER".equals(userType) && autoPid != null
                 && !autoPid.equals(existingStaff.getProviderId())) {
             throw BusinessException.fail("无权修改其他服务商的员工信息");
