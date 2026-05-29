@@ -294,6 +294,22 @@ function handleAdd() {
 }
 
 async function handleAddSubmit() {
+  if (!addForm.value.elderName) {
+    message.warning('请输入客户姓名');
+    return;
+  }
+  if (!addForm.value.elderPhone) {
+    message.warning('请输入手机号');
+    return;
+  }
+  if (!addForm.value.serviceType) {
+    message.warning('请选择服务类型');
+    return;
+  }
+  if (!addForm.value.appointmentTime) {
+    message.warning('请输入预约时间');
+    return;
+  }
   try {
     const selectedService = serviceTypeOptions.find(s => s.value === addForm.value.serviceType);
     const data = {

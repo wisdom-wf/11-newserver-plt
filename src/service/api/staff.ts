@@ -131,6 +131,26 @@ export function fetchGetStaffQualifications(staffId: string) {
 }
 
 /**
+ * 获取服务人员资质列表（预览模式，不含图片URL）
+ */
+export function fetchGetStaffQualificationsPreview(staffId: string) {
+  return request<Api.Staff.Qualification[]>({
+    url: `/api/staff/${staffId}/qualifications/preview`,
+    method: 'get'
+  });
+}
+
+/**
+ * 获取指定资质的图片URL
+ */
+export function fetchGetQualificationImages(qualificationId: string) {
+  return request<string>({
+    url: `/api/staff/qualifications/${qualificationId}/images`,
+    method: 'get'
+  });
+}
+
+/**
  * 添加服务人员资质
  */
 export function fetchAddStaffQualification(staffId: string, data: Api.Staff.QualificationForm) {

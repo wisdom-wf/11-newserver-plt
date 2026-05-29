@@ -130,11 +130,50 @@ export function fetchDeleteProviderCertificate(qualificationId: string) {
 }
 
 /**
+ * 更新服务商资质证书
+ */
+export function fetchUpdateProviderQualification(qualificationId: string, data: {
+  qualificationName?: string;
+  qualificationType?: string;
+  qualificationNumber?: string;
+  issueDate?: string;
+  expiryDate?: string;
+  issueOrganization?: string;
+  attachmentUrl?: string;
+}) {
+  return request({
+    url: `/api/providers/certificates/${qualificationId}`,
+    method: 'put',
+    data
+  });
+}
+
+/**
  * 获取服务商资质证书列表
  */
 export function fetchGetProviderCertificates(providerId: string) {
   return request<Api.Provider.Qualification[]>({
     url: `/api/providers/${providerId}/certificates`,
+    method: 'get'
+  });
+}
+
+/**
+ * 获取服务商资质预览列表（不含图片base64）
+ */
+export function fetchGetProviderQualificationsPreview(providerId: string) {
+  return request<Api.Provider.Qualification[]>({
+    url: `/api/providers/${providerId}/certificates/preview`,
+    method: 'get'
+  });
+}
+
+/**
+ * 获取单个资质的图片URL
+ */
+export function fetchGetProviderQualificationImages(qualificationId: string) {
+  return request<string>({
+    url: `/api/providers/certificates/${qualificationId}/images`,
     method: 'get'
   });
 }
