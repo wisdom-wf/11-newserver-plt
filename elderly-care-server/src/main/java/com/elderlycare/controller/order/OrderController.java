@@ -120,7 +120,7 @@ public class OrderController {
      * POST /api/orders/{orderId}/dispatch
      */
     @PostMapping("/{orderId}/dispatch")
-    public Result<DispatchVO> dispatchOrder(@PathVariable String orderId, @RequestBody DispatchOrderDTO dto) {
+    public Result<DispatchVO> dispatchOrder(@PathVariable String orderId, @Valid @RequestBody DispatchOrderDTO dto) {
         DispatchVO vo = orderService.dispatchOrder(orderId, dto);
         return Result.success("派单成功", vo);
     }

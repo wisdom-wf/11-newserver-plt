@@ -33,7 +33,23 @@ public interface ProviderQualificationService extends IService<ProviderQualifica
     void deleteQualification(String qualificationId);
 
     /**
+     * 更新资质
+     */
+    void updateQualification(String qualificationId, QualificationCreateDTO dto);
+
+    /**
      * 检查资质是否属于指定服务商
      */
     boolean isQualificationOwnedByProvider(String qualificationId, String providerId);
+
+    /**
+     * 获取资质预览列表（不含图片base64）
+     * 返回 HAS_IMAGES 标记代替真实图片
+     */
+    List<QualificationVO> getQualificationsPreviewByProviderId(String providerId);
+
+    /**
+     * 获取单个资质的真实图片URL
+     */
+    String getQualificationImages(String qualificationId);
 }

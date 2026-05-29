@@ -195,6 +195,63 @@ public class ProviderController {
     }
 
     /**
+     * 资质预览（不含图片base64）
+     */
+    @GetMapping("/{providerId}/certificates/preview")
+    public Result<List<QualificationVO>> getQualificationsPreview(@PathVariable String providerId) {
+        String userType = UserContext.getUserType();
+        String autoPid = UserContext.getProviderId();
+        if ("PROVIDER".equals(userType) && autoPid != null && !autoPid.equals(providerId)) {
+            throw BusinessException.fail("无权查看其他服务商资质");
+        }
+        List<QualificationVO> list = qualificationService.getQualificationsPreviewByProviderId(providerId);
+        return Result.success(list);
+    }
+
+    /**
+     * 获取单个资质的图片
+     */
+    @GetMapping("/certificates/{qualificationId}/images")
+    public Result<String> getQualificationImages(@PathVariable String qualificationId) {
+        String userType = UserContext.getUserType();
+        String autoPid = UserContext.getProviderId();
+        if ("PROVIDER".equals(userType) && autoPid != null) {
+            QualificationVO cert = qualificationService.getQualificationById(qualificationId);
+            if (cert == null) {
+                throw BusinessException.fail("资质不存在");
+            }
+            if (!autoPid.equals(cert.getProviderId())) {
+                throw BusinessException.fail("无权查看其他服务商的资质图片");
+            }
+        }
+        String images = qualificationService.getQualificationImages(qualificationId);
+        return Result.success(images);
+    }
+
+    /**
+     * 更新资质证书
+     */
+    @PutMapping("/certificates/{certId}")
+    public Result<Void> updateQualification(
+            @PathVariable String certId,
+            @Validated @RequestBody QualificationCreateDTO dto) {
+        // 归属校验：PROVIDER用户只能修改自己公司的资质
+        String userType = UserContext.getUserType();
+        String autoPid = UserContext.getProviderId();
+        if ("PROVIDER".equals(userType) && autoPid != null) {
+            QualificationVO cert = qualificationService.getQualificationById(certId);
+            if (cert == null) {
+                throw BusinessException.fail("资质不存在");
+            }
+            if (!autoPid.equals(cert.getProviderId())) {
+                throw BusinessException.fail("无权修改其他服务商的资质");
+            }
+        }
+        qualificationService.updateQualification(certId, dto);
+        return Result.success();
+    }
+
+    /**
      * 资质删除
      */
     @DeleteMapping("/certificates/{certId}")

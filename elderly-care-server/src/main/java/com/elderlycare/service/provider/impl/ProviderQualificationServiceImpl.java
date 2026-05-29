@@ -85,11 +85,57 @@ public class ProviderQualificationServiceImpl
     }
 
     @Override
+    @Transactional(rollbackFor = Exception.class)
+    public void updateQualification(String qualificationId, QualificationCreateDTO dto) {
+        ProviderQualification qualification = baseMapper.selectById(qualificationId);
+        if (qualification == null) {
+            throw BusinessException.notFound("资质不存在");
+        }
+        if (dto.getQualificationName() != null) {
+            qualification.setQualificationName(dto.getQualificationName());
+        }
+        if (dto.getAttachmentUrl() != null) {
+            qualification.setAttachmentUrl(dto.getAttachmentUrl());
+        }
+        baseMapper.updateById(qualification);
+    }
+
+    @Override
     public boolean isQualificationOwnedByProvider(String qualificationId, String providerId) {
         LambdaQueryWrapper<ProviderQualification> wrapper = new LambdaQueryWrapper<>();
         wrapper.eq(ProviderQualification::getQualificationId, qualificationId);
         wrapper.eq(ProviderQualification::getProviderId, providerId);
 
         return baseMapper.selectCount(wrapper) > 0;
+    }
+
+    @Override
+    public List<QualificationVO> getQualificationsPreviewByProviderId(String providerId) {
+        LambdaQueryWrapper<ProviderQualification> wrapper = new LambdaQueryWrapper<>();
+        wrapper.eq(ProviderQualification::getProviderId, providerId);
+        wrapper.orderByDesc(ProviderQualification::getCreateTime);
+
+        List<ProviderQualification> qualifications = baseMapper.selectList(wrapper);
+
+        return qualifications.stream().map(cert -> {
+            QualificationVO vo = new QualificationVO();
+            BeanUtils.copyProperties(cert, vo);
+            // 预览模式：attachmentUrl 设为 HAS_IMAGES 标记（有图片时）或 null
+            if (cert.getAttachmentUrl() != null && !cert.getAttachmentUrl().isEmpty()) {
+                vo.setAttachmentUrl("HAS_IMAGES");
+            } else {
+                vo.setAttachmentUrl(null);
+            }
+            return vo;
+        }).collect(Collectors.toList());
+    }
+
+    @Override
+    public String getQualificationImages(String qualificationId) {
+        ProviderQualification qualification = baseMapper.selectById(qualificationId);
+        if (qualification == null) {
+            throw BusinessException.notFound("资质不存在");
+        }
+        return qualification.getAttachmentUrl();
     }
 }
