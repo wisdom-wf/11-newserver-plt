@@ -221,7 +221,7 @@ function formatNumber(num: number): string {
 }
 
 .stat-card-primary {
-  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  background: linear-gradient(135deg, #5E8B7E 0%, #7BA89F 100%);
 }
 .stat-card-success {
   background: linear-gradient(135deg, #43e97b 0%, #38f9d7 100%);

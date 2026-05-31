@@ -687,8 +687,8 @@ onMounted(() => {
 
 .stat-card-1 .stat-icon { background: linear-gradient(135deg, #5da8ff, #8e9dff); }
 .stat-card-2 .stat-icon { background: linear-gradient(135deg, #8e9dff, #a18cd1); }
-.stat-card-3 .stat-icon { background: linear-gradient(135deg, #667eea, #764ba2); }
-.stat-card-4 .stat-icon { background: linear-gradient(135deg, #4facfe, #00f2fe); }
+.stat-card-3 .stat-icon { background: linear-gradient(135deg, #5E8B7E 0%, #7BA89F 100%); }
+.stat-card-4 .stat-icon { background: linear-gradient(135deg, #3A506B 0%, #5A7A8B 100%); }
 .stat-card-5 .stat-icon { background: linear-gradient(135deg, #26deca, #00b42a); }
 .stat-card-6 .stat-icon { background: linear-gradient(135deg, #fedc69, #ff7d00); }
 

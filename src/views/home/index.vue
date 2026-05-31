@@ -1321,32 +1321,32 @@ getData();
   line-height: 1.2;
 }
 
-/* 第一行卡片配色 - 蓝紫色系 */
+/* 第一行卡片配色 - 方案C中性平衡系（雾霾绿+深海蓝） */
 .stat-card-p1 {
-  background: linear-gradient(135deg, #5da8ff 0%, #8e9dff 100%);
+  background: linear-gradient(135deg, #5E8B7E 0%, #7BA89F 100%);
 }
 .stat-card-p2 {
-  background: linear-gradient(135deg, #8e9dff 0%, #a18cd1 100%);
+  background: linear-gradient(135deg, #3A506B 0%, #5A7A8B 100%);
 }
 .stat-card-p3 {
-  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  background: linear-gradient(135deg, #5E8B7E 0%, #7BA89F 100%);
 }
 .stat-card-p4 {
-  background: linear-gradient(135deg, #4facfe 0%, #00f2fe 100%);
+  background: linear-gradient(135deg, #3A506B 0%, #5A7A8B 100%);
 }
 .stat-card-p5 {
-  background: linear-gradient(135deg, #a18cd1 0%, #fbc2eb 100%);
+  background: linear-gradient(135deg, #5E8B7E 0%, #7BA89F 100%);
 }
 
 /* 第二行卡片配色 - 绿青/暖色系 */
 .stat-card-s1 {
-  background: linear-gradient(135deg, #26deca 0%, #00b42a 100%);
+  background: linear-gradient(135deg, #5E8B7E 0%, #81B29A 100%);
 }
 .stat-card-s2 {
-  background: linear-gradient(135deg, #fedc69 0%, #ff7d00 100%);
+  background: linear-gradient(135deg, #F9B572 0%, #F7C59F 100%);
 }
 .stat-card-s3 {
-  background: linear-gradient(135deg, #ff7d00 0%, #ff4d4f 100%);
+  background: linear-gradient(135deg, #D64045 0%, #E07070 100%);
 }
 .stat-card-s4 {
   background: linear-gradient(135deg, #5da8ff 0%, #26deca 100%);
@@ -1355,32 +1355,40 @@ getData();
   background: linear-gradient(135deg, #8e9dff 0%, #fedc69 100%);
 }
 
-/* 第三行订单/财务卡片配色 */
+/* 第三行订单/财务卡片配色 - 方案C */
 .stat-card-o1 {
-  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  background: linear-gradient(135deg, #5E8B7E 0%, #7BA89F 100%);
 }
 .stat-card-o2 {
-  background: linear-gradient(135deg, #43e97b 0%, #38f9d7 100%);
+  background: linear-gradient(135deg, #3A506B 0%, #5A7A8B 100%);
 }
 .stat-card-o3 {
-  background: linear-gradient(135deg, #4facfe 0%, #00f2fe 100%);
+  background: linear-gradient(135deg, #3A506B 0%, #5A7A8B 100%);
 }
 .stat-card-f1 {
-  background: linear-gradient(135deg, #fedc69 0%, #ff7d00 100%);
+  background: linear-gradient(135deg, #F9B572 0%, #F7C59F 100%);
 }
 .stat-card-f2 {
-  background: linear-gradient(135deg, #26deca 0%, #00b42a 100%);
+  background: linear-gradient(135deg, #5E8B7E 0%, #81B29A 100%);
 }
 .stat-card-f3 {
-  background: linear-gradient(135deg, #ff4d4f 0%, #ff7d00 100%);
+  background: linear-gradient(135deg, #D64045 0%, #E07070 100%);
 }
 
-/* 第四行质量卡片配色 */
+/* 第四行质量卡片配色 - 方案C */
 .stat-card-q1 {
-  background: linear-gradient(135deg, #667eea 0%, #f093fb 100%);
+  background: linear-gradient(135deg, #5E8B7E 0%, #7BA89F 100%);
 }
 .stat-card-q2 {
-  background: linear-gradient(135deg, #ff7d00 0%, #fee140 100%);
+  background: linear-gradient(135deg, #F9B572 0%, #F7C59F 100%);
+}
+
+/* 补充行配色 - 方案C */
+.stat-card-s4 {
+  background: linear-gradient(135deg, #3A506B 0%, #5A7A8B 100%);
+}
+.stat-card-s5 {
+  background: linear-gradient(135deg, #5E8B7E 0%, #7BA89F 100%);
 }
 
 /* 图表卡片 */

@@ -96,7 +96,7 @@ const currentStepLabel = computed(() => {
 
 <style scoped>
 .flow-indicator {
-  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  background: linear-gradient(135deg, #5E8B7E 0%, #7BA89F 100%);
   border-radius: 12px;
   padding: 20px 24px;
   color: white;
@@ -153,16 +153,16 @@ const currentStepLabel = computed(() => {
 }
 
 .step-item.completed .step-icon {
-  background: #38ef7d;
-  border-color: #38ef7d;
+  background: #5E8B7E;
+  border-color: #5E8B7E;
   color: white;
 }
 
 .step-item.active .step-icon {
   background: white;
-  color: #667eea;
-  border-color: #38ef7d;
-  box-shadow: 0 0 12px rgba(56, 239, 125, 0.5);
+  color: #5E8B7E;
+  border-color: #5E8B7E;
+  box-shadow: 0 0 12px rgba(94, 139, 126, 0.5);
 }
 
 .step-item.pending .step-icon {
@@ -222,7 +222,7 @@ const currentStepLabel = computed(() => {
 }
 
 .connector-line.completed {
-  background: #38ef7d;
+  background: #5E8B7E;
 }
 
 .flow-hint {

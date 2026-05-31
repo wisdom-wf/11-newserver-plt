@@ -79,9 +79,9 @@ function getNodeIcon(node: OrderTimelineItem): string {
 }
 
 function getNodeColor(node: OrderTimelineItem): string {
-  if (['SERVICE_COMPLETED', 'EVALUATED', 'SETTLED'].includes(node.status)) return '#11998e';
-  if (node.status === 'CANCELLED') return '#f5576c';
-  if (isCurrentNode(node)) return '#4facfe';
+  if (['SERVICE_COMPLETED', 'EVALUATED', 'SETTLED'].includes(node.status)) return '#5E8B7E';
+  if (node.status === 'CANCELLED') return '#D64045';
+  if (isCurrentNode(node)) return '#3A506B';
   return '#999';
 }
 

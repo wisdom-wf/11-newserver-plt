@@ -18,45 +18,66 @@ html {
 
 /* 适老化：基础字号提升，最小14px */
 :root {
-  --color-primary:          #1E3A5F;
-  --color-primary-light:     #2B5290;
-  --color-primary-dark:      #152B47;
+  /* ================================================
+     方案C配色体系：中性平衡系
+     主色：雾霾绿 — 温和、安静、专业
+     辅助色：深海蓝 — 沉稳、权威
+     点缀色：杏橙 — 温暖、活力
+     ================================================ */
+  --color-primary:          #5E8B7E;  /* 雾霾绿（主色调） */
+  --color-primary-light:    #7BA89F;  /* 浅雾霾绿 */
+  --color-primary-dark:     #3D6B5E;  /* 深雾霾绿 */
 
-  --color-secondary:         #E67E22;
-  --color-secondary-light:   #F39C12;
+  --color-secondary:        #3A506B;  /* 深海蓝（辅助色调） */
+  --color-secondary-light:  #5A7A8B;  /* 浅深海蓝 */
+  --color-secondary-dark:   #2A4055;  /* 深深海蓝 */
 
-  --color-success:           #10B981;
-  --color-warning:           #F59E0B;
-  --color-error:             #EF4444;
-  --color-info:              #3B82F6;
+  --color-success:          #5E8B7E;  /* 雾霾绿（同主色，和谐） */
+  --color-warning:          #F9B572;  /* 杏橙色（温暖活力） */
+  --color-error:            #D64045;  /* 珊瑚红（警示） */
+  --color-info:             #3A506B;  /* 深海蓝（同辅助色） */
 
-  --color-text-primary:      #111827;
-  --color-text-secondary:    #374151;
-  --color-text-disabled:     #9CA3AF;
+  --color-text-primary:     #2C3E50;  /* 深灰蓝 */
+  --color-text-secondary:   #4A5568;  /* 次级文字 */
+  --color-text-disabled:    #9CA3AF;
 
   /* 适老化：字号提升 */
-  --font-size-base:          16px;
-  --font-size-lg:            17px;
-  --font-size-xl:            18px;
-  --font-size-2xl:           20px;
-  --font-size-stat:          42px; /* 统计数字超大 */
+  --font-size-base:         16px;
+  --font-size-lg:           17px;
+  --font-size-xl:           18px;
+  --font-size-2xl:          20px;
+  --font-size-stat:         42px;
 
   --radius-sm: 4px;
   --radius-md: 8px;
   --radius-lg: 12px;
   --radius-xl: 16px;
 
-  /* 阴影 token */
-  --shadow-sm:  0 1px 2px rgba(30,58,95,0.05);
-  --shadow-md:  0 2px 8px rgba(30,58,95,0.08), 0 0 1px rgba(30,58,95,0.04);
-  --shadow-lg:  0 4px 16px rgba(30,58,95,0.10), 0 2px 6px rgba(30,58,95,0.06);
-  --shadow-xl:  0 8px 32px rgba(30,58,95,0.12), 0 4px 12px rgba(30,58,95,0.08);
+  /* 阴影 token（已适配新主色） */
+  --shadow-sm:  0 1px 2px rgba(94,139,126,0.06);
+  --shadow-md:  0 2px 8px rgba(94,139,126,0.09), 0 0 1px rgba(94,139,126,0.04);
+  --shadow-lg:  0 4px 16px rgba(94,139,126,0.11), 0 2px 6px rgba(94,139,126,0.06);
+  --shadow-xl:  0 8px 32px rgba(94,139,126,0.13), 0 4px 12px rgba(94,139,126,0.08);
 
   /* 适老化：按钮高度 */
   --btn-height-sm:   40px;
   --btn-height-md:  48px;
   --btn-height-lg:  56px;
+
+  /* 渐变色 token（新增） */
+  --gradient-primary:   linear-gradient(135deg, #5E8B7E 0%, #7BA89F 100%);
+  --gradient-secondary: linear-gradient(135deg, #3A506B 0%, #5A7A8B 100%);
+  --gradient-success:   linear-gradient(135deg, #5E8B7E 0%, #81B29A 100%);
+  --gradient-warning:   linear-gradient(135deg, #F9B572 0%, #F7C59F 100%);
+  --gradient-error:     linear-gradient(135deg, #D64045 0%, #E07070 100%);
+  --gradient-info:      linear-gradient(135deg, #3A506B 0%, #5A7A8B 100%);
 }
+
+/* ================================================
+   方案C配色：中性平衡系（雾霾绿+深海蓝）
+   主色：雾霾绿（温和专业）+ 深海蓝（沉稳权威）+ 杏橙点缀（温暖活力）
+   注意：侧边栏菜单/tabs 保持政务蓝 #1E3A5F 不变（政务属性）
+   ================================================ */
 
 /* 全局高级感：卡片 hover 微提升 */
 .n-card:hover {

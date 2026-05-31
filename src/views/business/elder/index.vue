@@ -698,7 +698,7 @@ onMounted(async () => {
 }
 
 .stat-primary {
-  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  background: linear-gradient(135deg, #5E8B7E 0%, #7BA89F 100%);
   color: white;
 }
 
@@ -707,7 +707,7 @@ onMounted(async () => {
 }
 
 .stat-info {
-  background: linear-gradient(135deg, #4facfe 0%, #00f2fe 100%);
+  background: linear-gradient(135deg, #3A506B 0%, #5A7A8B 100%);
   color: white;
 }
 
@@ -716,7 +716,7 @@ onMounted(async () => {
 }
 
 .stat-success {
-  background: linear-gradient(135deg, #11998e 0%, #38ef7d 100%);
+  background: linear-gradient(135deg, #5E8B7E 0%, #81B29A 100%);
   color: white;
 }
 
@@ -725,7 +725,7 @@ onMounted(async () => {
 }
 
 .stat-warning {
-  background: linear-gradient(135deg, #f093fb 0%, #f5576c 100%);
+  background: linear-gradient(135deg, #F9B572 0%, #F7C59F 100%);
   color: white;
 }
 
@@ -734,7 +734,7 @@ onMounted(async () => {
 }
 
 .stat-error {
-  background: linear-gradient(135deg, #ff0844 0%, #ffb199 100%);
+  background: linear-gradient(135deg, #D64045 0%, #E07070 100%);
   color: white;
 }
 

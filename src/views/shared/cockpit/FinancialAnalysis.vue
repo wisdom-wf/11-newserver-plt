@@ -181,13 +181,13 @@ function formatMoney(num: number): string {
 }
 
 .stat-card-primary {
-  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  background: linear-gradient(135deg, #5E8B7E 0%, #7BA89F 100%);
 }
 .stat-card-success {
   background: linear-gradient(135deg, #43e97b 0%, #38f9d7 100%);
 }
 .stat-card-info {
-  background: linear-gradient(135deg, #4facfe 0%, #00f2fe 100%);
+  background: linear-gradient(135deg, #3A506B 0%, #5A7A8B 100%);
 }
 .stat-card-warning {
   background: linear-gradient(135deg, #fa709a 0%, #fee140 100%);

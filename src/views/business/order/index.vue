@@ -1007,11 +1007,11 @@ onMounted(async () => {
         <div style="display: flex; align-items: center; gap: 12px">
           <div
             style="
-              width: 4px;
-              height: 20px;
-              background: linear-gradient(180deg, #667eea 0%, #764ba2 100%);
-              border-radius: 2px;
-            "
+                          width: 4px;
+                          height: 20px;
+                          background: linear-gradient(180deg, #5E8B7E 0%, #7BA89F 100%);
+                          border-radius: 2px;
+                        ">
           ></div>
           <span style="font-size: 16px; font-weight: 600">订单概览</span>
         </div>
@@ -1042,7 +1042,7 @@ onMounted(async () => {
       <!-- 第二行：状态分布 -->
       <div style="display: grid; grid-template-columns: repeat(4, 1fr); gap: 16px; margin-bottom: 20px">
         <div class="stat-card-mini">
-          <div class="stat-mini-icon" style="background: linear-gradient(135deg, #f093fb 0%, #f5576c 100%)">
+          <div class="stat-mini-icon" style="background: linear-gradient(135deg, #F9B572 0%, #F7C59F 100%)">
             <span style="font-size: 20px">📋</span>
           </div>
           <div class="stat-mini-content">
@@ -1051,7 +1051,7 @@ onMounted(async () => {
           </div>
         </div>
         <div class="stat-card-mini">
-          <div class="stat-mini-icon" style="background: linear-gradient(135deg, #4facfe 0%, #00f2fe 100%)">
+          <div class="stat-mini-icon" style="background: linear-gradient(135deg, #3A506B 0%, #5A7A8B 100%)">
             <span style="font-size: 20px">🚀</span>
           </div>
           <div class="stat-mini-content">
@@ -1060,7 +1060,7 @@ onMounted(async () => {
           </div>
         </div>
         <div class="stat-card-mini">
-          <div class="stat-mini-icon" style="background: linear-gradient(135deg, #11998e 0%, #38ef7d 100%)">
+          <div class="stat-mini-icon" style="background: linear-gradient(135deg, #5E8B7E 0%, #81B29A 100%)">
             <span style="font-size: 20px">✅</span>
           </div>
           <div class="stat-mini-content">
@@ -1069,7 +1069,7 @@ onMounted(async () => {
           </div>
         </div>
         <div class="stat-card-mini">
-          <div class="stat-mini-icon" style="background: linear-gradient(135deg, #fa709a 0%, #fee140 100%)">
+          <div class="stat-mini-icon" style="background: linear-gradient(135deg, #D64045 0%, #E07070 100%)">
             <span style="font-size: 20px">💰</span>
           </div>
           <div class="stat-mini-content">
@@ -1084,7 +1084,7 @@ onMounted(async () => {
         style="background: #f8f9fa; border-radius: 12px; padding: 16px"
       >
         <div style="display: flex; align-items: center; gap: 8px; margin-bottom: 12px">
-          <span style="font-size: 14px; font-weight: 600; color: #667eea">🏆 服务标兵排行榜</span>
+          <span style="font-size: 14px; font-weight: 600; color: #5E8B7E">🏆 服务标兵排行榜</span>
         </div>
         <div style="display: grid; grid-template-columns: repeat(5, 1fr); gap: 12px">
           <div
@@ -1101,7 +1101,7 @@ onMounted(async () => {
             <div
               :style="
                 'width: 28px; height: 28px; border-radius: 50%; margin: 0 auto 8px; display: flex; align-items: center; justify-content: center; font-size: 12px; font-weight: 600; color: white; background: ' +
-                (index === 0 ? '#ffd700' : index === 1 ? '#c0c0c0' : index === 2 ? '#cd7f32' : '#667eea') +
+                (index === 0 ? '#ffd700' : index === 1 ? '#c0c0c0' : index === 2 ? '#cd7f32' : '#5E8B7E') +
                 ';'
               "
             >
@@ -1463,7 +1463,7 @@ onMounted(async () => {
 }
 
 .stat-primary {
-  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  background: linear-gradient(135deg, #5E8B7E 0%, #7BA89F 100%);
   color: white;
 }
 
@@ -1472,7 +1472,7 @@ onMounted(async () => {
 }
 
 .stat-info {
-  background: linear-gradient(135deg, #4facfe 0%, #00f2fe 100%);
+  background: linear-gradient(135deg, #3A506B 0%, #5A7A8B 100%);
   color: white;
 }
 
@@ -1481,7 +1481,7 @@ onMounted(async () => {
 }
 
 .stat-success {
-  background: linear-gradient(135deg, #11998e 0%, #38ef7d 100%);
+  background: linear-gradient(135deg, #5E8B7E 0%, #81B29A 100%);
   color: white;
 }
 
@@ -1490,7 +1490,7 @@ onMounted(async () => {
 }
 
 .stat-warning {
-  background: linear-gradient(135deg, #f093fb 0%, #f5576c 100%);
+  background: linear-gradient(135deg, #F9B572 0%, #F7C59F 100%);
   color: white;
 }
 
@@ -1499,7 +1499,7 @@ onMounted(async () => {
 }
 
 .stat-error {
-  background: linear-gradient(135deg, #ff0844 0%, #ffb199 100%);
+  background: linear-gradient(135deg, #D64045 0%, #E07070 100%);
   color: white;
 }
 
@@ -1651,7 +1651,7 @@ onMounted(async () => {
 }
 
 .timeline-line-completed {
-  background: #11998e;
+  background: #5E8B7E;
 }
 
 .timeline-node-content {
@@ -1704,7 +1704,7 @@ onMounted(async () => {
 }
 
 .timeline-node-operator .operator-name {
-  color: #4facfe;
+  color: #3A506B;
   font-weight: 500;
 }
 
@@ -1770,13 +1770,13 @@ onMounted(async () => {
   padding: 12px;
   background: linear-gradient(135deg, #f8f9fa 0%, #e9ecef 100%);
   border-radius: 8px;
-  border-left: 3px solid #667eea;
+  border-left: 3px solid #5E8B7E;
 }
 
 .timeline-section-title {
   font-size: 12px;
   font-weight: 600;
-  color: #667eea;
+  color: #5E8B7E;
   margin-bottom: 8px;
   display: flex;
   align-items: center;

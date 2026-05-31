@@ -754,7 +754,7 @@ onMounted(async () => {
             style="
               width: 4px;
               height: 20px;
-              background: linear-gradient(180deg, #667eea 0%, #764ba2 100%);
+              background: linear-gradient(135deg, #5E8B7E 0%, #7BA89F 100%);
               border-radius: 2px;
             "
           ></div>
@@ -789,7 +789,7 @@ onMounted(async () => {
       <!-- 第二行：质量指标 -->
       <div style="display: grid; grid-template-columns: repeat(4, 1fr); gap: 16px; margin-bottom: 20px">
         <div class="stat-card-mini">
-          <div class="stat-mini-icon" style="background: linear-gradient(135deg, #11998e 0%, #38ef7d 100%)">
+          <div class="stat-mini-icon" style="background: linear-gradient(135deg, #5E8B7E 0%, #81B29A 100%)">
             <span style="font-size: 20px">⏱</span>
           </div>
           <div class="stat-mini-content">
@@ -798,7 +798,7 @@ onMounted(async () => {
           </div>
         </div>
         <div class="stat-card-mini">
-          <div class="stat-mini-icon" style="background: linear-gradient(135deg, #f093fb 0%, #f5576c 100%)">
+          <div class="stat-mini-icon" style="background: linear-gradient(135deg, #F9B572 0%, #F7C59F 100%)">
             <span style="font-size: 20px">⭐</span>
           </div>
           <div class="stat-mini-content">
@@ -807,7 +807,7 @@ onMounted(async () => {
           </div>
         </div>
         <div class="stat-card-mini">
-          <div class="stat-mini-icon" style="background: linear-gradient(135deg, #4facfe 0%, #00f2fe 100%)">
+          <div class="stat-mini-icon" style="background: linear-gradient(135deg, #3A506B 0%, #5A7A8B 100%)">
             <span style="font-size: 20px">⏱</span>
           </div>
           <div class="stat-mini-content">
@@ -831,7 +831,7 @@ onMounted(async () => {
         style="background: #f8f9fa; border-radius: 12px; padding: 16px"
       >
         <div style="display: flex; align-items: center; gap: 8px; margin-bottom: 12px">
-          <span style="font-size: 14px; font-weight: 600; color: #667eea">🏆 服务标兵排行榜</span>
+          <span style="font-size: 14px; font-weight: 600; color: #5E8B7E">🏆 服务标兵排行榜</span>
         </div>
         <div style="display: grid; grid-template-columns: repeat(5, 1fr); gap: 12px">
           <div
@@ -848,7 +848,7 @@ onMounted(async () => {
             <div
               :style="
                 'width: 28px; height: 28px; border-radius: 50%; margin: 0 auto 8px; display: flex; align-items: center; justify-content: center; font-size: 12px; font-weight: 600; color: white; background: ' +
-                (index === 0 ? '#ffd700' : index === 1 ? '#c0c0c0' : index === 2 ? '#cd7f32' : '#667eea') +
+                (index === 0 ? '#ffd700' : index === 1 ? '#c0c0c0' : index === 2 ? '#cd7f32' : '#5E8B7E') +
                 ';'
               "
             >
@@ -866,7 +866,7 @@ onMounted(async () => {
               style="
                 margin-top: 6px;
                 padding: 4px 8px;
-                background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+                background: linear-gradient(135deg, #5E8B7E 0%, #7BA89F 100%);
                 border-radius: 12px;
                 color: white;
                 font-size: 12px;
@@ -1091,7 +1091,7 @@ onMounted(async () => {
               style="
                 width: 4px;
                 height: 24px;
-                background: linear-gradient(180deg, #667eea 0%, #764ba2 100%);
+                background: linear-gradient(135deg, #5E8B7E 0%, #7BA89F 100%);
                 border-radius: 2px;
               "
             ></div>
@@ -1118,7 +1118,7 @@ onMounted(async () => {
 
           <!-- People Info -->
           <div style="background: #f8f9fa; border-radius: 12px; padding: 20px; margin-bottom: 16px">
-            <div style="color: #667eea; font-size: 13px; font-weight: 600; margin-bottom: 12px">服务对象</div>
+            <div style="color: #5E8B7E; font-size: 13px; font-weight: 600; margin-bottom: 12px">服务对象</div>
             <div style="display: grid; grid-template-columns: repeat(3, 1fr); gap: 16px">
               <div>
                 <div style="color: #999; font-size: 12px; margin-bottom: 4px">客户姓名</div>
@@ -1137,7 +1137,7 @@ onMounted(async () => {
 
           <!-- Service Info -->
           <div style="background: #f8f9fa; border-radius: 12px; padding: 20px; margin-bottom: 16px">
-            <div style="color: #667eea; font-size: 13px; font-weight: 600; margin-bottom: 12px">服务信息</div>
+            <div style="color: #5E8B7E; font-size: 13px; font-weight: 600; margin-bottom: 12px">服务信息</div>
             <div style="display: grid; grid-template-columns: repeat(4, 1fr); gap: 16px">
               <div>
                 <div style="color: #999; font-size: 12px; margin-bottom: 4px">服务类型</div>
@@ -1165,7 +1165,7 @@ onMounted(async () => {
             v-if="detailData.serviceContent"
             style="background: #f8f9fa; border-radius: 12px; padding: 20px; margin-bottom: 16px"
           >
-            <div style="color: #667eea; font-size: 13px; font-weight: 600; margin-bottom: 12px">服务内容</div>
+            <div style="color: #5E8B7E; font-size: 13px; font-weight: 600; margin-bottom: 12px">服务内容</div>
             <div style="color: #333; line-height: 1.6">{{ detailData.serviceContent }}</div>
           </div>
 
@@ -1190,7 +1190,7 @@ onMounted(async () => {
             v-if="detailData.servicePhotos && detailData.servicePhotos.length > 0"
             style="background: #f8f9fa; border-radius: 12px; padding: 20px; margin-bottom: 16px"
           >
-            <div style="color: #667eea; font-size: 13px; font-weight: 600; margin-bottom: 12px">
+            <div style="color: #5E8B7E; font-size: 13px; font-weight: 600; margin-bottom: 12px">
               服务照片 ({{ detailData.servicePhotos.length }})
             </div>
             <div style="display: flex; flex-wrap: wrap; gap: 12px">
@@ -1265,7 +1265,7 @@ onMounted(async () => {
             style="
               width: 4px;
               height: 24px;
-              background: linear-gradient(180deg, #667eea 0%, #764ba2 100%);
+              background: linear-gradient(135deg, #5E8B7E 0%, #7BA89F 100%);
               border-radius: 2px;
             "
           ></div>
@@ -1301,7 +1301,7 @@ onMounted(async () => {
             style="
               width: 4px;
               height: 24px;
-              background: linear-gradient(180deg, #11998e 0%, #38ef7d 100%);
+              background: linear-gradient(135deg, #5E8B7E 0%, #7BA89F 100%);
               border-radius: 2px;
             "
           ></div>
@@ -1392,7 +1392,7 @@ onMounted(async () => {
             style="
               width: 4px;
               height: 24px;
-              background: linear-gradient(180deg, #667eea 0%, #764ba2 100%);
+              background: linear-gradient(135deg, #5E8B7E 0%, #7BA89F 100%);
               border-radius: 2px;
             "
           ></div>
@@ -1405,7 +1405,7 @@ onMounted(async () => {
           v-if="qualityReviewData.servicePhotos && qualityReviewData.servicePhotos.length > 0"
           style="background: #f8f9fa; border-radius: 12px; padding: 20px; margin-bottom: 16px"
         >
-          <div style="color: #667eea; font-size: 13px; font-weight: 600; margin-bottom: 12px">
+          <div style="color: #5E8B7E; font-size: 13px; font-weight: 600; margin-bottom: 12px">
             服务照片 ({{ qualityReviewData.servicePhotos.length }})
           </div>
           <div style="display: flex; flex-wrap: wrap; gap: 12px">
@@ -1523,7 +1523,7 @@ onMounted(async () => {
 }
 
 .stat-primary {
-  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  background: linear-gradient(135deg, #5E8B7E 0%, #7BA89F 100%);
   color: white;
 }
 
@@ -1532,7 +1532,7 @@ onMounted(async () => {
 }
 
 .stat-info {
-  background: linear-gradient(135deg, #4facfe 0%, #00f2fe 100%);
+  background: linear-gradient(135deg, #3A506B 0%, #5A7A8B 100%);
   color: white;
 }
 
@@ -1541,7 +1541,7 @@ onMounted(async () => {
 }
 
 .stat-success {
-  background: linear-gradient(135deg, #11998e 0%, #38ef7d 100%);
+  background: linear-gradient(135deg, #5E8B7E 0%, #81B29A 100%);
   color: white;
 }
 
@@ -1550,7 +1550,7 @@ onMounted(async () => {
 }
 
 .stat-warning {
-  background: linear-gradient(135deg, #f093fb 0%, #f5576c 100%);
+  background: linear-gradient(135deg, #F9B572 0%, #F7C59F 100%);
   color: white;
 }
 
@@ -1559,7 +1559,7 @@ onMounted(async () => {
 }
 
 .stat-error {
-  background: linear-gradient(135deg, #ff0844 0%, #ffb199 100%);
+  background: linear-gradient(135deg, #D64045 0%, #E07070 100%);
   color: white;
 }
 
