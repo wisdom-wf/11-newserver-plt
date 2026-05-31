@@ -65,7 +65,7 @@ const route = useRoute();
 const router = useRouter();
 const { routerPushByKey } = useRouterPush();
 const { hasAuth } = useAuth();
-const { formRef } = useNaiveForm();
+const { formRef, validate } = useNaiveForm();
 
 // Statistics
 const statistics = ref<Api.Order.Statistics>({
@@ -432,6 +432,9 @@ const currentOrderProviderName = ref('');
 const staffOptions = ref<{ label: string; value: string; phone?: string; serviceTypes?: string }[]>([]);
 const selectedStaffDetail = ref<Api.Staff.Staff | null>(null);
 const loadingStaff = ref(false);
+const assignFormRules = {
+  staffId: [{ required: true, message: '请选择服务人员', trigger: 'change' }]
+};
 
 // Cancel modal
 const cancelModalVisible = ref(false);
@@ -535,12 +538,10 @@ async function handleStaffSelect(staffId: string) {
 }
 
 async function handleAssignSubmit() {
-  if (!assignForm.value.staffId) {
-    message.warning('请选择服务人员');
-    return;
-  }
-  assignLoading.value = true;
+  if (!currentOrderId.value) return;
   try {
+    await validate();
+    assignLoading.value = true;
     const { error } = await fetchDispatchOrder(currentOrderId.value, assignForm.value);
     if (error) {
       console.error('派单失败:', error);
@@ -1229,8 +1230,8 @@ onMounted(async () => {
         <div style="color: #666; font-size: 13px; margin-bottom: 4px">服务商</div>
         <div style="font-size: 15px; font-weight: 500">{{ currentOrderProviderName || '未指定' }}</div>
       </div>
-      <NForm :model="assignForm" label-placement="left" label-width="80">
-        <NFormItem label="选择人员">
+      <NForm ref="formRef" :model="assignForm" :rules="assignFormRules" label-placement="left" label-width="80">
+        <NFormItem label="选择人员" path="staffId">
           <NSelect
             v-model:value="assignForm.staffId"
             :options="staffOptions"

@@ -703,7 +703,7 @@ async function handleSubmitForm() {
         healthObservations: formData.value.healthObservations,
         medicationGiven: formData.value.medicationGiven
       } as any);
-      message.success('添加成功');
+      message.success('新增成功');
     }
     drawerVisible.value = false;
     getData();
@@ -1075,7 +1075,7 @@ onMounted(async () => {
           <div style="display: flex; justify-content: flex-end; gap: 12px">
             <NButton @click="closeModal">取消</NButton>
             <NButton type="primary" :loading="drawerLoading" @click="handleSubmitForm">
-              {{ operateType === 'edit' ? '保存修改' : '确认添加' }}
+              {{ operateType === 'edit' ? '保存修改' : '确认新增' }}
             </NButton>
           </div>
         </template>

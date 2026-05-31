@@ -410,7 +410,7 @@ async function handleSubmit() {
   try {
     if (operateType.value === 'add') {
       await fetchCreateElder(form.value);
-      message.success('添加成功');
+      message.success('新增成功');
     } else if (editingData.value) {
       await fetchUpdateElder(editingData.value.elderId, form.value);
       message.success('修改成功');

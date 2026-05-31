@@ -992,7 +992,7 @@ onMounted(async () => {
     <NModal
       v-model:show="createDialogVisible"
       preset="card"
-      title="新建质检"
+      title="新增质检"
       style="width: 560px"
       :segmented="{ content: true, footer: true }"
     >

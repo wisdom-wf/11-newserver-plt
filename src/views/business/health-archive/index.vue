@@ -432,10 +432,10 @@ async function handleAddMeasurement() {
       remark: measurementForm.value.remark || undefined
     });
     if (error) {
-      message.error(error.message || '添加失败');
+      message.error(error.message || '新增失败');
       return;
     }
-    message.success('添加成功');
+    message.success('新增成功');
     measurementDrawerVisible.value = false;
     resetMeasurementForm();
     await loadMeasurements();

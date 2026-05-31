@@ -478,7 +478,7 @@ async function handleBatchDelete() {
 }
 
 onMounted(() => {
-  // 接收质检详情跳转来的订单编号，自动搜索并打开新建评价对话框
+  // 接收质检详情跳转来的订单编号，自动搜索并打开新增评价对话框
   if (route.query.orderNo) {
     searchOrderNo.value = String(route.query.orderNo);
     createOrderNo.value = String(route.query.orderNo);

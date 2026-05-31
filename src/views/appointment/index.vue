@@ -265,6 +265,16 @@ const addForm = ref({
   remark: ''
 });
 
+const addFormRules = {
+  elderName: [{ required: true, message: '请输入客户姓名', trigger: 'blur' }],
+  elderPhone: [
+    { required: true, message: '请输入手机号', trigger: 'blur' },
+    { pattern: /^1[3-9]\d{9}$/, message: '手机号格式不正确', trigger: 'blur' }
+  ],
+  serviceType: [{ required: true, message: '请选择服务类型', trigger: 'change' }],
+  appointmentTime: [{ required: true, message: '请输入预约时间', trigger: 'blur' }]
+};
+
 // Service type options
 const serviceTypeOptions = [
   { label: '上门服务', value: '上门服务', code: 'DOOR_TO_DOOR' },
@@ -294,23 +304,8 @@ function handleAdd() {
 }
 
 async function handleAddSubmit() {
-  if (!addForm.value.elderName) {
-    message.warning('请输入客户姓名');
-    return;
-  }
-  if (!addForm.value.elderPhone) {
-    message.warning('请输入手机号');
-    return;
-  }
-  if (!addForm.value.serviceType) {
-    message.warning('请选择服务类型');
-    return;
-  }
-  if (!addForm.value.appointmentTime) {
-    message.warning('请输入预约时间');
-    return;
-  }
   try {
+    await validate();
     const selectedService = serviceTypeOptions.find(s => s.value === addForm.value.serviceType);
     const data = {
       ...addForm.value,
@@ -330,6 +325,10 @@ async function handleAddSubmit() {
 // Confirm modal
 const confirmModalVisible = ref(false);
 const confirmForm = ref({ providerId: '', appointmentTime: '' });
+const confirmFormRules = {
+  providerId: [{ required: true, message: '请选择服务商', trigger: 'change' }],
+  appointmentTime: [{ required: true, message: '请选择预约时间', trigger: 'change' }]
+};
 
 async function handleBatchDelete() {
   if (!checkedRowKeys.value.length) return;
@@ -521,7 +520,11 @@ async function getStatistics() {
 
 async function handleConfirm(row: Api.Appointment.Appointment) {
   currentRow.value = row;
-  confirmForm.value = { providerId: '', appointmentTime: row.appointmentTime };
+  // 默认时间：当天下午15:00
+  const today = new Date();
+  today.setHours(15, 0, 0, 0);
+  const defaultTime = today.getTime();
+  confirmForm.value = { providerId: '', appointmentTime: defaultTime };
   await getProviderOptions();
   confirmModalVisible.value = true;
 }
@@ -544,7 +547,15 @@ async function showProviderCredentials(providerId: string, providerName: string)
 async function handleConfirmSubmit() {
   if (!currentRow.value) return;
   try {
-    await fetchConfirmAppointment(currentRow.value.appointmentId, confirmForm.value);
+    await validate();
+    // 将 timestamp 转为 ISO 字符串格式
+    const submitData = {
+      providerId: confirmForm.value.providerId,
+      appointmentTime: confirmForm.value.appointmentTime
+        ? new Date(confirmForm.value.appointmentTime).toISOString().replace('T', ' ').slice(0, 16)
+        : ''
+    };
+    await fetchConfirmAppointment(currentRow.value.appointmentId, submitData);
     message.success(currentRow.value?.cancelReason ? '重新确认成功，新订单已创建' : '确认成功，订单已创建');
     confirmModalVisible.value = false;
     await getData();
@@ -830,8 +841,8 @@ onMounted(async () => {
 
     <!-- Confirm Modal -->
     <NModal v-model:show="confirmModalVisible" :title="currentRow?.cancelReason ? '重新确认预约' : '确认预约'" preset="card" style="width: 500px">
-      <NForm :model="confirmForm" label-placement="left" label-width="100">
-        <NFormItem label="服务商">
+      <NForm ref="formRef" :model="confirmForm" :rules="confirmFormRules" label-placement="left" label-width="100">
+        <NFormItem label="服务商" path="providerId">
           <NSelect
             v-model:value="confirmForm.providerId"
             :options="providerOptions"
@@ -839,8 +850,14 @@ onMounted(async () => {
             filterable
           />
         </NFormItem>
-        <NFormItem label="预约时间">
-          <NInput v-model:value="confirmForm.appointmentTime" placeholder="请输入预约时间" />
+        <NFormItem label="预约时间" path="appointmentTime">
+          <NDatePicker
+            v-model:formatted-value="confirmForm.appointmentTime"
+            type="datetime"
+            format="yyyy-MM-dd HH:mm"
+            placeholder="请选择预约时间"
+            style="width: 100%"
+          />
         </NFormItem>
       </NForm>
       <template #footer>
@@ -913,11 +930,11 @@ onMounted(async () => {
 
     <!-- Add Modal -->
     <NModal v-model:show="addModalVisible" title="新增预约" preset="card" style="width: 600px">
-      <NForm :model="addForm" label-placement="left" label-width="100">
-        <NFormItem label="客户姓名" required>
+      <NForm ref="formRef" :model="addForm" :rules="addFormRules" label-placement="left" label-width="100">
+        <NFormItem label="客户姓名" path="elderName">
           <NInput v-model:value="addForm.elderName" placeholder="请输入客户姓名" />
         </NFormItem>
-        <NFormItem label="手机号" required>
+        <NFormItem label="手机号" path="elderPhone">
           <NInput v-model:value="addForm.elderPhone" placeholder="请输入手机号" />
         </NFormItem>
         <NFormItem label="身份证号">
@@ -926,10 +943,10 @@ onMounted(async () => {
         <NFormItem label="地址">
           <NInput v-model:value="addForm.elderAddress" placeholder="请输入地址" />
         </NFormItem>
-        <NFormItem label="服务类型" required>
+        <NFormItem label="服务类型" path="serviceType">
           <NSelect v-model:value="addForm.serviceType" :options="serviceTypeOptions" placeholder="请选择服务类型" />
         </NFormItem>
-        <NFormItem label="预约时间" required>
+        <NFormItem label="预约时间" path="appointmentTime">
           <NInput v-model:value="addForm.appointmentTime" placeholder="请输入预约时间，如：2024-04-20 09:00" />
         </NFormItem>
         <NFormItem label="备注">

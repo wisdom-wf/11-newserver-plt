@@ -3,6 +3,7 @@ import { ref, h, onMounted, watch, computed } from 'vue';
 import { NButton, NCard, NTag, NSpace, NInput, NSelect, NDrawer, NDrawerContent, useMessage, NImage, NImageGroup, NUpload, NGrid, NGi, NPopconfirm, NTabs, NTabPane, NAvatar, NRate, NEmpty, NSpin, NModal, NAlert, NDescriptions, NDescriptionsItem, NForm, NFormItem, NDatePicker, NInputNumber, NCollapse, NCollapseItem, type UploadFile } from 'naive-ui';
 import PersonCard from '@/components/common/person-card.vue';
 import LazyImage from '@/components/common/lazy-image.vue';
+import EmptyState from '@/components/common/empty-state.vue';
 import type { DataTableColumns } from 'naive-ui';
 import { useNaiveForm, useFormRules } from '@/hooks/common/form';
 import { useNaivePaginatedTable, useTableOperate, defaultTransform } from '@/hooks/common/table';
@@ -199,7 +200,7 @@ async function handleImageUpload(opt: { file: UploadFile }, targetType: number, 
       return false;
     }
 
-    // 新建资质（局部刷新）
+    // 新增资质（局部刷新）
     const qualName = targetType === 5 ? targetName! : getQualificationTypeName(targetType);
     const { data, error } = await fetchAddStaffQualification(staffId, {
       qualificationType: targetType,
@@ -330,10 +331,10 @@ async function handleAddConfirm() {
       certificateUrls: newUrls.join('|||')
     } as Api.Staff.QualificationForm);
     if (error) {
-      message.error('添加失败');
+      message.error('新增失败');
       return;
     }
-    message.success('✓ 已添加');
+    message.success('✓ 已新增');
   } finally {
     pendingBase64.value = null;
     pendingQualification.value = null;
@@ -357,7 +358,7 @@ async function addOtherQualification() {
   } as Api.Staff.QualificationForm);
 
   if (error) {
-    message.error('添加失败');
+    message.error('新增失败');
     return;
   }
 
@@ -366,11 +367,11 @@ async function addOtherQualification() {
     // 自动展开新的面板
     expandedStates.value.add('other-' + name);
   }
-
   showAddOtherDialog.value = false;
   newOtherName.value = '';
-  message.success('已添加，请在下方上传证书');
+  message.success('已新增，请在下方上传证书');
 }
+async function addQualificationForNewType() {
 
 async function showDetail(row: Api.Staff.Staff) {
   detailLoading.value = true;
@@ -524,6 +525,7 @@ const insuranceStatusOptions = [
 
 // Provider options for dropdown
 const providerOptions = ref<{ label: string; value: string }[]>([]);
+const providerOptionsLoading = ref(false);
 
 // Service category options
 const categoryOptions = [
@@ -861,7 +863,7 @@ async function handleSubmit() {
   try {
     if (operateType.value === 'add') {
       const result = await fetchCreateStaff(form.value);
-      message.success('添加成功');
+      message.success('新增成功');
       // 如果创建了账户，显示账户信息
       const data = (result as any)?.data || result;
       if (data?.accountCreated && data.username && data.password) {
@@ -927,6 +929,7 @@ function handleInsuranceStatusPillClick(val: number | null) {
 }
 
 async function getProviderOptions() {
+  providerOptionsLoading.value = true;
   try {
     const data = await fetchGetProviderOptions();
     if (data) {
@@ -937,6 +940,8 @@ async function getProviderOptions() {
     }
   } catch (e) {
     console.error('Failed to get provider options', e);
+  } finally {
+    providerOptionsLoading.value = false;
   }
 }
 
@@ -1100,8 +1105,7 @@ onMounted(async () => {
             @photo-upload="(file) => handlePhotoUpload(staff.staffId, file)"
           />
         </div>
-        <NEmpty v-if="tableData.length === 0" description="暂无数据" style="width: 100%; margin-top: 40px" />
-        <NEmpty v-if="tableData.length === 0" description="暂无数据" style="width: 100%; margin-top: 40px" />
+        <EmptyState v-if="tableData.length === 0" icon="staff" title="暂无服务人员" description="点击上方新增按钮添加第一位员工" />
       </div>
     </NCard>
 
@@ -1132,6 +1136,7 @@ onMounted(async () => {
             <NSelect
               v-model:value="form.providerId"
               :options="providerOptions"
+              :loading="providerOptionsLoading"
               placeholder="请选择服务商"
               style="width: 100%"
             />
@@ -1424,7 +1429,7 @@ onMounted(async () => {
 
               <!-- 添加其他资质按钮 -->
               <div style="padding: 12px 0; text-align: center">
-                <NButton size="small" @click="showAddOtherDialog = true">+ 添加其他资质</NButton>
+                <NButton size="small" @click="showAddOtherDialog = true">+ 新增其他资质</NButton>
               </div>
             </NCollapse>
 
@@ -1433,9 +1438,9 @@ onMounted(async () => {
               v-model:show="uploadConfirmVisible"
               preset="dialog"
               title="该类型已有证书"
-              content="要覆盖现有证书还是添加新图片？"
+              content="要覆盖现有证书还是新增证书图片？"
               positive-text="覆盖"
-              negative-text="添加"
+              negative-text="新增"
               @positive-click="handleOverwriteConfirm"
               @negative-click="handleAddConfirm"
             />
@@ -1444,7 +1449,7 @@ onMounted(async () => {
             <NModal
               v-model:show="showAddOtherDialog"
               preset="dialog"
-              title="添加其他资质"
+              title="新增其他资质"
               style="width: 360px"
             >
               <NInput v-model:value="newOtherName" placeholder="输入资质名称" style="width: 100%" />
