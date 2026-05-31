@@ -5,9 +5,7 @@
 set -e
 
 FRONTEND_DIR="/Users/works/my-projects/11-newserver-plt/dingfeng-work"
-SERVER="ubuntu@43.153.213.134"
-: "${DEPLOY_PASSWORD:?请先设置 DEPLOY_PASSWORD 环境变量}"
-export SSHPASS="$DEPLOY_PASSWORD"
+SERVER="wisdomdance"
 REMOTE_WEB_DIR="/var/www/jxy"
 
 RED='\033[0;31m'; GREEN='\033[0;32m'; YELLOW='\033[1;33m'; NC='\033[0m'
@@ -41,7 +39,7 @@ log_info "打包完成: $(du -sh $TEMP_TAR | cut -f1)"
 
 # 4. 上传
 log_info "=== 上传 ==="
-sshpass -e scp -o StrictHostKeyChecking=no "$TEMP_TAR" "${SERVER}:/tmp/jxy_new.tar.gz" 2>&1
+scp -o StrictHostKeyChecking=no "$TEMP_TAR" "${SERVER}:/tmp/jxy_new.tar.gz" 2>&1
 rm -f "$TEMP_TAR"
 log_info "上传完成"
 
@@ -49,10 +47,10 @@ log_info "上传完成"
 log_info "=== 远程部署 ==="
 
 # 5.1 解压到临时目录
-sshpass -e ssh -o StrictHostKeyChecking=no "$SERVER" "sudo rm -rf /tmp/jxy_extract && sudo mkdir -p /tmp/jxy_extract && sudo tar xfz /tmp/jxy_new.tar.gz -C /tmp/jxy_extract 2>/dev/null && sudo ls /tmp/jxy_extract/" 2>&1
+ssh -o StrictHostKeyChecking=no "$SERVER" "sudo rm -rf /tmp/jxy_extract && sudo mkdir -p /tmp/jxy_extract && sudo tar xfz /tmp/jxy_new.tar.gz -C /tmp/jxy_extract 2>/dev/null && sudo ls /tmp/jxy_extract/" 2>&1
 
 # 5.2 验证解压结果
-DEPLOYED_INDEX=$(sshpass -e ssh -o StrictHostKeyChecking=no "$SERVER" "sudo ls /tmp/jxy_extract/assets/index-*.js 2>/dev/null | head -1 | xargs basename" 2>&1)
+DEPLOYED_INDEX=$(ssh -o StrictHostKeyChecking=no "$SERVER" "sudo ls /tmp/jxy_extract/assets/index-*.js 2>/dev/null | head -1 | xargs basename" 2>&1)
 if [ -z "$DEPLOYED_INDEX" ]; then
   log_error "远程解压失败：index.js 不存在"
   exit 1
@@ -60,7 +58,7 @@ fi
 log_info "远程解压成功: ${DEPLOYED_INDEX}"
 
 # 5.3 强制覆盖 webroot
-sshpass -e ssh -o StrictHostKeyChecking=no "$SERVER" "sudo rm -rf ${REMOTE_WEB_DIR}/assets && sudo cp -r /tmp/jxy_extract/assets ${REMOTE_WEB_DIR}/ && sudo cp /tmp/jxy_extract/index.html ${REMOTE_WEB_DIR}/ && sudo rm -rf /tmp/jxy_extract /tmp/jxy_new.tar.gz" 2>&1
+ssh -o StrictHostKeyChecking=no "$SERVER" "sudo rm -rf ${REMOTE_WEB_DIR}/assets && sudo cp -r /tmp/jxy_extract/assets ${REMOTE_WEB_DIR}/ && sudo cp /tmp/jxy_extract/index.html ${REMOTE_WEB_DIR}/ && sudo rm -rf /tmp/jxy_extract /tmp/jxy_new.tar.gz" 2>&1
 log_info "文件覆盖完成"
 
 # 6. 验证
