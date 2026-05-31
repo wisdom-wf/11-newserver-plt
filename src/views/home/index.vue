@@ -987,7 +987,7 @@ getData();
           </div>
           <div class="stat-body">
             <span class="stat-label">完成率</span>
-            <span class="stat-value">{{ orderStats.completionRate != null ? orderStats.completionRate.toFixed(1) + '%' : '--' }}</span>
+            <span class="stat-value">{{ orderStats.totalOrders > 0 && orderStats.completionRate != null ? orderStats.completionRate.toFixed(1) + '%' : '--' }}</span>
           </div>
         </div>
       </NGi>
