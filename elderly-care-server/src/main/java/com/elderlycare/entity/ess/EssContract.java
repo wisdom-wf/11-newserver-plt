@@ -18,6 +18,10 @@ public class EssContract {
 
     private String orderNo;
 
+    private String providerId;
+
+    private String staffId;
+
     private String flowId;
 
     private String contractName;

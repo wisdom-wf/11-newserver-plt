@@ -27,6 +27,12 @@ public class ContractVO {
     // 乙方（服务人员）名称
     private String staffName;
 
+    // 服务商ID
+    private String providerId;
+
+    // 服务人员ID
+    private String staffId;
+
     private String status;
 
     private String statusText;

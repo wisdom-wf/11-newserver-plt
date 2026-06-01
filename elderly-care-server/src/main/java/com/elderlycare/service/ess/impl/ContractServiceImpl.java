@@ -58,6 +58,28 @@ public class ContractServiceImpl implements ContractService {
         this.objectMapper = objectMapper;
     }
 
+    /**
+     * 校验当前用户是否有权访问该合同
+     */
+    private void assertCanAccessContract(EssContract contract) {
+        if (contract == null) {
+            throw BusinessException.notFound("合同不存在");
+        }
+        String userType = UserContext.getUserType();
+        if ("SYSTEM".equals(userType) || "ADMIN".equals(userType)) {
+            return; // 管理员放行
+        }
+        String providerId = UserContext.getProviderId();
+        String staffId = UserContext.getStaffId();
+        if (providerId != null && providerId.equals(contract.getProviderId())) {
+            return;
+        }
+        if (staffId != null && staffId.equals(contract.getStaffId())) {
+            return;
+        }
+        throw BusinessException.forbidden("无权访问该合同");
+    }
+
     // ========== 核心业务方法 ==========
 
     @Override
@@ -79,6 +101,8 @@ public class ContractServiceImpl implements ContractService {
             contract.setContractNo(generateContractNo());
             contract.setOrderId(orderId);
             contract.setOrderNo(order.getOrderNo());
+            contract.setProviderId(order.getProviderId());
+            contract.setStaffId(staffId);
             contract.setContractName("智慧居家养老服务合同");
 
             // 签署方信息
@@ -120,9 +144,7 @@ public class ContractServiceImpl implements ContractService {
     @Override
     public ContractVO getContractById(String contractId) {
         EssContract contract = contractMapper.selectById(contractId);
-        if (contract == null) {
-            return null;
-        }
+        assertCanAccessContract(contract);
         ContractVO vo = new ContractVO();
         BeanUtils.copyProperties(contract, vo);
         vo.setStatusText(getStatusText(contract.getStatus()));
@@ -136,6 +158,7 @@ public class ContractServiceImpl implements ContractService {
         if (contract == null) {
             return null;
         }
+        assertCanAccessContract(contract);
         ContractVO vo = new ContractVO();
         BeanUtils.copyProperties(contract, vo);
         vo.setStatusText(getStatusText(contract.getStatus()));
@@ -146,9 +169,7 @@ public class ContractServiceImpl implements ContractService {
     @Override
     public SignUrlVO getSignUrl(String contractId, Integer approverType) {
         EssContract contract = contractMapper.selectById(contractId);
-        if (contract == null) {
-            throw BusinessException.notFound("合同不存在");
-        }
+        assertCanAccessContract(contract);
 
         // 解析signers获取签署人信息
         String approverName = null;
@@ -196,7 +217,8 @@ public class ContractServiceImpl implements ContractService {
     @Override
     public String getContractStatus(String contractId) {
         EssContract contract = contractMapper.selectById(contractId);
-        return contract != null ? contract.getStatus() : null;
+        assertCanAccessContract(contract);
+        return contract.getStatus();
     }
 
     @Override
@@ -252,9 +274,7 @@ public class ContractServiceImpl implements ContractService {
     @Override
     public String downloadContract(String contractId) {
         EssContract contract = contractMapper.selectById(contractId);
-        if (contract == null) {
-            throw BusinessException.notFound("合同不存在");
-        }
+        assertCanAccessContract(contract);
 
         // 已签署/已完成：获取PDF下载链接
         if ("SIGNED".equals(contract.getStatus()) || "COMPLETED".equals(contract.getStatus())) {
@@ -275,9 +295,7 @@ public class ContractServiceImpl implements ContractService {
     @Transactional
     public void cancelContract(String contractId) {
         EssContract contract = contractMapper.selectById(contractId);
-        if (contract == null) {
-            throw BusinessException.notFound("合同不存在");
-        }
+        assertCanAccessContract(contract);
         if ("SIGNED".equals(contract.getStatus()) || "COMPLETED".equals(contract.getStatus())) {
             throw BusinessException.fail("已签署的合同无法取消");
         }
@@ -297,9 +315,7 @@ public class ContractServiceImpl implements ContractService {
     @Override
     public void deleteContract(String contractId) {
         EssContract contract = contractMapper.selectById(contractId);
-        if (contract == null) {
-            throw BusinessException.notFound("合同不存在");
-        }
+        assertCanAccessContract(contract);
         // @TableLogic 自动处理逻辑删除
         contractMapper.deleteById(contractId);
         log.info("合同已删除: contractId={}, contractNo={}", contractId, contract.getContractNo());
