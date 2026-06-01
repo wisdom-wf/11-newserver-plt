@@ -13,7 +13,8 @@ import {
   NDescriptionsItem,
   NDrawer,
   NDrawerContent,
-  NDataTable
+  NDataTable,
+  NPopconfirm
 } from 'naive-ui';
 import type { DataTableColumns } from 'naive-ui';
 import {
@@ -45,6 +46,11 @@ const searchDateRange = ref<[number, number] | null>(null);
 
 // Selection
 const checkedRowKeys = ref<Array<string | number>>([]);
+
+// 统一解析合同下载地址
+function resolveContractUrl(data: unknown): string {
+  return typeof data === 'string' ? data : (data as any)?.downloadUrl;
+}
 
 // Status options
 const statusOptions = [
@@ -116,7 +122,12 @@ const tableColumns: DataTableColumns<Api.Ess.Contract> = [
         buttons.push(h(NButton, { size: 'small', onClick: () => handlePrint(row) }, () => '打印'));
       }
       if (isAdmin) {
-        buttons.push(h(NButton, { size: 'small', type: 'error', onClick: () => handleDelete(row) }, () => '删除'));
+        buttons.push(h(NPopconfirm, {
+          onPositiveClick: () => handleDelete(row)
+        }, {
+          trigger: () => h(NButton, { size: 'small', type: 'error' }, () => '删除'),
+          default: () => '确定要删除该合同吗？'
+        }));
       }
       return h(NSpace, { size: 'small' }, () => buttons);
     }
@@ -164,7 +175,7 @@ function showDetail(row: Api.Ess.Contract) {
 async function handleDownload(row: Api.Ess.Contract) {
   try {
     const { data } = await fetchDownloadContract(row.contractId);
-    const url = typeof data === 'string' ? data : (data as any)?.downloadUrl;
+    const url = resolveContractUrl(data);
     if (url) {
       window.open(url, '_blank');
     }
@@ -177,8 +188,7 @@ async function handleDownload(row: Api.Ess.Contract) {
 async function handlePreview(row: Api.Ess.Contract) {
   try {
     const { data } = await fetchDownloadContract(row.contractId);
-    // API直接返回URL字符串，非对象
-    const url = typeof data === 'string' ? data : (data as any)?.downloadUrl;
+    const url = resolveContractUrl(data);
     if (url) {
       window.open(url, '_blank');
     } else {
@@ -193,7 +203,7 @@ async function handlePreview(row: Api.Ess.Contract) {
 async function handlePrint(row: Api.Ess.Contract) {
   try {
     const { data } = await fetchDownloadContract(row.contractId);
-    const url = typeof data === 'string' ? data : (data as any)?.downloadUrl;
+    const url = resolveContractUrl(data);
     if (url) {
       const printWindow = window.open(url, '_blank');
       if (printWindow) {
@@ -230,8 +240,9 @@ async function handleBatchDownload() {
   for (const contractId of checkedRowKeys.value) {
     try {
       const { data } = await fetchDownloadContract(contractId);
-      if (data?.downloadUrl) {
-        window.open(data.downloadUrl, '_blank');
+      const url = resolveContractUrl(data);
+      if (url) {
+        window.open(url, '_blank');
         successCount++;
       }
     } catch {
