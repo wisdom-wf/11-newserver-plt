@@ -13,23 +13,23 @@ public class AppointmentStatisticsVO implements Serializable {
     private static final long serialVersionUID = 1L;
 
     /** 总数 */
-    private Integer total;
+    private Integer total = 0;
 
     /** 待处理数 */
-    private Integer pending;
+    private Integer pending = 0;
 
     /** 已确认数 */
-    private Integer confirmed;
+    private Integer confirmed = 0;
 
     /** 已分配数 */
-    private Integer assigned;
+    private Integer assigned = 0;
 
     /** 已完成数 */
-    private Integer completed;
+    private Integer completed = 0;
 
     /** 已取消数 */
-    private Integer cancelled;
+    private Integer cancelled = 0;
 
     /** 已作废数 */
-    private Integer invalid;
+    private Integer invalid = 0;
 }
