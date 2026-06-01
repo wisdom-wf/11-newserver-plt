@@ -372,6 +372,8 @@ async function addOtherQualification() {
   message.success('已新增，请在下方上传证书');
 }
 async function addQualificationForNewType() {
+  // 空实现，新增类型由 addOtherQualification 处理
+}
 
 async function showDetail(row: Api.Staff.Staff) {
   detailLoading.value = true;
