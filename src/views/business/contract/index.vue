@@ -43,6 +43,9 @@ const searchContractNo = ref('');
 const searchStatus = ref('');
 const searchDateRange = ref<[number, number] | null>(null);
 
+// Selection
+const checkedRowKeys = ref<Array<string | number>>([]);
+
 // Status options
 const statusOptions = [
   { label: '草稿', value: 'DRAFT' },
@@ -137,7 +140,7 @@ const {
       pageSize: params.pageSize
     };
     if (searchContractNo.value) queryParams.contractNo = searchContractNo.value;
-    if (searchStatus.value) params.status = searchStatus.value;
+    if (searchStatus.value) queryParams.status = searchStatus.value;
     if (searchDateRange.value) {
       queryParams.startDate = new Date(searchDateRange.value[0]).toISOString().split('T')[0];
       queryParams.endDate = new Date(searchDateRange.value[1]).toISOString().split('T')[0];
@@ -238,6 +241,35 @@ async function handleBatchDownload() {
   batchDownloading.value = false;
   message.success(`已打开 ${successCount}/${checkedRowKeys.value.length} 个合同下载链接`);
   checkedRowKeys.value = [];
+}
+
+// 搜索
+function handlePageChange(page: number) {
+  getDataByPage(page);
+}
+
+// 重置
+function handleResetSearch() {
+  searchContractNo.value = '';
+  searchStatus.value = '';
+  searchDateRange.value = null;
+  getDataByPage(1);
+}
+
+// 批量删除
+async function handleBatchDelete() {
+  if (checkedRowKeys.value.length === 0) {
+    message.warning('请先选择要删除的合同');
+    return;
+  }
+  try {
+    await fetchDeleteContract(checkedRowKeys.value as string[]);
+    message.success('合同已删除');
+    checkedRowKeys.value = [];
+    await getData();
+  } catch (e: any) {
+    message.error(e?.message || '删除失败');
+  }
 }
 </script>
 
